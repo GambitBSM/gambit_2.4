@@ -446,7 +446,7 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   # Set the default output path
-  default_output_path: "runs/MSSMEW_lightgravitino/"
+  default_output_path: "runs/MSSMEW_lightgravitino_smalltest/"
 
   # We set the errors from the physics modules to be non-fatal
   # to avoid crashing the entire scan due to a rare problem point.
