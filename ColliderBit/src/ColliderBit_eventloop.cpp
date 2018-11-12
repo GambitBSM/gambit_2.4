@@ -2951,7 +2951,6 @@ namespace Gambit
           static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
           if (combine_nocovar_SRs)
           {
-            cout << "DEBUG: using nocovar_srsum_dll_obs = " << nocovar_srsum_dll_obs << endl;
             result[adata.analysis_name].combination_loglike = nocovar_srsum_dll_obs;
           }
 
