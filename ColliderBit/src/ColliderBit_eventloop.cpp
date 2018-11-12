@@ -2855,6 +2855,7 @@ namespace Gambit
           double bestexp_dll_exp = 0, bestexp_dll_obs = 0;
           str bestexp_sr_label;
           int bestexp_sr_index;
+          double nocovar_srsum_dll_obs = 0;
 
           for (size_t SR = 0; SR < adata.size(); ++SR)
           {
@@ -2913,6 +2914,9 @@ namespace Gambit
             // Store "observed LogLike" result for this SR
             result[adata.analysis_name].sr_indices[srData.sr_label] = SR;
             result[adata.analysis_name].sr_loglikes[srData.sr_label] = llsb_obs - llb_obs;
+
+            // Add loglike to the no-correlations loglike sum over SRs
+            nocovar_srsum_dll_obs += llsb_obs - llb_obs;
           }
 
           // Check for problem
@@ -2941,6 +2945,15 @@ namespace Gambit
           result[adata.analysis_name].combination_sr_label = bestexp_sr_label;
           result[adata.analysis_name].combination_sr_index = bestexp_sr_index;
           result[adata.analysis_name].combination_loglike = -bestexp_dll_obs;
+
+          // Should we use the naive sum of SR loglikes (without correlations), instead of the best-expected SR?
+          // _Anders
+          static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+          if (combine_nocovar_SRs)
+          {
+            cout << "DEBUG: using nocovar_srsum_dll_obs = " << nocovar_srsum_dll_obs << endl;
+            result[adata.analysis_name].combination_loglike = nocovar_srsum_dll_obs;
+          }
 
           #ifdef COLLIDERBIT_DEBUG
           cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_" << bestexp_sr_label << "_LogLike : " << -bestexp_dll_obs << endl;
