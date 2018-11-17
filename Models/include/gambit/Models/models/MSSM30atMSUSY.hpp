@@ -22,7 +22,7 @@
 #define __MSSM30atMSUSY_hpp__
 
 #include "gambit/Models/models/MSSM63atMSUSY.hpp" // Parent model must be declared first! Include it here to ensure that this happens.
-#include "gambit/Models/models/MSSM30atQ.hpp"     // Friend model must be declared first! Include it here to ensure that this happens.
+#include "gambit/Models/models/MSSM30atQ.hpp"     // Friend model too.
 
 /// FlexibleSUSY compatible general (78 parameters plus sign) MSSM parameterisation
 #define MODEL MSSM30atMSUSY
