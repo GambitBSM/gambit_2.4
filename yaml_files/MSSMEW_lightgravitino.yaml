@@ -22,10 +22,10 @@ Parameters:
       fixed_value: 0
     M1:
       prior_type: double_log_flat_join
-      ranges: [-2e3, -1e1, 1e1, 2e3]
+      ranges: [-1e3, -1e1, 1e1, 1e3]
     M2:
       prior_type: double_log_flat_join
-      ranges: [0, 0, 1e1, 2e3]
+      ranges: [0, 0, 1e1, 1e3]
     M3:
       fixed_value: 5000
     Qin:
@@ -39,7 +39,7 @@ Parameters:
       fixed_value: 9000000
     mu:
       prior_type: double_log_flat_join
-      ranges: [-2e3, -1e1, 1e1, 2e3]
+      ranges: [-1e3, -1e1, 1e1, 1e3]
     mA:
       fixed_value: 5000
     mG:
@@ -357,7 +357,9 @@ Rules:
                     "ATLAS_13TeV_3b_24invfb",
                     "ATLAS_13TeV_3b_discoverySR_24invfb",
                     "ATLAS_13TeV_3b_36invfb",
-                    "ATLAS_13TeV_3b_discoverySR_36invfb" ] ]
+                    "ATLAS_13TeV_3b_discoverySR_36invfb",
+                    "ATLAS_13TeV_PhotonGGM_36invfb",
+                    "ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb" ] ]
 
   # ATLASnoeff analysis setup.
   # NOTE: Don't blindly copy this analysis list without also checking the
@@ -426,9 +428,9 @@ Logger:
     [Debug] : "debug.log"
     [Default] : "default.log"
     [DecayBit] : "DecayBit.log"
-    [DarkBit] : "DarkBit.log"
+    # [DarkBit] : "DarkBit.log"
     [PrecisionBit] : "PrecisionBit.log"
-    [FlavBit] : "FlavBit.log"
+    # [FlavBit] : "FlavBit.log"
     [ColliderBit] : "ColliderBit.log"
     [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
