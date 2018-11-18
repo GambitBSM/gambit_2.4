@@ -82,7 +82,7 @@ namespace Gambit
 
         /// Operators for compliance with RandomNumberEngine interface -> random distribution sampling
         virtual result_type min() = 0; // Needs to connect to equivalent function in underlying rng class
-        virtual result_type max() = 0; // "   " 
+        virtual result_type max() = 0; // "   "
     };
 
     /// Give an inline implementation of the destructor, to prevent link errors but keep base class pure virtual.
