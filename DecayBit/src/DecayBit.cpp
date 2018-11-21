@@ -1636,6 +1636,17 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
+    /// MSSM decays: chargino_plus_2 without decays to gravitinos (Uses SUSY-HIT results)
+    /// Aggregator function providing chargino_plus_2_decay_rates for MSSM models without gravitinos
+    void chargino_plus_2_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::chargino_plus_2_decays;
+      // Collect results from SUSY-HIT
+      result = *Dep::chargino_plus_2_decay_rates_SH;
+
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+
     /// MSSM decays: chargino_plus_1 incl. decays to gravitinos (Uses SUSY-HIT results and DecayBit calculations for small mass splittings and decays to gravitinos)
     /// Aggregator function providing chargino_plus_1_decay_rates for MSSM models with gravitinos
     void chargino_plus_1_decays_all (DecayTable::Entry& result)
@@ -1646,50 +1657,27 @@ namespace Gambit
       // Collect the DecayBit results for decays to gravitinos
       DecayTable::Entry gravitinos_result = *Dep::chargino_plus_1_decay_rates_gravitino;
 
-      // Combine the results from SUSY-HIT/smallsplit and gravitino decays
-      // (The total widths from non-gravitino and gravitino channels have to be added)
-      result.width_in_GeV = SH_or_smallsplit_result.width_in_GeV + gravitinos_result.width_in_GeV;
-
-      // Loop over channels computed by SUSY-HIT and copy the result after normalising to the correct full width
-      for (auto const &channel_BF_map : SH_or_smallsplit_result.channels)
-      {
-        // Extract channel and branching fraction
-        std::multiset<std::pair<int, int>> channel_key = channel_BF_map.first;
-        // Convert multiset to vector, required input to set_BF
-        std::vector<std::pair<int, int>> channel_key_vector(channel_key.size());
-        std::copy(channel_key.begin(), channel_key.end(), channel_key_vector.begin());
-
-        std::pair<double, double> BF_with_error = channel_BF_map.second;
-        double BF = BF_with_error.first;
-        double BF_error = BF_with_error.second;
-
-        double corrected_BF = (result.width_in_GeV > 0 ? (BF * SH_or_smallsplit_result.width_in_GeV / result.width_in_GeV) : 0.0);
-        double corrected_BF_error = (result.width_in_GeV > 0 ? (BF_error * SH_or_smallsplit_result.width_in_GeV / result.width_in_GeV) : 0.0);
-
-        result.set_BF((result.width_in_GeV > 0 ? corrected_BF : 0.0), corrected_BF_error, channel_key_vector);
-      }
-
-      // Loop over channels computed by DecayBit and copy the result after normalising to the correct full width
-      // (After SUSY-HIT/smallsplit channels so if there would be overlapping channels, the DecayBit result is used)
-      for (auto const &channel_BF_map : gravitinos_result.channels)
-      {
-        // Extract channel and branching fraction
-        std::multiset<std::pair<int, int>> channel_key = channel_BF_map.first;
-        // Convert multiset to vector, required input to set_BF
-        std::vector<std::pair<int, int>> channel_key_vector(channel_key.size());
-        std::copy(channel_key.begin(), channel_key.end(), channel_key_vector.begin());
-
-        std::pair<double, double> BF_with_error = channel_BF_map.second;
-        double BF = BF_with_error.first;
-        double BF_error = BF_with_error.second;
-
-        double corrected_BF = (result.width_in_GeV > 0 ? (BF * gravitinos_result.width_in_GeV / result.width_in_GeV) : 0.0);
-        double corrected_BF_error = (result.width_in_GeV > 0 ? (BF_error * gravitinos_result.width_in_GeV / result.width_in_GeV) : 0.0);
-
-        result.set_BF((result.width_in_GeV > 0 ? corrected_BF : 0.0), corrected_BF_error, channel_key_vector);
-      }
-
+      // Combine the results from SUSY-HIT/smallsplit and gravitino decays and store the result
       // Store results
+      combine_decay_table_entries(SH_or_smallsplit_result, gravitinos_result, result);
+      result.calculator = "GAMBIT::DecayBit";
+      result.calculator_version = gambit_version();
+
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+
+    /// MSSM decays: chargino_plus_2 incl. decays to gravitinos (Uses SUSY-HIT results and DecayBit calculations for decays to gravitinos)
+    /// Aggregator function providing chargino_plus_2_decay_rates for MSSM models with gravitinos
+    void chargino_plus_2_decays_all (DecayTable::Entry& result)
+    {
+      using namespace Pipes::chargino_plus_2_decays_all;
+      // Collect results from SUSY-HIT
+      DecayTable::Entry SH_result = *Dep::chargino_plus_2_decay_rates_SH;
+      // Collect the DecayBit results for decays to gravitinos
+      DecayTable::Entry gravitinos_result = *Dep::chargino_plus_2_decay_rates_gravitino;
+
+      // Combine the results from SUSY-HIT/smallsplit and gravitino decays and store results
+      combine_decay_table_entries(SH_result, gravitinos_result, result);
       result.calculator = "GAMBIT::DecayBit";
       result.calculator_version = gambit_version();
 
@@ -1788,9 +1776,9 @@ namespace Gambit
     }
 
     /// SUSY-HIT MSSM decays: chargino_plus_2
-    void chargino_plus_2_decays (DecayTable::Entry& result)
+    void chargino_plus_2_decays_SH (DecayTable::Entry& result)
     {
-      using namespace Pipes::chargino_plus_2_decays;
+      using namespace Pipes::chargino_plus_2_decays_SH;
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
       result.calculator = BEreq::cb_sd_charwidth.origin();
@@ -1830,10 +1818,10 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(2,2) : 0.0), 0.0, "~chi0_2", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(2,3) : 0.0), 0.0, "~chi0_3", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(2,4) : 0.0), 0.0, "~chi0_4", "H+");
-      result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(2) : 0.0), 0.0, "~G", "W+");
-      result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(2) : 0.0), 0.0, "~G", "H+");
-      result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(2) : 0.0), 0.0, "~G", "W+");
-      result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(2) : 0.0), 0.0, "~G", "H+");
+      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(2) : 0.0), 0.0, "~G", "W+");
+      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(2) : 0.0), 0.0, "~G", "H+");
+      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(2) : 0.0), 0.0, "~G", "W+");
+      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(2) : 0.0), 0.0, "~G", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(2,1) : 0.0), 0.0, "~chi0_1", "u", "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(2,2) : 0.0), 0.0, "~chi0_2", "u", "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(2,3) : 0.0), 0.0, "~chi0_3", "u", "dbar");
@@ -3332,46 +3320,16 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
-    /// MSSM decays: chargino decay to gravitinos.
+    /// MSSM decays: chargino decays to gravitinos.
     /// Using results from hep-ph/9605398.
     /// The decay width formulas are valid in the light-gravitino limit.
-    void chargino_plus_1_decays_gravitino(DecayTable::Entry &result)
+    DecayTable::Entry chargino_decays_gravitino(double m_G, double m_Cha, double m_W, double tan_beta, double V_wino, double V_higgsino, double U_wino, double U_higgsino)
     {
-      using namespace Pipes::chargino_plus_1_decays_gravitino;
-
-      // Get spectrum objects
-      const Spectrum &spec = *Dep::MSSM_spectrum;
-      const SubSpectrum &mssm = spec.get_HE();
-      // const SMInputs &sm = Dep::SM_spectrum->get_SMInputs();
-
-      // Get gravitino mass
-      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
-
-      // Get other SUSY masses
-      const double m_Cha1_signed = spec.safeget(Par::Pole_Mass, "~chi+_1");
-      const double m_Cha1 = abs(m_Cha1_signed); // [GeV]
-
-      // Get MSSM parameters
-      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
+      // Convenient quantities
       const double cos_beta = 1. / sqrt(1. + pow2(tan_beta));
       const double sin_beta = sqrt(1. - pow2(cos_beta));
 
-      // Get chargino mixing components
-      // From Eqs. (A.24-25) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
-      const double V11 = mssm.safeget(Par::Pole_Mixing, "~chi+", 1, 1); // (~W1 - i*~W2) component
-      const double V12 = mssm.safeget(Par::Pole_Mixing, "~chi+", 1, 2); // ~Hu+ component
-      const double U11 = mssm.safeget(Par::Pole_Mixing, "~chi-", 1, 1); // (~W1 + i*~W2) component
-      const double U12 = mssm.safeget(Par::Pole_Mixing, "~chi-", 1, 2); // ~Hu- component
-      // U and V naming follows the notation in S. Martin's "A SUSY
-      // Primer", Eq. (8.2.15) in 9709356. In terms of GAMBIT
-      // conventions, V corresponds to U_+ in (A.24) and U to U_- in
-      // (A.25) of 1705.07936.
-
-      // Get SM parameters
-      const double m_W = mssm.safeget(Par::Pole_Mass, "W+");
-
-      // Convenient quantities
-      const double m_Cha1_5 = pow5(m_Cha1);
+      const double m_Cha_5 = pow5(m_Cha);
       const double m_G_2 = pow2(m_G);
       const double m_planck_red_2 = pow2(m_planck_red);
 
@@ -3382,20 +3340,16 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~G + W+
       //
       partial_widths["~G_W+"] = 0.0;
-      if (m_Cha1 > m_G + m_W)
+      if (m_Cha > m_G + m_W)
       {
         // Transverse wino contribution factor (Eq. (24) in hep-ph/9605398)
-        double kappa_1_W_T = 0.5 * (pow2(abs(V11)) + pow2(abs(U11)));
+        double kappa_i_W_T = 0.5 * (pow2(abs(V_wino)) + pow2(abs(U_wino)));
 
         // Longitudinal wino contribution factor (Eq. (25) in hep-ph/9605398)
-        double kappa_1_W_L = (pow2(abs(V12)) * pow2(sin_beta)
-                              + pow2(abs(U12)) * pow2(cos_beta));
+        double kappa_i_W_L = (pow2(abs(V_higgsino)) * pow2(sin_beta) + pow2(abs(U_higgsino)) * pow2(cos_beta));
 
         // Decay width (Eq. (22) in hep-ph/9605398, light-gravitino limit)
-        double chargino_to_gravitino_W = (
-          (2. * kappa_1_W_T + kappa_1_W_L) / (96. * pi * m_planck_red_2)
-          * (m_Cha1_5 / m_G_2) * pow4(1. - pow2(m_W / m_Cha1))
-          );
+        double chargino_to_gravitino_W = ((2. * kappa_i_W_T + kappa_i_W_L) / (96. * pi * m_planck_red_2) * (m_Cha_5 / m_G_2) * pow4(1. - pow2(m_W / m_Cha)));
 
         partial_widths["~G_W+"] = chargino_to_gravitino_W;
       }
@@ -3403,6 +3357,7 @@ namespace Gambit
       //
       // Store results
       //
+      DecayTable::Entry result;
       result.calculator = "GAMBIT::DecayBit";
       result.calculator_version = gambit_version();
 
@@ -3418,6 +3373,86 @@ namespace Gambit
         result.set_BF(partial_widths["~G_W+"] / result.width_in_GeV, 0.0, "~G", "W+");
       }
 
+      return result;
+    }
+
+    /// MSSM decays: chargino_1 decay to gravitinos.
+    void chargino_plus_1_decays_gravitino(DecayTable::Entry &result)
+    {
+      using namespace Pipes::chargino_plus_1_decays_gravitino;
+
+      int n_Cha = 1;
+
+      // Get spectrum objects
+      const Spectrum &spec = *Dep::MSSM_spectrum;
+      const SubSpectrum &mssm = spec.get_HE();
+      // const SMInputs &sm = Dep::SM_spectrum->get_SMInputs();
+
+      // Get gravitino mass
+      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
+
+      // Get other SUSY masses
+      const double m_Cha_signed = spec.safeget(Par::Pole_Mass, "~chi+_" + std::to_string(n_Cha));
+      const double m_Cha = abs(m_Cha_signed); // [GeV]
+
+      // Get MSSM parameters
+      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
+
+      // Get chargino mixing components
+      // From Eqs. (A.24-25) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
+      const double V_wino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 1); // (~W1 - i*~W2) component
+      const double V_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 2); // ~Hu+ component
+      const double U_wino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 1);     // (~W1 + i*~W2) component
+      const double U_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 2); // ~Hu- component
+      // U and V naming follows the notation in S. Martin's "A SUSY
+      // Primer", Eq. (8.2.15) in 9709356. In terms of GAMBIT
+      // conventions, V corresponds to U_+ in (A.24) and U to U_- in
+      // (A.25) of 1705.07936.
+
+      // Get SM parameters
+      const double m_W = mssm.safeget(Par::Pole_Mass, "W+");
+
+      result = chargino_decays_gravitino(m_G, m_Cha, m_W, tan_beta, V_wino, V_higgsino, U_wino, U_higgsino);
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+
+    /// MSSM decays: chargino_2 decay to gravitinos.
+    void chargino_plus_2_decays_gravitino(DecayTable::Entry &result)
+    {
+      using namespace Pipes::chargino_plus_2_decays_gravitino;
+
+      int n_Cha = 2;
+
+      // Get spectrum objects
+      const Spectrum &spec = *Dep::MSSM_spectrum;
+      const SubSpectrum &mssm = spec.get_HE();
+      // const SMInputs &sm = Dep::SM_spectrum->get_SMInputs();
+
+      // Get gravitino mass
+      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
+
+      // Get other SUSY masses
+      const double m_Cha_signed = spec.safeget(Par::Pole_Mass, "~chi+_" + std::to_string(n_Cha));
+      const double m_Cha = abs(m_Cha_signed); // [GeV]
+
+      // Get MSSM parameters
+      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
+
+      // Get chargino mixing components
+      // From Eqs. (A.24-25) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
+      const double V_wino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 1); // (~W1 - i*~W2) component
+      const double V_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 2); // ~Hu+ component
+      const double U_wino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 1);     // (~W1 + i*~W2) component
+      const double U_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 2); // ~Hu- component
+      // U and V naming follows the notation in S. Martin's "A SUSY
+      // Primer", Eq. (8.2.15) in 9709356. In terms of GAMBIT
+      // conventions, V corresponds to U_+ in (A.24) and U to U_- in
+      // (A.25) of 1705.07936.
+
+      // Get SM parameters
+      const double m_W = mssm.safeget(Par::Pole_Mass, "W+");
+
+      result = chargino_decays_gravitino(m_G, m_Cha, m_W, tan_beta, V_wino, V_higgsino, U_wino, U_higgsino);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 

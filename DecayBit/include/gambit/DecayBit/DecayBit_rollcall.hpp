@@ -659,6 +659,35 @@ START_MODULE
 
     #define FUNCTION chargino_plus_2_decays
     START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(chargino_plus_2_decay_rates_SH, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    #define FUNCTION chargino_plus_2_decays_all
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(chargino_plus_2_decay_rates_SH, DecayTable::Entry)
+    DEPENDENCY(chargino_plus_2_decay_rates_gravitino, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY chargino_plus_2_decay_rates_gravitino
+  START_CAPABILITY
+
+    #define FUNCTION chargino_plus_2_decays_gravitino
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(MSSM_spectrum, Spectrum)
+    ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY chargino_plus_2_decay_rates_SH
+  START_CAPABILITY
+
+    #define FUNCTION chargino_plus_2_decays_SH
+    START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     BACKEND_REQ(cb_sd_charwidth, (sh_reqd), sd_charwidth_type)
     BACKEND_REQ(cb_sd_char2body, (sh_reqd), sd_char2body_type)
