@@ -720,6 +720,24 @@ START_MODULE
 
     #define FUNCTION neutralino_2_decays
     START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(neutralino_2_decay_rates_SH, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    #define FUNCTION neutralino_2_decays_all
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(neutralino_2_decay_rates_SH, DecayTable::Entry)
+    DEPENDENCY(neutralino_2_decay_rates_gravitino, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY neutralino_2_decay_rates_SH
+  START_CAPABILITY
+
+    #define FUNCTION neutralino_2_decays_SH
+    START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     BACKEND_REQ(cb_sd_neutwidth, (sh_reqd), sd_neutwidth_type)
     BACKEND_REQ(cb_sd_neut2body, (sh_reqd), sd_neut2body_type)
@@ -728,6 +746,17 @@ START_MODULE
     BACKEND_REQ(cb_sd_neut3body, (sh_reqd), sd_neut3body_type)
     BACKEND_OPTION( (SUSY_HIT), (sh_reqd) )
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY neutralino_2_decay_rates_gravitino
+      START_CAPABILITY
+
+    #define FUNCTION neutralino_2_decays_gravitino
+      START_FUNCTION(DecayTable::Entry)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -737,22 +766,23 @@ START_MODULE
 
     #define FUNCTION neutralino_3_decays
     START_FUNCTION(DecayTable::Entry)
-    DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
-    BACKEND_REQ(cb_sd_neutwidth, (sh_reqd), sd_neutwidth_type)
-    BACKEND_REQ(cb_sd_neut2body, (sh_reqd), sd_neut2body_type)
-    BACKEND_REQ(cb_sd_neut2bodygrav, (sh_reqd), sd_neut2bodygrav_type)
-    BACKEND_REQ(cb_sd_neutloop, (sh_reqd), sd_neutloop_type)
-    BACKEND_REQ(cb_sd_neut3body, (sh_reqd), sd_neut3body_type)
-    BACKEND_OPTION( (SUSY_HIT), (sh_reqd) )
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    DEPENDENCY(neutralino_3_decay_rates_SH, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    #define FUNCTION neutralino_3_decays_all
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(neutralino_3_decay_rates_SH, DecayTable::Entry)
+    DEPENDENCY(neutralino_3_decay_rates_gravitino, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
   #undef CAPABILITY
 
-  #define CAPABILITY neutralino_4_decay_rates
+  #define CAPABILITY neutralino_3_decay_rates_SH
   START_CAPABILITY
 
-    #define FUNCTION neutralino_4_decays
+    #define FUNCTION neutralino_3_decays_SH
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     BACKEND_REQ(cb_sd_neutwidth, (sh_reqd), sd_neutwidth_type)
@@ -765,6 +795,64 @@ START_MODULE
     #undef FUNCTION
 
   #undef CAPABILITY
+
+  #define CAPABILITY neutralino_3_decay_rates_gravitino
+      START_CAPABILITY
+
+    #define FUNCTION neutralino_3_decays_gravitino
+      START_FUNCTION(DecayTable::Entry)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY neutralino_4_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION neutralino_4_decays
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(neutralino_4_decay_rates_SH, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    #define FUNCTION neutralino_4_decays_all
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(neutralino_4_decay_rates_SH, DecayTable::Entry)
+    DEPENDENCY(neutralino_4_decay_rates_gravitino, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY neutralino_4_decay_rates_SH
+  START_CAPABILITY
+
+    #define FUNCTION neutralino_4_decays_SH
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
+    BACKEND_REQ(cb_sd_neutwidth, (sh_reqd), sd_neutwidth_type)
+    BACKEND_REQ(cb_sd_neut2body, (sh_reqd), sd_neut2body_type)
+    BACKEND_REQ(cb_sd_neut2bodygrav, (sh_reqd), sd_neut2bodygrav_type)
+    BACKEND_REQ(cb_sd_neutloop, (sh_reqd), sd_neutloop_type)
+    BACKEND_REQ(cb_sd_neut3body, (sh_reqd), sd_neut3body_type)
+    BACKEND_OPTION( (SUSY_HIT), (sh_reqd) )
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY neutralino_4_decay_rates_gravitino
+      START_CAPABILITY
+
+    #define FUNCTION neutralino_4_decays_gravitino
+      START_FUNCTION(DecayTable::Entry)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
 
 #define CAPABILITY decay_rates
     START_CAPABILITY
