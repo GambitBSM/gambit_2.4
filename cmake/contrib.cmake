@@ -50,13 +50,13 @@ add_definitions(-DYAML_CPP_DLL)
 add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
 
 
-#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=True.
+#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=True (default).
 set(restframes_VERSION "1.0.2")
 set(restframes_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${restframes_VERSION}")
 if(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ColliderBit is not in use.)${ColourReset}")
   set(EXCLUDE_RESTFRAMES TRUE)
-elseif(NOT WITH_RESTFRAMES)
+elseif(DEFINED WITH_RESTFRAMES AND NOT WITH_RESTFRAMES)
   message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (WITH_RESTFRAMES is set to False.)${ColourReset}")
   message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
   set(EXCLUDE_RESTFRAMES TRUE)
@@ -98,13 +98,13 @@ if(NOT EXCLUDE_RESTFRAMES)
     PATCH_COMMAND patch -p1 < ${patch}
           COMMAND sed ${dashi} -e "s|____replace_with_GAMBIT_version____|${GAMBIT_VERSION_FULL}|g" src/RFBase.cc src/RFBase.cc
           COMMAND sed ${dashi} -e "s|____replace_with_RestFrames_path____|${dir}|g" src/RFBase.cc
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} 
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
     )
   # Add clean-restframes and nuke-restframes
   set(rmstring "${CMAKE_BINARY_DIR}/restframes-prefix/src/restframes-stamp/restframes")
   add_custom_target(clean-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
-    COMMAND cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
+    COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
   add_dependencies(distclean clean-restframes)
   add_custom_target(nuke-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}" || true)
