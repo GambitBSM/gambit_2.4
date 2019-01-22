@@ -125,7 +125,11 @@ LibSecond_1_1_init: |
    Initialize the Python testing LibSecond backend, version 1.1.
 
 LibSecond_1_2_init: |
+<<<<<<< HEAD
    Initialize the Python testing LibSecond backend, version 1.2.
+=======
+   Initialize the Python package testing LibSecond backend, version 1.2.
+>>>>>>> DecayBit_development
 
 LibThird_1_0_init: |
    Initialize the Python package testing LibThird backend, version 1.0.
@@ -2776,6 +2780,13 @@ chargino_plus_1_decay_rates_gravitino : |
 chargino_plus_2_decay_rates : |
    Decays of the chargino+ 2.
 
+chargino_plus_2_decay_rates_SH : |
+   Decays of the chargino+ 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+chargino_plus_2_decay_rates_gravitino : |
+   Decays of the chargino+ 2 to gravitinos.
+
 mu_minus_decay_rates : |
   All decays of the μ- lepton.
 
@@ -2807,11 +2818,32 @@ neutralino_1_decay_rates_gravitino : |
 neutralino_2_decay_rates : |
    Decays of the neutralino 2.
 
+neutralino_2_decay_rates_SH : |
+   Decays of the neutralino 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_2_decay_rates_gravitino : |
+   Decays of the neutralino 2 to gravitinos.
+
 neutralino_3_decay_rates : |
    Decays of the neutralino 3.
 
+neutralino_3_decay_rates_SH : |
+   Decays of the neutralino 3 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_3_decay_rates_gravitino : |
+   Decays of the neutralino 3 to gravitinos.
+
 neutralino_4_decay_rates : |
    Decays of the neutralino 4.
+
+neutralino_4_decay_rates_SH : |
+   Decays of the neutralino 4 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_4_decay_rates_gravitino : |
+   Decays of the neutralino 4 to gravitinos.
 
 SLHA1_violation: |
    Checks if the first or second generation left-right mixing exceeds the specified tolerance (which means that SLHA1 is an invalid format for this model point).
