@@ -125,11 +125,7 @@ LibSecond_1_1_init: |
    Initialize the Python testing LibSecond backend, version 1.1.
 
 LibSecond_1_2_init: |
-<<<<<<< HEAD
-   Initialize the Python testing LibSecond backend, version 1.2.
-=======
    Initialize the Python package testing LibSecond backend, version 1.2.
->>>>>>> DecayBit_development
 
 LibThird_1_0_init: |
    Initialize the Python package testing LibThird backend, version 1.0.
