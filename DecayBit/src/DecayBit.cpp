@@ -2739,15 +2739,12 @@ namespace Gambit
 
       result.width_in_GeV = total_width;
 
-      if (result.width_in_GeV > 0)
-      {
-        result.set_BF(partial_widths["N_el+_nu"]/result.width_in_GeV, 0.0, "~chi0_1", "e+", "nu_e");
-        result.set_BF(partial_widths["N_mu+_nu"]/result.width_in_GeV, 0.0, "~chi0_1", "mu+", "nu_mu");
-        result.set_BF(partial_widths["N_pi+"]/result.width_in_GeV, 0.0, "~chi0_1", "pi+");
-        result.set_BF(partial_widths["N_pi+_pi0"]/result.width_in_GeV, 0.0, "~chi0_1", "pi+", "pi0");
-        result.set_BF(partial_widths["N_pi+_pi0_pi0"]/result.width_in_GeV, 0.0, "~chi0_1", "pi+", "pi0", "pi0");
-        result.set_BF(partial_widths["N_pi+_pi+_pi-"]/result.width_in_GeV, 0.0, "~chi0_1", "pi+", "pi+", "pi-");
-      }
+      result.set_BF( (partial_widths["N_el+_nu"] / result.width_in_GeV > 0 ? partial_widths["N_el+_nu"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "e+", "nu_e");
+      result.set_BF( (partial_widths["N_mu+_nu"] / result.width_in_GeV > 0 ? partial_widths["N_mu+_nu"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "mu+", "nu_mu");
+      result.set_BF( (partial_widths["N_pi+"] / result.width_in_GeV > 0 ? partial_widths["N_pi+"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "pi+");
+      result.set_BF( (partial_widths["N_pi+_pi0"] / result.width_in_GeV > 0 ? partial_widths["N_pi+_pi0"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "pi+", "pi0");
+      result.set_BF( (partial_widths["N_pi+_pi0_pi0"] / result.width_in_GeV > 0 ? partial_widths["N_pi+_pi0_pi0"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "pi+", "pi0", "pi0");
+      result.set_BF( (partial_widths["N_pi+_pi+_pi-"] / result.width_in_GeV > 0 ? partial_widths["N_pi+_pi+_pi-"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "pi+", "pi+", "pi-");
 
       // Set other branching fractions to 0.
       result.set_BF(0.0, 0.0, psn.isul, "dbar");
@@ -3017,13 +3014,11 @@ namespace Gambit
 
       result.width_in_GeV = total_width;
 
-      if (result.width_in_GeV > 0)
-      {
-        result.set_BF(partial_widths["N_tau-"]/result.width_in_GeV, 0.0, "~chi0_1", "tau-");
-        result.set_BF(partial_widths["N_pi-_nutau"]/result.width_in_GeV, 0.0, "~chi0_1", "pi-", "nu_tau");
-        result.set_BF(partial_widths["N_el-_nubarel_nutau"]/result.width_in_GeV, 0.0, "~chi0_1", "e-", "nubar_e", "nu_tau");
-        result.set_BF(partial_widths["N_mu-_nubarmu_nutau"]/result.width_in_GeV, 0.0, "~chi0_1", "mu-", "nubar_mu", "nu_tau");
-      }
+      result.set_BF( (partial_widths["N_tau-"] / result.width_in_GeV > 0 ? partial_widths["N_tau-"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "tau-");
+      result.set_BF( (partial_widths["N_pi-_nutau"] / result.width_in_GeV > 0 ? partial_widths["N_pi-_nutau"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "pi-", "nu_tau");
+      result.set_BF( (partial_widths["N_el-_nubarel_nutau"] / result.width_in_GeV > 0 ? partial_widths["N_el-_nubarel_nutau"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "e-", "nubar_e", "nu_tau");
+      result.set_BF( (partial_widths["N_mu-_nubarmu_nutau"] / result.width_in_GeV > 0 ? partial_widths["N_mu-_nubarmu_nutau"] / result.width_in_GeV : 0), 0.0, "~chi0_1", "mu-", "nubar_mu", "nu_tau");
+
 
       // Set other branching fractions to 0.
       result.set_BF(0.0, 0.0, "~chi0_2", "tau-");
@@ -3150,12 +3145,9 @@ namespace Gambit
 
       result.width_in_GeV = total_width_gravitinos;
 
-      if (result.width_in_GeV > 0)
-      {
-        result.set_BF(partial_widths["~G_gamma"] / result.width_in_GeV, 0.0, "~G", "gamma");
-        result.set_BF(partial_widths["~G_Z"] / result.width_in_GeV, 0.0, "~G", "Z0");
-        result.set_BF(partial_widths["~G_h"] / result.width_in_GeV, 0.0, "~G", "h0_1");
-      }
+      result.set_BF( (partial_widths["~G_gamma"] / result.width_in_GeV > 0 ? partial_widths["~G_gamma"] / result.width_in_GeV : 0), 0.0, "~G", "gamma");
+      result.set_BF( (partial_widths["~G_Z"] / result.width_in_GeV > 0 ? partial_widths["~G_Z"] / result.width_in_GeV : 0), 0.0, "~G", "Z0");
+      result.set_BF( (partial_widths["~G_h"] / result.width_in_GeV > 0 ? partial_widths["~G_h"] / result.width_in_GeV : 0), 0.0, "~G", "h0_1");
 
       return result;
     }
@@ -3368,10 +3360,7 @@ namespace Gambit
 
       result.width_in_GeV = total_width_gravitinos;
 
-      if (result.width_in_GeV > 0)
-      {
-        result.set_BF(partial_widths["~G_W+"] / result.width_in_GeV, 0.0, "~G", "W+");
-      }
+      result.set_BF( (partial_widths["~G_W+"] / result.width_in_GeV > 0 ? partial_widths["~G_W+"] / result.width_in_GeV : 0), 0.0, "~G", "W+");
 
       return result;
     }
