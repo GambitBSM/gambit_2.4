@@ -92,10 +92,6 @@ ObsLikes:
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
 
-    # Likelihood for invisible decays of Z
-    - purpose: LogLike
-      capability: lnL_Z_inv
-
  
     # Observables (not included in likelihood)
     - purpose:    Observable
@@ -242,12 +238,6 @@ ObsLikes:
     - purpose:    Observable
       capability: LEP188_xsec_chipm_21
 
-    # Observables for invisible decays of Z and Higgs bosons
-    - purpose: Observable
-      capability: Z_gamma_nu
-    
-    - purpose: Observable
-      capability: Z_gamma_chi_0
     
     # Other
     - purpose:    Observable

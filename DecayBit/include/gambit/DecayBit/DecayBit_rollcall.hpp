@@ -1019,6 +1019,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(Z_gamma_nu, triplet<double>)
     DEPENDENCY(Z_gamma_chi_0, triplet<double>)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1027,7 +1028,7 @@ START_MODULE
     #define FUNCTION lnL_Higgs_invWidth_SMlike
     START_FUNCTION(double)
     DEPENDENCY(inv_Higgs_BF, double)
-    ALLOW_MODELS(SingletDM, SingletDMZ3, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    ALLOW_MODELS(SingletDM, SingletDMZ3, MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1061,7 +1062,7 @@ START_MODULE
     #define FUNCTION MSSM_inv_Higgs_BF
     START_FUNCTION(double)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
   #undef CAPABILITY
