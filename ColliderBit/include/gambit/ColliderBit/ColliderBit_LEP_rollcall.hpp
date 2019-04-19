@@ -39,7 +39,7 @@
 
   ///////////// LEP limits ////////////////////////
 
-  #define MSSM30etal (MSSM30atQ, MSSM30atMGUT, MSSM30atQ_lightgravitino, MSSM30atMGUT_lightgravitino, NUHM2)
+  #define MSSM30etal (MSSM30atQ, MSSM30atMGUT, NUHM2)
 
   // CoM energy 207GeV
   // LEP production cross sections and uncertainties: neutralinos
