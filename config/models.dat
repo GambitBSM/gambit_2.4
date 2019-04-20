@@ -646,7 +646,7 @@ MSSM20atMSUSY_mA_lightgravitino: |
 MSSM9batQ_lightgravitino: |
    As per the MSSM9batQ, but with an extra parameter mG for the gravitino mass.
 
-=======
+
 GeneralALP: |
 
    A general model for an axion-like particle with the possibility of having a temperature-dependent mass similar to QCD axions.
