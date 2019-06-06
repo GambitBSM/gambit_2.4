@@ -177,6 +177,9 @@ int main(int argc, char* argv[])
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
 
+        // Print scan metadata
+        printerManager.printerptr->print_metadata();
+
         //Create the master scan manager
         Scanner::Scan_Manager scan(scanner_node, &printerManager, &factory);
 

@@ -148,6 +148,13 @@ namespace Gambit
           if(!printer_cooldown) printer_enabled = true; // if cooldown has ended, re-enable printer
         }
 
+        // Print metadata information
+        void print_metadata()
+        {
+          ///if(printer_enabled) _print_metadata();
+          cout << "Printing metadata" << endl;
+        }
+
       protected:
         /// Flag to check if print functions are enabled or disabled
         bool printer_enabled;
