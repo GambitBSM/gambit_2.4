@@ -3195,7 +3195,7 @@ namespace Gambit
     /// MSSM decays: neutralino_2 decays to gravitinos.
     void neutralino_2_decays_gravitino(DecayTable::Entry &result)
     {
-      using namespace Pipes::neutralino_1_decays_gravitino;
+      using namespace Pipes::neutralino_2_decays_gravitino;
 
       int n_Neu = 2;
 
@@ -3235,7 +3235,7 @@ namespace Gambit
     /// MSSM decays: neutralino_3 decays to gravitinos.
     void neutralino_3_decays_gravitino(DecayTable::Entry &result)
     {
-      using namespace Pipes::neutralino_1_decays_gravitino;
+      using namespace Pipes::neutralino_3_decays_gravitino;
 
       int n_Neu = 3;
 
@@ -3275,7 +3275,7 @@ namespace Gambit
     /// MSSM decays: neutralino_4 decays to gravitinos.
     void neutralino_4_decays_gravitino(DecayTable::Entry &result)
     {
-      using namespace Pipes::neutralino_1_decays_gravitino;
+      using namespace Pipes::neutralino_4_decays_gravitino;
 
       int n_Neu = 4;
 
