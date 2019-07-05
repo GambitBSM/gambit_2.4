@@ -739,6 +739,7 @@ START_MODULE
     #define FUNCTION neutralino_1_decays_gravitino
       START_FUNCTION(DecayTable::Entry)
       DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Z_decay_rates, DecayTable::Entry)
       ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
@@ -785,6 +786,7 @@ START_MODULE
     #define FUNCTION neutralino_2_decays_gravitino
       START_FUNCTION(DecayTable::Entry)
       DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Z_decay_rates, DecayTable::Entry)
       ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
@@ -831,6 +833,7 @@ START_MODULE
     #define FUNCTION neutralino_3_decays_gravitino
       START_FUNCTION(DecayTable::Entry)
       DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Z_decay_rates, DecayTable::Entry)
       ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
@@ -877,6 +880,7 @@ START_MODULE
     #define FUNCTION neutralino_4_decays_gravitino
       START_FUNCTION(DecayTable::Entry)
       DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Z_decay_rates, DecayTable::Entry)
       ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
