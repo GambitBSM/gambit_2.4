@@ -41,6 +41,7 @@
 ///  \author Jeriek Van den Abeele
 ///          (jeriekvda@fys.uio.no)
 ///  \date 2018 Sep
+///  \date 2019 Jul
 ///
 ///  *********************************************
 
@@ -362,7 +363,7 @@ namespace Gambit
     }
 
     /// SM decays: Z
-    /// Reference: 2017 PDG
+    /// Reference: 2019 PDG
     void Z_decays (DecayTable::Entry& result)
     {
       using namespace Pipes::Z_decays;
@@ -372,10 +373,18 @@ namespace Gambit
       result.width_in_GeV = 2.4952;
       result.positive_error = 2.3e-03;
       result.negative_error = 2.3e-03;
-      result.set_BF(0.03363, 0.00004, "e+", "e-");
-      result.set_BF(0.03366, 0.00007, "mu+", "mu-");
-      result.set_BF(0.03370, 0.00008, "tau+", "tau-");
-      result.set_BF(0.6991, 0.0006, "hadron", "hadron");
+      result.set_BF(0.033632, 0.000042, "e+", "e-");
+      result.set_BF(0.033662, 0.000066, "mu+", "mu-");
+      result.set_BF(0.033696, 0.000083, "tau+", "tau-");
+      result.set_BF(0.69911, 0.00056, "hadron", "hadron");
+      result.set_BF(0.116, 0.006, "u", "ubar");
+      result.set_BF(0.1203, 0.0021, "c", "cbar");
+      result.set_BF(0.156, 0.004, "d", "dbar");
+      result.set_BF(0.156, 0.004, "s", "sbar");
+      result.set_BF(0.1512, 0.0005, "b", "bbar");
+      result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_e", "nubar_e");
+      result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_mu", "nubar_mu");
+      result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_tau", "nubar_tau");
 
       // Neutrinos
       // FIXME: It doesn't work because SMINPUTS it's not satisfied yet
@@ -3036,9 +3045,65 @@ namespace Gambit
 
     /// MSSM decays: neutralino decays to gravitinos.
     /// Using results from hep-ph/0404231v2 and 0908.3399.
+    /// Includes 3-body decays via the Z boson to gravitinos and SM fermion pairs, for all of the latter.
+    /// Using results from http://www-library.desy.de/preparch/desy/thesis/desy-thesis-09-016.pdf.
     /// Complete analytic formulas, not just the light-gravitino limit.
-    DecayTable::Entry neutralino_decays_gravitino(double m_G, double m_Neu, double m_h, double m_Z, double sin_thetaW2, double sin_alpha, double tan_beta, double N_bino, double N_wino, double N_higgsino1, double N_higgsino2)
+    DecayTable::Entry neutralino_decays_gravitino(int n_Neu, const Spectrum &spec, const DecayTable::Entry &Z_decays)
     {
+      // Get spectrum objects
+      // const Spectrum &spec = *Dep::MSSM_spectrum;
+      const SubSpectrum &mssm = spec.get_HE();
+      const SubSpectrum &sm = spec.get_LE();
+      // const SMInputs &sm = Dep::MSSM_spectrum->get_SMInputs();
+
+      // Get gravitino mass
+      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
+
+      // Get other SUSY masses
+      const double m_Neu_signed = spec.safeget(Par::Pole_Mass, "~chi0_" + std::to_string(n_Neu));
+      const double m_Neu = abs(m_Neu_signed); // [GeV]
+
+      // Get MSSM parameters
+      const double sin_alpha = mssm.safeget(Par::Pole_Mixing, "h0", 2, 2); // SCALARMIX (2,2) = sin(alpha)
+      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
+
+      // Get neutralino mixing components for the n-th neutralino, from
+      // Eq. (A.23) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
+      const double N_bino = mssm.safeget(Par::Pole_Mixing, "~chi0", n_Neu, 1); // ~B component
+      const double N_wino = mssm.safeget(Par::Pole_Mixing, "~chi0", n_Neu, 2); // ~W3 component
+      const double N_higgsino1 = mssm.safeget(Par::Pole_Mixing, "~chi0", n_Neu, 3); // ~Hd component
+      const double N_higgsino2 = mssm.safeget(Par::Pole_Mixing, "~chi0", n_Neu, 4); // ~Hu component
+
+      // Get SM parameters
+      const double m_h = mssm.safeget(Par::Pole_Mass, "h0_1");
+      const double m_Z = sm.safeget(Par::Pole_Mass, "Z0");
+      // const double m_Z = sm.mZ;
+      const double sin_thetaW2 = mssm.safeget(Par::dimensionless, "sinW2");
+      const double alpha_QED = sm.safeget(Par::dimensionless, "alpha");
+      const double m_u = sm.safeget(Par::mass1, "u", 1);
+      const double m_c = sm.safeget(Par::mass1, "u", 2);
+      // const double m_t = sm.safeget(Par::mass1, "u", 3);
+      const double m_d = sm.safeget(Par::mass1, "d", 1);
+      const double m_s = sm.safeget(Par::mass1, "d", 2);
+      const double m_b = sm.safeget(Par::mass1, "d", 3);
+      const double m_e = sm.safeget(Par::mass1, "e-", 1);
+      const double m_mu = sm.safeget(Par::mass1, "e-", 2);
+      const double m_tau = sm.safeget(Par::mass1, "e-", 3);
+
+      // const DecayTable::Entry &Z_decays = Dep::Z_decay_rates;
+      const double width_Z = Z_decays.width_in_GeV;
+      const double BF_Z_to_uu = Z_decays.BF("u", "ubar");
+      const double BF_Z_to_dd = Z_decays.BF("d", "dbar");
+      const double BF_Z_to_ss = Z_decays.BF("s", "sbar");
+      const double BF_Z_to_cc = Z_decays.BF("c", "cbar");
+      const double BF_Z_to_bb = Z_decays.BF("b", "bbar");
+      const double BF_Z_to_ee = Z_decays.BF("e+", "e-");
+      const double BF_Z_to_mumu = Z_decays.BF("mu+", "mu-");
+      const double BF_Z_to_tautau = Z_decays.BF("tau+", "tau-");
+      const double BF_Z_to_nue_nue = Z_decays.BF("nu_e", "nubar_e");
+      const double BF_Z_to_numu_numu = Z_decays.BF("nu_mu", "nubar_mu");
+      const double BF_Z_to_nutau_nutau = Z_decays.BF("nu_tau", "nubar_tau");
+
       // Convenient quantities
       const double cos_alpha = sqrt(1. - pow2(sin_alpha));
       const double cos_beta = 1. / sqrt(1. + pow2(tan_beta));
@@ -3131,6 +3196,189 @@ namespace Gambit
         partial_widths["~G_h"] = higgsino_to_gravitino_h;
       }
 
+      /// Neutralino three-body decays to gravitinos and fermion pairs, for all of the latter.
+      /// Using results from http://www-library.desy.de/preparch/desy/thesis/desy-thesis-09-016.pdf.
+      /// Complete analytic formulas, not just the light-gravitino limit.
+
+      //
+      // Channel: ~chi0_i --> ~G + gamma* --> ~G + f fbar
+      // (currently not implemented)
+
+      //
+      // Channel: ~chi0_i --> ~G + (gamma/Z)* --> ~G + f fbar (interference)
+      // (currently not implemented)
+
+      //
+      // Channel: ~chi0_i --> ~G + Z(*) --> ~G + f fbar
+      //
+
+      // Construct list of fermion pairs to iterate over
+      std::list<std::tuple<std::string, std::string, std::string, const double, const double>> fermion_pairs_list;
+      fermion_pairs_list.push_back(std::make_tuple("u", "ubar", "uptype_quark", m_u, BF_Z_to_uu));
+      fermion_pairs_list.push_back(std::make_tuple("d", "dbar", "downtype_quark", m_d, BF_Z_to_dd));
+      fermion_pairs_list.push_back(std::make_tuple("s", "sbar", "downtype_quark", m_s, BF_Z_to_ss));
+      fermion_pairs_list.push_back(std::make_tuple("c", "cbar", "uptype_quark", m_c, BF_Z_to_cc));
+      fermion_pairs_list.push_back(std::make_tuple("b", "bbar", "downtype_quark", m_b, BF_Z_to_bb));
+      fermion_pairs_list.push_back(std::make_tuple("e-", "e+", "charged_lepton", m_e, BF_Z_to_ee));
+      fermion_pairs_list.push_back(std::make_tuple("mu-", "mu+", "charged_lepton", m_mu, BF_Z_to_mumu));
+      fermion_pairs_list.push_back(std::make_tuple("tau-", "tau+", "charged_lepton", m_tau, BF_Z_to_tautau));
+      fermion_pairs_list.push_back(std::make_tuple("nu_e", "nubar_e", "neutral_lepton", 0.0, BF_Z_to_nue_nue));
+      fermion_pairs_list.push_back(std::make_tuple("nu_mu", "nubar_mu", "neutral_lepton", 0.0, BF_Z_to_numu_numu));
+      fermion_pairs_list.push_back(std::make_tuple("nu_tau", "nubar_tau", "neutral_lepton", 0.0, BF_Z_to_nutau_nutau));
+
+      // Define function to compute 3-body contribution: gaugino/higgsino via
+      // on- or off-shell Z to fermion pair + gravitino (full 3-body phase space integral)
+      std::function<double(double, std::string)> neutralino_decays_Z_3body = [&](double m_f, std::string type_f)
+      {
+        // Find weak isospin and electric charge of the fermions
+        double T3_f = 0.0;
+        double q_f = 0.0;
+
+        if (type_f == "uptype_quark")
+        {
+          T3_f = 1.0 / 2.0;
+          q_f = 2.0 / 3.0;
+        }
+        else if (type_f == "downtype_quark")
+        {
+          T3_f = -1.0 / 2.0;
+          q_f = -1.0 / 3.0;
+        }
+        else if (type_f == "charged_lepton")
+        {
+          T3_f = -1.0 / 2.0;
+          q_f = -1.0;
+        }
+        else  // type_f == "neutral_lepton"
+        {
+          T3_f = 1.0 / 2.0;
+          q_f = 0.0;
+        }
+
+        // Compute other couplings and parameters
+        double k_L = T3_f - q_f * pow2(sin_thetaW);
+        double k_R = -q_f * pow2(sin_thetaW);
+        double a = pow2(m_f / m_Neu);
+        double c = pow2(m_G / m_Neu);
+        double d_Z = pow2(m_Z / m_Neu);
+        double g_Z = pow2(width_Z / m_Neu);
+        double g = sqrt(4.0 * pi * alpha_QED) / sin_thetaW;
+        double g_prime = g * (sin_thetaW / cos_thetaW);
+        double g_Z_coupling = sqrt(pow2(g) + pow2(g_prime));
+
+        // Propagator function
+        std::function<double(double)> propagator_D_ZZ = [&c, &d_Z, &g_Z](double x) {
+          return 1.0 / (pow2(c - d_Z - x + 1.0) + d_Z * g_Z);
+        };
+        // Gaugino contribution to the integrand, (E.27) in DESY-thesis-09-016
+        double gaugino_Z_prefactor = (
+          (pow2(abs(-N_bino * sin_thetaW + N_wino * cos_thetaW))
+          / (32.0 * pow3(2.0 * pi) * m_planck_red_2)) * (6.0 / 9.0) * pow2(g / cos_thetaW) * (m_Neu_5 / m_G_2)
+          );
+
+        std::function<double(double)> gaugino_Z_integrand = [&propagator_D_ZZ, &c, &a, &k_L, &k_R](double x)
+        {
+          return (
+            propagator_D_ZZ(x) * ((c - a - x + 1.0) * (pow2(k_L) + pow2(k_R)) + 6.0 * a * k_L * k_R)
+            * sqrt(1.0 - (4.0 * a) / (c - x + 1.0)) * (x + 2.0 * sqrt(c)) * sqrt(pow2(x) - 4.0 * c)
+            * (6.0 * pow2(c) - 4.0 * pow(c, 1.5) + (6.0 - 4.0 * x) * c - 2.0 * x * sqrt(c)+ pow2(x))
+          );
+        };
+
+        // Higgsino contribution to the integrand, (E.33) in DESY-thesis-09-016
+        double higgsino_Z_prefactor = (
+            (pow2(abs(-N_higgsino1 * cos_beta + N_higgsino2 * sin_beta))
+              / (32.0 * pow3(2.0 * pi) * m_planck_red_2))
+              * (3.0 / 9.0) * pow2(g_Z_coupling / m_Z) * (m_Neu_5 / mG_mNeu_2)
+        );
+
+        std::function<double(double)> higgsino_Z_integrand = [&propagator_D_ZZ, &c, &a, &k_L, &k_R, &d_Z](double x)
+        {
+          return (
+            propagator_D_ZZ(x) * sqrt(1.0 - (4.0 * a) / (c - x + 1.0))
+            * (x - 2.0 * sqrt(c)) * sqrt(pow2(x) - 4.0 * c)
+            * (((pow2(k_L) + pow2(k_R)) / (c - x + 1.0))
+                * (12.0 * (pow2(d_Z) - a) * pow3(c)
+                  + (4.0 * pow2(d_Z) * (5.0 - 6.0 * x)
+                      - 3.0 * a * (4.0 * pow2(d_Z) - 8.0 * d_Z - pow2(x) - 8.0 * x + 8.0))
+                  * pow2(c)
+                  + ((13.0 * pow2(x) - 20.0 * x + 8.0) * pow2(d_Z)
+                      + 2.0 * a * (2.0 * (3.0 * x - 5.0) * pow2(d_Z)
+                      - 3.0 * (pow2(x) + 4.0 * x - 4.0) * d_Z
+                      - 3.0 * (pow3(x) + pow2(x) - 4.0 * x + 2.0)))
+                  * c
+                  + (a * (2.0 * pow2(d_Z) + 6.0 * (x - 1.0) * d_Z + 3.0 * pow2(x - 1.0))
+                      - pow2(d_Z) * (x - 1.0))
+                  * pow2(x))
+                + (4.0 * pow2(c) + (12.0 * pow2(d_Z) - 8.0 * d_Z - pow2(x) - 4.0 * x + 4.0)
+                  * 6.0 * a * k_L * k_R *  c + (2.0 * d_Z + x - 1.0)
+                * pow2(x))
+              )
+          );
+        };
+
+        // Combined integrand function
+        std::function<double(double)> integrand_function =
+          [&gaugino_Z_prefactor, &higgsino_Z_prefactor, &gaugino_Z_integrand, &higgsino_Z_integrand](double x)
+          {
+            return gaugino_Z_prefactor * gaugino_Z_integrand(x) + higgsino_Z_prefactor * higgsino_Z_integrand(x);
+          };
+
+        // Compute combined phase-space integral
+        double eps = 1e-15;
+        double int_lim_min = 2.0 * sqrt(c) + eps;
+        double int_lim_max = 1.0 + c - 4.0 * a - eps;
+
+        double neutralino_Z_ff = integrate_cquad(integrand_function, int_lim_min, int_lim_max, 0, 1e-2);
+
+        // Divide width by 3 for leptons, since they are colour singlets
+        if ((type_f == "charged_lepton") or (type_f == "neutral_lepton"))
+        {
+          neutralino_Z_ff /= 3.0;
+        }
+
+        return neutralino_Z_ff;
+      }; //
+      ////
+
+      // For each fermion pair, decide whether to compute 3-body decay rates
+      for (auto fermion_pair : fermion_pairs_list)
+	    {
+        // Retrieve relevant variables
+        auto fermion1 = std::get<0>(fermion_pair);
+        auto fermion2 = std::get<1>(fermion_pair);
+        auto type_f = std::get<2>(fermion_pair);
+        auto m_f = std::get<3>(fermion_pair);
+        auto BF_Z_to_ff = std::get<4>(fermion_pair);
+
+        // Check whether Z can be produced sufficiently on-shell in ~chi0_i --> ~G + Z(*) --> ~G + f fbar
+        double delta_m = m_Neu - m_G;
+        if ((delta_m >= m_Z + width_Z) or (delta_m < 2. * m_f))
+        {
+          // Computing the 2-body decay to ~G + on-shell Z is sufficient
+          partial_widths["~G_" + fermion1 + "_" + fermion2] = 0.0;
+        }
+        else  // 2.*m_f <= delta_m < m_Z + width_Z
+        {
+          // Compute the 3-body contribution
+          double width_3_body_ff = neutralino_decays_Z_3body(m_f, type_f);
+
+          // Ensure smooth transition between 3-body and 2-body,
+          if (m_Z < delta_m)  // and (delta_m < m_Z + width_Z) already
+          {
+            double x = (delta_m - m_Z) / width_Z;
+            double width_2_body_ff = partial_widths["~G_Z"] * BF_Z_to_ff;
+            partial_widths["~G_" + fermion1 + "_" + fermion2] = (1.-x) * width_3_body_ff + x * width_2_body_ff;
+            // Avoid double-counting
+            partial_widths["~G_Z"] = 0.0;
+          }
+          else  // 2.*m_f <= delta_m <= m_Z: only 3-body with virtual Z possible
+          {
+            partial_widths["~G_" + fermion1 + "_" + fermion2] = width_3_body_ff;
+          }
+        }
+	    };
+
       //
       // Store results
       //
@@ -3145,9 +3393,20 @@ namespace Gambit
 
       result.width_in_GeV = total_width_gravitinos;
 
-      result.set_BF( (partial_widths["~G_gamma"] / result.width_in_GeV > 0 ? partial_widths["~G_gamma"] / result.width_in_GeV : 0), 0.0, "~G", "gamma");
-      result.set_BF( (partial_widths["~G_Z"] / result.width_in_GeV > 0 ? partial_widths["~G_Z"] / result.width_in_GeV : 0), 0.0, "~G", "Z0");
-      result.set_BF( (partial_widths["~G_h"] / result.width_in_GeV > 0 ? partial_widths["~G_h"] / result.width_in_GeV : 0), 0.0, "~G", "h0_1");
+      result.set_BF((partial_widths["~G_gamma"] / result.width_in_GeV > 0 ? partial_widths["~G_gamma"] / result.width_in_GeV : 0), 0.0, "~G", "gamma");
+      result.set_BF((partial_widths["~G_Z"] / result.width_in_GeV > 0 ? partial_widths["~G_Z"] / result.width_in_GeV : 0), 0.0, "~G", "Z0");
+      result.set_BF((partial_widths["~G_h"] / result.width_in_GeV > 0 ? partial_widths["~G_h"] / result.width_in_GeV : 0), 0.0, "~G", "h0_1");
+      result.set_BF((partial_widths["~G_u_ubar"] / result.width_in_GeV > 0 ? partial_widths["~G_u_ubar"] / result.width_in_GeV : 0), 0.0, "~G", "u", "ubar");
+      result.set_BF((partial_widths["~G_d_dbar"] / result.width_in_GeV > 0 ? partial_widths["~G_d_dbar"] / result.width_in_GeV : 0), 0.0, "~G", "d", "dbar");
+      result.set_BF((partial_widths["~G_s_sbar"] / result.width_in_GeV > 0 ? partial_widths["~G_s_sbar"] / result.width_in_GeV : 0), 0.0, "~G", "s", "sbar");
+      result.set_BF((partial_widths["~G_c_cbar"] / result.width_in_GeV > 0 ? partial_widths["~G_c_cbar"] / result.width_in_GeV : 0), 0.0, "~G", "c", "cbar");
+      result.set_BF((partial_widths["~G_b_bbar"] / result.width_in_GeV > 0 ? partial_widths["~G_b_bbar"] / result.width_in_GeV : 0), 0.0, "~G", "b", "bbar");
+      result.set_BF((partial_widths["~G_e-_e+"] / result.width_in_GeV > 0 ? partial_widths["~G_e-_e+"] / result.width_in_GeV : 0), 0.0, "~G", "e-", "e+");
+      result.set_BF((partial_widths["~G_mu-_mu+"] / result.width_in_GeV > 0 ? partial_widths["~G_mu-_mu+"] / result.width_in_GeV : 0), 0.0, "~G", "mu-", "mu+");
+      result.set_BF((partial_widths["~G_tau-_tau+"] / result.width_in_GeV > 0 ? partial_widths["~G_tau-_tau+"] / result.width_in_GeV : 0), 0.0, "~G", "tau-", "tau+");
+      result.set_BF((partial_widths["~G_nu_e_nubar_e"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_e_nubar_e"] / result.width_in_GeV : 0), 0.0, "~G", "nu_e", "nubar_e");
+      result.set_BF((partial_widths["~G_nu_mu_nubar_mu"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_mu_nubar_mu"] / result.width_in_GeV : 0), 0.0, "~G", "nu_mu", "nubar_mu");
+      result.set_BF((partial_widths["~G_nu_tau_nubar_tau"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_tau_nubar_tau"] / result.width_in_GeV : 0), 0.0, "~G", "nu_tau", "nubar_tau");
 
       return result;
     }
@@ -3158,165 +3417,82 @@ namespace Gambit
       using namespace Pipes::neutralino_1_decays_gravitino;
 
       int n_Neu = 1;
-
-      // Get spectrum objects
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      const SubSpectrum &mssm = spec.get_HE();
-      const SMInputs &sm = Dep::MSSM_spectrum->get_SMInputs();
-
-      // Get gravitino mass
-      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
-
-      // Get other SUSY masses
-      const double m_Neu_signed = spec.safeget(Par::Pole_Mass, "~chi0_" + std::to_string(n_Neu));
-      const double m_Neu = abs(m_Neu_signed); // [GeV]
-
-      // Get MSSM parameters
-      const double sin_alpha = mssm.safeget(Par::Pole_Mixing, "h0", 2, 2); // SCALARMIX (2,2) = sin(alpha)
-      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
-
-      // Get neutralino mixing components for the n-th neutralino, from
-      // Eq. (A.23) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
-      const double N_bino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 1); // ~B component
-      const double N_wino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 2); // ~W3 component
-      const double N_higgsino1 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 3); // ~Hd component
-      const double N_higgsino2 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 4); // ~Hu component
-
-      // Get SM parameters
-      const double m_h = mssm.safeget(Par::Pole_Mass, "h0_1");
-      const double m_Z = sm.mZ;
-
-      const double sin_thetaW2 = mssm.safeget(Par::dimensionless, "sinW2");
-
-      result = neutralino_decays_gravitino(m_G, m_Neu, m_h, m_Z, sin_thetaW2, sin_alpha, tan_beta, N_bino, N_wino, N_higgsino1, N_higgsino2);
+      const DecayTable::Entry &Z_decays = *Dep::Z_decay_rates;
+      result = neutralino_decays_gravitino(n_Neu, spec, Z_decays);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
     /// MSSM decays: neutralino_2 decays to gravitinos.
     void neutralino_2_decays_gravitino(DecayTable::Entry &result)
     {
-      using namespace Pipes::neutralino_1_decays_gravitino;
+      using namespace Pipes::neutralino_2_decays_gravitino;
 
       int n_Neu = 2;
-
-      // Get spectrum objects
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      const SubSpectrum &mssm = spec.get_HE();
-      const SMInputs &sm = Dep::MSSM_spectrum->get_SMInputs();
-
-      // Get gravitino mass
-      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
-
-      // Get other SUSY masses
-      const double m_Neu_signed = spec.safeget(Par::Pole_Mass, "~chi0_" + std::to_string(n_Neu));
-      const double m_Neu = abs(m_Neu_signed); // [GeV]
-
-      // Get MSSM parameters
-      const double sin_alpha = mssm.safeget(Par::Pole_Mixing, "h0", 2, 2); // SCALARMIX (2,2) = sin(alpha)
-      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
-
-      // Get neutralino mixing components for the n-th neutralino, from
-      // Eq. (A.23) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
-      const double N_bino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 1);      // ~B component
-      const double N_wino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 2);      // ~W3 component
-      const double N_higgsino1 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 3); // ~Hd component
-      const double N_higgsino2 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 4); // ~Hu component
-
-      // Get SM parameters
-      const double m_h = mssm.safeget(Par::Pole_Mass, "h0_1");
-      const double m_Z = sm.mZ;
-
-      const double sin_thetaW2 = mssm.safeget(Par::dimensionless, "sinW2");
-
-      result = neutralino_decays_gravitino(m_G, m_Neu, m_h, m_Z, sin_thetaW2, sin_alpha, tan_beta, N_bino, N_wino, N_higgsino1, N_higgsino2);
+      const DecayTable::Entry &Z_decays = *Dep::Z_decay_rates;
+      result = neutralino_decays_gravitino(n_Neu, spec, Z_decays);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
     /// MSSM decays: neutralino_3 decays to gravitinos.
     void neutralino_3_decays_gravitino(DecayTable::Entry &result)
     {
-      using namespace Pipes::neutralino_1_decays_gravitino;
+      using namespace Pipes::neutralino_3_decays_gravitino;
 
       int n_Neu = 3;
-
-      // Get spectrum objects
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      const SubSpectrum &mssm = spec.get_HE();
-      const SMInputs &sm = Dep::MSSM_spectrum->get_SMInputs();
-
-      // Get gravitino mass
-      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
-
-      // Get other SUSY masses
-      const double m_Neu_signed = spec.safeget(Par::Pole_Mass, "~chi0_" + std::to_string(n_Neu));
-      const double m_Neu = abs(m_Neu_signed); // [GeV]
-
-      // Get MSSM parameters
-      const double sin_alpha = mssm.safeget(Par::Pole_Mixing, "h0", 2, 2); // SCALARMIX (2,2) = sin(alpha)
-      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
-
-      // Get neutralino mixing components for the n-th neutralino, from
-      // Eq. (A.23) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
-      const double N_bino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 1);      // ~B component
-      const double N_wino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 2);      // ~W3 component
-      const double N_higgsino1 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 3); // ~Hd component
-      const double N_higgsino2 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 4); // ~Hu component
-
-      // Get SM parameters
-      const double m_h = mssm.safeget(Par::Pole_Mass, "h0_1");
-      const double m_Z = sm.mZ;
-
-      const double sin_thetaW2 = mssm.safeget(Par::dimensionless, "sinW2");
-
-      result = neutralino_decays_gravitino(m_G, m_Neu, m_h, m_Z, sin_thetaW2, sin_alpha, tan_beta, N_bino, N_wino, N_higgsino1, N_higgsino2);
+      const DecayTable::Entry &Z_decays = *Dep::Z_decay_rates;
+      result = neutralino_decays_gravitino(n_Neu, spec, Z_decays);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
     /// MSSM decays: neutralino_4 decays to gravitinos.
     void neutralino_4_decays_gravitino(DecayTable::Entry &result)
     {
-      using namespace Pipes::neutralino_1_decays_gravitino;
+      using namespace Pipes::neutralino_4_decays_gravitino;
 
       int n_Neu = 4;
-
-      // Get spectrum objects
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      const SubSpectrum &mssm = spec.get_HE();
-      const SMInputs &sm = Dep::MSSM_spectrum->get_SMInputs();
-
-      // Get gravitino mass
-      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
-
-      // Get other SUSY masses
-      const double m_Neu_signed = spec.safeget(Par::Pole_Mass, "~chi0_" + std::to_string(n_Neu));
-      const double m_Neu = abs(m_Neu_signed); // [GeV]
-
-      // Get MSSM parameters
-      const double sin_alpha = mssm.safeget(Par::Pole_Mixing, "h0", 2, 2); // SCALARMIX (2,2) = sin(alpha)
-      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
-
-      // Get neutralino mixing components for the n-th neutralino, from
-      // Eq. (A.23) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
-      const double N_bino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 1);      // ~B component
-      const double N_wino = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 2);      // ~W3 component
-      const double N_higgsino1 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 3); // ~Hd component
-      const double N_higgsino2 = mssm.get(Par::Pole_Mixing, "~chi0", n_Neu, 4); // ~Hu component
-
-      // Get SM parameters
-      const double m_h = mssm.safeget(Par::Pole_Mass, "h0_1");
-      const double m_Z = sm.mZ;
-
-      const double sin_thetaW2 = mssm.safeget(Par::dimensionless, "sinW2");
-
-      result = neutralino_decays_gravitino(m_G, m_Neu, m_h, m_Z, sin_thetaW2, sin_alpha, tan_beta, N_bino, N_wino, N_higgsino1, N_higgsino2);
+      const DecayTable::Entry &Z_decays = *Dep::Z_decay_rates;
+      result = neutralino_decays_gravitino(n_Neu, spec, Z_decays);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
     /// MSSM decays: chargino decays to gravitinos.
     /// Using results from hep-ph/9605398.
     /// The decay width formulas are valid in the light-gravitino limit.
-    DecayTable::Entry chargino_decays_gravitino(double m_G, double m_Cha, double m_W, double tan_beta, double V_wino, double V_higgsino, double U_wino, double U_higgsino)
+    DecayTable::Entry chargino_decays_gravitino(int n_Cha, const Spectrum &spec)
     {
+      // Get spectrum objects
+      // const Spectrum &spec = *Dep::MSSM_spectrum;
+      const SubSpectrum &mssm = spec.get_HE();
+      // const SMInputs &sm = Dep::SM_spectrum->get_SMInputs();
+
+      // Get gravitino mass
+      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
+
+      // Get other SUSY masses
+      const double m_Cha_signed = spec.safeget(Par::Pole_Mass, "~chi+_" + std::to_string(n_Cha));
+      const double m_Cha = abs(m_Cha_signed); // [GeV]
+
+      // Get MSSM parameters
+      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
+
+      // Get chargino mixing components
+      // From Eqs. (A.24-25) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
+      const double V_wino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 1); // (~W1 - i*~W2) component
+      const double V_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 2); // ~Hu+ component
+      const double U_wino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 1);     // (~W1 + i*~W2) component
+      const double U_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 2); // ~Hu- component
+      // U and V naming follows the notation in S. Martin's "A SUSY
+      // Primer", Eq. (8.2.15) in 9709356. In terms of GAMBIT
+      // conventions, V corresponds to U_+ in (A.24) and U to U_- in
+      // (A.25) of 1705.07936.
+
+      // Get SM parameters
+      const double m_W = mssm.safeget(Par::Pole_Mass, "W+");
+
       // Convenient quantities
       const double cos_beta = 1. / sqrt(1. + pow2(tan_beta));
       const double sin_beta = sqrt(1. - pow2(cos_beta));
@@ -3329,7 +3505,7 @@ namespace Gambit
       std::map<str, double> partial_widths;
 
       //
-      // Channel: ~chi+_1 --> ~G + W+
+      // Channel: ~chi+_i --> ~G + W+
       //
       partial_widths["~G_W+"] = 0.0;
       if (m_Cha > m_G + m_W)
@@ -3360,7 +3536,7 @@ namespace Gambit
 
       result.width_in_GeV = total_width_gravitinos;
 
-      result.set_BF( (partial_widths["~G_W+"] / result.width_in_GeV > 0 ? partial_widths["~G_W+"] / result.width_in_GeV : 0), 0.0, "~G", "W+");
+      result.set_BF((partial_widths["~G_W+"] / result.width_in_GeV > 0 ? partial_widths["~G_W+"] / result.width_in_GeV : 0), 0.0, "~G", "W+");
 
       return result;
     }
@@ -3371,37 +3547,8 @@ namespace Gambit
       using namespace Pipes::chargino_plus_1_decays_gravitino;
 
       int n_Cha = 1;
-
-      // Get spectrum objects
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      const SubSpectrum &mssm = spec.get_HE();
-      // const SMInputs &sm = Dep::SM_spectrum->get_SMInputs();
-
-      // Get gravitino mass
-      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
-
-      // Get other SUSY masses
-      const double m_Cha_signed = spec.safeget(Par::Pole_Mass, "~chi+_" + std::to_string(n_Cha));
-      const double m_Cha = abs(m_Cha_signed); // [GeV]
-
-      // Get MSSM parameters
-      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
-
-      // Get chargino mixing components
-      // From Eqs. (A.24-25) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
-      const double V_wino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 1); // (~W1 - i*~W2) component
-      const double V_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 2); // ~Hu+ component
-      const double U_wino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 1);     // (~W1 + i*~W2) component
-      const double U_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 2); // ~Hu- component
-      // U and V naming follows the notation in S. Martin's "A SUSY
-      // Primer", Eq. (8.2.15) in 9709356. In terms of GAMBIT
-      // conventions, V corresponds to U_+ in (A.24) and U to U_- in
-      // (A.25) of 1705.07936.
-
-      // Get SM parameters
-      const double m_W = mssm.safeget(Par::Pole_Mass, "W+");
-
-      result = chargino_decays_gravitino(m_G, m_Cha, m_W, tan_beta, V_wino, V_higgsino, U_wino, U_higgsino);
+      result = chargino_decays_gravitino(n_Cha, spec);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
@@ -3411,37 +3558,8 @@ namespace Gambit
       using namespace Pipes::chargino_plus_2_decays_gravitino;
 
       int n_Cha = 2;
-
-      // Get spectrum objects
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      const SubSpectrum &mssm = spec.get_HE();
-      // const SMInputs &sm = Dep::SM_spectrum->get_SMInputs();
-
-      // Get gravitino mass
-      const double m_G = mssm.safeget(Par::Pole_Mass, "~G"); // [GeV]
-
-      // Get other SUSY masses
-      const double m_Cha_signed = spec.safeget(Par::Pole_Mass, "~chi+_" + std::to_string(n_Cha));
-      const double m_Cha = abs(m_Cha_signed); // [GeV]
-
-      // Get MSSM parameters
-      const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
-
-      // Get chargino mixing components
-      // From Eqs. (A.24-25) in 1705.07936 (SpecBit/DecayBit/PrecisionBit paper).
-      const double V_wino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 1); // (~W1 - i*~W2) component
-      const double V_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi+", n_Cha, 2); // ~Hu+ component
-      const double U_wino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 1);     // (~W1 + i*~W2) component
-      const double U_higgsino = mssm.safeget(Par::Pole_Mixing, "~chi-", n_Cha, 2); // ~Hu- component
-      // U and V naming follows the notation in S. Martin's "A SUSY
-      // Primer", Eq. (8.2.15) in 9709356. In terms of GAMBIT
-      // conventions, V corresponds to U_+ in (A.24) and U to U_- in
-      // (A.25) of 1705.07936.
-
-      // Get SM parameters
-      const double m_W = mssm.safeget(Par::Pole_Mass, "W+");
-
-      result = chargino_decays_gravitino(m_G, m_Cha, m_W, tan_beta, V_wino, V_higgsino, U_wino, U_higgsino);
+      result = chargino_decays_gravitino(n_Cha, spec);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
