@@ -41,6 +41,7 @@
 ///  \author Jeriek Van den Abeele
 ///          (jeriekvda@fys.uio.no)
 ///  \date 2018 Sep
+///  \date 2019 Jul
 ///
 ///  *********************************************
 
@@ -375,12 +376,15 @@ namespace Gambit
       result.set_BF(0.033632, 0.000042, "e+", "e-");
       result.set_BF(0.033662, 0.000066, "mu+", "mu-");
       result.set_BF(0.033696, 0.000083, "tau+", "tau-");
-      result.set_BF(0.6991, 0.0006, "hadron", "hadron");
+      result.set_BF(0.69911, 0.00056, "hadron", "hadron");
       result.set_BF(0.116, 0.006, "u", "ubar");
       result.set_BF(0.1203, 0.0021, "c", "cbar");
       result.set_BF(0.156, 0.004, "d", "dbar");
       result.set_BF(0.156, 0.004, "s", "sbar");
       result.set_BF(0.1512, 0.0005, "b", "bbar");
+      result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_e", "nubar_e");
+      result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_mu", "nubar_mu");
+      result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_tau", "nubar_tau");
 
       // Neutrinos
       // FIXME: It doesn't work because SMINPUTS it's not satisfied yet
@@ -3059,8 +3063,6 @@ namespace Gambit
       const double m_Neu_signed = spec.safeget(Par::Pole_Mass, "~chi0_" + std::to_string(n_Neu));
       const double m_Neu = abs(m_Neu_signed); // [GeV]
 
-      std::cout << "-----HEY----mNeu: " << m_Neu << "---- mG: " << m_G << std::endl;
-
       // Get MSSM parameters
       const double sin_alpha = mssm.safeget(Par::Pole_Mixing, "h0", 2, 2); // SCALARMIX (2,2) = sin(alpha)
       const double tan_beta = mssm.safeget(Par::dimensionless, "tanbeta");
@@ -3098,6 +3100,9 @@ namespace Gambit
       const double BF_Z_to_ee = Z_decays.BF("e+", "e-");
       const double BF_Z_to_mumu = Z_decays.BF("mu+", "mu-");
       const double BF_Z_to_tautau = Z_decays.BF("tau+", "tau-");
+      const double BF_Z_to_nue_nue = Z_decays.BF("nu_e", "nubar_e");
+      const double BF_Z_to_numu_numu = Z_decays.BF("nu_mu", "nubar_mu");
+      const double BF_Z_to_nutau_nutau = Z_decays.BF("nu_tau", "nubar_tau");
 
       // Convenient quantities
       const double cos_alpha = sqrt(1. - pow2(sin_alpha));
@@ -3217,6 +3222,9 @@ namespace Gambit
       fermion_pairs_list.push_back(std::make_tuple("e-", "e+", "charged_lepton", m_e, BF_Z_to_ee));
       fermion_pairs_list.push_back(std::make_tuple("mu-", "mu+", "charged_lepton", m_mu, BF_Z_to_mumu));
       fermion_pairs_list.push_back(std::make_tuple("tau-", "tau+", "charged_lepton", m_tau, BF_Z_to_tautau));
+      fermion_pairs_list.push_back(std::make_tuple("nu_e", "nubar_e", "neutral_lepton", 0.0, BF_Z_to_nue_nue));
+      fermion_pairs_list.push_back(std::make_tuple("nu_mu", "nubar_mu", "neutral_lepton", 0.0, BF_Z_to_numu_numu));
+      fermion_pairs_list.push_back(std::make_tuple("nu_tau", "nubar_tau", "neutral_lepton", 0.0, BF_Z_to_nutau_nutau));
 
       // Define function to compute 3-body contribution: gaugino/higgsino via
       // on- or off-shell Z to fermion pair + gravitino (full 3-body phase space integral)
@@ -3236,10 +3244,15 @@ namespace Gambit
           T3_f = -1.0 / 2.0;
           q_f = -1.0 / 3.0;
         }
-        else //  type_f == "charged_lepton"
+        else if (type_f == "charged_lepton")
         {
           T3_f = -1.0 / 2.0;
           q_f = -1.0;
+        }
+        else  // type_f == "neutral_lepton"
+        {
+          T3_f = 1.0 / 2.0;
+          q_f = 0.0;
         }
 
         // Compute other couplings and parameters
@@ -3319,7 +3332,7 @@ namespace Gambit
         double neutralino_Z_ff = integrate_cquad(integrand_function, int_lim_min, int_lim_max, 0, 1e-2);
 
         // Divide width by 3 for leptons, since they are colour singlets
-        if (type_f == "charged_lepton")
+        if ((type_f == "charged_lepton") or (type_f == "neutral_lepton"))
         {
           neutralino_Z_ff /= 3.0;
         }
@@ -3380,17 +3393,20 @@ namespace Gambit
 
       result.width_in_GeV = total_width_gravitinos;
 
-      result.set_BF( (partial_widths["~G_gamma"] / result.width_in_GeV > 0 ? partial_widths["~G_gamma"] / result.width_in_GeV : 0), 0.0, "~G", "gamma");
-      result.set_BF( (partial_widths["~G_Z"] / result.width_in_GeV > 0 ? partial_widths["~G_Z"] / result.width_in_GeV : 0), 0.0, "~G", "Z0");
-      result.set_BF( (partial_widths["~G_h"] / result.width_in_GeV > 0 ? partial_widths["~G_h"] / result.width_in_GeV : 0), 0.0, "~G", "h0_1");
-      result.set_BF( (partial_widths["~G_u_ubar"] / result.width_in_GeV > 0 ? partial_widths["~G_u_ubar"] / result.width_in_GeV : 0), 0.0, "~G", "u", "ubar");
-      result.set_BF( (partial_widths["~G_d_dbar"] / result.width_in_GeV > 0 ? partial_widths["~G_d_dbar"] / result.width_in_GeV : 0), 0.0, "~G", "d", "dbar");
-      result.set_BF( (partial_widths["~G_s_sbar"] / result.width_in_GeV > 0 ? partial_widths["~G_s_sbar"] / result.width_in_GeV : 0), 0.0, "~G", "s", "sbar");
-      result.set_BF( (partial_widths["~G_c_cbar"] / result.width_in_GeV > 0 ? partial_widths["~G_c_cbar"] / result.width_in_GeV : 0), 0.0, "~G", "c", "cbar");
-      result.set_BF( (partial_widths["~G_b_bbar"] / result.width_in_GeV > 0 ? partial_widths["~G_b_bbar"] / result.width_in_GeV : 0), 0.0, "~G", "b", "bbar");
-      result.set_BF( (partial_widths["~G_e-_e+"] / result.width_in_GeV > 0 ? partial_widths["~G_e-_e+"] / result.width_in_GeV : 0), 0.0, "~G", "e-", "e+");
-      result.set_BF( (partial_widths["~G_mu-_mu+"] / result.width_in_GeV > 0 ? partial_widths["~G_mu-_mu+"] / result.width_in_GeV : 0), 0.0, "~G", "mu-", "mu+");
-      result.set_BF( (partial_widths["~G_tau-_tau+"] / result.width_in_GeV > 0 ? partial_widths["~G_tau-_tau+"] / result.width_in_GeV : 0), 0.0, "~G", "tau-", "tau+");
+      result.set_BF((partial_widths["~G_gamma"] / result.width_in_GeV > 0 ? partial_widths["~G_gamma"] / result.width_in_GeV : 0), 0.0, "~G", "gamma");
+      result.set_BF((partial_widths["~G_Z"] / result.width_in_GeV > 0 ? partial_widths["~G_Z"] / result.width_in_GeV : 0), 0.0, "~G", "Z0");
+      result.set_BF((partial_widths["~G_h"] / result.width_in_GeV > 0 ? partial_widths["~G_h"] / result.width_in_GeV : 0), 0.0, "~G", "h0_1");
+      result.set_BF((partial_widths["~G_u_ubar"] / result.width_in_GeV > 0 ? partial_widths["~G_u_ubar"] / result.width_in_GeV : 0), 0.0, "~G", "u", "ubar");
+      result.set_BF((partial_widths["~G_d_dbar"] / result.width_in_GeV > 0 ? partial_widths["~G_d_dbar"] / result.width_in_GeV : 0), 0.0, "~G", "d", "dbar");
+      result.set_BF((partial_widths["~G_s_sbar"] / result.width_in_GeV > 0 ? partial_widths["~G_s_sbar"] / result.width_in_GeV : 0), 0.0, "~G", "s", "sbar");
+      result.set_BF((partial_widths["~G_c_cbar"] / result.width_in_GeV > 0 ? partial_widths["~G_c_cbar"] / result.width_in_GeV : 0), 0.0, "~G", "c", "cbar");
+      result.set_BF((partial_widths["~G_b_bbar"] / result.width_in_GeV > 0 ? partial_widths["~G_b_bbar"] / result.width_in_GeV : 0), 0.0, "~G", "b", "bbar");
+      result.set_BF((partial_widths["~G_e-_e+"] / result.width_in_GeV > 0 ? partial_widths["~G_e-_e+"] / result.width_in_GeV : 0), 0.0, "~G", "e-", "e+");
+      result.set_BF((partial_widths["~G_mu-_mu+"] / result.width_in_GeV > 0 ? partial_widths["~G_mu-_mu+"] / result.width_in_GeV : 0), 0.0, "~G", "mu-", "mu+");
+      result.set_BF((partial_widths["~G_tau-_tau+"] / result.width_in_GeV > 0 ? partial_widths["~G_tau-_tau+"] / result.width_in_GeV : 0), 0.0, "~G", "tau-", "tau+");
+      result.set_BF((partial_widths["~G_nu_e_nubar_e"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_e_nubar_e"] / result.width_in_GeV : 0), 0.0, "~G", "nu_e", "nubar_e");
+      result.set_BF((partial_widths["~G_nu_mu_nubar_mu"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_mu_nubar_mu"] / result.width_in_GeV : 0), 0.0, "~G", "nu_mu", "nubar_mu");
+      result.set_BF((partial_widths["~G_nu_tau_nubar_tau"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_tau_nubar_tau"] / result.width_in_GeV : 0), 0.0, "~G", "nu_tau", "nubar_tau");
 
       return result;
     }
@@ -3520,7 +3536,7 @@ namespace Gambit
 
       result.width_in_GeV = total_width_gravitinos;
 
-      result.set_BF( (partial_widths["~G_W+"] / result.width_in_GeV > 0 ? partial_widths["~G_W+"] / result.width_in_GeV : 0), 0.0, "~G", "W+");
+      result.set_BF((partial_widths["~G_W+"] / result.width_in_GeV > 0 ? partial_widths["~G_W+"] / result.width_in_GeV : 0), 0.0, "~G", "W+");
 
       return result;
     }
