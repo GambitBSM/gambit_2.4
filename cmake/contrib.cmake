@@ -201,6 +201,8 @@ if(NOT EXCLUDE_HEPMC)
   include_directories("${dir}/include")
   set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
   set(HEPMC_PATH "${dir}")
+  set(HEPMC_INCLUDE "${dir}/local/include")
+  set(HEPMC_LIB "${dir}/local/lib")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -210,8 +212,8 @@ if(NOT EXCLUDE_HEPMC)
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
-  # Add target
-  #add_custom_target(${name})
+  # Force the preload library to come before RestFrames
+  add_dependencies(${name} gambit_preload)
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()

@@ -20,8 +20,7 @@
 
 LOAD_LIBRARY
 
-// Initialisation function (definition)
-BE_INI_FUNCTION{} END_BE_INI_FUNCTION
+BE_CONV_FUNCTION(get_SM_measurements, double, (), "Rivet_get_SM_measurements")
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

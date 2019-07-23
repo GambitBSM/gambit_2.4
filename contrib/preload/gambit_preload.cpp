@@ -14,6 +14,10 @@
 ///          p.scott@imperial.ac.uk
 ///  \date 2019 June
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 July
+///
 ///  *********************************************
 
 #include <cstdlib>
@@ -31,6 +35,7 @@ static void initializer()
   if (GAMBIT_VERSION_PATCH != "") printf("%s", "-" STRINGIFY(GAMBIT_VERSION_PATCH));
   printf("\nhttp://gambit.hepforge.org\n\n\x1b[0m");
   #ifndef EXCLUDE_RESTFRAMES
+  {
     const char* oldenv = getenv("CPLUS_INCLUDE_PATH");
     const char* addition = (oldenv == NULL ? RESTFRAMES_INCLUDE : ":" RESTFRAMES_INCLUDE);
     if (oldenv != NULL)
@@ -41,5 +46,21 @@ static void initializer()
       setenv("CPLUS_INCLUDE_PATH", newenv, 1);
     }
     else setenv("CPLUS_INCLUDE_PATH", addition, 1);
+  }
+  #endif
+
+  #ifndef EXCLUDE_HEPMC
+  {
+    const char* oldenv = getenv("CPLUS_LIB_PATH");
+    const char* addition = (oldenv == NULL ? HEPMC_LIB : ":" HEPMC_LIB);
+    if (oldenv != NULL)
+    {
+      char newenv[strlen(oldenv) + strlen(addition) + 1];
+      strcpy(newenv, oldenv);
+      strcat(newenv, addition);
+      setenv("CPLUS_LIB_PATH", newenv, 1);
+    }
+    else setenv("CPLUS_LIB_PATH", addition, 1);
+  }
   #endif
 }
