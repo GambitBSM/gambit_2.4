@@ -1,0 +1,10 @@
+diff -rupN Rivet-3.0.0/analyses/pluginLEP/DELPHI_2000_I524694.cc ../installed/rivet/3.0.0/analyses/pluginLEP/DELPHI_2000_I524694.cc
+--- Rivet-3.0.0/analyses/pluginLEP/DELPHI_2000_I524694.cc	2019-06-20 16:55:01.000000000 +1000
++++ ../installed/rivet/3.0.0/analyses/pluginLEP/DELPHI_2000_I524694.cc	2019-07-29 17:30:53.090273049 +1000
+@@ -1,5 +1,6 @@
+ // -*- C++ -*-
+ #include "Rivet/Analysis.hh"
++#include "Rivet/Projections/Beam.hh"
+ #include "Rivet/Projections/UnstableParticles.hh"
+ 
+ namespace Rivet {
