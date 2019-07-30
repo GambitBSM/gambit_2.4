@@ -226,7 +226,6 @@ namespace Gambit
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions->getValueOrDef<int>(1,"eft_matching_loop_order_down"));
       settings.set(Spectrum_generator_settings::threshold_corrections, runOptions->getValueOrDef<int>(123111321,"threshold_corrections"));
 
-
       spectrum_generator.set_settings(settings);
 
       // Generate spectrum
@@ -1718,7 +1717,7 @@ namespace Gambit
     {
       using namespace Pipes::FH_HeavyHiggsMasses;
       const int neutrals[2] = {25, 35};
-      int i;
+      int i = -1;
       const SubSpectrum& spec = Dep::unimproved_MSSM_spectrum->get_HE();
       int higgs = SMlike_higgs_PDG_code(spec);
       if (higgs == neutrals[0]) i = 1;

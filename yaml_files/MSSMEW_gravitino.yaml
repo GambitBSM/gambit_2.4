@@ -375,6 +375,14 @@ Rules:
 
   ##### LHC Detector and Analysis rules #####
 
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+
+  # Choose to where to get cross-sections from
+  - capability: CrossSection
+    function: getMCxsec
+
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
     function: operateLHCLoop
@@ -419,7 +427,7 @@ Rules:
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
-    type: ColliderPythia_defaultversion
+    type: Py8Collider_defaultversion
     function: getPythia
     options:
       Pythia_SUSY_LHC_13TeV_EWonly:
