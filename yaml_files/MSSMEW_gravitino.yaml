@@ -554,10 +554,6 @@ Rules:
           - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb
           - CMS_13TeV_MONOJET_36invfb
 
-  # Where to get the cross-section from?
-  - capability: CrossSection
-    function: getMCxsec
-    module: ColliderBit
 
 # Set the names of key log files
 Logger:
