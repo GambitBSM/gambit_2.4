@@ -212,8 +212,6 @@ if(NOT EXCLUDE_HEPMC)
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
-  # Force the preload library to come before RestFrames
-  add_dependencies(${name} gambit_preload)
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()

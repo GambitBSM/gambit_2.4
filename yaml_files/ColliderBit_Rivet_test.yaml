@@ -91,8 +91,8 @@ ObsLikes:
     - purpose:    Observable
       capability: LHCEventLoopInfo
 
-    - purpose:    Observable
-      capability: SLHA1_violation
+#    - purpose:    Observable
+#      capability: SLHA1_violation
 
     - purpose:    Observable
       capability: MSSM_spectrum
@@ -318,12 +318,9 @@ Logger:
   redirection:
     [Debug] : "debug.log"
     [Default] : "default.log"
-    [DecayBit] : "DecayBit.log"
-#    [DarkBit] : "DarkBit.log"
-#    [PrecisionBit] : "PrecisionBit.log"
-    [FlavBit] : "FlavBit.log"
+#    [DecayBit] : "DecayBit.log"
+    [SpecBit] : "SpecBit.lig"
     [ColliderBit] : "ColliderBit.log"
-    [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
 
 KeyValues:
