@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Frontend for Rivet backend v3.0.0
+///  Frontend for Rivet backend v3.0.1
 ///
 ///  *********************************************
 ///
@@ -15,8 +15,8 @@
 
 #define BACKENDNAME Rivet
 #define BACKENDLANG CC
-#define VERSION 3.0.0
-#define SAFE_VERSION 3_0_0
+#define VERSION 3.0.1
+#define SAFE_VERSION 3_0_1
 
 LOAD_LIBRARY
 

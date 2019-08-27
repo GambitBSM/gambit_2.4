@@ -15,7 +15,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Rivet_3_0_0.hpp"
+#include "gambit/Backends/frontends/Rivet_3_0_1.hpp"
 
 // Initialisation
 BE_INI_FUNCTION
