@@ -14,10 +14,6 @@
 ///          p.scott@imperial.ac.uk
 ///  \date 2019 June
 ///
-///  \author Tomas Gonzalo
-///          (tomas.gonzalo@monash.edu)
-///  \date 2019 July
-///
 ///  *********************************************
 
 #include <cstdlib>
@@ -49,18 +45,4 @@ static void initializer()
   }
   #endif
 
-  #ifndef EXCLUDE_HEPMC
-  {
-    const char* oldenv = getenv("CPLUS_LIB_PATH");
-    const char* addition = (oldenv == NULL ? HEPMC_LIB : ":" HEPMC_LIB);
-    if (oldenv != NULL)
-    {
-      char newenv[strlen(oldenv) + strlen(addition) + 1];
-      strcpy(newenv, oldenv);
-      strcat(newenv, addition);
-      setenv("CPLUS_LIB_PATH", newenv, 1);
-    }
-    else setenv("CPLUS_LIB_PATH", addition, 1);
-  }
-  #endif
 }
