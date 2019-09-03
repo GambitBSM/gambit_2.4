@@ -21,7 +21,7 @@
 BE_INI_FUNCTION
 {
 
-std::cout << "Running Rivet" << std::endl;
+  std::cout << "Running Rivet" << std::endl;
 
 }
 END_BE_INI_FUNCTION
@@ -30,9 +30,10 @@ END_BE_INI_FUNCTION
 BE_NAMESPACE
 {
 
-double get_SM_measurements()
-{
-}
+  double get_SM_measurements()
+  {
+    return 1.0;
+  }
 
 }
 END_BE_NAMESPACE
