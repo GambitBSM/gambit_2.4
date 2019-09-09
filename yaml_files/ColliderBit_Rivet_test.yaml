@@ -242,10 +242,11 @@ Rules:
 
 
   # Set analyses for SM measurements
-  - capability: SM_measurements
+  - capability: Rivet_Measurements
     options:
-      analyses: [ ]
-
+      analyses: 
+        - ATLAS_2019_I1718132
+        - CMS_2018_I1680318
 
     # Set the names of key log files
 

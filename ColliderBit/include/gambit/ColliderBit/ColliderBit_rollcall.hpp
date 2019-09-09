@@ -45,4 +45,4 @@ START_MODULE
 #include "gambit/ColliderBit/ColliderBit_LEP_rollcall.hpp"
 #include "gambit/ColliderBit/ColliderBit_MC_rollcall.hpp"
 #include "gambit/ColliderBit/ColliderBit_models_rollcall.hpp"
-#include "gambit/ColliderBit/ColliderBit_SM_rollcall.hpp"
+#include "gambit/ColliderBit/ColliderBit_measurements_rollcall.hpp"

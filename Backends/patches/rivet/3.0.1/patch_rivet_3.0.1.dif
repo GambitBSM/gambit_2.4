@@ -1,0 +1,30 @@
+diff -rupN Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh
+--- Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-06-20 16:55:17.000000000 +1000
++++ ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-09-09 15:43:19.964049407 +1000
+@@ -4,7 +4,7 @@
+ 
+ #include <valarray>
+ 
+-#ifdef ENABLE_HEPMC_3
++//#ifdef ENABLE_HEPMC_3
+ #include "HepMC3/HepMC3.h"
+ #include "HepMC3/Relatives.h"
+ #include "HepMC3/Reader.h"
+@@ -21,7 +21,7 @@ namespace Rivet{
+   using PdfInfo = RivetHepMC::GenPdfInfo;
+ }
+ 
+-#else
++/*#else
+ #include "HepMC/GenEvent.h"
+ #include "HepMC/GenParticle.h"
+ #include "HepMC/HeavyIon.h"
+@@ -65,7 +65,7 @@ namespace Rivet{
+ 
+ }
+   
+-#endif
++#endif*/
+ 
+ #include "Rivet/Tools/RivetSTL.hh"
+ #include "Rivet/Tools/Exceptions.hh"
