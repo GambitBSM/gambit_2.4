@@ -29,7 +29,7 @@ namespace Gambit
     // Get measurments from Rivet
     void Rivet_Measurements(double &result)
     {
-      using namespace Pipes::get_measurements;
+      using namespace Pipes::Rivet_measurements;
 
       // Analysis handler
       rivet_default::Rivet::AnalysisHandler ah;
@@ -37,7 +37,7 @@ namespace Gambit
       // Get analysis list from yaml file
       std::vector<str> analyses = runOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "analyses");
 
-      for(auto analysis : analysies) std::cout << analysis <<std::endl;
+      for(auto analysis : analyses) std::cout << analysis <<std::endl;
  
       // Add the list to the AnalaysisHandler
       ah.addAnalysis(analyses);
