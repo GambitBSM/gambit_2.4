@@ -12,11 +12,7 @@
 ///
 ///  \author Pat Scott
 ///          p.scott@imperial.ac.uk
-///  \date 2019 June
-///
-///  \author Tomas Gonzalo
-///          (tomas.gonzalo@monash.edu)
-///  \date 2019 July
+///  \date 2019 June, July
 ///
 ///  *********************************************
 
@@ -27,12 +23,13 @@
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Utils/stringify.hpp"
 
+
 // Initializer; runs as soon as this library is loaded.
 __attribute__((constructor))
 static void initializer()
 {
   printf("%s", "\n\x1b[1;33mGAMBIT " STRINGIFY(GAMBIT_VERSION_MAJOR) "." STRINGIFY(GAMBIT_VERSION_MINOR) "." STRINGIFY(GAMBIT_VERSION_REVISION));
-  if (GAMBIT_VERSION_PATCH != "") printf("%s", "-" STRINGIFY(GAMBIT_VERSION_PATCH));
+  if (strcmp(GAMBIT_VERSION_PATCH, "") != 0) printf("%s", "-" GAMBIT_VERSION_PATCH);
   printf("\nhttp://gambit.hepforge.org\n\n\x1b[0m");
   #ifndef EXCLUDE_RESTFRAMES
   {
@@ -49,18 +46,4 @@ static void initializer()
   }
   #endif
 
-  #ifndef EXCLUDE_HEPMC
-  {
-    const char* oldenv = getenv("CPLUS_LIB_PATH");
-    const char* addition = (oldenv == NULL ? HEPMC_LIB : ":" HEPMC_LIB);
-    if (oldenv != NULL)
-    {
-      char newenv[strlen(oldenv) + strlen(addition) + 1];
-      strcpy(newenv, oldenv);
-      strcat(newenv, addition);
-      setenv("CPLUS_LIB_PATH", newenv, 1);
-    }
-    else setenv("CPLUS_LIB_PATH", addition, 1);
-  }
-  #endif
 }
