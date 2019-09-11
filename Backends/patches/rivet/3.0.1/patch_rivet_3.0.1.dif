@@ -1,6 +1,24 @@
+diff -rupN Rivet-3.0.1/Makefile.in ../installed/rivet/3.0.1/Makefile.in
+--- Rivet-3.0.1/Makefile.in	2019-07-17 08:28:15.000000000 +1000
++++ ../installed/rivet/3.0.1/Makefile.in	2019-09-11 16:05:50.358334704 +1000
+@@ -450,6 +450,14 @@ dist_pkgconfig_DATA = rivet.pc
+ RSH = rsync
+ DEST = login.hepforge.org:rivet/downloads/
+ all: all-recursive
++libRivet.so:
++	cd ${top_builddir}/src/Core/yamlcpp && ${MAKE} librivet-yaml-cpp.la
++	cd ${top_builddir}/src/Core && ${MAKE} libRivetCore.la
++	cd ${top_builddir}/src/Projections && ${MAKE} libRivetProjections.la
++	cd ${top_builddir}/src/Tools && ${MAKE} libRivetTools.la
++	cd ${top_builddir}/src/AnalysisTools && ${MAKE} libRivetAnalysisTools.la
++	cd ${top_builddir}/src && ${MAKE} libRivet.la
++	mv ${top_builddir}/src/.libs/libRivet.so ${top_builddir}
+ 
+ .SUFFIXES:
+ am--refresh: Makefile
 diff -rupN Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh
 --- Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-06-20 16:55:17.000000000 +1000
-+++ ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-09-09 15:43:19.964049407 +1000
++++ ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-09-11 14:58:56.706085057 +1000
 @@ -4,7 +4,7 @@
  
  #include <valarray>

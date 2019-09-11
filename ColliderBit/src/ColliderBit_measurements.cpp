@@ -26,25 +26,29 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    // Get measurments from Rivet
-    void Rivet_Measurements(double &result)
-    {
-      using namespace Pipes::Rivet_measurements;
+    #ifndef EXCLUDE_HEPMC
 
-      // Analysis handler
-      rivet_default::Rivet::AnalysisHandler ah;
+      // Get measurments from Rivet
+      void Rivet_measurements(double &result)
+      {
+        using namespace Pipes::Rivet_measurements;
 
-      // Get analysis list from yaml file
-      std::vector<str> analyses = runOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "analyses");
+        // Analysis handler
+        Rivet_default::Rivet::AnalysisHandler ah;
 
-      for(auto analysis : analyses) std::cout << analysis <<std::endl;
+        // Get analysis list from yaml file
+        std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
+
+        for(auto analysis : analyses) std::cout << analysis <<std::endl;
  
-      // Add the list to the AnalaysisHandler
-      ah.addAnalysis(analyses);
+        // Add the list to the AnalaysisHandler
+        //ah.addAnalysis(analyses);
 
-      // Run Rivet
-      rivet_default::Rivet::Run rivet(ah);
-    }
+        // Run Rivet
+        Rivet_default::Rivet::Run rivet(ah);
+      }
+
+    #endif
 
   }  // namespace ColliderBit
 }  // namespace Gambit

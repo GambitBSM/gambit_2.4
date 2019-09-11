@@ -40,17 +40,17 @@ Printer:
   # Can switch to the ascii printer by commenting out and
   # using the ascii lines below
 
-#  printer: hdf5
-#  options:
-#    output_file: "CMSSM.hdf5"
-#    group: "/CMSSM"
-#    delete_file_on_restart: true
+  printer: hdf5
+  options:
+    output_file: "Rivet.hdf5"
+    group: "/Rivet"
+    delete_file_on_restart: true
 
   #printer: ascii
   #options:
   #  output_file: "gambit_output.txt"
 
-  printer: cout
+ # printer: cout
 
 
 Scanner:
@@ -273,4 +273,4 @@ KeyValues:
 
     # Set the default output path
 
-  default_output_path: "runs/ColliderBit_CMSSM/"
+  default_output_path: "runs/Rivet/"
