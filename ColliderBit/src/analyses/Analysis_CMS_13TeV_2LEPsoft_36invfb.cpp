@@ -26,7 +26,7 @@
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
-#define CUTFLOW
+//#define CUTFLOW
 
 using namespace std;
 

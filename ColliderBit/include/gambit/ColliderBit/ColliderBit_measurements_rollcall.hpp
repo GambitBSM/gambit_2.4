@@ -28,7 +28,7 @@
       #define FUNCTION Rivet_measurements
       START_FUNCTION(double)
       NEEDS_CLASSES_FROM(Rivet, default)
-      DEPENDENCY(RunMC, MCLoopInfo) // Change to one that stores HepMC
+      //DEPENDENCY(RunMC, MCLoopInfo) // Change to one that stores HepMC
       //BACKEND_REQ(Rivet_get_SM_measurements, (libRivet), double, ()) 
       //BACKEND_OPTION((Rivet, 3.0.1), (libRivet))
       #undef FUNCTION

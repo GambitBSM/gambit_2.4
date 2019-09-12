@@ -15,8 +15,8 @@
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
-#include "gambit/ColliderBit/MCLoopInfo.hpp"
 #include "gambit/ColliderBit/ColliderBit_measurements_rollcall.hpp"
+#include "HepMC3/ReaderAsciiHepMC2.h"
 
 //#define COLLIDERBIT_DEBUG
 
@@ -32,20 +32,49 @@ namespace Gambit
       void Rivet_measurements(double &result)
       {
         using namespace Pipes::Rivet_measurements;
+        using namespace Rivet_default::Rivet;
 
-        // Analysis handler
-        Rivet_default::Rivet::AnalysisHandler ah;
+        // Make sure this is single thread only
+        # pragma omp critical
+        {
+          // Analysis handler
+          AnalysisHandler ah;
 
-        // Get analysis list from yaml file
-        std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
+          // Get analysis list from yaml file
+          std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
 
-        for(auto analysis : analyses) std::cout << analysis <<std::endl;
+          for(auto analysis : analyses) std::cout << analysis <<std::endl;
  
-        // Add the list to the AnalaysisHandler
-        //ah.addAnalysis(analyses);
+          // Add the list to the AnalaysisHandler
+          for (auto analysis : analyses)
+            ah.addAnalysis(analysis);
 
-        // Run Rivet
-        Rivet_default::Rivet::Run rivet(ah);
+          // Read HepMC
+          std::string hepmc_filename = runOptions->getValueOrDef<std::string>("", "hepmc_file");
+          static HepMC3::ReaderAsciiHepMC2 hepmcio(hepmc_filename);
+          HepMC3::GenEvent *ge = new HepMC3::GenEvent(HepMC3::Units::GEV, HepMC3::Units::MM);
+
+          int i=0;
+          while(hepmcio.read_event(*ge) and !hepmcio.failed())
+          {
+            //ah.analyze(*ge);
+            ge = new HepMC3::GenEvent(HepMC3::Units::GEV, HepMC3::Units::MM);
+            std::cout << "event = " << i << std::endl;
+            std::cout << "event number = " << ge->event_number() << std::endl;
+            i++;
+          }
+          delete ge;
+          
+          //std::shared_ptr<HepMC_IO_type> reader = HepMCUtils::makeReader(istr);
+
+          //std::shared_ptr<RivetHepMC::GenEvent> evt = make_shared<RivetHepMC::GenEvent>();
+
+          //while(reader && HepMCUtils::readEvent(reader, evt))
+          //{
+          //  ah.analyze(evt.get());
+          //  evt.reset(new Rivet::RivetHepMC::GenEvent());
+          //}
+        }
       }
 
     #endif

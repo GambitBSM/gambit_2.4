@@ -16,10 +16,6 @@ namespace Gambit
          {
             typedef ::Rivet_3_0_1::Rivet::AnalysisHandler AnalysisHandler;
          }
-         namespace Rivet
-         {
-            typedef ::Rivet_3_0_1::Rivet::Run Run;
-         }
       }
    }
 }

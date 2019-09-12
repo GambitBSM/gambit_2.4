@@ -10,24 +10,39 @@
 
 Parameters:
 
-  # SM nuisance parameters fixed for now.
-  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
-
-  # CMSSM parameter ranges and priors
   CMSSM:
-    M0:
-      range: [100, 5000]
-      prior_type: log
-    M12:
-      range: [100, 5000]
-      prior_type: log
-    A0:
-      range: [-7000, 7000]
-      prior_type: flat
-    TanBeta:
-      range: [3.0, 70]
-      prior_type: flat
+    A0: 388.523
+    M0: 2147.66
+    M12: 2063.39
     SignMu: 1
+    TanBeta: 8.8266
+  StandardModel_SLHA2:
+    CKM_A: 0.814
+    CKM_etabar: 0.353
+    CKM_lambda: 0.22537
+    CKM_rhobar: 0.117
+    GF: 1.16638e-05
+    alpha1: 0
+    alpha2: 0
+    alphaS: 0.1181
+    alphainv: 127.95
+    delta13: 0
+    mBmB: 4.18
+    mCmC: 1.28
+    mD: 0.0047
+    mE: 0.000510999
+    mMu: 0.105658
+    mNu1: 0
+    mNu2: 0
+    mNu3: 0
+    mS: 0.096
+    mT: 173.34
+    mTau: 1.77686
+    mU: 0.0022
+    mZ: 91.1876
+    theta12: 0.58376
+    theta13: 0.15495
+    theta23: 0.76958
 
 Priors:
 
@@ -78,18 +93,18 @@ ObsLikes:
 
 
     # Calculate the LHC likelihood
-    - purpose:    LogLike
-      capability: LHC_Combined_LogLike
+#    - purpose:    LogLike
+#      capability: LHC_Combined_LogLike
 
     # Other observables
-    - purpose:    likelihood_details
-      capability: LHC_LogLike_per_analysis
+#    - purpose:    likelihood_details
+#      capability: LHC_LogLike_per_analysis
 
-    - purpose:    Observable
-      capability: LHC_signals
+#    - purpose:    Observable
+#      capability: LHC_signals
 
-    - purpose:    Observable
-      capability: LHCEventLoopInfo
+#    - purpose:    Observable
+#      capability: LHCEventLoopInfo
 
 #    - purpose:    Observable
 #      capability: SLHA1_violation
@@ -99,7 +114,7 @@ ObsLikes:
       type:       map_str_dbl
 
     - purpose:    Observable
-      capability: SM_measurements
+      capability: Rivet_measurements
 
 Rules:
 
@@ -166,6 +181,8 @@ Rules:
   # Choose where to get scattering events from
   - capability: HardScatteringEvent
     function: generateEventPythia
+    options:
+      drop_HepMC_file: true
 
   # Choose to where to get cross-sections from
   - capability: CrossSection
@@ -175,7 +192,7 @@ Rules:
   - capability: RunMC
     function: operateLHCLoop
     options:
-      silenceLoop: true
+      silenceLoop: false
       LHC_13TeV:
         min_nEvents: 500
         max_nEvents: 5000
@@ -241,9 +258,10 @@ Rules:
         antiktR: 0.4
 
 
-  # Set analyses for SM measurements
-  - capability: Rivet_Measurements
+  # Set analyses for Rivet measurements
+  - capability: Rivet_measurements
     options:
+      hepmc_file: "./GAMBIT_collider_events.omp_thread_0.hepmc"
       analyses: 
         - ATLAS_2019_I1718132
         - CMS_2018_I1680318
