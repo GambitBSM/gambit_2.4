@@ -57,23 +57,12 @@ namespace Gambit
           int i=0;
           while(hepmcio.read_event(*ge) and !hepmcio.failed())
           {
-            //ah.analyze(*ge);
+            ah.analyze(*ge);
             ge = new HepMC3::GenEvent(HepMC3::Units::GEV, HepMC3::Units::MM);
-            std::cout << "event = " << i << std::endl;
-            std::cout << "event number = " << ge->event_number() << std::endl;
             i++;
           }
           delete ge;
           
-          //std::shared_ptr<HepMC_IO_type> reader = HepMCUtils::makeReader(istr);
-
-          //std::shared_ptr<RivetHepMC::GenEvent> evt = make_shared<RivetHepMC::GenEvent>();
-
-          //while(reader && HepMCUtils::readEvent(reader, evt))
-          //{
-          //  ah.analyze(evt.get());
-          //  evt.reset(new Rivet::RivetHepMC::GenEvent());
-          //}
         }
       }
 

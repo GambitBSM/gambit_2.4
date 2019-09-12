@@ -86,6 +86,7 @@ indent = 3
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
 known_classes = {
+      "HepMC3::GenEvent" : "HepMC3/GenEvent.h",
       "YODA::AnalysisObject" : "YODA/AnalysisObject.h"
 }
 
