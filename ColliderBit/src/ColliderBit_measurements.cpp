@@ -37,6 +37,7 @@ namespace Gambit
         // Make sure this is single thread only
         # pragma omp critical
         {
+
           // Analysis handler
           AnalysisHandler ah;
 
