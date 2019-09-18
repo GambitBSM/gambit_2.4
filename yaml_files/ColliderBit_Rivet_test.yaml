@@ -182,7 +182,8 @@ Rules:
   - capability: HardScatteringEvent
     function: generateEventPythia
     options:
-      drop_HepMC_file: true
+      drop_HepMC2_file: true
+      drop_HepMC3_file: true
 
   # Choose to where to get cross-sections from
   - capability: CrossSection
@@ -230,8 +231,10 @@ Rules:
           - PartonLevel:ISR = on
           - PartonLevel:FSR = off
           - HadronLevel:all = on
+          - Beams:eCM = 13000
           - SUSY:all = on
-
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
@@ -261,7 +264,7 @@ Rules:
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
     options:
-      hepmc_file: "./GAMBIT_collider_events.omp_thread_0.hepmc"
+      HepMC3_filename: "./GAMBIT_collider_events.omp_thread_0.hepmc3"
       analyses: 
         - ATLAS_2019_I1718132
         - CMS_2018_I1680318
