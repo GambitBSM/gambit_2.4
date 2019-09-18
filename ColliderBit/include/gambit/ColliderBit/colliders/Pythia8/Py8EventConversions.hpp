@@ -19,11 +19,31 @@
 #pragma once
 
 #include "gambit/ColliderBit/colliders/Pythia8/Py8Utils.hpp"
+#include "gambit/Elements/shared_types.hpp"//AddedTP Aug19 for debug
 
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Particle.h"
 #include "HEPUtils/FastJet.h"
 #include "MCUtils/PIDCodes.h"
+
+#include <fstream>
+#include <algorithm>//Used for sorting the particles so I know CBS and gambit get them in the same order - makes debugging easier.
+
+//#define MET_DEBUG
+//#define JET_CHECKING
+//#define SINGLE_EVENT_DEBUG
+
+//#define ELECTRON_PARENTAGE_DEBUG
+//#define ELECTRON_PARENTAGE_DEBUG_TWO
+
+//#define NJET_DATA_OUTPUT
+
+
+
+inline bool compare_particles_by_pz(FJNS::PseudoJet jet1, FJNS::PseudoJet jet2)
+{
+  return (jet1.pz() > jet2.pz());
+}
 
 
 namespace Gambit
@@ -32,12 +52,20 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    #ifndef DODGY_GLOBAL_COUNTING_SHORTCUT
+    static int TomeksCounter1{0};
+    #define DODGY_GLOBAL_COUNTING_SHORTCUT
+    #endif
+
     /// Convert a hadron-level EventT into an unsmeared HEPUtils::Event
     /// @todo Overlap between jets and prompt containers: need some isolation in MET calculation
     template<typename EventT>
     void convertParticleEvent(const EventT& pevt, HEPUtils::Event& result, double antiktR)
     {
       result.clear();
+
+      //Want to see debug info in more detail.
+      //std::cout.precision(6);
 
       std::vector<FJNS::PseudoJet> bhadrons; //< for input to FastJet b-tagging
       std::vector<HEPUtils::Particle> bpartons, cpartons, tauCandidates;
@@ -101,14 +129,33 @@ namespace Gambit
         }
       }
 
+#ifdef SINGLE_EVENT_DEBUG
+      std::fstream myfile;
+      myfile.open("GAMBIT_SINGLE_EVENT_FILE.csv", std::fstream::app);
+      myfile << "Particle ID, Prompt?, Visible?, Px, Py, Pz, Pe, Abs(eta), Parents, Parent Pe, etc.\n";
+#endif
+
+#ifdef JET_CHECKING
+    std::fstream jetfile;
+    if (TomeksCounter1 == 22)
+    {  
+      jetfile.open("GAMBIT Jetfile.csv", std::fstream::app);
+    }
+#endif
+
+
+
       // Loop over final state particles for jet inputs and MET
       std::vector<FJNS::PseudoJet> jetparticles;
       for (int i = 0; i < pevt.size(); ++i)
       {
         const auto& p = pevt[i];
 
+
         // Only consider final state particles
         if (!p.isFinal()) continue;
+
+        
 
         // Check there's no partons!!
         if (p.id() == 21 || abs(p.id()) <= 6) {
@@ -124,8 +171,12 @@ namespace Gambit
 
         // Add particle outside ATLAS/CMS acceptance to MET
         /// @todo Move out-of-acceptance MET contribution to BuckFast
-        if (std::abs(p.eta()) > 5.0) {
+        if (std::abs(p.eta()) > 5.0)
+        {
           pout += mk_p4(p.p());
+          #ifdef MET_DEBUG
+          std::cout << "Adding particle to met - PID: " << (p.id()) << "; Pz: " << mk_p4(p.p()).pz() << ", m: " << mk_p4(p.p()).m() << std::endl;
+          #endif
           continue;
         }
 
@@ -133,27 +184,94 @@ namespace Gambit
         const bool prompt = !fromHadron(i, pevt); //&& !fromTau(i, pevt);
         const bool visible = MCUtils::PID::isStrongInteracting(p.id()) || MCUtils::PID::isEMInteracting(p.id());
 
+#ifdef SINGLE_EVENT_DEBUG
+
+        /*std::vector<int>Full_Mother_List;
+        int mother_part = i;
+        while (pevt[mother_part].mother1() != 0)
+        {
+           Full_Mother_List.push_back(mother_part);
+           mother_part = pevt[mother_part].mother1();
+           //if (pevt[mother_part].mother1() != 0)
+               //std::cout << "MULTIPLE PARENTS!";
+        }
+        
+
+        myfile << p.id() << ", " << prompt << ", " << visible << ", " << p.p().px() << ", " << p.p().py() << ", " << p.p().pz() << ", " << p.p().e() << ", " << abs(p.eta()) << ", ";
+
+        for (int parent_part : Full_Mother_List)
+        {
+            myfile << pevt[parent_part].id() << ", " << pevt[parent_part].e() << ", ";
+        }
+        myfile << "\n";*/
+#endif
+
+
         // Add prompt and invisible particles as individual particles
-        if (prompt || !visible) {
+        if (prompt || !visible)
+        {
           HEPUtils::Particle* gp = new HEPUtils::Particle(mk_p4(p.p()), p.id());
           gp->set_prompt();
           result.add_particle(gp);
+          #ifdef JET_CHECKING
+          if (p.id() == 22)
+          {
+            std::cout << "Prompt Photon: pz = " << p.p().pz() << std::endl;
+          }
+          #endif
         }
 
         // All particles other than invisibles and muons are jet constituents
         // Matthias added test to keep non-prompt particles
-        if (visible && p.idAbs() != MCUtils::PID::MUON) jetparticles.push_back(mk_pseudojet(p.p()));
+        if (visible && p.idAbs() != MCUtils::PID::MUON)
+        {
+           jetparticles.push_back(mk_pseudojet(p.p()));
+           FJNS::PseudoJet temp = mk_pseudojet(p.p());
+#ifdef JET_CHECKING
+        if (TomeksCounter1 == 22)
+          {
+            jetfile << p.id() << ", " << temp.px() << ", " << temp.py() << ", " << temp.pz() << ", " << temp.e() << ", " << temp.rap() << ",\n";
+          }
+#endif
+        }
         // next case are visible non-prompt muons
         //if (visible && p.idAbs() == MCUtils::PID::MUON && !prompt) jetparticles.push_back(mk_pseudojet(p.p()));
         // next case are non-prompt neutrinos
         //if (!visible && !prompt) jetparticles.push_back(mk_pseudojet(p.p()));
+ 
       }
-
+#ifdef SINGLE_EVENT_DEBUG
+      myfile << "\n\n========\n\n";
+      myfile.close();
+#endif
+#ifdef JET_CHECKING
+if (TomeksCounter1 == 22)
+{
+      jetfile << "\n\n========\n\n";
+      jetfile.close();
+}
+#endif
       /// Jet finding
       /// @todo Choose jet algorithm via detector _settings? Run several algs?
       const FJNS::JetDefinition jet_def(FJNS::antikt_algorithm, antiktR);
+      //sort jet particles by p so gambit and CBS have same order.
+      std::sort(jetparticles.begin(), jetparticles.end(), compare_particles_by_pz);
+      //int TP_TEMP_COUNTER = 0;
+      //for (auto particle : jetparticles)
+      //{
+        //std::cout << "Particle Number: " << TP_TEMP_COUNTER++ << "; Pz: " << particle.pz() << "; Px: " << particle.px() <<std::endl;
+      //}
+
       FJNS::ClusterSequence cseq(jetparticles, jet_def);
       std::vector<FJNS::PseudoJet> pjets = sorted_by_pt(cseq.inclusive_jets(10));
+
+      //std::cout << "\n\nJETCLUSTER_DEBUG_INFO: " << std::endl;
+      //std::cout << "AntiktR: " << antiktR << std::endl;
+      //std::cout << "pTmin: " << 10 << std::endl;
+      //std::cout << "Number of particles passed to algorithm is: " << jetparticles.size() << std::endl;
+      //std::cout << "Number of outputjets, unsorted: " << cseq.inclusive_jets(10).size() << std::endl;
+      //std::cout << "Number of outputjets, sorted: " << sorted_by_pt(cseq.inclusive_jets(10)).size() << std::endl;
+
 
       /// Do jet b-tagging, etc. and add to the Event
       /// @todo Use ghost tagging?
@@ -193,7 +311,12 @@ namespace Gambit
           result.add_particle(gp);
         }
 
+
+
         result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC));
+
+
+
       }
 
       /// Calculate missing momentum
@@ -212,9 +335,53 @@ namespace Gambit
       // From sum of invisibles, including those out of range
       for (size_t i = 0; i < result.invisible_particles().size(); ++i) {
         pout += result.invisible_particles()[i]->mom();
+        #ifdef MET_DEBUG
+        auto thingy = result.invisible_particles()[i];
+        std::cout << "Adding particle to met - PID: " << thingy->pid() << "; Pz: " << thingy->mom().pz() << ", m: " << thingy->mom().m() << std::endl;
+        #endif
       }
+      #ifdef MET_DEBUG
+      std::cout << "FINAL MISSING MOMENTUM IS: (" << pout.px() <<", "<<pout.py()<<", "<<pout.pz()<<", "<<pout.m()<<")"<<std::endl;
+      #endif
       result.set_missingmom(pout);
+
+#ifdef NJET_DATA_OUTPUT
+    double sumpT = 0;
+    for (int i{0}; i < result.jets().size(); i++)
+    {
+      sumpT += result.jets()[i]->pT();
     }
+    std::fstream njetdatafile;
+    njetdatafile.open("GambitNjetFile.csv", std::fstream::app);
+    njetdatafile << result.jets().size() << ", " << result.met() << ", " << result.jets()[0]->pT() << ", " << sumpT << "\n";
+    njetdatafile.close();
+#endif
+
+#ifdef SINGLE_EVENT_DEBUG
+++TomeksCounter1;
+if (TomeksCounter1 == 3047 || TomeksCounter1 == 3048 || TomeksCounter1 == 3541 || TomeksCounter1 == 3542 || TomeksCounter1 == 3618 || TomeksCounter1 == 3619)
+    {
+      cout << TomeksCounter1 << ". Gambit Event Information\n";
+      cout << "  MET  = " << result.met() << " GeV" << endl;
+      cout << "  #e   = " << result.electrons().size() << endl;
+      cout << "  #mu  = " << result.muons().size() << endl;
+      cout << "  #tau = " << result.taus().size() << endl;
+      cout << "  #jet = " << result.jets().size() << endl;
+      for (int i{0}; i < result.jets().size(); i++)
+      {
+        cout << "   pT Jet " << i << ": " << result.jets()[i]->pT() << endl;
+      }
+      cout << "  #pho  = " << result.photons().size() << endl;
+      cout << endl;
+    }
+#endif
+
+#ifdef JET_CHECKING
+      jetfile << "\n\n========\n\n";
+      jetfile.close();    
+#endif  
+    }
+  
 
     /// Convert a partonic (no hadrons) EventT into an unsmeared HEPUtils::Event
     template<typename EventT>
@@ -285,8 +452,9 @@ namespace Gambit
         // if (visible && (isFinalParton(i, pevt) || isFinalTau(i, pevt))) {
         if (visible && p.idAbs() != MCUtils::PID::MUON) {
           FJNS::PseudoJet pj = mk_pseudojet(p.p());
-          pj.set_user_index(std::abs(p.id()));
+          //pj.set_user_index(std::abs(p.id()));
           jetparticles.push_back(pj);
+          
         }
 
       }
