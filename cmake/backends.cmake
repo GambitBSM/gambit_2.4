@@ -1020,25 +1020,28 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # Yoda
-set(name "yoda")
-set(ver "1.7.7")
-set(dl "https://yoda.hepforge.org/downloads/?f=YODA-1.7.7.tar.gz")
-set(md5 "9106b343cbf64319e117aafba663467a")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --disable-static
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
-    INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
-endif()
+#set(name "yoda")
+#set(ver "1.7.7")
+#set(dl "https://yoda.hepforge.org/downloads/?f=YODA-1.7.7.tar.gz")
+#set(md5 "9106b343cbf64319e117aafba663467a")
+#set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+#set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+#check_ditch_status(${name} ${ver} ${dir})
+#if(NOT ditched_${name}_${ver})
+#  ExternalProject_Add(${name}_${ver}
+#    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+#    SOURCE_DIR ${dir}
+#    BUILD_IN_SOURCE 1
+#    PATCH_COMMAND patch -p1 < ${patch}
+#    PATCH_COMMAND ""
+#    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --disable-static
+#    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
+#    INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
+#  )
+##  BOSS_backend(${name} ${ver})
+#  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+#  set_as_default_version("backend" ${name} ${ver})
+#endif()
 
 # Fastjet
 set(name "fastjet")
@@ -1093,8 +1096,9 @@ set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
 set(md5 "1254178627bb3b2ffca0cb0fa0d34f05")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
-set(yoda_ver "1.7.7")
-set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
+#set(yoda_ver "1.7.7")
+#set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
+set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
 set(hepmc_dir "${HEPMC_PATH}/local")
 set(fastjet_name "fastjet")
@@ -1111,7 +1115,7 @@ set(Rivet_LD_FLAGS "-L${dir}/include/Rivet")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS ${yoda_name}_${yoda_ver}
+    DEPENDS ${yoda_name}
     DEPENDS ${hepmc_name}
     DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}

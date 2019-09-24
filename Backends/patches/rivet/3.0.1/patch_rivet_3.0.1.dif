@@ -32,7 +32,7 @@ diff -rupN Rivet-3.0.1/include/Rivet/Makefile.in ../installed/rivet/3.0.1/includ
 +        ../gambit/Backends/abstracttypedefs.hh \
 +        ../gambit/Backends/BOSS_wrapperutils.hh \
 +        ../gambit/Backends/wrappertypedefs.hh \
-+        ../gambit/Utils/cats.hppa \
++        ../gambit/Utils/cats.hpp \
 +        ../backend_types/Rivet_3_0_1/identification.hpp \
 +        ../backend_types/Rivet_3_0_1/forward_decls_abstract_classes.hh \
 +        ../backend_types/Rivet_3_0_1/forward_decls_wrapper_classes.hh \
@@ -144,29 +144,7 @@ diff -rupN Rivet-3.0.1/src/Core/Makefile.in ../installed/rivet/3.0.1/src/Core/Ma
 diff -rupN Rivet-3.0.1/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.0.1/include/Rivet/AnalysisHandler.hh
 --- Rivet-3.0.1/include/Rivet/AnalysisHandler.hh	2019-06-20 16:55:18.000000000 +1000
 +++ ../installed/rivet/3.0.1/include/Rivet/AnalysisHandler.hh	2019-09-18 11:22:48.606817344 +1000
-@@ -1,3 +1,6 @@
-+#ifndef __boss__AnalysisHandler_Rivet_3_0_1_hh__
-+#define __boss__AnalysisHandler_Rivet_3_0_1_hh__
-+
- // -*- C++ -*-
- #ifndef RIVET_RivetHandler_HH
- #define RIVET_RivetHandler_HH
-@@ -18,7 +21,13 @@ namespace Rivet {
-   /// A class which handles a number of analysis objects to be applied to
-   /// generated events. An {@link Analysis}' AnalysisHandler is also responsible
-   /// for handling the final writing-out of histograms.
--  class AnalysisHandler {
-+  } 
-+  #define ENUMS_DECLARED
-+  #include "backend_types/Rivet_3_0_1/abstract_AnalysisHandler.hh"
-+  #include "gambit/Backends/abstracttypedefs.hh"
-+  #include "gambit/Backends/wrappertypedefs.hh"
-+  namespace Rivet { 
-+  class AnalysisHandler : public virtual Abstract_AnalysisHandler {
-   public:
- 
-     /// @name Constructors and destructors. */
-@@ -356,15 +365,44 @@ namespace Rivet {
+@@ -356,11 +356,11 @@ namespace Rivet {
  
      /// The assignment operator is private and must never be called.
      /// In fact, it should not even be implemented.
@@ -177,43 +155,9 @@ diff -rupN Rivet-3.0.1/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.0.1
      /// fact, it should not even be implemented.
 -    AnalysisHandler(const AnalysisHandler&);
 +    //AnalysisHandler(const AnalysisHandler&);
-+
-+  
-+      public:
-+         Abstract_AnalysisHandler* pointer_copy__BOSS();
-+
-+         using Abstract_AnalysisHandler::pointer_assign__BOSS;
-+         void pointer_assign__BOSS(Abstract_AnalysisHandler* in);
-+
-+
-+      public:
-+         void setIgnoreBeams__BOSS();
-+
-+         void skipMultiWeights__BOSS();
-+
-+         Rivet::Abstract_AnalysisHandler& addAnalysis__BOSS(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
  
--  };
-+         Rivet::Abstract_AnalysisHandler& addAnalysis__BOSS(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&, ::std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > >);
-+
-+         Rivet::Abstract_AnalysisHandler& addAnalyses__BOSS(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&);
-+
-+         Rivet::Abstract_AnalysisHandler& removeAnalysis__BOSS(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
-+
-+         Rivet::Abstract_AnalysisHandler& removeAnalyses__BOSS(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&);
-+
-+         void mergeYodas__BOSS(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&);
-+
-+         void mergeYodas__BOSS(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&);
-+
-+};
+   };
  
- 
- }
- 
- #endif
-+
-+#endif /* __boss__AnalysisHandler_Rivet_3_0_1_hh__ */
 diff -rupN Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh
 --- Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-06-20 16:55:17.000000000 +1000
 +++ ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-09-18 11:18:20.670918814 +1000

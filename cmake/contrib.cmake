@@ -217,6 +217,47 @@ if(NOT EXCLUDE_HEPMC)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
 
+#contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
+option(WITH_YODA "Compile with YODA enabled" OFF)
+if(NOT WITH_YODA)
+  message("${BoldCyan} X YODA is deactivated. Set -DWITH_YODA=ON to activate YODA.${ColourReset}")
+elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X ColliderBit is not in use: excluding YODA from GAMBIT configuraton.${ColourReset}")
+  set(WITH_YODA OFF)
+endif()
+
+set(name "yoda")
+set(ver "1.7.7")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
+if(WITH_YODA)
+  message("-- YODA-dependent functions in ColliderBit will be activated.")
+  message("   Backends depending on YODA will be enabled.")
+  set(EXCLUDE_YODA FALSE)
+else()
+  message("   YODA-dependent functions in ColliderBit will be deactivated.")
+  message("   Backends depending on Yoda (e.g. Rivet, Contur) will de disabled.")
+  nuke_ditched_contrib_content(${name} ${dir})
+  set(EXCLUDE_YODA TRUE)
+endif()
+
+if(NOT EXCLUDE_YODA)
+  set(lib "YODA_static")
+  set(dl "https://yoda.hepforge.org/downloads/?f=YODA-1.7.7.tar.gz")
+  set(md5 "9106b343cbf64319e117aafba663467a")
+  set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
+  include_directories("${dir}/include")
+  set(YODA_PATH "${dir}")
+  set(YODA_LIB "${dir}/local/lib")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --disable-static
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+endif()
 
 #contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")

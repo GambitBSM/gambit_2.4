@@ -42,8 +42,8 @@ input_files = [
 include_paths = [
     '../../../Backends/installed/rivet/'+gambit_backend_version+'/include',
     '../../../contrib/HepMC3-3.1.1/local/include',
-    '../../../Backends/installed/fastjet/3.3.2/local/include',
-    '../../../Backends/installed/yoda/1.7.7/local/include'
+    '../../../contrib/YODA-1.7.7/local/include',
+    '../../../Backends/installed/fastjet/3.3.2/local/include'
 ]
 base_paths = ['../../../Backends/installed/rivet/'+gambit_backend_version]
 
