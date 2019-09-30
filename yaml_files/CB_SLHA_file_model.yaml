@@ -101,7 +101,7 @@ Rules:
     function: generateEventPythia
     module: ColliderBit
     options:
-      drop_HepMC_file: false   
+      drop_HepMC_file: false 
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # # Generate evens (don't read LH event files)

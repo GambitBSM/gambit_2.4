@@ -177,6 +177,7 @@ if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
   message("   HepMC v${ver} will be downloaded and installed when building GAMBIT.")
   message("   ColliderBit Solo (CBS) will be activated.")
+  message("   Pythia can now drop HepMC files.")
   message("   Backends depending on HepMC will be enabled.")
   if(NOT ROOT_FOUND)
     message("   No ROOT found, ROOT-IO in HepMC will be deactivated.")
@@ -188,6 +189,7 @@ if(WITH_HEPMC)
 else()
   message("   HepMC-dependent functions in ColliderBit will be deactivated.")
   message("   ColliderBit Solo (CBS) will be deactivated.")
+  message("   Pythia will not drop HepMC files.")
   message("   Backends depending on HepMC (e.g. Rivet) will be disabled.")
   nuke_ditched_contrib_content(${name} ${dir})
   set(EXCLUDE_HEPMC TRUE)
@@ -201,13 +203,12 @@ if(NOT EXCLUDE_HEPMC)
   include_directories("${dir}/include")
   set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
   set(HEPMC_PATH "${dir}")
-  set(HEPMC_INCLUDE "${dir}/local/include")
   set(HEPMC_LIB "${dir}/local/lib")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CMAKE_COMMAND ${CMAKE_COMMAND} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local ..
+    CMAKE_COMMAND ${CMAKE_COMMAND} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DHEPMC3_INSTALL_INTERFACES=on ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS}
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
@@ -216,30 +217,47 @@ if(NOT EXCLUDE_HEPMC)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
 
+#contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
+option(WITH_YODA "Compile with YODA enabled" OFF)
+if(NOT WITH_YODA)
+  message("${BoldCyan} X YODA is deactivated. Set -DWITH_YODA=ON to activate YODA.${ColourReset}")
+elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X ColliderBit is not in use: excluding YODA from GAMBIT configuraton.${ColourReset}")
+  set(WITH_YODA OFF)
+endif()
 
-#contrib/HepMC2; built when building Pythia, for Pythia -> HepMC event output
-set(name "hepmc2")
-set(ver "2.06.08")
-set(dir "${PROJECT_SOURCE_DIR}/contrib/HepMC2-${ver}")
-set(lib "HepMC2")
-set(md5 "a2e889114cafc4f60742029d69abd907")
-set(dl "http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-${ver}.tar.gz")
-set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
-set(HEPMC2_PATH "${dir}")
-ExternalProject_Add(${name}
-  DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
-  SOURCE_DIR ${dir}
-  CMAKE_COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${dir}/local -Dmomentum=GEV -Dlength=MM ..
-  CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS}
-  BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
-  INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
+set(name "yoda")
+set(ver "1.7.7")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
+if(WITH_YODA)
+  message("-- YODA-dependent functions in ColliderBit will be activated.")
+  message("   Backends depending on YODA will be enabled.")
+  set(EXCLUDE_YODA FALSE)
+else()
+  message("   YODA-dependent functions in ColliderBit will be deactivated.")
+  message("   Backends depending on Yoda (e.g. Rivet, Contur) will de disabled.")
+  nuke_ditched_contrib_content(${name} ${dir})
+  set(EXCLUDE_YODA TRUE)
+endif()
+
+if(NOT EXCLUDE_YODA)
+  set(lib "YODA_static")
+  set(dl "https://yoda.hepforge.org/downloads/?f=YODA-1.7.7.tar.gz")
+  set(md5 "9106b343cbf64319e117aafba663467a")
+  set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
+  include_directories("${dir}/include")
+  set(YODA_PATH "${dir}")
+  set(YODA_LIB "${dir}/local/lib")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --disable-static
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
   )
-# Add target
-# add_custom_target(${name})
-# Add clean-hepmc2 and nuke-hepmc2
-add_contrib_clean_and_nuke(${name} ${dir} clean)
-# endif()
-
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+endif()
 
 #contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
