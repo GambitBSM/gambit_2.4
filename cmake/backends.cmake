@@ -1107,7 +1107,7 @@ set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fast
 set(fjcontrib_name "fjcontrib")
 set(fjcontrib_ver "1.041")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-set(ditch_if_absent "HepMC")
+set(ditch_if_absent "HepMC;YODA")
 #TODO: Manually add these, but I think this should be automatic
 set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet")
 set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
@@ -1140,7 +1140,7 @@ set(md5 2c1be84a0e518a8454f495f486f76114)
 set(rivet_name "rivet")
 set(rivet_ver "3.0.1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(ditch_if_absent "HepMC")
+set(ditch_if_absent "HepMC;YODA")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1150,9 +1150,10 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} 
+    BUILD_COMMAND ""
     INSTALL_COMMAND ""
   )
+  #BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} 
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

@@ -130,11 +130,15 @@ endmacro()
 # Function to check whether or not a given scanner or backend has been ditched
 function(check_ditch_status name version dir)
   # Check first for optional argument for Mathematica backends
-  if ((ARGN STREQUAL "Mathematica" OR ARGN STREQUAL "mathematica") AND NOT HAVE_MATHEMATICA)
-    set (itch "${itch}" "${name}_${version}")
-  elseif ((ARGN STREQUAL "HEPMC" OR ARGN STREQUAL "HepMC" OR ARG STREQUAL "hepmc") AND EXCLUDE_HEPMC)
-    set (itch "${itch}" "${name}_${version}")
-  endif()
+  foreach(arg ${ARGN})
+    if ((arg STREQUAL "Mathematica" OR arg STREQUAL "mathematica") AND NOT HAVE_MATHEMATICA)
+      set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "HEPMC" OR arg STREQUAL "HepMC" OR arg STREQUAL "hepmc") AND EXCLUDE_HEPMC)
+      set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "YODA" OR arg STREQUAL "Yoda" OR arg STREQUAL "yoda") AND EXCLUDE_YODA)
+      set (itch "${itch}" "${name}_${version}")
+    endif()
+  endforeach()
   foreach(ditch_command ${itch})
     execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print(\"${name}_${version}\".startswith(\"${ditch_command}\"))"
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
