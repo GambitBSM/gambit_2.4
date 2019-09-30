@@ -1049,6 +1049,8 @@ set(ver "3.3.2")
 set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
 set(md5 "ca3708785c9194513717a54c1087bfb0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(FASTJET_CXX_FLAGS ${BACKEND_CXX_FLAGS})
+set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1056,7 +1058,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --enable-allcxxplugins --disable-static
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --prefix=${dir}/local --enable-allcxxplugins --disable-static
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
   )
@@ -1073,6 +1075,8 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(fastjet_name "fastjet")
 set(fastjet_ver "3.3.2")
 set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
+set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
+set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1081,7 +1085,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
   )
@@ -1110,6 +1114,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 set(ditch_if_absent "HepMC;YODA")
 #TODO: Manually add these, but I think this should be automatic
 set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet")
+set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
 set(Rivet_LD_FLAGS "-L${dir}/include/Rivet")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
