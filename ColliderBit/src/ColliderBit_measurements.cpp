@@ -16,6 +16,7 @@
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
+#include "gambit/ColliderBit/Utils.hpp"
 
 #ifndef EXCLUDE_HEPMC
   #include "HepMC3/ReaderAscii.h"
@@ -24,6 +25,7 @@
 
 #ifndef EXCLUDE_YODA
   #include "YODA/AnalysisObject.h"
+  #include "YODA/IO.h"
 #endif
 
 //#define COLLIDERBIT_DEBUG
@@ -38,7 +40,7 @@ namespace Gambit
       #ifndef EXCLUDE_YODA
 
         // Get measurments from Rivet
-        void Rivet_measurements(double &result)
+        void Rivet_measurements(vector_shared_ptr<YODA::AnalysisObject> &result)
         {
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
@@ -58,6 +60,7 @@ namespace Gambit
 
             if(not analyses.size())
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
+            // TODO: Add somewhere a check to make sure we only do LHC analyses
 
             // Add the list to the AnalaysisHandler
             for (auto analysis : analyses)
@@ -118,44 +121,72 @@ namespace Gambit
 
             ah.finalize();
 
-            // Create YODA object
-            std::vector<std::shared_ptr<YODA::AnalysisObject> > output;
+            // Get YODA object
+            ah.writeData(result);
 
-            // First get all multiwight AOs
-/*            vector<MultiweightAOPtr> raos = ah.getRivetAOs();
-            output.reserve(raos.size()*2*ah.numWeights());
-
-            // Fix the ordering so that default weight is written out first.
-            vector<size_t> order;
-            if ( ah.defaultWeightIndex() >= 0 && ah.defaultWeightIndex() < ah.numWeights() )
-              order.push_back(ah.defaultWeightIndex());
-            for ( size_t  i = 0; i < ah.numWeights(); ++i )
-              if ( i != ah.defaultWeightIndex() ) order.push_back(i);
-
-            // Then we go through all finalized AOs one weight at a time
-            for (size_t iW : order )
+            // Drop YODA file if requested
+            bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
+            if(drop_YODA_file)
             {
-              for ( auto rao : raos )
-              {
-                rao.get()->ah.setActiveFinalWeightIdx(iW);
-                if ( rao->path().find("/TMP/") != string::npos ) continue;
-                output.push_back(rao.get()->activeYODAPtr());
-              }
+              str filename = "GAMBIT_collider_measurements.yoda";
+              try{ YODA::write(filename, result.begin(), result.end()); }
+              catch (...)
+              { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
             }
 
-            // Finally the RAW objects.
-            for (size_t iW : order )
-            {
-              for ( auto rao : raos )
-              {
-                rao.get()->ah.setActiveWeightIdx(iW);
-                output.push_back(rao.get()->activeYODAPtr());
-              }
-            }*/
           }
         }
-      #endif
-    #endif
+      #endif //EXCLUDE_YODA
+    #endif // EXCLUDE_HEPMC
+
+    #ifndef EXCLUDE_YODA
+
+      // GAMBIT version
+      void calc_LHC_measurements_LogLike(double &result)
+      {
+        using namespace Pipes::calc_LHC_measurements_LogLike;
+
+        // Get YODA analysis objects from Rivet
+        vector_shared_ptr<YODA::AnalysisObject> aos = *Dep::Rivet_measurements;
+
+        // Compute the likelihood
+        // TODO: come up with a homebrew computation of the likelihood based on this
+        result = 0.0;
+
+        std::cout << "LHC_measurements_LogLike" << std::endl;
+
+      }
+
+      // Contur version
+      void calc_Contur_LHC_measurements_LogLike(double &result)
+      {
+        using namespace Pipes::calc_Contur_LHC_measurements_LogLike;
+
+        // Get YODA analysis objects from Rivet
+        vector_shared_ptr<YODA::AnalysisObject> aos = *Dep::Rivet_measurements;
+
+        // Call Contur
+        result = BEreq::Contur_LogLike();
+
+      }
+
+      // Contur version, from YODA file
+      void calc_Contur_LHC_measurements_LogLike_from_file(double &result)
+      {
+        using namespace Pipes::calc_Contur_LHC_measurements_LogLike;
+
+        // This function only works if there is a file
+        str YODA_filename = runOptions->getValueOrDef<str>("", "YODA_filename");
+
+        if (YODA_filename == "" or not Utils::file_exists(YODA_filename))
+          ColliderBit_error().raise(LOCAL_INFO, "YODA file "+YODA_filename+" not found.");
+
+        // Call Contur
+        BEreq::Contur_LogLike();
+
+      }
+
+    #endif //EXCLUDE_YODA
 
   }  // namespace ColliderBit
 }  // namespace Gambit

@@ -10,6 +10,7 @@
 #include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
+#include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
 
@@ -90,6 +91,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             void readData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename);
       
             void writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename) const;
+      
+            void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >& arg_1, ::YODA::AnalysisObject* arg_2) const;
+      
+            void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >& arg_1) const;
       
             void dump(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > dumpfile, int period);
       

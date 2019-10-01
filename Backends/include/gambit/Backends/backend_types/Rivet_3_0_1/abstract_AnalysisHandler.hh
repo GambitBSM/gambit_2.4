@@ -9,6 +9,7 @@
 #include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
+#include "YODA/AnalysisObject.h"
 #include <cstddef>
 #include <iostream>
 
@@ -83,6 +84,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             virtual void readData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) =0;
    
             virtual void writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const =0;
+   
+            virtual void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >&, ::YODA::AnalysisObject*) const =0;
+   
+            virtual void writeData__BOSS(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >&) const =0;
    
             virtual void dump(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int) =0;
    

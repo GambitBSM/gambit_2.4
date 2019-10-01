@@ -27,7 +27,7 @@
       #define CAPABILITY Rivet_measurements
       START_CAPABILITY
         #define FUNCTION Rivet_measurements
-        START_FUNCTION(double)
+        START_FUNCTION(vector_shared_ptr<YODA::AnalysisObject>)
         NEEDS_CLASSES_FROM(Rivet, default)
         //DEPENDENCY(RunMC, MCLoopInfo) // Change to one that stores HepMC
         //BACKEND_REQ(Rivet_get_SM_measurements, (libRivet), double, ()) 
@@ -35,6 +35,31 @@
         #undef FUNCTION
       #undef CAPABILITY
     #endif
+  #endif
+
+  // This capability only works if YODA is activated
+  #ifndef EXCLUDE_YODA
+
+    // Calculate the log-likelihood for LHC measurements from a YODA file
+    #define CAPABILITY LHC_measurements_LogLike
+    START_CAPABILITY
+
+      // GAMBIT version
+      #define FUNCTION calc_LHC_measurements_LogLike
+      START_FUNCTION(double)
+      DEPENDENCY(Rivet_measurements, vector_shared_ptr<YODA::AnalysisObject>)
+      #undef FUNCTION
+
+      // Contur version
+      #define FUNCTION calc_Contur_LHC_measurements_LogLike
+      START_FUNCTION(double)
+      DEPENDENCY(Rivet_measurements, vector_shared_ptr<YODA::AnalysisObject>)
+      BACKEND_REQ(Contur_LogLike, (libcontur), double, ())
+      BACKEND_OPTION( (Contur), (libcontur) )
+      #undef FUNCTION
+   
+    #undef CAPABILITY
+
   #endif
   
 #undef MODULE

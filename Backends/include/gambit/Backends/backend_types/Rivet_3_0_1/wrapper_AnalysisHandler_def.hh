@@ -6,6 +6,7 @@
 #include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
+#include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
 
@@ -164,6 +165,16 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       inline void AnalysisHandler::writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename) const
       {
          get_BEptr()->writeData(filename);
+      }
+      
+      inline void AnalysisHandler::writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >& arg_1, ::YODA::AnalysisObject* arg_2) const
+      {
+         get_BEptr()->writeData(arg_1, arg_2);
+      }
+      
+      inline void AnalysisHandler::writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >& arg_1) const
+      {
+         get_BEptr()->writeData__BOSS(arg_1);
       }
       
       inline void AnalysisHandler::dump(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > dumpfile, int period)

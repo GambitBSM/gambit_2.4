@@ -33,6 +33,7 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 May, Dec
 ///  \date 2018 Oct
+///  \date 2019 Oct
 ///
 /// \author Aaron Vincent
 ///         (aaron.vincent@cparc.ca)
@@ -48,6 +49,7 @@
 #include <omp.h>
 #include <cstring>
 #include <complex>
+#include <memory>
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/variadic_functions.hpp"
@@ -71,6 +73,10 @@ namespace Gambit
 
   /// Shorthand for an int-int pair to double map
   typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
+
+  // Shorthand for vector of shared pointers
+  template <typename T>
+  using vector_shared_ptr = std::vector<std::shared_ptr<T>>;
 
   // Useful unqualified functions
   using std::cout;

@@ -1,11 +1,11 @@
 diff -rupN Rivet-3.0.1/Makefile.in ../installed/rivet/3.0.1/Makefile.in
 --- Rivet-3.0.1/Makefile.in	2019-07-17 08:28:15.000000000 +1000
-+++ ../installed/rivet/3.0.1/Makefile.in	2019-09-18 11:18:20.670918814 +1000
++++ ../installed/rivet/3.0.1/Makefile.in	2019-10-01 13:37:38.488043545 +1000
 @@ -450,6 +450,15 @@ dist_pkgconfig_DATA = rivet.pc
  RSH = rsync
  DEST = login.hepforge.org:rivet/downloads/
  all: all-recursive
-+libRivet.so:
++${libdir}/libRivet.so:
 +	cd ${top_builddir}/src/Core/yamlcpp && ${MAKE} librivet-yaml-cpp.la
 +	cd ${top_builddir}/src/Core && ${MAKE} libRivetCore.la
 +	cd ${top_builddir}/src/Projections && ${MAKE} libRivetProjections.la
@@ -19,7 +19,7 @@ diff -rupN Rivet-3.0.1/Makefile.in ../installed/rivet/3.0.1/Makefile.in
  am--refresh: Makefile
 diff -rupN Rivet-3.0.1/include/Rivet/Makefile.in ../installed/rivet/3.0.1/include/Rivet/Makefile.in
 --- Rivet-3.0.1/include/Rivet/Makefile.in	2019-07-17 08:28:15.000000000 +1000
-+++ ../installed/rivet/3.0.1/include/Rivet/Makefile.in	2019-09-18 11:18:20.670918814 +1000
++++ ../installed/rivet/3.0.1/include/Rivet/Makefile.in	2019-10-01 13:37:38.488043545 +1000
 @@ -614,7 +614,22 @@ nobase_pkginclude_HEADERS = Rivet.hh Run
  	Math/eigen3/src/QR/HouseholderQR.h \
  	Math/eigen3/src/SVD/BDCSVD.h Math/eigen3/src/SVD/JacobiSVD.h \
@@ -46,7 +46,7 @@ diff -rupN Rivet-3.0.1/include/Rivet/Makefile.in ../installed/rivet/3.0.1/includ
  .SUFFIXES:
 diff -rupN Rivet-3.0.1/src/Core/Makefile.in ../installed/rivet/3.0.1/src/Core/Makefile.in
 --- Rivet-3.0.1/src/Core/Makefile.in	2019-07-17 08:28:15.000000000 +1000
-+++ ../installed/rivet/3.0.1/src/Core/Makefile.in	2019-09-18 11:18:20.670918814 +1000
++++ ../installed/rivet/3.0.1/src/Core/Makefile.in	2019-10-01 13:37:38.488043545 +1000
 @@ -118,7 +118,10 @@ am_libRivetCore_la_OBJECTS = libRivetCor
  	libRivetCore_la-AnalysisLoader.lo \
  	libRivetCore_la-AnalysisInfo.lo \
@@ -143,8 +143,16 @@ diff -rupN Rivet-3.0.1/src/Core/Makefile.in ../installed/rivet/3.0.1/src/Core/Ma
  
 diff -rupN Rivet-3.0.1/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.0.1/include/Rivet/AnalysisHandler.hh
 --- Rivet-3.0.1/include/Rivet/AnalysisHandler.hh	2019-06-20 16:55:18.000000000 +1000
-+++ ../installed/rivet/3.0.1/include/Rivet/AnalysisHandler.hh	2019-09-18 11:22:48.606817344 +1000
-@@ -356,11 +356,11 @@ namespace Rivet {
++++ ../installed/rivet/3.0.1/include/Rivet/AnalysisHandler.hh	2019-10-01 14:44:33.211695594 +1000
+@@ -244,6 +244,7 @@ namespace Rivet {
+ 
+     /// Write all analyses' plots (via getData) to the named file.
+     void writeData(const std::string& filename) const;
++    void writeData(vector<YODA::AnalysisObjectPtr>&, YODA::AnalysisObject* = NULL) const;
+ 
+     /// Tell Rivet to dump intermediate result to a file named @a
+     /// dumpfile every @a period'th event. If @period is not positive,
+@@ -356,11 +357,11 @@ namespace Rivet {
  
      /// The assignment operator is private and must never be called.
      /// In fact, it should not even be implemented.
@@ -160,7 +168,7 @@ diff -rupN Rivet-3.0.1/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.0.1
  
 diff -rupN Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh
 --- Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-06-20 16:55:17.000000000 +1000
-+++ ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-09-18 11:18:20.670918814 +1000
++++ ../installed/rivet/3.0.1/include/Rivet/Tools/RivetHepMC.hh	2019-10-01 13:37:38.488043545 +1000
 @@ -4,7 +4,7 @@
  
  #include <valarray>
@@ -190,7 +198,7 @@ diff -rupN Rivet-3.0.1/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.0.
  #include "Rivet/Tools/Exceptions.hh"
 diff -rupN Rivet-3.0.1/src/Core/AnalysisHandler.cc ../installed/rivet/3.0.1/src/Core/AnalysisHandler.c
 --- Rivet-3.0.1/src/Core/AnalysisHandler.cc	2019-06-20 16:55:17.000000000 +1000
-+++ ../installed/rivet/3.0.1/src/Core/AnalysisHandler.cc	2019-09-18 16:06:28.960186177 +1000
++++ ../installed/rivet/3.0.1/src/Core/AnalysisHandler.cc	2019-10-01 14:42:24.822566840 +1000
 @@ -93,7 +93,8 @@ namespace Rivet {
      if (num_anas_requested > 0 && analysisNames().empty()) {
        cerr << "All analyses were incompatible with the first event's beams\n"
@@ -201,3 +209,41 @@ diff -rupN Rivet-3.0.1/src/Core/AnalysisHandler.cc ../installed/rivet/3.0.1/src/
      }
  
      // Warn if any analysis' status is not unblemished
+@@ -610,6 +611,37 @@ namespace Rivet {
+     }
+   }
+ 
++  void AnalysisHandler::writeData(vector<YODA::AnalysisObjectPtr> &output, YODA::AnalysisObject* object) const {
++
++    // First get all multiwight AOs
++    vector<MultiweightAOPtr> raos = getRivetAOs();
++    output.reserve(raos.size()*2*numWeights());
++
++    // Fix the oredering so that default weight is written out first.
++    vector<size_t> order;
++    if ( _defaultWeightIdx >= 0 && _defaultWeightIdx < numWeights() )
++      order.push_back(_defaultWeightIdx);
++    for ( size_t  i = 0; i < numWeights(); ++i )
++      if ( i != _defaultWeightIdx ) order.push_back(i);
++
++    // Then we go through all finalized AOs one weight at a time
++    for (size_t iW : order ) {
++      for ( auto rao : raos ) {
++        rao.get()->setActiveFinalWeightIdx(iW);
++        if ( rao->path().find("/TMP/") != string::npos ) continue;
++        output.push_back(rao.get()->activeYODAPtr());
++      }
++    }
++
++    // Finally the RAW objects.
++    for (size_t iW : order ) {
++      for ( auto rao : raos ) {
++        rao.get()->setActiveWeightIdx(iW);
++        output.push_back(rao.get()->activeYODAPtr());
++      }
++    }
++ 
++  } 
+ 
+   string AnalysisHandler::runName() const { return _runname; }
+   size_t AnalysisHandler::numEvents() const { return _eventCounter->numEntries(); }

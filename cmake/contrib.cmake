@@ -201,9 +201,9 @@ if(NOT EXCLUDE_HEPMC)
   set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
-  set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
   set(HEPMC_PATH "${dir}")
   set(HEPMC_LIB "${dir}/local/lib")
+  set(HEPMC_LDFLAGS "-L${HEPMC_LIB} -l${lib}")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -241,18 +241,19 @@ else()
 endif()
 
 if(NOT EXCLUDE_YODA)
-  set(lib "YODA_static")
+  set(lib "YODA")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-1.7.7.tar.gz")
   set(md5 "9106b343cbf64319e117aafba663467a")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
+  set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --disable-static
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --enable-static
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
   )

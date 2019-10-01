@@ -96,6 +96,9 @@ ObsLikes:
 #    - purpose:    LogLike
 #      capability: LHC_Combined_LogLike
 
+    - purpose: LogLike
+      capability: LHC_measurements_LogLike
+
     # Other observables
 #    - purpose:    likelihood_details
 #      capability: LHC_LogLike_per_analysis
@@ -112,9 +115,6 @@ ObsLikes:
     - purpose:    Observable
       capability: MSSM_spectrum
       type:       map_str_dbl
-
-    - purpose:    Observable
-      capability: Rivet_measurements
 
 Rules:
 
@@ -265,11 +265,15 @@ Rules:
   - capability: Rivet_measurements
     options:
       HepMC3_filename: "./GAMBIT_collider_events.omp_thread_0.hepmc3"
+      drop_YODA_file: true
       analyses: 
         - ATLAS_2019_I1718132
         - CMS_2018_I1680318
 
-    # Set the names of key log files
+  - capability: LHC_measurements_LogLike
+    function: calc_LHC_measurements_LogLike
+
+# Set the names of key log files
 
 Logger:
 
