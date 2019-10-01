@@ -30,6 +30,10 @@
 #          (b.farmer@imperial.ac.uk)
 #  \date 2018 Oct
 #
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2019 Sep, Oct
+#
 #************************************************
 
 
@@ -137,6 +141,14 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "YODA" OR arg STREQUAL "Yoda" OR arg STREQUAL "yoda") AND EXCLUDE_YODA)
       set (itch "${itch}" "${name}_${version}")
+    else()
+      string(REGEX REPLACE "Py_" "" module ${arg}) 
+      if(NOT ${module} STREQUAL ${arg})
+        find_python_module(${module})
+        if(NOT Py_${module}_FOUND)
+          set(itch "${itch}" "${name}_${version}")
+        endif()
+      endif()
     endif()
   endforeach()
   foreach(ditch_command ${itch})

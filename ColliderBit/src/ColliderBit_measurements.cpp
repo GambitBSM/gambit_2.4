@@ -153,8 +153,6 @@ namespace Gambit
         // TODO: come up with a homebrew computation of the likelihood based on this
         result = 0.0;
 
-        std::cout << "LHC_measurements_LogLike" << std::endl;
-
       }
 
       // Contur version

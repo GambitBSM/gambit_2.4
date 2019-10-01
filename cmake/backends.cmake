@@ -1145,7 +1145,7 @@ set(md5 2c1be84a0e518a8454f495f486f76114)
 set(rivet_name "rivet")
 set(rivet_ver "3.0.1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(ditch_if_absent "HepMC;YODA")
+set(ditch_if_absent "YODA;Py_cython")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1154,7 +1154,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ""
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "from contur import *" > ${dir}/AnalysisTools/contur/__init__.py
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
   )

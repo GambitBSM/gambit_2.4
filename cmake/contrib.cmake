@@ -17,9 +17,9 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2014 Nov, Dec
 #
-# \author Tomas GOnzalo
+# \author Tomas Gonzalo
 #         (tomas.gonzalo@monash.edu)
-# \dae 2019 June
+# \dae 2019 June, Oct
 #
 #************************************************
 
@@ -250,10 +250,19 @@ if(NOT EXCLUDE_YODA)
   set(YODA_LIB "${dir}/local/lib")
   set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  # If cython is not installed disable the python extension
+  find_python_module(cython) 
+  if(PY_cython_FOUND)
+    set(pyext yes)
+    message("   Backends depending on YODA's python extension will be enabled.")
+  else()
+    set(pyext no)
+    message("   Backends depending on YODA's python extension (e.g. Contur) will be disabled.")
+  endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --enable-static
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
   )
