@@ -1,0 +1,111 @@
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/contur_grid.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/contur_grid.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/contur_grid.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/contur_grid.py	2019-10-08 18:11:04.855227455 +1100
+@@ -3,7 +3,7 @@
+ import sys
+ import pickle
+ import numpy as np
+-import matplotlib.pyplot as plt
++#import matplotlib.pyplot as plt
+ import contur.Utils as util
+ from scipy.interpolate import griddata
+ from mpl_toolkits.mplot3d import Axes3D
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/conturPoint.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/conturPoint.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/conturPoint.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/conturPoint.py	2019-10-08 16:57:04.474090798 +1100
+@@ -1,7 +1,7 @@
+ import os
+ import yoda
+ import re
+-import rivet
++#import rivet
+ from contur import TestingFunctions as ctr
+ import contur.Utils as util
+ 
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/histFactory.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/histFactory.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/histFactory.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/histFactory.py	2019-10-08 16:58:57.388133727 +1100
+@@ -1,7 +1,7 @@
+ import os
+ import yoda
+ import re
+-import rivet
++#import rivet
+ import numpy as np
+ from contur import TestingFunctions as ctr
+ import contur.Utils as util
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Scanning/os_functions.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/Scanning/os_functions.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Scanning/os_functions.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/Scanning/os_functions.py	2019-10-08 18:12:28.723669288 +1100
+@@ -2,7 +2,7 @@
+ 
+ import sys
+ import os
+-from configobj import ConfigObj
++#from configobj import ConfigObj
+ 
+ 
+ def make_directory(path):
+@@ -34,7 +34,7 @@ def read_param_dat(file_path):
+     return ConfigObj(file_path).dict()
+ 
+ 
+-from configobj import ConfigObj
++#from configobj import ConfigObj
+ def write_sampled_map(output_dir, param_dict):
+     #sampled_points = {}
+     sampled_points= ConfigObj()
+@@ -280,4 +280,4 @@ def permission_to_continue(message):
+     if permission.lower() in ['n', 'no']:
+         return False
+     else:
+-        return True
+\ No newline at end of file
++        return True
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Scanning/weighted_bins.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/Scanning/weighted_bins.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Scanning/weighted_bins.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/Scanning/weighted_bins.py	2019-10-08 17:00:02.389266445 +1100
+@@ -2,7 +2,7 @@
+ 
+ import itertools
+ import numpy as np
+-import matplotlib.pyplot as plt
++#import matplotlib.pyplot as plt
+ 
+ from contur.contur_grid import ConturGrid
+ 
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/TestingFunctions/StaticDB.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/TestingFunctions/StaticDB.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/TestingFunctions/StaticDB.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/TestingFunctions/StaticDB.py	2019-10-08 16:56:37.785591991 +1100
+@@ -1,6 +1,6 @@
+ import sqlite3 as db
+ import re
+-from rivet.aopaths import AOPath
++#from rivet.aopaths import AOPath
+ from os.path import dirname, join
+ 
+ INIT = False
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Utils/plotinfo.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/Utils/plotinfo.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Utils/plotinfo.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/Utils/plotinfo.py	2019-10-08 16:58:28.275616706 +1100
+@@ -1,6 +1,6 @@
+ import os, re
+-import rivet
+-from rivet.util import texpand
++#import rivet
++#from rivet.util import texpand
+ 
+ class PlotParser(object):
+     """
+diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Utils/Utils.py ../installed/contur/1.0.0/AnalysisTools/contur/contur/Utils/Utils.py
+--- heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Utils/Utils.py	2019-06-18 17:34:01.000000000 +1000
++++ ../installed/contur/1.0.0/AnalysisTools/contur/contur/Utils/Utils.py	2019-10-08 16:57:43.462808016 +1100
+@@ -3,7 +3,7 @@
+ import os
+ import numpy as np
+ import yoda
+-import rivet
++#import rivet
+ import plotinfo
+ import contur as ct
+ from contur import TestingFunctions as ctr

@@ -45,13 +45,21 @@
     START_CAPABILITY
 
       // GAMBIT version
-      #define FUNCTION calc_LHC_measurements_LogLike
+      #define FUNCTION LHC_measurements_LogLike
       START_FUNCTION(double)
       DEPENDENCY(Rivet_measurements, vector_shared_ptr<YODA::AnalysisObject>)
       #undef FUNCTION
 
       // Contur version
-      #define FUNCTION calc_Contur_LHC_measurements_LogLike
+      #define FUNCTION Contur_LHC_measurements_LogLike
+      START_FUNCTION(double)
+      DEPENDENCY(Rivet_measurements, vector_shared_ptr<YODA::AnalysisObject>)
+      BACKEND_REQ(Contur_LogLike, (libcontur), double, ())
+      BACKEND_OPTION( (Contur), (libcontur) )
+      #undef FUNCTION
+
+      // Contur version, from file
+      #define FUNCTION Contur_LHC_measurements_LogLike_from_file
       START_FUNCTION(double)
       DEPENDENCY(Rivet_measurements, vector_shared_ptr<YODA::AnalysisObject>)
       BACKEND_REQ(Contur_LogLike, (libcontur), double, ())

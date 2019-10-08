@@ -249,6 +249,7 @@ if(NOT EXCLUDE_YODA)
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
   set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
+  set(YODA_PY_PATH "${dir}/local/lib/python2.7/site-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
   find_python_module(cython) 

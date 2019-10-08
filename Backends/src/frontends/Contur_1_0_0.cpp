@@ -20,7 +20,19 @@
 BE_NAMESPACE
 {
 
-// Convenience functions
+  // Convenience functions
+  double Contur_LogLike(vector_shared_ptr<YODA::AnalysisObject> &ao)
+  {
+
+    return 0.0;
+
+  }
+
+  double Contur_LogLike(str &YODA_filename)
+  {
+
+    return 0.0;
+  }
 
 }
 END_BE_NAMESPACE

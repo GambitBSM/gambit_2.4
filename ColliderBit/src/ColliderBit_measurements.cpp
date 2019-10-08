@@ -67,57 +67,71 @@ namespace Gambit
               ah.addAnalysis(analysis);
 
             // Get the filename and initialise the HepMC reader
-            const static str HepMC2_filename = runOptions->getValueOrDef<str>("", "HepMC2_filename");
-            static bool HepMC2_ON = (HepMC2_filename != "");
-            const static str HepMC3_filename = runOptions->getValueOrDef<str>("", "HepMC3_filename");
-            static bool HepMC3_ON = (HepMC3_filename != "");
+            const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
+            static int HepMC_file_version = -1;
 
-            if (HepMC2_ON and HepMC3_ON)
-              ColliderBit_error().raise(LOCAL_INFO, "Cannot read simultaneously from HepMC2 and HepMC3 files.");
-            if (HepMC2_ON)
+            static bool first = true;
+            if (first)
             {
-              if (not Utils::file_exists(HepMC2_filename))
-                ColliderBit_error().raise(LOCAL_INFO, "HepMC2 event file "+HepMC2_filename+" not found.");
-              static HepMC3::ReaderAsciiHepMC2 hepmcio(HepMC2_filename);
-              HepMC3::GenEvent *ge = new HepMC3::GenEvent(HepMC3::Units::GEV, HepMC3::Units::MM);
+              if (not Utils::file_exists(HepMC_filename)) throw std::runtime_error("HepMC event file "+HepMC_filename+" not found. Quitting...");
 
-              int i=0;
-              while(hepmcio.read_event(*ge) and !hepmcio.failed())
+              // Figure out if the file is HepMC2 or HepMC3
+              std::ifstream infile(HepMC_filename);
+              if (infile.good())
               {
-                try { ah.analyze(*ge); }
-                catch(std::runtime_error &e)
+                std::string line;
+                while(std::getline(infile, line))
                 {
-                  ColliderBit_error().raise(LOCAL_INFO, e.what());
+                  // Skip blank lines
+                  if(line == "") continue;
+
+                  // We look for "HepMC::Version 2" or "HepMC::Version 3", 
+                  // so we only need the first 16 characters of the line
+                  std::string short_line = line.substr(0,16);
+
+                  if (short_line == "HepMC::Version 2")
+                  {
+                    HepMC_file_version = 2;
+                    break;
+                  }
+                  else if (short_line == "HepMC::Version 3")
+                  {
+                    HepMC_file_version = 3;
+                   break;
+                  }
+                  else
+                  {
+                    throw std::runtime_error("Could not determine HepMC version from the string '"+short_line+"' extracted from the line '"+line+"'. Quitting...");
+                  }
                 }
-                ge = new HepMC3::GenEvent(HepMC3::Units::GEV, HepMC3::Units::MM);
-                i++;
               }
-              delete ge;
- 
+              first = false;
             }
-            else if (HepMC3_ON)
+
+            if(HepMC_file_version != 2 and HepMC_file_version != 3)
             {
-              if (not Utils::file_exists(HepMC3_filename))
-                ColliderBit_error().raise(LOCAL_INFO, "HepMC3 event file "+HepMC3_filename+" not found.");
-              static HepMC3::ReaderAscii hepmcio(HepMC3_filename);
-              HepMC3::GenEvent *ge = new HepMC3::GenEvent(HepMC3::Units::GEV, HepMC3::Units::MM);
-  
-              int i=0;
-              while(hepmcio.read_event(*ge) and !hepmcio.failed())
-              { 
-                try { ah.analyze(*ge); }
-                catch(std::runtime_error &e)
-                {
-                  ColliderBit_error().raise(LOCAL_INFO, e.what());
-                }
-                ge = new HepMC3::GenEvent(HepMC3::Units::GEV, HepMC3::Units::MM);
-                i++;
-              }
-              delete ge;
- 
+              throw std::runtime_error("Failed to determine HepMC version for input file "+HepMC_filename+". Quitting...");
             }
+
+            static HepMC3::Reader *HepMCio;
+
+            if (HepMC_file_version == 2)
+              HepMCio =  new HepMC3::ReaderAsciiHepMC2(HepMC_filename);
             else
-              ColliderBit_error().raise(LOCAL_INFO, "Neither HepMC2 nor HepMC3 event file found.");
+              HepMCio =  new HepMC3::ReaderAscii(HepMC_filename);
+
+            // Attempt to read the next HepMC event as a HEPUtils event. If there are no more events, wrap up the loop and skip the rest of this iteration.
+            HepMC3::GenEvent ge(HepMC3::Units::GEV, HepMC3::Units::MM);
+            while(HepMCio->read_event(ge) and !HepMCio->failed())
+            {
+              try { ah.analyze(ge); }
+              catch(std::runtime_error &e)
+              {
+                ColliderBit_error().raise(LOCAL_INFO, e.what());
+              }
+            }
+
+            delete HepMCio;
 
             ah.finalize();
 
@@ -142,9 +156,9 @@ namespace Gambit
     #ifndef EXCLUDE_YODA
 
       // GAMBIT version
-      void calc_LHC_measurements_LogLike(double &result)
+      void LHC_measurements_LogLike(double &result)
       {
-        using namespace Pipes::calc_LHC_measurements_LogLike;
+        using namespace Pipes::LHC_measurements_LogLike;
 
         // Get YODA analysis objects from Rivet
         vector_shared_ptr<YODA::AnalysisObject> aos = *Dep::Rivet_measurements;
@@ -156,22 +170,22 @@ namespace Gambit
       }
 
       // Contur version
-      void calc_Contur_LHC_measurements_LogLike(double &result)
+      void Contur_LHC_measurements_LogLike(double &result)
       {
-        using namespace Pipes::calc_Contur_LHC_measurements_LogLike;
+        using namespace Pipes::Contur_LHC_measurements_LogLike;
 
         // Get YODA analysis objects from Rivet
         vector_shared_ptr<YODA::AnalysisObject> aos = *Dep::Rivet_measurements;
 
         // Call Contur
-        result = BEreq::Contur_LogLike();
+        //result = BEreq::Contur_LogLike(aos);
 
       }
 
       // Contur version, from YODA file
-      void calc_Contur_LHC_measurements_LogLike_from_file(double &result)
+      void Contur_LHC_measurements_LogLike_from_file(double &result)
       {
-        using namespace Pipes::calc_Contur_LHC_measurements_LogLike;
+        using namespace Pipes::Contur_LHC_measurements_LogLike_from_file;
 
         // This function only works if there is a file
         str YODA_filename = runOptions->getValueOrDef<str>("", "YODA_filename");
@@ -180,7 +194,7 @@ namespace Gambit
           ColliderBit_error().raise(LOCAL_INFO, "YODA file "+YODA_filename+" not found.");
 
         // Call Contur
-        BEreq::Contur_LogLike();
+        //result = BEreq::Contur_LogLike(YODA_filename);
 
       }
 
