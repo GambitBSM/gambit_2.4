@@ -6,7 +6,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/contur_grid.
  import pickle
  import numpy as np
 -import matplotlib.pyplot as plt
-+#import matplotlib.pyplot as plt
++#import matplotlib.pyplot as plt ! Commented by GAMBIT
  import contur.Utils as util
  from scipy.interpolate import griddata
  from mpl_toolkits.mplot3d import Axes3D
@@ -18,7 +18,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/conturPoint.
  import yoda
  import re
 -import rivet
-+#import rivet
++#import rivet ! Commented by GAMBIT
  from contur import TestingFunctions as ctr
  import contur.Utils as util
  
@@ -30,7 +30,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/histFactory.
  import yoda
  import re
 -import rivet
-+#import rivet
++#import rivet ! Commented by GAMBIT
  import numpy as np
  from contur import TestingFunctions as ctr
  import contur.Utils as util
@@ -42,7 +42,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Scanning/os_
  import sys
  import os
 -from configobj import ConfigObj
-+#from configobj import ConfigObj
++#from configobj import ConfigObj ! Commented by GAMBIT
  
  
  def make_directory(path):
@@ -51,7 +51,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Scanning/os_
  
  
 -from configobj import ConfigObj
-+#from configobj import ConfigObj
++#from configobj import ConfigObj ! Commented by GAMBIT
  def write_sampled_map(output_dir, param_dict):
      #sampled_points = {}
      sampled_points= ConfigObj()
@@ -70,7 +70,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Scanning/wei
  import itertools
  import numpy as np
 -import matplotlib.pyplot as plt
-+#import matplotlib.pyplot as plt
++#import matplotlib.pyplot as plt ! Commented by GAMBIT
  
  from contur.contur_grid import ConturGrid
  
@@ -81,7 +81,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/TestingFunct
  import sqlite3 as db
  import re
 -from rivet.aopaths import AOPath
-+#from rivet.aopaths import AOPath
++#from rivet.aopaths import AOPath ! Commented by GAMBIT
  from os.path import dirname, join
  
  INIT = False
@@ -92,8 +92,8 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Utils/plotin
  import os, re
 -import rivet
 -from rivet.util import texpand
-+#import rivet
-+#from rivet.util import texpand
++#import rivet ! Commented by GAMBIT
++#from rivet.util import texpand ! Commented by GAMBIT
  
  class PlotParser(object):
      """
@@ -105,7 +105,7 @@ diff -rupN heprivet-contur-8407e09eb161/AnalysisTools/contur/contur/Utils/Utils.
  import numpy as np
  import yoda
 -import rivet
-+#import rivet
++#import rivet ! Commented by GAMBIT
  import plotinfo
  import contur as ct
  from contur import TestingFunctions as ctr

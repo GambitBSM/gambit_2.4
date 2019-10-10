@@ -193,8 +193,11 @@ namespace Gambit
         if (YODA_filename == "" or not Utils::file_exists(YODA_filename))
           ColliderBit_error().raise(LOCAL_INFO, "YODA file "+YODA_filename+" not found.");
 
-        // Call Contur
-        //result = BEreq::Contur_LogLike(YODA_filename);
+        #pragma omp critical
+        {
+          // Call Contur
+          result = BEreq::Contur_LogLike(YODA_filename);
+        }
 
       }
 

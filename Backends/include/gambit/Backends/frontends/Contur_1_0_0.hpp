@@ -25,6 +25,6 @@
 LOAD_LIBRARY
 
 BE_CONV_FUNCTION(Contur_LogLike, double, (vector_shared_ptr<YODA::AnalysisObject> &), "Contur_LogLike")
-BE_CONV_FUNCTION(Contur_LogLike, double, (str &), "Contur_LogLike")
+BE_CONV_FUNCTION(Contur_LogLike_from_file, double, (str &), "Contur_LogLike")
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

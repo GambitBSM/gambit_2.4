@@ -1143,6 +1143,7 @@ set(ver "1.0.0")
 set(dl "https://bitbucket.org/heprivet/contur/get/8407e09eb161.zip")
 set(md5 2c1be84a0e518a8454f495f486f76114)
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 set(ditch_if_absent "SQLITE3;YODA;PY_cython")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
@@ -1151,10 +1152,10 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${dir}/AnalysisTools/contur/__init__.py
-              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${dir}/AnalysisTools/contur/__init__.py
-              COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${dir}/AnalysisTools/contur/__init__.py
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
+              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
+              COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
     INSTALL_COMMAND ""
   )

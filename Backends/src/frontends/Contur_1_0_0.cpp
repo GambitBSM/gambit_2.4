@@ -28,8 +28,10 @@ BE_NAMESPACE
 
   }
 
-  double Contur_LogLike(str &YODA_filename)
+  double Contur_LogLike_from_file(str &YODA_filename)
   {
+
+    pybind11::object factory = Contur.attr("yodaFactory")(YODA_filename);
 
     return 0.0;
   }
