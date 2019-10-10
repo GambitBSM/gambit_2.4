@@ -268,6 +268,7 @@ Rules:
       drop_YODA_file: true
       analyses: 
         - ATLAS_2019_I1718132
+        - ATLAS_2019_I1720442
         - CMS_2018_I1680318
 
   - capability: LHC_measurements_LogLike

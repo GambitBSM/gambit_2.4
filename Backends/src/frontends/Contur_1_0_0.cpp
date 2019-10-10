@@ -31,7 +31,23 @@ BE_NAMESPACE
   double Contur_LogLike_from_file(str &YODA_filename)
   {
 
-    pybind11::object factory = Contur.attr("yodaFactory")(YODA_filename);
+    pybind11::object yodaFactory = Contur.attr("yodaFactory")(YODA_filename);
+
+    // Set the test method to be used
+    // TODO: LL for now
+    yodaFactory.attr("_testMethod") = "LL";
+    yodaFactory.attr("_GridRun") = false;
+
+    yodaFactory.attr("getConturPoints")();
+    yodaFactory.attr("sortPoints")();
+    yodaFactory.attr("buildFinal")();
+
+    pybind11::object conturPoints = yodaFactory.attr("conturPoints");
+    pybind11::object conturPoint  = yodaFactory.attr("conturPoint");
+
+    std::cout << "contur points length = "<< pybind11::len(conturPoints) << endl;
+    std::cout << "contur point CL = " << conturPoint.attr("") << std::endl;
+    
 
     return 0.0;
   }
