@@ -1121,6 +1121,7 @@ set(Rivet_LD_FLAGS "-L${dir}/include/Rivet")
 find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
+  set(Rivet_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   message("   Backends depending on Rivet's python extension will be enabled.")
 else()
   set(pyext no)
@@ -1152,22 +1153,22 @@ set(dl "https://bitbucket.org/heprivet/contur/get/8407e09eb161.zip")
 set(md5 2c1be84a0e518a8454f495f486f76114)
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-set(rivet_name "rivet")
-set(rivet_ver "3.0.1")
-set(rivet_py_path "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python2.7/site-packages")
+set(Rivet_name "rivet")
+set(Rivet_ver "3.0.1")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 find_python_module(cython)
 set(ditch_if_absent "SQLITE3;YODA;PY_cython")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS ${rivet_name}_${rivet_ver}
+    DEPENDS ${Rivet_name}_${Rivet_ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
               COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
+              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
               COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
     INSTALL_COMMAND ""

@@ -1,7 +1,7 @@
 diff -rupN Rivet-3.0.1/Makefile.in ../installed/rivet/3.0.1/Makefile.in
 --- Rivet-3.0.1/Makefile.in	2019-07-17 08:28:15.000000000 +1000
 +++ ../installed/rivet/3.0.1/Makefile.in	2019-10-01 13:37:38.488043545 +1000
-@@ -450,6 +450,15 @@ dist_pkgconfig_DATA = rivet.pc
+@@ -450,6 +450,16 @@ dist_pkgconfig_DATA = rivet.pc
  RSH = rsync
  DEST = login.hepforge.org:rivet/downloads/
  all: all-recursive
@@ -13,6 +13,7 @@ diff -rupN Rivet-3.0.1/Makefile.in ../installed/rivet/3.0.1/Makefile.in
 +	cd ${top_builddir}/src/AnalysisTools && ${MAKE} libRivetAnalysisTools.la
 +	cd ${top_builddir}/src && ${MAKE} libRivet.la
 +	cd ${top_builddir}/analyses && ${MAKE} install-exec-local install-data-local
++	cd ${top_builddir}/pyext && ${MAKE} install
 +	cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so
  
  .SUFFIXES:
