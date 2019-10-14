@@ -1154,7 +1154,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(rivet_name "rivet")
 set(rivet_ver "3.0.1")
-set(rivet_py_path "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/pyext")
+set(rivet_py_path "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python2.7/site-packages")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 find_python_module(cython)
 set(ditch_if_absent "SQLITE3;YODA;PY_cython")
