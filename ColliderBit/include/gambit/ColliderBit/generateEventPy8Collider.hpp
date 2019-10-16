@@ -162,8 +162,8 @@ namespace Gambit
 
     /// Generate a hard scattering event with Pythia and convert it to HEPUtils::Event
     template<typename PythiaT, typename EventT>
-    void generateEventPy8Collider(HEPUtils::Event& event,
-                                  EventT &pythia_event,
+    void convertEventToHEPUtilsPy8Collider(HEPUtils::Event& event,
+                                  const EventT &pythia_event,
                                   const Py8Collider<PythiaT,EventT>& HardScatteringSim,
                                   void(*wrapup)())
     {
@@ -204,8 +204,8 @@ namespace Gambit
     #ifndef EXCLUDE_HEPMC
       /// Generate a hard scattering event with Pythia and convert it to HepMC event
       template<typename PythiaT, typename EventT>
-      void generateEventPy8Collider(HepMC3::GenEvent& event,
-                                    EventT &pythia_event,
+      void convertEventToHepMCPy8Collider(HepMC3::GenEvent& event,
+                                    const EventT &pythia_event,
                                     const Py8Collider<PythiaT,EventT>& HardScatteringSim,
                                     const int iteration,
                                     void(*wrapup)(),
@@ -228,16 +228,16 @@ namespace Gambit
     void CAT(NAME,_HEPUtils)(HEPUtils::Event& result)            \
     {                                                            \
       using namespace Pipes::CAT(NAME,_HEPUtils);                \
-      generateEventPy8Collider(result,                           \
+      convertEventToHEPUtilsPy8Collider(result,                  \
        *Dep::HardScatteringEvent, *Dep::HardScatteringSim,       \
        Loop::wrapup);                                            \
     }                                                            \
                                                                  \
-    BOOST_PP_IIF(EXCLUDE_HEPMC,,                                 \
+    BOOST_PP_IF(EXCLUDE_HEPMC,,                                 \
       void CAT(NAME,_HepMC)(HepMC3::GenEvent& result)            \
       {                                                          \
         using namespace Pipes::CAT(NAME,_HepMC);                 \
-        generateEventPy8Collider(result,                         \
+        convertEventToHepMCPy8Collider(result,                   \
          *Dep::HardScatteringEvent, *Dep::HardScatteringSim,     \
          *Loop::iteration, Loop::wrapup,                         \
          runOptions);                                            \
