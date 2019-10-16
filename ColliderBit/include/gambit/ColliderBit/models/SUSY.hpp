@@ -27,6 +27,10 @@
 ///          (andy.buckley@cern.ch)
 ///  \date 2017 Jun
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -69,11 +73,29 @@
   #define CAPABILITY HardScatteringEvent
 
     #define FUNCTION generateEventPythia
-    START_FUNCTION(HEPUtils::Event)
+    START_FUNCTION(Pythia_default::Pythia8::Event)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia, default)
     DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
     #undef FUNCTION
+
+    #define FUNCTION generateEventPythia_HEPUtils
+    START_FUNCTION(HEPUtils::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia, default)
+    DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+    DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+    #undef FUNCTION
+
+    #ifndef EXCLUDE_HEPMC
+      #define FUNCTION generateEventPythia_HepMC
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      NEEDS_CLASSES_FROM(Pythia, default)
+      DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+      DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+      #undef FUNCTION
+    #endif
 
   #undef CAPABILITY
 

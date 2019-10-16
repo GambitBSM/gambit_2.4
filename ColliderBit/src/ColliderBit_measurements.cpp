@@ -10,13 +10,14 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
-///  \date   2019 July Feb
+///  \date   2019
 ///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
+#include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
 #ifndef EXCLUDE_HEPMC
   #include "HepMC3/ReaderAscii.h"
@@ -39,21 +40,24 @@ namespace Gambit
     #ifndef EXCLUDE_HEPMC
       #ifndef EXCLUDE_YODA
 
-        // Get measurments from Rivet
+        // Analyse HepMC event with Rivet's measurements
+        // TODO: This version should work at event level
         void Rivet_measurements(vector_shared_ptr<YODA::AnalysisObject> &result)
         {
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
 
-          // Make sure this is single thread only (assuming Rivet is not thread-safe)
-          # pragma omp critical
+          // Analysis handler
+          AnalysisHandler *ah;
+
+          if(*Loop::iteration == BASE_INIT)
           {
-
-            // Analysis handler
-            AnalysisHandler ah;
-
+            ah = new AnalysisHandler();
+            
             // TODO: this is temporary cause it does not work without it
-            ah.setIgnoreBeams(true);
+            ah->setIgnoreBeams(true);
+
+            // TODO: Cross section?
 
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
@@ -64,90 +68,53 @@ namespace Gambit
 
             // Add the list to the AnalaysisHandler
             for (auto analysis : analyses)
-              ah.addAnalysis(analysis);
+              ah->addAnalysis(analysis);
+          }
 
-            // Get the filename and initialise the HepMC reader
-            const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
-            static int HepMC_file_version = -1;
+          // Delete the handler in the last iteration
+          if (*Loop::iteration == BASE_FINALIZE)
+          {
+            delete ah;
+          }
 
-            static bool first = true;
+          // Don't do anything else during special iterations
+          if (*Loop::iteration < 0) return;
+
+          // Make sure this is single thread only (assuming Rivet is not thread-safe)
+          # pragma omp critical
+          {
+            // Get the HepMC event
+            HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+
+            try { ah->analyze(ge); }
+            catch(std::runtime_error &e)
+            {
+              ColliderBit_error().raise(LOCAL_INFO, e.what());
+            }
+
+            ah->finalize();
+
+            // Get YODA object
+            ah->writeData(result);
+
+          }
+
+          // Drop YODA file if requested
+          bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
+          if(drop_YODA_file)
+          {
+            thread_local bool first = true;
+            thread_local str filename;
+
             if (first)
             {
-              if (not Utils::file_exists(HepMC_filename)) throw std::runtime_error("HepMC event file "+HepMC_filename+" not found. Quitting...");
-
-              // Figure out if the file is HepMC2 or HepMC3
-              std::ifstream infile(HepMC_filename);
-              if (infile.good())
-              {
-                std::string line;
-                while(std::getline(infile, line))
-                {
-                  // Skip blank lines
-                  if(line == "") continue;
-
-                  // We look for "HepMC::Version 2" or "HepMC::Version 3", 
-                  // so we only need the first 16 characters of the line
-                  std::string short_line = line.substr(0,16);
-
-                  if (short_line == "HepMC::Version 2")
-                  {
-                    HepMC_file_version = 2;
-                    break;
-                  }
-                  else if (short_line == "HepMC::Version 3")
-                  {
-                    HepMC_file_version = 3;
-                   break;
-                  }
-                  else
-                  {
-                    throw std::runtime_error("Could not determine HepMC version from the string '"+short_line+"' extracted from the line '"+line+"'. Quitting...");
-                  }
-                }
-              }
+              filename = "GAMBIT_collider_measurements.omp_thread_" + std::to_string(omp_get_thread_num()) + ".yoda";
               first = false;
             }
 
-            if(HepMC_file_version != 2 and HepMC_file_version != 3)
-            {
-              throw std::runtime_error("Failed to determine HepMC version for input file "+HepMC_filename+". Quitting...");
-            }
-
-            static HepMC3::Reader *HepMCio;
-
-            if (HepMC_file_version == 2)
-              HepMCio =  new HepMC3::ReaderAsciiHepMC2(HepMC_filename);
-            else
-              HepMCio =  new HepMC3::ReaderAscii(HepMC_filename);
-
-            // Attempt to read the next HepMC event as a HEPUtils event. If there are no more events, wrap up the loop and skip the rest of this iteration.
-            HepMC3::GenEvent ge(HepMC3::Units::GEV, HepMC3::Units::MM);
-            while(HepMCio->read_event(ge) and !HepMCio->failed())
-            {
-              try { ah.analyze(ge); }
-              catch(std::runtime_error &e)
-              {
-                ColliderBit_error().raise(LOCAL_INFO, e.what());
-              }
-            }
-
-            delete HepMCio;
-
-            ah.finalize();
-
-            // Get YODA object
-            ah.writeData(result);
-
-            // Drop YODA file if requested
-            bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
-            if(drop_YODA_file)
-            {
-              str filename = "GAMBIT_collider_measurements.yoda";
-              try{ YODA::write(filename, result.begin(), result.end()); }
-              catch (...)
-              { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
-            }
-
+            try{ YODA::write(filename, result.begin(), result.end()); }
+            catch (...)
+            { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
           }
         }
       #endif //EXCLUDE_YODA

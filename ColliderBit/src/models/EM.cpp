@@ -12,6 +12,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Oct
+///
 ///  *********************************************
 
 #include "gambit/ColliderBit/getPy8Collider.hpp"
@@ -27,7 +31,7 @@ namespace Gambit
     GET_PYTHIA_AS_BASE_COLLIDER(getPythia_EMAsBase)
 
     // Run event generator
-    GET_PYTHIA_EVENT(generateEventPythia_EM)
+    GET_PYTHIA_EVENT(generateEventPythia_EM, Pythia_EM_default::Pythia8::Event)
 
     #ifndef EXCLUDE_HEPMC
       // Template specialization for EM Pythia

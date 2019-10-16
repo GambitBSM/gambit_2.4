@@ -29,9 +29,8 @@
         #define FUNCTION Rivet_measurements
         START_FUNCTION(vector_shared_ptr<YODA::AnalysisObject>)
         NEEDS_CLASSES_FROM(Rivet, default)
-        //DEPENDENCY(RunMC, MCLoopInfo) // Change to one that stores HepMC
-        //BACKEND_REQ(Rivet_get_SM_measurements, (libRivet), double, ()) 
-        //BACKEND_OPTION((Rivet, 3.0.1), (libRivet))
+        DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
+        NEEDS_MANAGER(RunMC, MCLoopInfo)
         #undef FUNCTION
       #undef CAPABILITY
     #endif

@@ -1122,6 +1122,7 @@ find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
   set(Rivet_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  set(Rivet_LIB "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/libRivet.so")
   message("   Backends depending on Rivet's python extension will be enabled.")
 else()
   set(pyext no)
@@ -1152,6 +1153,7 @@ set(ver "1.0.0")
 set(dl "https://bitbucket.org/heprivet/contur/get/8407e09eb161.zip")
 set(md5 2c1be84a0e518a8454f495f486f76114)
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(init_file ${dir}/AnalysisTools/contur/init_by_GAMBIT.py)
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(Rivet_name "rivet")
 set(Rivet_ver "3.0.1")
@@ -1166,10 +1168,12 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
-              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
-              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
-              COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${dir}/AnalysisTools/contur/init_by_GAMBIT.py
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
+              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
+              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
+              COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
+              COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
+              COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${init_file}
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
     INSTALL_COMMAND ""
   )

@@ -39,17 +39,12 @@ BE_NAMESPACE
     yodaFactory.attr("_GridRun") = false;
 
     yodaFactory.attr("getConturPoints")();
-    yodaFactory.attr("sortPoints")();
-    yodaFactory.attr("buildFinal")();
 
-    pybind11::object conturPoints = yodaFactory.attr("conturPoints");
-    pybind11::object conturPoint  = yodaFactory.attr("conturPoint");
-
-    std::cout << "contur points length = "<< pybind11::len(conturPoints) << endl;
-    std::cout << "contur point CL = " << conturPoint.attr("") << std::endl;
+    pybind11::object conturPoint  = yodaFactory.attr("_ctPt");
+    double CLs = conturPoint.attr("CLs").cast<double>();
     
-
-    return 0.0;
+    // TODO: This is not a likelihood, need to figure out how to convert it to one
+    return CLs;
   }
 
 }

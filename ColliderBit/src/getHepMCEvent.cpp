@@ -22,7 +22,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
-///  \date 2019 Sep
+///  \date 2019 Sep, Oct
 ///
 ///  *********************************************
 
@@ -44,10 +44,10 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
-    void getHepMCEvent(HEPUtils::Event& result)
+    /// A nested function that reads in HepMC event files
+    void readHepMCEvent(HepMC3::GenEvent& result)
     {
-      using namespace Pipes::getHepMCEvent;
+      using namespace Pipes::readHepMCEvent;
 
       result.clear();
 
@@ -134,12 +134,23 @@ namespace Gambit
       }
       if (not event_retrieved) Loop::halt();
 
+
+    }
+
+    /// A nested function that converts HepMC events to HEPUtils::Event format
+    void getHepMCEvent(HEPUtils::Event &result)
+    {
+      using namespace Pipes::getHepMCEvent;
+
+      // Get the HepMC event
+      HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+
       // Translate to HEPUtils event
       get_HEPUtils_event(ge, result);
  
     }
-  }
 
+  }
 }
 
 #endif

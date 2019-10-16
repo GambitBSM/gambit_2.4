@@ -357,8 +357,8 @@ function(add_standalone executablename)
   # Assume that the standlone is to be include unless we discover otherwise.
   set(standalone_permitted 1)
 
-  # Exclude standalones that need HepMC if it has been excluded.
-  if (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;"))
+  # Exclude standalones that need HepMC or YODA if they have been excluded.
+  if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
     set(standalone_permitted 0)
   endif()
 
@@ -408,7 +408,7 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${PROJECT_BINARY_DIR}/CMakeCache.txt)
 
-    # Add linking flags for ROOT, RestFrames and/or HepMC if required.
+    # Add linking flags for ROOT, RestFrames, HepMC and/or YODA if required.
     if (USES_COLLIDERBIT)
       if (NOT EXCLUDE_ROOT)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
@@ -418,6 +418,9 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_HEPMC)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_YODA)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
       endif()
     endif()
 

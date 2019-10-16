@@ -345,9 +345,16 @@
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 
-      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      /// A nested function that reads in HepMC event files
+      #define FUNCTION readHepMCEvent
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that converts HepMC events them to HEPUtils::Event format
       #define FUNCTION getHepMCEvent
       START_FUNCTION(HEPUtils::Event)
+      DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 

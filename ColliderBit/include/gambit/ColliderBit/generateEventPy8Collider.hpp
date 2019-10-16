@@ -36,7 +36,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
-///  \date 2019 Sep
+///  \date 2019 Sep, Oct
 ///
 ///  *********************************************
 
@@ -85,7 +85,7 @@ namespace Gambit
 
     /// Generate a hard scattering event with Pythia
     template<typename PythiaT, typename EventT>
-    void generateEventPy8Collider(HEPUtils::Event& event,
+    void generateEventPy8Collider(EventT& event,
                                   const MCLoopInfo& RunMC,
                                   const Py8Collider<PythiaT,EventT>& HardScatteringSim,
                                   const int iteration,
@@ -158,6 +158,16 @@ namespace Gambit
       #endif
 
 
+    }
+
+    /// Generate a hard scattering event with Pythia and convert it to HEPUtils::Event
+    template<typename PythiaT, typename EventT>
+    void generateEventPy8Collider(HEPUtils::Event& event,
+                                  EventT &pythia_event,
+                                  const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                  void(*wrapup)())
+    {
+
       // Attempt to convert the Pythia event to a HEPUtils event
       try
       {
@@ -188,18 +198,52 @@ namespace Gambit
         return;
       }
 
+
     }
 
+    #ifndef EXCLUDE_HEPMC
+      /// Generate a hard scattering event with Pythia and convert it to HepMC event
+      template<typename PythiaT, typename EventT>
+      void generateEventPy8Collider(HepMC3::GenEvent& event,
+                                    EventT &pythia_event,
+                                    const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                    const int iteration,
+                                    void(*wrapup)(),
+                                    const safe_ptr<Options>& runOptions)
+      {
+      }
+    #endif
+
+
     /// Generate a hard scattering event with a specific Pythia,
-    #define GET_PYTHIA_EVENT(NAME)                               \
-    void NAME(HEPUtils::Event& result)                           \
+    #define GET_PYTHIA_EVENT(NAME, PYTHIA_EVENT_TYPE)            \
+    void NAME(PYTHIA_EVENT_TYPE &result)                         \
     {                                                            \
       using namespace Pipes::NAME;                               \
       generateEventPy8Collider(result, *Dep::RunMC,              \
        *Dep::HardScatteringSim, *Loop::iteration, Loop::wrapup,  \
        runOptions);                                              \
+    }                                                            \
                                                                  \
-    }
+    void CAT(NAME,_HEPUtils)(HEPUtils::Event& result)            \
+    {                                                            \
+      using namespace Pipes::CAT(NAME,_HEPUtils);                \
+      generateEventPy8Collider(result,                           \
+       *Dep::HardScatteringEvent, *Dep::HardScatteringSim,       \
+       Loop::wrapup);                                            \
+    }                                                            \
+                                                                 \
+    BOOST_PP_IIF(EXCLUDE_HEPMC,,                                 \
+      void CAT(NAME,_HepMC)(HepMC3::GenEvent& result)            \
+      {                                                          \
+        using namespace Pipes::CAT(NAME,_HepMC);                 \
+        generateEventPy8Collider(result,                         \
+         *Dep::HardScatteringEvent, *Dep::HardScatteringSim,     \
+         *Loop::iteration, Loop::wrapup,                         \
+         runOptions);                                            \
+      }                                                          \
+    )
+
 
   }
 
