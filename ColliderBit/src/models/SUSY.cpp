@@ -34,8 +34,7 @@ namespace Gambit
     GET_PYTHIA_AS_BASE_COLLIDER(getPythiaAsBase)
 
     // Run event generator
-    GET_PYTHIA_EVENT(generateEventPythia, Pythia_default::Pythia8::Event)
-
+    GET_PYTHIA_EVENT(generateEventPythia, Pythia_default::Pythia8::Event, WITH_HEPMC)
 
 
     // Get next SLHA file path and content (for use with model CB_SLHA_file_model)

@@ -76,16 +76,6 @@
     DEPENDENCY(HardScatteringEvent, Pythia_EM_default::Pythia8::Event)
     #undef FUNCTION
 
-    #ifndef EXCLUDE_HEPMC
-      #define FUNCTION generateEventPythia_EM_HepMC
-      START_FUNCTION(HepMC3::GenEvent)
-      NEEDS_MANAGER(RunMC, MCLoopInfo)
-      NEEDS_CLASSES_FROM(Pythia, default)
-      DEPENDENCY(HardScatteringSim, Py8Collider_EM_defaultversion)
-      DEPENDENCY(HardScatteringEvent, Pythia_EM_default::Pythia8::Event)
-      #undef FUNCTION
-    #endif
-
   #undef CAPABILITY
 
 #undef MODULE
