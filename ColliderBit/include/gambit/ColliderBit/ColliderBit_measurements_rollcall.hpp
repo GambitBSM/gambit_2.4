@@ -26,12 +26,14 @@
       // Get measurements from Rivet
       #define CAPABILITY Rivet_measurements
       START_CAPABILITY
+
         #define FUNCTION Rivet_measurements
         START_FUNCTION(vector_shared_ptr<YODA::AnalysisObject>)
         NEEDS_CLASSES_FROM(Rivet, default)
         DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
         NEEDS_MANAGER(RunMC, MCLoopInfo)
         #undef FUNCTION
+
       #undef CAPABILITY
     #endif
   #endif

@@ -40,25 +40,17 @@ namespace Gambit
     #ifndef EXCLUDE_HEPMC
       #ifndef EXCLUDE_YODA
 
-        // Analyse HepMC event with Rivet's measurements
-        // TODO: This version should work at event level
+        // Analyse HepMC events with Rivet's measurements 
+        // Collect results in a vector of YODA Analysis objects
         void Rivet_measurements(vector_shared_ptr<YODA::AnalysisObject> &result)
         {
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
 
-          // Don't do anything else during special iterations
-          if (*Loop::iteration < 0) return;
+          static AnalysisHandler ah;
 
-          thread_local AnalysisHandler ah;
-          thread_local bool first = true;
-
-          if(first)
+          if (*Loop::iteration == BASE_INIT)
           {
-            // Analysis handler
-            AnalysisHandler ah;
-
-            std::cout << "iteration = " << *Loop::iteration << std::endl;
 
             // TODO: this is temporary cause it does not work without it
             ah.setIgnoreBeams(true);
@@ -72,16 +64,42 @@ namespace Gambit
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
             // TODO: Add somewhere a check to make sure we only do LHC analyses
 
-            // Add the list to the AnalaysisHandler
-            for (auto analysis : analyses)
-              ah.addAnalysis(analysis);
+            // Rivet is reading from file here, so make it critical
+            # pragma omp critical
+            {
+              // Add the list to the AnalaysisHandler
+              for (auto analysis : analyses)
+                ah.addAnalysis(analysis);
+            }
 
-            first = false;
           }
+
+          if (*Loop::iteration == BASE_FINALIZE)
+          {
+            ah.finalize();
+
+            // Get YODA object
+            ah.writeData(result);
+
+            // Drop YODA file if requested
+            bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
+            if(drop_YODA_file)
+            {
+              str filename = "GAMBIT_collider_measurements.yoda";
+
+              try{ YODA::write(filename, result.begin(), result.end()); }
+              catch (...)
+              { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+            }
+          }
+
+          // Don't do anything else during special iterations
+          if (*Loop::iteration < 0) return;
 
           // Make sure this is single thread only (assuming Rivet is not thread-safe)
           # pragma omp critical
           {
+
             // Get the HepMC event
             HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
 
@@ -90,31 +108,8 @@ namespace Gambit
             {
               ColliderBit_error().raise(LOCAL_INFO, e.what());
             }
-
-            ah.finalize();
-
-            // Get YODA object
-            ah.writeData(result);
-
           }
 
-          // Drop YODA file if requested
-          bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
-          if(drop_YODA_file)
-          {
-            thread_local bool first = true;
-            thread_local str filename;
-
-            if (first)
-            {
-              filename = "GAMBIT_collider_measurements.omp_thread_" + std::to_string(omp_get_thread_num()) + ".yoda";
-              first = false;
-            }
-
-            try{ YODA::write(filename, result.begin(), result.end()); }
-            catch (...)
-            { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
-          }
         }
       #endif //EXCLUDE_YODA
     #endif // EXCLUDE_HEPMC

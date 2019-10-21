@@ -183,8 +183,7 @@ Rules:
     type: Pythia_default::Pythia8::Event
     function: generateEventPythia
     options:
-      drop_HepMC2_file: true
-      drop_HepMC3_file: true
+      #drop_HepMC3_file: true
 
   - capability: HardScatteringEvent
     type: HEPUtils::Event
@@ -205,7 +204,7 @@ Rules:
       silenceLoop: false
       LHC_13TeV:
         min_nEvents: 500
-        max_nEvents: 5000
+        max_nEvents: 500
         events_between_convergence_checks: 500
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -273,7 +272,6 @@ Rules:
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
     options:
-      #hepmc_filename: "./GAMBIT_collider_events.omp_thread_0.hepmc3"
       drop_YODA_file: true
       analyses: 
         - ATLAS_2019_I1718132
