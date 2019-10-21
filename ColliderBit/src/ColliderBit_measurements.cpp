@@ -47,15 +47,21 @@ namespace Gambit
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
 
-          // Analysis handler
-          AnalysisHandler *ah;
+          // Don't do anything else during special iterations
+          if (*Loop::iteration < 0) return;
 
-          if(*Loop::iteration == BASE_INIT)
+          thread_local AnalysisHandler ah;
+          thread_local bool first = true;
+
+          if(first)
           {
-            ah = new AnalysisHandler();
-            
+            // Analysis handler
+            AnalysisHandler ah;
+
+            std::cout << "iteration = " << *Loop::iteration << std::endl;
+
             // TODO: this is temporary cause it does not work without it
-            ah->setIgnoreBeams(true);
+            ah.setIgnoreBeams(true);
 
             // TODO: Cross section?
 
@@ -68,17 +74,10 @@ namespace Gambit
 
             // Add the list to the AnalaysisHandler
             for (auto analysis : analyses)
-              ah->addAnalysis(analysis);
-          }
+              ah.addAnalysis(analysis);
 
-          // Delete the handler in the last iteration
-          if (*Loop::iteration == BASE_FINALIZE)
-          {
-            delete ah;
+            first = false;
           }
-
-          // Don't do anything else during special iterations
-          if (*Loop::iteration < 0) return;
 
           // Make sure this is single thread only (assuming Rivet is not thread-safe)
           # pragma omp critical
@@ -86,16 +85,16 @@ namespace Gambit
             // Get the HepMC event
             HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
 
-            try { ah->analyze(ge); }
+            try { ah.analyze(ge); }
             catch(std::runtime_error &e)
             {
               ColliderBit_error().raise(LOCAL_INFO, e.what());
             }
 
-            ah->finalize();
+            ah.finalize();
 
             // Get YODA object
-            ah->writeData(result);
+            ah.writeData(result);
 
           }
 

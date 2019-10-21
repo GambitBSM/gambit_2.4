@@ -180,10 +180,19 @@ Rules:
 
   # Choose where to get scattering events from
   - capability: HardScatteringEvent
+    type: Pythia_default::Pythia8::Event
     function: generateEventPythia
     options:
       drop_HepMC2_file: true
       drop_HepMC3_file: true
+
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
+
+  - capability: HardScatteringEvent
+    type: HepMC3::GenEvent
+    function: generateEventPythia_HepMC
 
   # Choose to where to get cross-sections from
   - capability: CrossSection
@@ -226,7 +235,7 @@ Rules:
         # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
         pythia_settings:
-          - Print:quiet = on
+          - Print:quiet = off
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = off
@@ -264,7 +273,7 @@ Rules:
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
     options:
-      hepmc_filename: "./GAMBIT_collider_events.omp_thread_0.hepmc3"
+      #hepmc_filename: "./GAMBIT_collider_events.omp_thread_0.hepmc3"
       drop_YODA_file: true
       analyses: 
         - ATLAS_2019_I1718132
@@ -290,6 +299,8 @@ Logger:
 
 KeyValues:
 
+  debug: true
+
   dependency_resolution:
     prefer_model_specific_functions: true
 
@@ -297,7 +308,6 @@ KeyValues:
 
   likelihood:
     model_invalid_for_lnlike_below: -5e5
-    debug: true
 
     # Set the default output path
 

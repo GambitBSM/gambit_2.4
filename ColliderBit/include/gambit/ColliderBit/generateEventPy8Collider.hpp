@@ -60,8 +60,14 @@ namespace Gambit
     /// Drop a HepMC file for the event
     #ifndef EXCLUDE_HEPMC
       template<typename PythiaT>
-      void dropHepMCEventPy8Collider(const PythiaT* Pythia, const safe_ptr<Options>& runOptions)
+      void dropHepMCEventPy8Collider(const PythiaT* Pythia, 
+                                     const int iteration,
+                                     const safe_ptr<Options>& runOptions)
       {
+
+        // If in any other special iteration, do nothing
+        if (iteration <= BASE_INIT) return;
+
         // Write event to HepMC file
         static const bool drop_HepMC2_file = runOptions->getValueOrDef<bool>(false, "drop_HepMC2_file");
         static const bool drop_HepMC3_file = runOptions->getValueOrDef<bool>(false, "drop_HepMC3_file");
@@ -90,14 +96,14 @@ namespace Gambit
 
     /// Generate a hard scattering event with Pythia
     template<typename PythiaT, typename EventT>
-    void generateEventPy8Collider(EventT& event,
+    void generateEventPy8Collider(EventT& pythia_event,
                                   const MCLoopInfo& RunMC,
                                   const Py8Collider<PythiaT,EventT>& HardScatteringSim,
                                   const int iteration,
                                   void(*wrapup)())
     {
       static int nFailedEvents;
-      thread_local EventT pythia_event;
+//      thread_local EventT pythia_event;
 
       // If the event loop has not been entered yet, reset the counter for the number of failed events
       if (iteration == BASE_INIT)
@@ -113,9 +119,8 @@ namespace Gambit
       // If in any other special iteration, do nothing
       if (iteration < BASE_INIT) return;
 
-      // Reset the Pythia and HEPUtils events
+      // Reset the Pythia event
       pythia_event.clear();
-      event.clear();
 
       // Attempt (possibly repeatedly) to generate an event
       while(nFailedEvents <= RunMC.current_maxFailedEvents())
@@ -164,8 +169,15 @@ namespace Gambit
     void convertEventToHEPUtilsPy8Collider(HEPUtils::Event& event,
                                   const EventT &pythia_event,
                                   const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                  const int iteration,
                                   void(*wrapup)())
     {
+
+      // If in any other special iteration, do nothing
+      if (iteration <= BASE_INIT) return;
+
+      // Clear the HEPUtils event
+      event.clear();
 
       // Attempt to convert the Pythia event to a HEPUtils event
       try
@@ -206,12 +218,27 @@ namespace Gambit
       void convertEventToHepMCPy8Collider(HepMC3::GenEvent& event,
                                     const EventT &pythia_event,
                                     const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                    const int iteration,
                                     void(*wrapup)())
       {
+
+        // If in any other special iteration, do nothing
+        if (iteration <= BASE_INIT) return;
+
+        // Clear the HepMC event
+        event.clear();
+
         // Attempt to convert the Pythia event to a HepMC event
         try
         {
-          Pythia_default::Pythia8::GAMBIT_hepmc_writer hepmc_writer;
+          thread_local Pythia_default::Pythia8::GAMBIT_hepmc_writer hepmc_writer;
+          thread_local bool first = true;
+
+          if (first)
+          {
+            hepmc_writer.init("", false, false);
+            first = false;
+          }
 
           hepmc_writer.convert_to_HepMC_event(const_cast<PythiaT*>(HardScatteringSim.pythia()), event);
         }
@@ -252,7 +279,8 @@ namespace Gambit
       IF_NOT_DEFINED(EXCLUDE_HEPMC,                              \
         BOOST_PP_IIF(HEPMC,                                      \
           dropHepMCEventPy8Collider(                             \
-            Dep::HardScatteringSim->pythia(), runOptions);       \
+            Dep::HardScatteringSim->pythia(),                    \
+            *Loop::iteration, runOptions);                       \
         ,)                                                       \
       )                                                          \
                                                                  \
@@ -263,7 +291,7 @@ namespace Gambit
       using namespace Pipes::CAT(NAME,_HEPUtils);                \
       convertEventToHEPUtilsPy8Collider(result,                  \
        *Dep::HardScatteringEvent, *Dep::HardScatteringSim,       \
-       Loop::wrapup);                                            \
+       *Loop::iteration, Loop::wrapup);                          \
     }                                                            \
                                                                  \
     IF_NOT_DEFINED(EXCLUDE_HEPMC,                                \
@@ -273,7 +301,7 @@ namespace Gambit
           using namespace Pipes::CAT(NAME,_HepMC);               \
           convertEventToHepMCPy8Collider(result,                 \
            *Dep::HardScatteringEvent, *Dep::HardScatteringSim,   \
-           Loop::wrapup);                                        \
+           *Loop::iteration, Loop::wrapup);                      \
         }                                                        \
       ,)                                                         \
     )
