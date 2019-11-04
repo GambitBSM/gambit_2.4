@@ -97,6 +97,9 @@ ObsLikes:
     - purpose:    Observable
       capability: all_BFs
 
+    - purpose:    Observable 
+      capability: TotalCrossSectionAsMap
+
     - purpose:    Observable
       capability: LHC_signals
 
@@ -375,13 +378,32 @@ Rules:
 
   ##### LHC Detector and Analysis rules #####
 
+  # Choose to where to get total cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Choose how to do event weighting 
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+    # function: setEventWeight_fromCrossSection
+
+  # Choose where to get PID pair cross-sections from.
+  # Note: This is not required if the "setEventWeight_unity" 
+  #       function is chosen above.
+  # - capability: PIDPairCrossSectionsMap
+  #   function: getPIDPairCrossSectionsMap_xsecBE
+
+
   # Choose where to get scattering events from
   - capability: HardScatteringEvent
     function: generateEventPythia
 
-  # Choose to where to get cross-sections from
-  - capability: CrossSection
-    function: getMCxsec
+  # Set SLHA version for spectrum + decays passed to Pythia
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia
+    options:
+      slha_version: 2
+
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
@@ -402,8 +424,8 @@ Rules:
           # EWino production + GGM searches
           #
           - ATLAS_13TeV_4LEP_36invfb
-          - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb        # Needs RestFrames
-          - ATLAS_13TeV_RJ3L_3Lep_36invfb             # Needs RestFrames
+          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb        # Needs RestFrames
+          # - ATLAS_13TeV_RJ3L_3Lep_36invfb             # Needs RestFrames
           - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
           - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
           - ATLAS_13TeV_MultiLEP_3Lep_36invfb
@@ -431,7 +453,7 @@ Rules:
           #
           - ATLAS_13TeV_0LEP_36invfb
           - ATLAS_13TeV_0LEPStop_36invfb
-          - ATLAS_13TeV_1LEPStop_36invfb    # Needs RestFrames
+          # - ATLAS_13TeV_1LEPStop_36invfb    # Needs RestFrames
           - ATLAS_13TeV_2LEPStop_36invfb
           - ATLAS_13TeV_2bMET_36invfb           
           - ATLAS_13TeV_2OSLEP_Z_139invfb
@@ -495,7 +517,7 @@ Rules:
       nuisance_prof_maxsteps: 10000
       nuisance_prof_convacc: 0.01
       nuisance_prof_simplexsize: 1e-5
-      nuisance_prof_method: 1
+      nuisance_prof_method: 6 #1
       nuisance_prof_verbosity: 0
       # covariance_marg_convthres_abs: 0.05
       # covariance_marg_convthres_rel: 0.05

@@ -38,7 +38,7 @@
 
     #define FUNCTION getSpectrumAndDecaysForPythia
     START_FUNCTION(SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     NEEDS_MANAGER(RunMC, MCLoopInfo)      // @todo Why is this needed?
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(MSSM_spectrum, Spectrum)
@@ -106,7 +106,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActivePIDPairs, vec_PID_pair)
     DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     BACKEND_REQ(xsecBE_example_xsec_fb, (), double, (iipair&, pybind11::dict&, pybind11::dict&))
     BACKEND_REQ(xsecBE_example_xsec_err_fb, (), ddpair, (iipair&, pybind11::dict&, pybind11::dict&))
     BACKEND_REQ(xsecBE_example_set_parameters, (), void, (pybind11::dict&))
@@ -121,7 +121,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActivePIDPairs, vec_PID_pair)
     DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     BACKEND_REQ(xsecBE_import_slha_string, (), void, (std::string&))
     BACKEND_REQ(xsecBE_set_parameters, (), void, (pybind11::dict&))
     BACKEND_REQ(xsecBE_get_xsection, (), pybind11::dict, (iipair&))
@@ -130,7 +130,7 @@
     // #define FUNCTION getProspinoxsec
     // START_FUNCTION(xsec)
     // NEEDS_MANAGER(RunMC, MCLoopInfo)
-    // ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    // ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     // DEPENDENCY(MSSM_spectrum, Spectrum)
     // BACKEND_REQ(prospino_LHC_xsec, (libprospino), map_str_dbl, (const SLHAstruct&, const param_map_type&, prospino_settings&))
     // #undef FUNCTION
@@ -180,7 +180,7 @@
   START_CAPABILITY
     #define FUNCTION getSLHA1Spectrum
     START_FUNCTION(SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
@@ -190,7 +190,7 @@
   START_CAPABILITY
     #define FUNCTION getSLHA2Spectrum
     START_FUNCTION(SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
