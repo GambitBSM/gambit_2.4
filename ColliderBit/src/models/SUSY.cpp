@@ -210,7 +210,10 @@ namespace Gambit
     {
       using namespace Pipes::getSLHA1Spectrum;
 
-      if(ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT"))
+      if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT") 
+          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA") 
+          || ModelInUse("MSSM63atQ_lightgravitino") || ModelInUse("MSSM63atMGUT_lightgravitino")
+          || ModelInUse("MSSM63atQ_mA_lightgravitino") || ModelInUse("MSSM63atMGUT_mA_lightgravitino") ) 
       {
         result = Dep::MSSM_spectrum->getSLHAea(1);
       }
@@ -236,7 +239,10 @@ namespace Gambit
     {
       using namespace Pipes::getSLHA2Spectrum;
 
-      if(ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT"))
+      if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT") 
+          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA") 
+          || ModelInUse("MSSM63atQ_lightgravitino") || ModelInUse("MSSM63atMGUT_lightgravitino")
+          || ModelInUse("MSSM63atQ_mA_lightgravitino") || ModelInUse("MSSM63atMGUT_mA_lightgravitino") ) 
       {
         result = Dep::MSSM_spectrum->getSLHAea(2);
       }

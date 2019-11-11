@@ -100,6 +100,9 @@ ObsLikes:
     - purpose:    Observable 
       capability: TotalCrossSectionAsMap
 
+    # - purpose:    Observable 
+    #   capability: PIDPairCrossSectionsInfo
+
     - purpose:    Observable
       capability: LHC_signals
 
@@ -387,11 +390,21 @@ Rules:
     function: setEventWeight_unity
     # function: setEventWeight_fromCrossSection
 
-  # Choose where to get PID pair cross-sections from.
-  # Note: This is not required if the "setEventWeight_unity" 
-  #       function is chosen above.
+  # # Choose where to get PID pair cross-sections from.
+  # # Note: This is not required if the "setEventWeight_unity" 
+  # #       function is chosen above.
   # - capability: PIDPairCrossSectionsMap
-  #   function: getPIDPairCrossSectionsMap_xsecBE
+  #   function: getPIDPairCrossSectionsMap_prospino
+  #   options:
+  #     fixed_relative_cross_section_uncertainty: 0.10
+  #     set_missing_cross_sections_to_zero: true
+  #     # inlo: 1
+  #     # isq_ng_in: 1
+  #     # icoll_in: 1
+  #     # energy_in: 13000.0
+  #     # i_error_in: 0
+  #   # function: getPIDPairCrossSectionsMap_xsecBE
+
 
 
   # Choose where to get scattering events from
