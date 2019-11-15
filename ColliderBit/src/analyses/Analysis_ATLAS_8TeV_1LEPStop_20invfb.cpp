@@ -768,51 +768,13 @@ namespace Gambit {
         //Note: am not using shape fit bins
         //They need to be added (but will probably update to paper result)
 
-        SignalRegionData results_BC1;
-        results_BC1.sr_label = "BC1";
-        results_BC1.n_observed = 456.;
-        results_BC1.n_background = 482.;
-        results_BC1.background_sys = 76.;
-        results_BC1.signal_sys = 0.;
-        results_BC1.n_signal = _numBC1;
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_BC2;
-        results_BC2.sr_label = "BC2";
-        results_BC2.n_observed = 25.;
-        results_BC2.n_background = 18.;
-        results_BC2.background_sys = 5.;
-        results_BC2.signal_sys = 0.;
-        results_BC2.n_signal = _numBC2;
-
-        SignalRegionData results_BC3;
-        results_BC3.sr_label = "BC3";
-        results_BC3.n_observed = 6.;
-        results_BC3.n_background = 7.;
-        results_BC3.background_sys = 3.;
-        results_BC3.signal_sys = 0.;
-        results_BC3.n_signal = _numBC3;
-
-        SignalRegionData results_TN2;
-        results_TN2.sr_label = "TN2";
-        results_TN2.n_observed = 14.;
-        results_TN2.n_background = 13.;
-        results_TN2.background_sys = 3.;
-        results_TN2.signal_sys = 0.;
-        results_TN2.n_signal = _numTN2;
-
-        SignalRegionData results_TN3;
-        results_TN3.sr_label = "TN3";
-        results_TN3.n_observed = 7.;
-        results_TN3.n_background = 5.;
-        results_TN3.background_sys = 2.;
-        results_TN3.signal_sys = 0.;
-        results_TN3.n_signal = _numTN3;
-
-        add_result(results_BC1);
-        add_result(results_BC2);
-        add_result(results_BC3);
-        add_result(results_TN2);
-        add_result(results_TN3);
+        add_result(SignalRegionData("BC1", 456., {_numBC1, 0.}, {482., 76.}));
+        add_result(SignalRegionData("BC2", 25., {_numBC2, 0.}, {18., 5.}));
+        add_result(SignalRegionData("BC3", 6., {_numBC3, 0.}, {7., 3.}));
+        add_result(SignalRegionData("TN2", 14., {_numTN2, 0.}, {13., 3.}));
+        add_result(SignalRegionData("TN3", 7., {_numTN3, 0.}, {5., 2.}));
 
         return;
       }

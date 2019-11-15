@@ -59,27 +59,25 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      //int _numSRA_TT, _numSRA_TW, _numSRA_T0;
-
-      double num_tN_med;
-      double num_tN_high;
-      double num_bWN;
-      double num_bC2x_diag;
-      double num_bC2x_med;
-      double num_bCbv;
-      double num_DM_low_loose;
-      double num_DM_low;
-      double num_DM_high;
-
-      double num_bffN;
-      double num_bCsoft_diag;
-      double num_bCsoft_med;
-      double num_bCsoft_high;
+      std::map<string, EventCounter> _counters = {
+        {"tN_med", EventCounter("tN_med")},
+        {"tN_high", EventCounter("tN_high")},
+        {"bWN", EventCounter("bWN")},
+        {"bC2x_diag", EventCounter("bC2x_diag")},
+        {"bC2x_med", EventCounter("bC2x_med")},
+        {"bCbv", EventCounter("bCbv")},
+        {"DM_low_loose", EventCounter("DM_low_loose")},
+        {"DM_low", EventCounter("DM_low")},
+        {"DM_high", EventCounter("DM_high")},
+        {"bffN", EventCounter("bffN")},
+        {"bCsoft_diag", EventCounter("bCsoft_diag")},
+        {"bCsoft_med", EventCounter("bCsoft_med")},
+        {"bCsoft_high", EventCounter("bCsoft_high")},
+      };
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=16;
-
 
 
       void LeptonLeptonOverlapRemoval(vector<HEPUtils::Particle*> &lep1vec, vector<HEPUtils::Particle*> &lep2vec, double DeltaRMax)
@@ -180,21 +178,6 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_13TeV_1LEPStop_36invfb");
         set_luminosity(36.);
-
-        num_tN_med=0;
-        num_tN_high=0;
-        num_bWN=0;
-        num_bC2x_diag=0;
-        num_bC2x_med=0;
-        num_bCbv=0;
-        num_DM_low_loose=0;
-        num_DM_low=0;
-        num_DM_high=0;
-
-        num_bffN=0;
-        num_bCsoft_diag=0;
-        num_bCsoft_med=0;
-        num_bCsoft_high=0;
 
         NCUTS=150;
 
@@ -1342,20 +1325,20 @@ namespace Gambit {
 
         }
 
-        if(is_tN_med) num_tN_med += event->weight();
-        if(is_tN_high) num_tN_high += event->weight();
-        if(is_bWN) num_bWN += event->weight();
-        if(is_bC2x_diag) num_bC2x_diag += event->weight();
-        if(is_bC2x_med) num_bC2x_med += event->weight();
-        if(is_bCbv) num_bCbv += event->weight();
-        if(is_DM_low) num_DM_low_loose += event->weight();
-        if(is_DM_low) num_DM_low += event->weight();
-        if(is_DM_high) num_DM_high += event->weight();
+        if(is_tN_med) _counters.at("tN_med").add_event(event);
+        if(is_tN_high) _counters.at("tN_high").add_event(event);
+        if(is_bWN) _counters.at("bWN").add_event(event);
+        if(is_bC2x_diag) _counters.at("bC2x_diag").add_event(event);
+        if(is_bC2x_med) _counters.at("bC2x_med").add_event(event);
+        if(is_bCbv) _counters.at("bCbv").add_event(event);
+        if(is_DM_low) _counters.at("DM_low_loose").add_event(event);
+        if(is_DM_low) _counters.at("DM_low").add_event(event);
+        if(is_DM_high) _counters.at("DM_high").add_event(event);
 
-        if(is_bffN) num_bffN += event->weight();
-        if(is_bCsoft_diag) num_bCsoft_diag += event->weight();
-        if(is_bCsoft_med) num_bCsoft_med += event->weight();
-        if(is_bCsoft_high) num_bCsoft_high += event->weight();
+        if(is_bffN) _counters.at("bffN").add_event(event);
+        if(is_bCsoft_diag) _counters.at("bCsoft_diag").add_event(event);
+        if(is_bCsoft_med) _counters.at("bCsoft_med").add_event(event);
+        if(is_bCsoft_high) _counters.at("bCsoft_high").add_event(event);
 
         return;
 
@@ -1367,22 +1350,14 @@ namespace Gambit {
         const Analysis_ATLAS_13TeV_1LEPStop_36invfb* specificOther
                 = dynamic_cast<const Analysis_ATLAS_13TeV_1LEPStop_36invfb*>(other);
 
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+        
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (int j=0; j<NCUTS; j++)
         {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
-
-        num_tN_med += specificOther->num_tN_med;
-        num_tN_high += specificOther->num_tN_high;
-        num_bWN += specificOther->num_bWN;
-        num_bC2x_diag += specificOther->num_bC2x_diag;
-        num_bC2x_med += specificOther->num_bC2x_med;
-        num_bCbv += specificOther->num_bCbv;
-        num_DM_low_loose += specificOther->num_DM_low_loose;
-        num_DM_low += specificOther->num_DM_low;
-        num_DM_high += specificOther->num_DM_high;
       }
 
 
@@ -1407,122 +1382,19 @@ namespace Gambit {
 
         /// Register results objects with the results for each SR; obs & bkg numbers from the paper
 
-        SignalRegionData results_tN_med;
-        results_tN_med.sr_label = "tN_med";
-        results_tN_med.n_observed = 50;
-        results_tN_med.n_background = 36.3;
-        results_tN_med.background_sys = 6.6;
-        results_tN_med.signal_sys = 0.;
-        results_tN_med.n_signal = num_tN_med;
-        add_result(results_tN_med);
-
-        SignalRegionData results_tN_high;
-        results_tN_high.sr_label = "tN_med";
-        results_tN_high.n_observed = 8;
-        results_tN_high.n_background = 3.8;
-        results_tN_high.background_sys = 1.0;
-        results_tN_high.signal_sys = 0.;
-        results_tN_high.n_signal = num_tN_high;
-        add_result(results_tN_high);
-
-        SignalRegionData results_bWN;
-        results_bWN.sr_label = "tN_med";
-        results_bWN.n_observed = 68;
-        results_bWN.n_background = 71;
-        results_bWN.background_sys = 16;
-        results_bWN.signal_sys = 0.;
-        results_bWN.n_signal = num_bWN;
-        add_result(results_bWN);
-
-        SignalRegionData results_bC2x_diag;
-        results_bC2x_diag.sr_label = "bC2x_diag";
-        results_bC2x_diag.n_observed = 22;
-        results_bC2x_diag.n_background = 21.3;
-        results_bC2x_diag.background_sys = 5.0;
-        results_bC2x_diag.signal_sys = 0.;
-        results_bC2x_diag.n_signal = num_bC2x_diag;
-        add_result(results_bC2x_diag);
-
-        SignalRegionData results_bC2x_med;
-        results_bC2x_med.sr_label = "bC2x_med";
-        results_bC2x_med.n_observed = 4;
-        results_bC2x_med.n_background = 5.8;
-        results_bC2x_med.background_sys = 1.6;
-        results_bC2x_med.signal_sys = 0.;
-        results_bC2x_med.n_signal = num_bC2x_med;
-        add_result(results_bC2x_med);
-
-        SignalRegionData results_bCbv;
-        results_bCbv.sr_label = "bCbv";
-        results_bCbv.n_observed = 25;
-        results_bCbv.n_background = 25.1;
-        results_bCbv.background_sys = 3.8;
-        results_bCbv.signal_sys = 0.;
-        results_bCbv.n_signal = num_bCbv;
-        add_result(results_bCbv);
-
-        SignalRegionData results_DM_low_loose;
-        results_DM_low_loose.sr_label = "DM_low_loose";
-        results_DM_low_loose.n_observed = 65;
-        results_DM_low_loose.n_background = 48.3;
-        results_DM_low_loose.background_sys = 8.2;
-        results_DM_low_loose.signal_sys = 0.;
-        results_DM_low_loose.n_signal = num_DM_low_loose;
-        add_result(results_DM_low_loose);
-
-        SignalRegionData results_DM_low;
-        results_DM_low.sr_label = "DM_low";
-        results_DM_low.n_observed = 13;
-        results_DM_low.n_background = 13.8;
-        results_DM_low.background_sys = 3.6;
-        results_DM_low.signal_sys = 0.;
-        results_DM_low.n_signal = num_DM_low;
-        add_result(results_DM_low);
-
-        SignalRegionData results_DM_high;
-        results_DM_high.sr_label = "DM_high";
-        results_DM_high.n_observed = 5;
-        results_DM_high.n_background = 7.4;
-        results_DM_high.background_sys = 2.1;
-        results_DM_high.signal_sys = 0.;
-        results_DM_high.n_signal = num_DM_high;
-        add_result(results_DM_high);
-
-        SignalRegionData results_bffN;
-        results_bffN.sr_label = "bffN";
-        results_bffN.n_observed = 70;
-        results_bffN.n_background = 60.5;
-        results_bffN.background_sys = 6.1;
-        results_bffN.signal_sys = 0.;
-        results_bffN.n_signal = num_bffN;
-        add_result(results_bffN);
-
-        SignalRegionData results_bCsoft_diag;
-        results_bCsoft_diag.sr_label = "bCsoft_diag";
-        results_bCsoft_diag.n_observed = 33;
-        results_bCsoft_diag.n_background = 24.7;
-        results_bCsoft_diag.background_sys = 3.1;
-        results_bCsoft_diag.signal_sys = 0.;
-        results_bCsoft_diag.n_signal = num_bCsoft_diag;
-        add_result(results_bCsoft_diag);
-
-        SignalRegionData results_bCsoft_med;
-        results_bCsoft_med.sr_label = "bCsoft_med";
-        results_bCsoft_med.n_observed = 19;
-        results_bCsoft_med.n_background = 13.7;
-        results_bCsoft_med.background_sys = 2.1;
-        results_bCsoft_med.signal_sys = 0.;
-        results_bCsoft_med.n_signal = num_bCsoft_med;
-        add_result(results_bCsoft_med);
-
-        SignalRegionData results_bCsoft_high;
-        results_bCsoft_high.sr_label = "bCsoft_high";
-        results_bCsoft_high.n_observed = 2;
-        results_bCsoft_high.n_background = 1.8;
-        results_bCsoft_high.background_sys = 0.3;
-        results_bCsoft_high.signal_sys = 0.;
-        results_bCsoft_high.n_signal = num_bCsoft_high;
-        add_result(results_bCsoft_high);
+        add_result(SignalRegionData(_counters.at("tN_med"), 50., { 36.3, 6.6}));
+        add_result(SignalRegionData(_counters.at("tN_med"), 8., { 3.8, 1.0}));
+        add_result(SignalRegionData(_counters.at("tN_med"), 68., { 71, 16}));
+        add_result(SignalRegionData(_counters.at("bC2x_diag"), 22., { 21.3, 5.0}));
+        add_result(SignalRegionData(_counters.at("bC2x_med"), 4., { 5.8, 1.6}));
+        add_result(SignalRegionData(_counters.at("bCbv"), 25., { 25.1, 3.8}));
+        add_result(SignalRegionData(_counters.at("DM_low_loose"), 65., { 48.3, 8.2}));
+        add_result(SignalRegionData(_counters.at("DM_low"), 13., { 13.8, 3.6}));
+        add_result(SignalRegionData(_counters.at("DM_high"), 5., { 7.4, 2.1}));
+        add_result(SignalRegionData(_counters.at("bffN"), 70., { 60.5, 6.1}));
+        add_result(SignalRegionData(_counters.at("bCsoft_diag"), 33., { 24.7, 3.1}));
+        add_result(SignalRegionData(_counters.at("bCsoft_med"), 19., { 13.7, 2.1}));
+        add_result(SignalRegionData(_counters.at("bCsoft_high"), 2., { 1.8, 0.3}));
 
         return;
       }
@@ -1531,20 +1403,7 @@ namespace Gambit {
     protected:
       void analysis_specific_reset()
       {
-        num_tN_med=0;
-        num_tN_high=0;
-        num_bWN=0;
-        num_bC2x_diag=0;
-        num_bC2x_med=0;
-        num_bCbv=0;
-        num_DM_low_loose=0;
-        num_DM_low=0;
-        num_DM_high=0;
-
-        num_bffN=0;
-        num_bCsoft_diag=0;
-        num_bCsoft_med=0;
-        num_bCsoft_high=0;
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

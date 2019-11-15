@@ -224,15 +224,9 @@ namespace Gambit {
       }
 
       void collect_results() {
-        SignalRegionData results_SR;
-        results_SR.sr_label = "SR";
-        results_SR.n_observed = 1.;
-        results_SR.n_background = 1.89;
-        results_SR.background_sys = 0.66;
-        results_SR.signal_sys = 0.;
-        results_SR.n_signal = _numSR;
 
-        add_result(results_SR);
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+        add_result(SignalRegionData("SR", 1., {_numSR, 0.}, {1.89, 0.66}));
 
         return;
       }

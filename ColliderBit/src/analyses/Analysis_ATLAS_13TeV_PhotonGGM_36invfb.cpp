@@ -39,7 +39,16 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      double num_SRaa_SL, num_SRaa_SH, num_SRaa_WL, num_SRaa_WH, num_SRaj_L, num_SRaj_L200, num_SRaj_H;
+      std::map<string, EventCounter> _counters = {
+        {"SRaa_SL", EventCounter("SRaa_SL")},
+        {"SRaa_SH", EventCounter("SRaa_SH")},
+        {"SRaa_WL", EventCounter("SRaa_WL")},
+        {"SRaa_WH", EventCounter("SRaa_WH")},
+        {"SRaj_L", EventCounter("SRaj_L")},
+        {"SRaj_L200", EventCounter("SRaj_L200")},
+        {"SRaj_H", EventCounter("SRaj_H")},
+      };
+
 
       // Cut Flow
       #ifdef CHECK_CUTFLOW
@@ -104,14 +113,6 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_13TeV_PhotonGGM_36invfb");
         set_luminosity(36.1);
-
-        num_SRaa_SL=0;
-        num_SRaa_SH=0;
-        num_SRaa_WL=0;
-        num_SRaa_WH=0;
-        num_SRaj_L=0;
-        num_SRaj_L200=0;
-        num_SRaj_H=0;
 
         #ifdef CHECK_CUTFLOW
           NCUTS= 51;
@@ -315,15 +316,15 @@ namespace Gambit {
         // All variables are now done
         // Increment signal region variables
         // 2a regions
-        if(preSelection2a && met > 150. && HT > 2750 && dphimin_j28met > 0.5) num_SRaa_SL += event->weight();
-        if(preSelection2a && met > 250. && HT > 2000 && dphimin_j28met > 0.5 && dphimin_amet > 0.5) num_SRaa_SH += event->weight();
-        if(preSelection2a && met > 150. && HT > 1500 && dphimin_j28met > 0.5) num_SRaa_WL += event->weight();
-        if(preSelection2a && met > 250. && HT > 1000 && dphimin_j28met > 0.5 && dphimin_amet > 0.5) num_SRaa_WH += event->weight();
+        if(preSelection2a && met > 150. && HT > 2750 && dphimin_j28met > 0.5) _counters.at("SRaa_SL").add_event(event);
+        if(preSelection2a && met > 250. && HT > 2000 && dphimin_j28met > 0.5 && dphimin_amet > 0.5) _counters.at("SRaa_SH").add_event(event);
+        if(preSelection2a && met > 150. && HT > 1500 && dphimin_j28met > 0.5) _counters.at("SRaa_WL").add_event(event);
+        if(preSelection2a && met > 250. && HT > 1000 && dphimin_j28met > 0.5 && dphimin_amet > 0.5) _counters.at("SRaa_WH").add_event(event);
 
         // aj regions
-        if(preSelectionSRLaj && nJets25 >=5 && nLep == 0 && met > 300. && meff > 2000. && RT4 < 0.90 && dphimin_j25met > 0.5 && dphimin_amet > 0.5) num_SRaj_L += event->weight();
-        if(preSelectionSRLaj && nJets25 >=5 && nLep == 0 && met > 200. && meff > 2000. && RT4 < 0.90 && dphimin_j25met > 0.5 && dphimin_amet > 0.5) num_SRaj_L200 += event->weight();
-        if(preSelectionSRHaj && nJets25 >=3 && nLep == 0 && met > 400. && meff > 2400. && dphimin_j25met > 0.5 && dphimin_amet > 0.5) num_SRaj_H += event->weight();
+        if(preSelectionSRLaj && nJets25 >=5 && nLep == 0 && met > 300. && meff > 2000. && RT4 < 0.90 && dphimin_j25met > 0.5 && dphimin_amet > 0.5) _counters.at("SRaj_L").add_event(event);
+        if(preSelectionSRLaj && nJets25 >=5 && nLep == 0 && met > 200. && meff > 2000. && RT4 < 0.90 && dphimin_j25met > 0.5 && dphimin_amet > 0.5) _counters.at("SRaj_L200").add_event(event);
+        if(preSelectionSRHaj && nJets25 >=3 && nLep == 0 && met > 400. && meff > 2400. && dphimin_j25met > 0.5 && dphimin_amet > 0.5) _counters.at("SRaj_H").add_event(event);
 
 
         #ifdef CHECK_CUTFLOW
@@ -566,13 +567,7 @@ namespace Gambit {
           }
         #endif
 
-        num_SRaa_SL += specificOther->num_SRaa_SL;
-        num_SRaa_SH += specificOther->num_SRaa_SH;
-        num_SRaa_WL += specificOther->num_SRaa_WL;
-        num_SRaa_WH += specificOther->num_SRaa_WH;
-        num_SRaj_L += specificOther->num_SRaj_L;
-        num_SRaj_L200 += specificOther->num_SRaj_L200;
-        num_SRaj_H += specificOther->num_SRaj_H;
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
 
       }
 
@@ -594,68 +589,15 @@ namespace Gambit {
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
         #endif
 
-        SignalRegionData results_SRaa_SL;
-        results_SRaa_SL.sr_label = "SRaa_SL";
-        results_SRaa_SL.n_observed = 0.;
-        results_SRaa_SL.n_background = 0.50;
-        results_SRaa_SL.background_sys = 0.30;
-        results_SRaa_SL.signal_sys = 0.;
-        results_SRaa_SL.n_signal = num_SRaa_SL;
-        add_result(results_SRaa_SL);
+          // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_SRaa_SH;
-        results_SRaa_SH.sr_label = "SRaa_SH";
-        results_SRaa_SH.n_observed = 0.;
-        results_SRaa_SH.n_background = 0.48;
-        results_SRaa_SH.background_sys = 0.30;
-        results_SRaa_SH.signal_sys = 0.;
-        results_SRaa_SH.n_signal = num_SRaa_SH;
-        add_result(results_SRaa_SH);
-
-        SignalRegionData results_SRaa_WL;
-        results_SRaa_WL.sr_label = "SRaa_WL";
-        results_SRaa_WL.n_observed = 6.;
-        results_SRaa_WL.n_background = 3.7;
-        results_SRaa_WL.background_sys = 1.1;
-        results_SRaa_WL.signal_sys = 0.;
-        results_SRaa_WL.n_signal = num_SRaa_WL;
-        add_result(results_SRaa_WL);
-
-        SignalRegionData results_SRaa_WH;
-        results_SRaa_WH.sr_label = "SRaa_WH";
-        results_SRaa_WH.n_observed = 1.;
-        results_SRaa_WH.n_background = 2.05;
-        results_SRaa_WH.background_sys = 0.65;
-        results_SRaa_WH.signal_sys = 0.;
-        results_SRaa_WH.n_signal = num_SRaa_WH;
-        add_result(results_SRaa_WH);
-
-        SignalRegionData results_SRaj_L;
-        results_SRaj_L.sr_label = "SRaj_L";
-        results_SRaj_L.n_observed = 4.;
-        results_SRaj_L.n_background = 1.33;
-        results_SRaj_L.background_sys = 0.54;
-        results_SRaj_L.signal_sys = 0.;
-        results_SRaj_L.n_signal = num_SRaj_L;
-        add_result(results_SRaj_L);
-
-        SignalRegionData results_SRaj_L200;
-        results_SRaj_L200.sr_label = "SRaj_L200";
-        results_SRaj_L200.n_observed = 8.;
-        results_SRaj_L200.n_background = 2.68;
-        results_SRaj_L200.background_sys = 0.64;
-        results_SRaj_L200.signal_sys = 0.;
-        results_SRaj_L200.n_signal = num_SRaj_L200;
-        add_result(results_SRaj_L200);
-
-        SignalRegionData results_SRaj_H;
-        results_SRaj_H.sr_label = "SRaj_H";
-        results_SRaj_H.n_observed = 3.;
-        results_SRaj_H.n_background = 1.14;
-        results_SRaj_H.background_sys = 0.61;
-        results_SRaj_H.signal_sys = 0.;
-        results_SRaj_H.n_signal = num_SRaj_H;
-        add_result(results_SRaj_H);
+          add_result(SignalRegionData(_counters.at("SRaa_SL"), 0., { 0.50, 0.30}));
+          add_result(SignalRegionData(_counters.at("SRaa_SH"), 0., { 0.48, 0.30}));
+          add_result(SignalRegionData(_counters.at("SRaa_WL"), 6., { 3.7, 1.1}));
+          add_result(SignalRegionData(_counters.at("SRaa_WH"), 1., { 2.05, 0.65}));
+          add_result(SignalRegionData(_counters.at("SRaj_L"), 4., { 1.33, 0.54}));
+          add_result(SignalRegionData(_counters.at("SRaj_L200"), 8., { 2.68, 0.64}));
+          add_result(SignalRegionData(_counters.at("SRaj_H"), 3., { 1.14, 0.61}));
 
         return;
       }
@@ -663,13 +605,8 @@ namespace Gambit {
 
     protected:
       void analysis_specific_reset() {
-        num_SRaa_SL=0;
-        num_SRaa_SH=0;
-        num_SRaa_WL=0;
-        num_SRaa_WH=0;
-        num_SRaj_L=0;
-        num_SRaj_L200=0;
-        num_SRaj_H=0;
+
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         #ifdef CHECK_CUTFLOW
           std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);

@@ -681,69 +681,15 @@ namespace Gambit {
 
       void collect_results() {
 
-        SignalRegionData results_SRA1;
-        results_SRA1.sr_label = "SRA1";
-        results_SRA1.n_observed = 11.;
-        results_SRA1.n_background = 15.8;
-        results_SRA1.background_sys = 1.9;
-        results_SRA1.signal_sys = 0.;
-        results_SRA1.n_signal = _numSRA1;
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_SRA2;
-        results_SRA2.sr_label = "SRA2";
-        results_SRA2.n_observed = 4.;
-        results_SRA2.n_background = 4.1;
-        results_SRA2.background_sys = 0.8;
-        results_SRA2.signal_sys = 0.;
-        results_SRA2.n_signal = _numSRA2;
-
-        SignalRegionData results_SRA3;
-        results_SRA3.sr_label = "SRA3";
-        results_SRA3.n_observed = 5.;
-        results_SRA3.n_background = 4.1;
-        results_SRA3.background_sys = 0.9;
-        results_SRA3.signal_sys = 0.;
-        results_SRA3.n_signal = _numSRA3;
-
-        SignalRegionData results_SRA4;
-        results_SRA4.sr_label = "SRA4";
-        results_SRA4.n_observed = 4.;
-        results_SRA4.n_background = 2.4;
-        results_SRA4.background_sys = 0.7;
-        results_SRA4.signal_sys = 0.;
-        results_SRA4.n_signal = _numSRA4;
-
-        SignalRegionData results_SRC1;
-        results_SRC1.sr_label = "SRC1";
-        results_SRC1.n_observed = 59.;
-        results_SRC1.n_background = 68.;
-        results_SRC1.background_sys = 7.;
-        results_SRC1.signal_sys = 0.;
-        results_SRC1.n_signal = _numSRC1;
-
-        SignalRegionData results_SRC2;
-        results_SRC2.sr_label = "SRC2";
-        results_SRC2.n_observed = 30.;
-        results_SRC2.n_background = 34.;
-        results_SRC2.background_sys = 5.;
-        results_SRC2.signal_sys = 0.;
-        results_SRC2.n_signal = _numSRC2;
-
-        SignalRegionData results_SRC3;
-        results_SRC3.sr_label = "SRC3";
-        results_SRC3.n_observed = 15.;
-        results_SRC3.n_background = 20.3;
-        results_SRC3.background_sys = 3.;
-        results_SRC3.signal_sys = 0.;
-        results_SRC3.n_signal = _numSRC3;
-
-        add_result(results_SRA1);
-        add_result(results_SRA2);
-        add_result(results_SRA3);
-        add_result(results_SRA4);
-        add_result(results_SRC1);
-        add_result(results_SRC2);
-        add_result(results_SRC3);
+        add_result(SignalRegionData("SRA1", 11., {_numSRA1, 0.}, {15.8, 1.9}));
+        add_result(SignalRegionData("SRA2", 4., {_numSRA2, 0.}, {4.1, 0.8}));
+        add_result(SignalRegionData("SRA3", 5., {_numSRA3, 0.}, {4.1, 0.9}));
+        add_result(SignalRegionData("SRA4", 4., {_numSRA4, 0.}, {2.4, 0.7}));
+        add_result(SignalRegionData("SRC1", 59., {_numSRC1, 0.}, {68., 7.}));
+        add_result(SignalRegionData("SRC2", 30., {_numSRC2, 0.}, {34., 5.}));
+        add_result(SignalRegionData("SRC3", 15., {_numSRC3, 0.}, {20.3, 3.}));
 
         return;
       }
