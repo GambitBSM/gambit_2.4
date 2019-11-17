@@ -47,14 +47,14 @@ Priors:
 
 Printer:
 
-  # printer: cout
+  printer: cout
 
-  printer: hdf5
-  options:
-    output_file: "MSSMEW_gravitino.hdf5"
-    group: "/MSSMEW_gravitino"
-    delete_file_on_restart: true
-    buffer_length: 2
+  # printer: hdf5
+  # options:
+  #   output_file: "MSSMEW_gravitino.hdf5"
+  #   group: "/MSSMEW_gravitino"
+  #   delete_file_on_restart: true
+  #   buffer_length: 2
 
 
 Scanner:
@@ -71,7 +71,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 2
+      point_number: 1
       output_file:  output
       like:  LogLike
       files:
@@ -433,49 +433,69 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 1000
         analyses:
+          - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
+          - ATLAS_13TeV_RJ3L_3Lep_36invfb
           #
-          # EWino production + GGM searches
+          - ATLAS_13TeV_0LEP_36invfb  # skip
+          - ATLAS_13TeV_0LEP_139invfb
           #
-          - ATLAS_13TeV_4LEP_36invfb
-          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb        # Needs RestFrames
-          # - ATLAS_13TeV_RJ3L_3Lep_36invfb             # Needs RestFrames
+          - ATLAS_13TeV_0LEPStop_36invfb
+          - ATLAS_13TeV_1LEPStop_36invfb
+          - ATLAS_13TeV_2LEPStop_36invfb
+          #
           - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
           - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
           - ATLAS_13TeV_MultiLEP_3Lep_36invfb
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
-          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
+          #
+          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
+          #
+          - ATLAS_13TeV_4LEP_36invfb
+          #
+          - ATLAS_13TeV_2bMET_36invfb
+          #
           - ATLAS_13TeV_3b_24invfb
-          - ATLAS_13TeV_3b_discoverySR_24invfb
-          - ATLAS_13TeV_3b_36invfb
-          - ATLAS_13TeV_3b_discoverySR_36invfb
+          - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
+          - ATLAS_13TeV_3b_36invfb  # skip
+          - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
+          #
           - ATLAS_13TeV_PhotonGGM_36invfb
           - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
-          - CMS_13TeV_1LEPbb_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb_nocovar
-          - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
-          - CMS_13TeV_MultiLEP_Full_3Lep_36invfb
-          - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
-          - CMS_13TeV_MultiLEP_2SSLep_36invfb
-          - CMS_13TeV_2OSLEP_36invfb
-          - CMS_13TeV_2OSLEP_36invfb_nocovar
-          - CMS_13TeV_2OSLEP_for_chargino_36invfb
-          - CMS_13TeV_Photon_GMSB_36invfb
-          # 
-          # Other searches
           #
-          - ATLAS_13TeV_0LEP_36invfb
-          - ATLAS_13TeV_0LEPStop_36invfb
-          # - ATLAS_13TeV_1LEPStop_36invfb    # Needs RestFrames
-          - ATLAS_13TeV_2LEPStop_36invfb
-          - ATLAS_13TeV_2bMET_36invfb           
           - ATLAS_13TeV_2OSLEP_Z_139invfb
+          #
+          - CMS_13TeV_0LEP_36invfb  # skip
+          - CMS_13TeV_0LEP_137invfb
+          #
+          - CMS_13TeV_1LEPbb_36invfb
+          #
           - CMS_13TeV_1LEPStop_36invfb
           - CMS_13TeV_2LEPStop_36invfb
+          #
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
+          - CMS_13TeV_2LEPsoft_stop_36invfb
+          - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
+          #
+          - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
+          #
           - CMS_13TeV_2OSLEP_for_stop_36invfb
-          - CMS_13TeV_2SSLEP_Stop_137invfb
-          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb
-          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb
+          - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          #
+          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  # skip
+          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  
+          - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
+          #
+          - CMS_13TeV_Photon_GMSB_36invfb
+          - CMS_13TeV_2Photon_GMSB_36invfb
+          #
+          - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
+          - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
+          - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
+          - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+          #
           - CMS_13TeV_MONOJET_36invfb
 
 
@@ -546,50 +566,72 @@ Rules:
       cap_loglike: false
       cap_loglike_individual_analyses: false
       skip_analyses: 
+          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
+          # - ATLAS_13TeV_RJ3L_3Lep_36invfb
           #
-          # EWino production + GGM searches
+          - ATLAS_13TeV_0LEP_36invfb  # skip
+          # - ATLAS_13TeV_0LEP_139invfb
           #
-          # - ATLAS_13TeV_4LEP_36invfb
-          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb        # Needs RestFrames
-          # - ATLAS_13TeV_RJ3L_3Lep_36invfb             # Needs RestFrames
+          # - ATLAS_13TeV_0LEPStop_36invfb
+          # - ATLAS_13TeV_1LEPStop_36invfb
+          # - ATLAS_13TeV_2LEPStop_36invfb
+          #
           # - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
           # - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
           # - ATLAS_13TeV_MultiLEP_3Lep_36invfb
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
-          # - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
+          #
+          # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
+          #
+          # - ATLAS_13TeV_4LEP_36invfb
+          #
+          # - ATLAS_13TeV_2bMET_36invfb
+          #
           # - ATLAS_13TeV_3b_24invfb
-          - ATLAS_13TeV_3b_discoverySR_24invfb
-          - ATLAS_13TeV_3b_36invfb
-          - ATLAS_13TeV_3b_discoverySR_36invfb
+          - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
+          - ATLAS_13TeV_3b_36invfb  # skip
+          - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
+          #
           # - ATLAS_13TeV_PhotonGGM_36invfb
           # - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
-          # - CMS_13TeV_1LEPbb_36invfb
-          # - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb_nocovar
-          # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
-          - CMS_13TeV_MultiLEP_Full_3Lep_36invfb
-          # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
-          # - CMS_13TeV_MultiLEP_2SSLep_36invfb
-          # - CMS_13TeV_2OSLEP_36invfb
-          - CMS_13TeV_2OSLEP_36invfb_nocovar
-          # - CMS_13TeV_2OSLEP_for_chargino_36invfb
-          # - CMS_13TeV_Photon_GMSB_36invfb
-          # 
-          # Other searches
           #
-          - ATLAS_13TeV_0LEP_36invfb
-          - ATLAS_13TeV_0LEPStop_36invfb
-          - ATLAS_13TeV_1LEPStop_36invfb    # Needs RestFrames
-          - ATLAS_13TeV_2LEPStop_36invfb
-          - ATLAS_13TeV_2bMET_36invfb           
-          - ATLAS_13TeV_2OSLEP_Z_139invfb
-          - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_2OSLEP_for_stop_36invfb
-          - CMS_13TeV_2SSLEP_Stop_137invfb
-          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb
-          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb
-          - CMS_13TeV_MONOJET_36invfb
+          # - ATLAS_13TeV_2OSLEP_Z_139invfb
+          #
+          - CMS_13TeV_0LEP_36invfb  # skip
+          # - CMS_13TeV_0LEP_137invfb
+          #
+          # - CMS_13TeV_1LEPbb_36invfb
+          #
+          # - CMS_13TeV_1LEPStop_36invfb
+          # - CMS_13TeV_2LEPStop_36invfb
+          #
+          # - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
+          # - CMS_13TeV_2LEPsoft_stop_36invfb
+          - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
+          #
+          # - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
+          #
+          # - CMS_13TeV_2OSLEP_for_stop_36invfb
+          # - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          #
+          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  # skip
+          # - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  
+          - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
+          #
+          # - CMS_13TeV_Photon_GMSB_36invfb
+          # - CMS_13TeV_2Photon_GMSB_36invfb
+          #
+          - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
+          - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+          #
+          # - CMS_13TeV_MONOJET_36invfb
+
+
 
 
 # Set the names of key log files
