@@ -2516,6 +2516,10 @@ namespace Gambit
       using namespace Pipes::chargino_plus_1_decays_smallsplit;
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
+      // Option for requiring a bit more mass difference before switching on a decay channel.
+      // Can help avoid problems with chargino decays in Pythia (due to Pythia's MSAFETY checks).
+      static const double m_safety = runOptions->getValueOrDef<double>(0.0, "m_safety");
+
       // Get spectrum objects
       const Spectrum& spec = *Dep::MSSM_spectrum;
       const SubSpectrum& mssm = spec.get_HE();
@@ -2527,6 +2531,7 @@ namespace Gambit
       const double m_C = abs(m_C_signed);
 
       const double delta_m = m_C - m_N;
+      const double delta_m_safety = m_C - (m_N + m_safety);
 
       // If the chargino--neutralino mass difference is large,
       // the calculations in this module function should not be used.
@@ -2655,7 +2660,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+
       //
       partial_widths["N_pi+"] = 0.0;
-      if (delta_m > m_pi)
+      if (delta_m_safety > m_pi)
       {
         double k_pi = sqrt_lambda(m_C2,m_N2,m_pi2) / (2*m_C);
         partial_widths["N_pi+"] = ( (f_pi2 * G_F2 * k_pi / (4. * pi * m_C2)) *
@@ -2667,7 +2672,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0
       //
       partial_widths["N_pi+_pi0"] = 0.0;
-      if (delta_m > 2*m_pi)
+      if (delta_m_safety > 2*m_pi)
       {
         // Define a helper function
         std::function<std::complex<double>(double)> F = [&beta,&m_rho_02,&gamma_rho_0,&m_rho_prime2,&gamma_rho_prime](double q2)
@@ -2693,7 +2698,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0 pi0
       //
       partial_widths["N_pi+_pi0_pi0"] = 0.0;
-      if (delta_m > 3*m_pi)
+      if (delta_m_safety > 3*m_pi)
       {
         // Define a helper function
         std::function<double(double)> g = [&m_pi,&m_pi2,&m_rho_0](double q2)
