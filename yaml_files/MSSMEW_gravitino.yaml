@@ -47,19 +47,19 @@ Priors:
 
 Printer:
 
-  printer: cout
+  # printer: cout
 
-  # printer: hdf5
-  # options:
-  #   output_file: "MSSMEW_gravitino.hdf5"
-  #   group: "/MSSMEW_gravitino"
-  #   delete_file_on_restart: true
-  #   buffer_length: 2
+  printer: hdf5
+  options:
+    output_file: "MSSMEW_gravitino.hdf5"
+    group: "/MSSMEW_gravitino"
+    delete_file_on_restart: true
+    buffer_length: 11
 
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: de
 
   scanners:
 
@@ -80,7 +80,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 1950
+      NP: 4000
       convthresh: 1e-4
       verbosity: 1
       lambdajDE: false
@@ -88,12 +88,52 @@ Scanner:
 
 ObsLikes:
 
+    #
+    # Likelihoods
+    #
+
     # Combined LHC likelihood
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
 
- 
-    # Observables (not included in likelihood)
+    # LEP likelihoods
+    - purpose:    LogLike
+      capability: L3_Gravitino_LLike
+
+    #
+    # Observables
+    #
+
+    # # LEP likelihoods
+    # - purpose:    LogLike
+    #   capability: L3_Neutralino_Leptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: L3_Chargino_Leptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Hadronic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_SemiLeptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Leptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Neutralino_Hadronic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Degenerate_Chargino_LLike
+
+
+    # # Likelihoods for invisible decays of Z and Higgs bosons
+    # - purpose:    LogLike
+    #   capability: lnL_Z_inv
+
+    # - purpose:    LogLike
+    #   capability: lnL_Higgs_invWidth
+
     - purpose:    Observable
       capability: all_BFs
 
@@ -115,137 +155,136 @@ ObsLikes:
     - purpose:    Observable
       capability: LHCEventLoopInfo
 
-    # LEP cross-sections at sqrt(s) = 208 GeV
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_11
+    # # LEP cross-sections at sqrt(s) = 208 GeV
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_11
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_12
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_12
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_13
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_13
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_14
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_14
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_22
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_22
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_23
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_23
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_24
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_24
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_33
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_33
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_34
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_34
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chi00_44
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chi00_44
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chipm_11
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chipm_11
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chipm_12
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chipm_12
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chipm_22
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chipm_22
 
-    - purpose:    Observable
-      capability: LEP208_xsec_chipm_21
+    # - purpose:    Observable
+    #   capability: LEP208_xsec_chipm_21
 
-    # LEP cross-sections at sqrt(s) = 205 GeV
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_11
+    # # LEP cross-sections at sqrt(s) = 205 GeV
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_11
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_12
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_12
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_13
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_13
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_14
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_14
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_22
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_22
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_23
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_23
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_24
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_24
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_33
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_33
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_34
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_34
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chi00_44
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chi00_44
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chipm_11
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chipm_11
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chipm_12
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chipm_12
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chipm_22
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chipm_22
 
-    - purpose:    Observable
-      capability: LEP205_xsec_chipm_21
+    # - purpose:    Observable
+    #   capability: LEP205_xsec_chipm_21
 
-    # LEP cross-sections at sqrt(s) = 188 GeV
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_11
+    # # LEP cross-sections at sqrt(s) = 188 GeV
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_11
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_12
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_12
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_13
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_13
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_14
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_14
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_22
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_22
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_23
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_23
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_24
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_24
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_33
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_33
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_34
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_34
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chi00_44
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chi00_44
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chipm_11
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chipm_11
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chipm_12
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chipm_12
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chipm_22
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chipm_22
 
-    - purpose:    Observable
-      capability: LEP188_xsec_chipm_21
+    # - purpose:    Observable
+    #   capability: LEP188_xsec_chipm_21
 
-    
-    # Other
+        # Other
     - purpose:    Observable
       capability: SLHA1_violation
 
@@ -425,14 +464,14 @@ Rules:
     options:
       silenceLoop: false
       Pythia_SUSY_LHC_13TeV_EWonly:
-        min_nEvents: 500
-        max_nEvents: 500
-        events_between_convergence_checks: 200000
+        min_nEvents: 5000
+        max_nEvents: 5000
+        events_between_convergence_checks: 10000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true
         all_analyses_must_converge: true
         all_SR_must_converge: false
-        maxFailedEvents: 1000
+        maxFailedEvents: 100
         analyses:
           - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
           - ATLAS_13TeV_RJ3L_3Lep_36invfb
@@ -484,8 +523,8 @@ Rules:
           - CMS_13TeV_2OSLEP_for_stop_36invfb
           - CMS_13TeV_2OSLEP_for_chargino_36invfb
           #
-          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  # skip
-          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  
+          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
+          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
           - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
           #
           - CMS_13TeV_Photon_GMSB_36invfb
@@ -497,7 +536,7 @@ Rules:
           - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
           - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
           #
-          - CMS_13TeV_MONOJET_36invfb
+          - CMS_13TeV_MONOJET_36invfb  # skip
 
 
   # Choose Monte Carlo event simulator and options.
@@ -618,8 +657,8 @@ Rules:
           # - CMS_13TeV_2OSLEP_for_stop_36invfb
           # - CMS_13TeV_2OSLEP_for_chargino_36invfb
           #
-          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  # skip
-          # - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  
+          # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb
+          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip  
           - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
           #
           # - CMS_13TeV_Photon_GMSB_36invfb
@@ -631,7 +670,7 @@ Rules:
           - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
           # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
           #
-          # - CMS_13TeV_MONOJET_36invfb
+          - CMS_13TeV_MONOJET_36invfb  # skip
 
 
 
@@ -665,6 +704,7 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
+    print_invalid_points: false
 
   # Set the default output path
   default_output_path: "./output/MSSMEW_gravitino/"
