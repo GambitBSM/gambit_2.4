@@ -71,7 +71,7 @@ Rules:
     function: getNextSLHAFileNameAndContent
     options:
       SLHA_filenames:
-        - /home/tomasz/summer/Cutflows-2017/ATLAS_13TeV_0LEP/GluinoGluinoCase.slha
+        - param_card.SM.GG.direct.dat
 
   # List the SLHA file entries that should be stored in the GAMBIT output.
   # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
@@ -90,22 +90,30 @@ Rules:
         #- 1000024;DECAY;2               # <-- Total decay width for 1000024 (chargino1)
         #- 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24
 
-  # Assign cross-sections and uncertainties for each SLHA file
-  - capability: TotalCrossSection
-    function: getYAMLCrossSection_SLHA
-    options:
-      cross_section_pb:
-        /home/tomasz/summer/Cutflows-2017/ATLAS_13TeV_0LEP/GluinoGluinoCase.slha: 0.0101
-      cross_section_fractional_uncert:
-        /home/tomasz/summer/Cutflows-2017/ATLAS_13TeV_0LEP/GluinoGluinoCase.slha: 0.1942
+#  # Assign cross-sections and uncertainties for each SLHA file
+#  - capability: TotalCrossSection
+#    function: getYAMLCrossSection_SLHA
+#    options:
+#      cross_section_pb:
+#        /home/tomasz/summer/Cutflows-2017/ATLAS_13TeV_0LEP/GluinoGluinoCase.slha: 0.0101
+#      cross_section_fractional_uncert:
+#        /home/tomasz/summer/Cutflows-2017/ATLAS_13TeV_0LEP/GluinoGluinoCase.slha: 0.1942
 
+  # Get cross-section from Pythia
+  - capability: TotalCrossSection
+    function: getYAMLCrossSection
+    module: ColliderBit
+    options: 
+      cross_section_pb: 0.79
+      cross_section_fractional_uncert: 0.0001
+      
 
   # Generate evens (don't read LH event files)
   - capability: HardScatteringEvent
     function: generateEventPythia
     module: ColliderBit
     options:
-      drop_HepMC_file: true
+      drop_HepMC3_file: true
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # # Generate evens (don't read LH event files)
