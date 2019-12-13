@@ -13,7 +13,7 @@ settings:
   debug: true
   seed: 1337
   event_file: GAMBIT_collider_events.omp_thread_0.hepmc3
-  cross_section_fb: 0.0101
+  cross_section_fb: 1.01
   cross_section_fractional_uncert: 0.1942
 #XS data taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVgluglu
 #Note the paper says that squarks decoupled in this case so it is the correct table to look in.

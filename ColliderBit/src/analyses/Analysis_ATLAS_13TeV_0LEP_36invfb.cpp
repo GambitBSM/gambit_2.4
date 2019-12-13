@@ -433,9 +433,9 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("6j-2200"), 3, { 3.1,  1.3}));
         add_result(SignalRegionData(_counters.at("6j-2600"), 1, { 2.2,  1.4}));
 
-        //const double sf = 13.3*crossSection()/femtobarn/sumOfWeights();
-        //_flows.scale(sf);
-        // cout << "CUTFLOWS:\n\n" << _flows << endl;
+//        const double sf = 13.3*crossSection()/femtobarn/sumOfWeights();
+//        _flows.scale(sf);
+         cout << "CUTFLOWS:\n\n" << _flows << endl;
 
         // plots_beginning->createFile(luminosity(),(36.1/100000));
         // plots_firstcut->createFile(luminosity(),(36.1/100000));

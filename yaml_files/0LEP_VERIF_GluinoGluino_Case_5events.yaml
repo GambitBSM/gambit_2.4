@@ -104,8 +104,8 @@ Rules:
     function: getYAMLCrossSection
     module: ColliderBit
     options: 
-      cross_section_pb: 0.79
-      cross_section_fractional_uncert: 0.0001
+      cross_section_pb: 1.01
+      cross_section_fractional_uncert: 0.1942
       
 
   # Generate evens (don't read LH event files)
@@ -127,8 +127,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV_SUSY:
-        min_nEvents: 5
-        max_nEvents: 5
+        min_nEvents: 5000
+        max_nEvents: 5000
         events_between_convergence_checks: 5000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
