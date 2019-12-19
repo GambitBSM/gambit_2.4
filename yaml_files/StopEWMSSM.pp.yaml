@@ -1,57 +1,44 @@
 
-Parameters:
-
-  # SM parameters.
-  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+Parameters: 
+  StandardModel_SLHA2: !import ../../yaml_files/include/StandardModel_SLHA2_postprocessing.yaml
 
   # SUSY parameters.
   MSSM15atQ_mA:
-    TanBeta:
-      prior_type: flat
-      range: [1, 70]
+    A0:
+      prior_type: none
+    Au_3:
+      prior_type: none
     M1:
-      prior_type: double_log_flat_join
-      ranges: [-1000, -10, 10, 1000]
-      # prior_type: flat
-      # range: [-1000, 1000]
+      prior_type: none
     M2:
-      prior_type: log
-      range: [10., 1000]
-      # prior_type: flat
-      # range: [0, 1000]
+      prior_type: none
+    M3:
+      prior_type: none
+    Qin:
+      prior_type: none
+    TanBeta:
+      prior_type: none
+    mA:
+      prior_type: none
+    md2_3:
+      prior_type: none
+    me2_3:
+      prior_type: none
+    ml2_12:
+      prior_type: none
+    ml2_3:
+      prior_type: none
+    mq2_12:
+      prior_type: none
+    mq2_3:
+      prior_type: none
     mu:
-      prior_type: double_log_flat_join
-      ranges: [-1000, -10, 10, 1000]
-      # prior_type: flat
-      # range: [-1000, 1000]
-    mq2_3: 
-      prior_type: log
-      range: [1e+04, 3e+06]
-      # prior_type: double_log_flat_join
-      # ranges: [-1e+06, -1e+04, 1e+04, 1e+06]
+      prior_type: none
     mu2_3:
-      prior_type: log
-      range: [1e+04, 3e+06]
-      # prior_type: double_log_flat_join
-      # ranges: [-1e+06, -1e+04, 1e+04, 1e+06]
-
-    Qin: 1000
-    md2_3: 9e+06
-    mq2_12: 9e+06
-    ml2_12: 9e+06
-    ml2_3: 9e+06
-    me2_3: 9e+06
-    M3: 3000
-    mA: 3000
-    A0: 0
-    Au_3: 0
-
+      prior_type: none
 
 
 Priors:
-
-  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
-
 
 Printer:
 
@@ -59,33 +46,30 @@ Printer:
 
   printer: hdf5
   options:
-    output_file: "StopEWMSSM.hdf5"
+    output_file: "StopEWMSSM_pp.hdf5"
     group: "/StopEWMSSM"
-    delete_file_on_restart: true
-    buffer_length: 1
+    delete_file_on_restart: false
+    buffer_length: 18
 
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: postprocessor
 
   scanners:
 
-    de:
-      plugin: diver
+    postprocessor:
+      plugin: postprocessor
       like: LogLike
-      NP: 8000
-      convthresh: 1e-4
-      verbosity: 1
+      update_interval: 1000
+      add_to_like: []
+      permit_discard_old_likes: true
 
-    random:
-      plugin: random
-      point_number: 10
-      output_file:  output
-      like:  LogLike
-      files:
-        output_file: "weights ..."
-
+      # Choose the input stream
+      reader:
+        type: hdf5 
+        file: "./input/StopEWMSSM.hdf5"
+        group: "StopEWMSSM"
 
 ObsLikes:
 
@@ -148,8 +132,8 @@ ObsLikes:
     - purpose:    Observable
       capability: LHCEventLoopInfo
 
-    # - purpose:    Observable
-    #   capability: all_BFs
+    - purpose:    Observable
+      capability: all_BFs
 
     - purpose:    Observable
       capability: SLHA1_violation
@@ -158,11 +142,16 @@ ObsLikes:
       capability: MSSM_spectrum
       type:       map_str_dbl
 
+
 Rules:
 
   # # Tell all functions that are able to dump SLHA files to do so.
   # - options:
-  #    drop_SLHA_file: true
+  #     drop_SLHA_file: true
+
+  # Allow off-shell decays in DecayTable (Pythia will take care of further decays for the collider sim.)
+  - options:
+      allow_offshell_modes_in_decay_table: true
 
   # Set any pole masses by hand?
   # NOTE: This will break the internal spectrum consistency -- use at your own risk!
@@ -196,7 +185,6 @@ Rules:
            ]
 
 
-
   # Choose to get the spectrum from SpecBit proper, not an SLHA file.
   # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
   - capability: unimproved_MSSM_spectrum
@@ -216,18 +204,18 @@ Rules:
       invalid_point_fatal: false
       # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by 
       # LEP measurements of the Z width.
-      mass_cut: [ 
-                  ["|~chi0_1|", 1.0, 1000.0], 
-                  ["|~chi+_1|", 45.0, 1e+06], 
-                  ["|~u_1|", 200.0, 2000.0], 
-                  ["|~d_1|", 1.0, 1e+06],
-                ] 
-      mass_ratio_cut: [ 
-                        ["|~chi0_1|", "|~u_1|", 0.0, 1.0],
-                        ["|~chi0_1|", "|~d_1|", 0.0, 1.0],
-                        ["|~chi0_1|", "|~chi+_1|", 0.0, 1.0],
-                        # ["|~chi0_4|", "|~u_1|", 0.0, 1.0],
-                      ]
+      # mass_cut: [ 
+      #             ["|~chi0_1|", 1.0, 1000.0], 
+      #             ["|~chi+_1|", 45.0, 1e+06], 
+      #             ["|~u_1|", 200.0, 2000.0], 
+      #             ["|~d_1|", 1.0, 1e+06],
+      #           ] 
+      # mass_ratio_cut: [ 
+      #                   ["|~chi0_1|", "|~u_1|", 0.0, 1.0],
+      #                   ["|~chi0_1|", "|~d_1|", 0.0, 1.0],
+      #                   ["|~chi0_1|", "|~chi+_1|", 0.0, 1.0],
+      #                   # ["|~chi0_4|", "|~u_1|", 0.0, 1.0],
+      #                 ]
 
   # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
   # so that things depending on "MSSM_spectrum" will be happy.
@@ -437,9 +425,9 @@ Rules:
       #     - CMS_8TeV_2LEPDMTOP_20invfb
       #     - CMS_8TeV_MONOJET_20invfb
       LHC_13TeV:
-        min_nEvents: 1000000
-        max_nEvents: 1000000
-        events_between_convergence_checks: 10000000
+        min_nEvents: 1000000 # 1000000
+        max_nEvents: 1000000 # 1000000
+        events_between_convergence_checks: 100000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true
         all_analyses_must_converge: true
@@ -497,8 +485,8 @@ Rules:
           - CMS_13TeV_2OSLEP_for_stop_36invfb
           - CMS_13TeV_2OSLEP_for_chargino_36invfb
           #
-          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
-          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
+          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  # skip 
+          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb
           - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
           #
           - CMS_13TeV_Photon_GMSB_36invfb
@@ -510,7 +498,7 @@ Rules:
           - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
           - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
           #
-          - CMS_13TeV_MONOJET_36invfb
+          - CMS_13TeV_MONOJET_36invfb  # skip
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
@@ -532,7 +520,7 @@ Rules:
   - capability: LHC_Combined_LogLike
     options:
       write_summary_to_log: true
-      cap_loglike: true
+      cap_loglike: false
       cap_loglike_individual_analyses: false
       skip_analyses:
           # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
@@ -585,8 +573,8 @@ Rules:
           # - CMS_13TeV_2OSLEP_for_stop_36invfb
           # - CMS_13TeV_2OSLEP_for_chargino_36invfb
           #
-          # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
-          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
+          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  # skip
+          # - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb
           - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
           #
           # - CMS_13TeV_Photon_GMSB_36invfb
@@ -598,7 +586,7 @@ Rules:
           - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
           # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
           #
-          # - CMS_13TeV_MONOJET_36invfb
+          - CMS_13TeV_MONOJET_36invfb  # skip
 
 
 Logger:
@@ -627,6 +615,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/StopEWMSSM/"
+  default_output_path: "runs/StopEWMSSM_pp/"
 
   debug: false
+

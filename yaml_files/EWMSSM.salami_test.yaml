@@ -5,47 +5,19 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
   # SUSY parameters.
-  MSSM15atQ_mA:
-    TanBeta:
-      prior_type: flat
-      range: [1, 70]
-    M1:
-      prior_type: double_log_flat_join
-      ranges: [-1000, -10, 10, 1000]
-      # prior_type: flat
-      # range: [-1000, 1000]
-    M2:
-      prior_type: log
-      range: [10., 1000]
-      # prior_type: flat
-      # range: [0, 1000]
-    mu:
-      prior_type: double_log_flat_join
-      ranges: [-1000, -10, 10, 1000]
-      # prior_type: flat
-      # range: [-1000, 1000]
-    mq2_3: 
-      prior_type: log
-      range: [1e+04, 3e+06]
-      # prior_type: double_log_flat_join
-      # ranges: [-1e+06, -1e+04, 1e+04, 1e+06]
-    mu2_3:
-      prior_type: log
-      range: [1e+04, 3e+06]
-      # prior_type: double_log_flat_join
-      # ranges: [-1e+06, -1e+04, 1e+04, 1e+06]
-
-    Qin: 1000
-    md2_3: 9e+06
-    mq2_12: 9e+06
-    ml2_12: 9e+06
-    ml2_3: 9e+06
-    me2_3: 9e+06
-    M3: 3000
-    mA: 3000
-    A0: 0
-    Au_3: 0
-
+  MSSM11atQ_mA:
+    M1: 89.54731975
+    M2: 348.032204
+    mu: -173.15193477
+    TanBeta: 30.03221058
+    Ad_3: 0.0
+    Ae_3: 0.0
+    Au_3: 0.0
+    M3: 5000.0
+    Qin: 3000.0
+    mA: 5000.0
+    ml2: 9000000.0
+    mq2: 9000000.0
 
 
 Priors:
@@ -55,19 +27,19 @@ Priors:
 
 Printer:
 
-  # printer: cout
+  printer: cout
 
-  printer: hdf5
-  options:
-    output_file: "StopEWMSSM.hdf5"
-    group: "/StopEWMSSM"
-    delete_file_on_restart: true
-    buffer_length: 1
+  # printer: hdf5
+  # options:
+  #   output_file: "EWMSSM.hdf5"
+  #   group: "/EWMSSM"
+  #   delete_file_on_restart: true
+  #   buffer_length: 1
 
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: random
 
   scanners:
 
@@ -80,7 +52,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 10
+      point_number: 1
       output_file:  output
       like:  LogLike
       files:
@@ -97,34 +69,34 @@ ObsLikes:
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
 
-    # LEP likelihoods
-    - purpose:    LogLike
-      capability: L3_Neutralino_Leptonic_LLike
+    # # LEP likelihoods
+    # - purpose:    LogLike
+    #   capability: L3_Neutralino_Leptonic_LLike
 
-    - purpose:    LogLike
-      capability: L3_Chargino_Leptonic_LLike
+    # - purpose:    LogLike
+    #   capability: L3_Chargino_Leptonic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Hadronic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Hadronic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_SemiLeptonic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_SemiLeptonic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Leptonic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Leptonic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Neutralino_Hadronic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Neutralino_Hadronic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Degenerate_Chargino_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Degenerate_Chargino_LLike
 
-    # Likelihoods for invisible decays of Z and Higgs bosons
-    - purpose:    LogLike
-      capability: lnL_Z_inv
+    # # Likelihoods for invisible decays of Z and Higgs bosons
+    # - purpose:    LogLike
+    #   capability: lnL_Z_inv
 
-    - purpose:    LogLike
-      capability: lnL_Higgs_invWidth
+    # - purpose:    LogLike
+    #   capability: lnL_Higgs_invWidth
 
     #
     # Observables
@@ -217,17 +189,12 @@ Rules:
       # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by 
       # LEP measurements of the Z width.
       mass_cut: [ 
-                  ["|~chi0_1|", 1.0, 1000.0], 
+                  # ["|~chi0_1|", 1.0, 1000.0], 
                   ["|~chi+_1|", 45.0, 1e+06], 
-                  ["|~u_1|", 200.0, 2000.0], 
-                  ["|~d_1|", 1.0, 1e+06],
                 ] 
-      mass_ratio_cut: [ 
-                        ["|~chi0_1|", "|~u_1|", 0.0, 1.0],
-                        ["|~chi0_1|", "|~d_1|", 0.0, 1.0],
-                        ["|~chi0_1|", "|~chi+_1|", 0.0, 1.0],
-                        # ["|~chi0_4|", "|~u_1|", 0.0, 1.0],
-                      ]
+      # mass_ratio_cut: [ 
+      #                   ["|~chi0_1|", "|~chi+_1|", 0.0, 1.0],
+      #                 ]
 
   # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
   # so that things depending on "MSSM_spectrum" will be happy.
@@ -284,8 +251,11 @@ Rules:
   # Note: This is not required if the "setEventWeight_unity" 
   #       function is chosen above.
   - capability: PIDPairCrossSectionsMap
-    function: getPIDPairCrossSectionsMap_xsecBE
-
+    function: getPIDPairCrossSectionsMap_salami
+    # function: getPIDPairCrossSectionsMap_xsecBE
+    # function: getPIDPairCrossSectionsMap_prospino
+    # options:
+    #   set_missing_cross_sections_to_zero: true
 
   # Choose where to get scattering events from
   - capability: HardScatteringEvent
@@ -352,7 +322,7 @@ Rules:
         partonOnly: false
         antiktR: 0.4
         pythia_settings:
-          - Print:quiet = on
+          - Print:quiet = off
           - Next:numberCount = 0
           - Random:setSeed = on
           - Beams:eCM = 13000
@@ -363,12 +333,11 @@ Rules:
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
           - SUSY:all = off
-          - SUSY:gg2squarkantisquark = on
-          - SUSY:qqbar2squarkantisquark = on
+          - SUSY:qqbar2chi0chi0 = on
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = on
           - 23:mMin = 0.1
           - 24:mMin = 0.1
-          - SUSY:idVecA = 1000005,1000006,2000006
-          - SUSY:idVecB = 1000005,1000006,2000006
 
 
   # Choose ATLAS detector simulation and options.
@@ -437,8 +406,8 @@ Rules:
       #     - CMS_8TeV_2LEPDMTOP_20invfb
       #     - CMS_8TeV_MONOJET_20invfb
       LHC_13TeV:
-        min_nEvents: 1000000
-        max_nEvents: 1000000
+        min_nEvents: 1000
+        max_nEvents: 1000
         events_between_convergence_checks: 10000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true
@@ -447,70 +416,70 @@ Rules:
         maxFailedEvents: 10
         invalidate_failed_points: true
         analyses:
-          - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
-          - ATLAS_13TeV_RJ3L_3Lep_36invfb
-          #
+          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
+          # - ATLAS_13TeV_RJ3L_3Lep_36invfb
+          # #
           - ATLAS_13TeV_0LEP_36invfb  # skip
           - ATLAS_13TeV_0LEP_139invfb
-          #
-          - ATLAS_13TeV_0LEPStop_36invfb
-          - ATLAS_13TeV_1LEPStop_36invfb
-          - ATLAS_13TeV_2LEPStop_36invfb
-          #
-          - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
-          - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
-          - ATLAS_13TeV_MultiLEP_3Lep_36invfb
-          #
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
-          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
-          #
-          - ATLAS_13TeV_4LEP_36invfb
-          #
-          - ATLAS_13TeV_2bMET_36invfb
-          #
-          - ATLAS_13TeV_3b_24invfb
-          - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
-          - ATLAS_13TeV_3b_36invfb  # skip
-          - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
-          #
-          - ATLAS_13TeV_PhotonGGM_36invfb
-          - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
-          #
-          - ATLAS_13TeV_2OSLEP_Z_139invfb
-          #
-          - CMS_13TeV_0LEP_36invfb  # skip
-          - CMS_13TeV_0LEP_137invfb
-          #
-          - CMS_13TeV_1LEPbb_36invfb
-          #
-          - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_2LEPStop_36invfb
-          #
-          - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
-          - CMS_13TeV_2LEPsoft_stop_36invfb
-          - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
-          #
-          - CMS_13TeV_2OSLEP_36invfb
-          - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
-          #
-          - CMS_13TeV_2OSLEP_for_stop_36invfb
-          - CMS_13TeV_2OSLEP_for_chargino_36invfb
-          #
-          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
-          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
-          - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
-          #
-          - CMS_13TeV_Photon_GMSB_36invfb
-          - CMS_13TeV_2Photon_GMSB_36invfb
-          #
-          - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
-          - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
-          - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
-          - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
-          - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
-          #
-          - CMS_13TeV_MONOJET_36invfb
+          # #
+          # - ATLAS_13TeV_0LEPStop_36invfb
+          # - ATLAS_13TeV_1LEPStop_36invfb
+          # - ATLAS_13TeV_2LEPStop_36invfb
+          # #
+          # - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
+          # - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
+          # - ATLAS_13TeV_MultiLEP_3Lep_36invfb
+          # #
+          # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          # - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
+          # #
+          # - ATLAS_13TeV_4LEP_36invfb
+          # #
+          # - ATLAS_13TeV_2bMET_36invfb
+          # #
+          # - ATLAS_13TeV_3b_24invfb
+          # - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
+          # - ATLAS_13TeV_3b_36invfb  # skip
+          # - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
+          # #
+          # - ATLAS_13TeV_PhotonGGM_36invfb
+          # - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+          # #
+          # - ATLAS_13TeV_2OSLEP_Z_139invfb
+          # #
+          # - CMS_13TeV_0LEP_36invfb  # skip
+          # - CMS_13TeV_0LEP_137invfb
+          # #
+          # - CMS_13TeV_1LEPbb_36invfb
+          # #
+          # - CMS_13TeV_1LEPStop_36invfb
+          # - CMS_13TeV_2LEPStop_36invfb
+          # #
+          # - CMS_13TeV_2LEPsoft_36invfb
+          # - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
+          # - CMS_13TeV_2LEPsoft_stop_36invfb
+          # - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
+          # #
+          # - CMS_13TeV_2OSLEP_36invfb
+          # - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
+          # #
+          # - CMS_13TeV_2OSLEP_for_stop_36invfb
+          # - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          # #
+          # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
+          # - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
+          # - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
+          # #
+          # - CMS_13TeV_Photon_GMSB_36invfb
+          # - CMS_13TeV_2Photon_GMSB_36invfb
+          # #
+          # - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          # - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+          # #
+          # - CMS_13TeV_MONOJET_36invfb
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
@@ -627,6 +596,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/StopEWMSSM/"
+  default_output_path: "runs/EWMSSM/"
 
-  debug: false
+  debug: true
