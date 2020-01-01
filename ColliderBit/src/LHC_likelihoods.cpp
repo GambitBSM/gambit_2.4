@@ -1475,5 +1475,104 @@ namespace Gambit
 
 
 
+    /// Compute the total likelihood combining all analyses
+    void calc_combined_LHC_LogLike_scaledsignals(double& result)
+    {
+      using namespace Pipes::calc_combined_LHC_LogLike_scaledsignals;
+      result = 0.0;
+
+      static const bool write_summary_to_log = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<bool>(false, "write_summary_to_log");
+
+      std::stringstream summary_line_combined_loglike; 
+      summary_line_combined_loglike << "calc_combined_LHC_LogLike_scaledsignals: combined LogLike: ";
+      std::stringstream summary_line_skipped_analyses;
+      summary_line_skipped_analyses << "calc_combined_LHC_LogLike_scaledsignals: skipped analyses: ";
+      std::stringstream summary_line_included_analyses;
+      summary_line_included_analyses << "calc_combined_LHC_LogLike_scaledsignals: included analyses: ";
+
+      // Read analysis names from the yaml file
+      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+
+      // If too many events have failed, do the conservative thing and return delta log-likelihood = 0
+      if (Dep::RunMC->exceeded_maxFailedEvents)
+      {
+        #ifdef COLLIDERBIT_DEBUG
+          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: Too many failed events. Will be conservative and return a delta log-likelihood of 0." << endl;
+        #endif
+        return;
+      }
+
+      // Loop over analyses and calculate the total observed dLL
+      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis_scaledsignals)
+      {
+        const str& analysis_name = analysis_loglike_pair.first;
+        const double& analysis_loglike = analysis_loglike_pair.second;
+
+        // If the analysis name is in skip_analyses, don't add its loglike to the total loglike.
+        if (std::find(skip_analyses.begin(), skip_analyses.end(), analysis_name) != skip_analyses.end())
+        {
+          #ifdef COLLIDERBIT_DEBUG
+            cout.precision(5);
+            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
+          #endif
+
+          // Add to log summary
+          if(write_summary_to_log)
+          {
+            summary_line_skipped_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+          }
+
+          continue;
+        }
+
+        // Add analysis loglike.
+        // If using capped likelihood for each individual analysis, set analysis_loglike = min(analysis_loglike,0)
+        static const bool use_cap_loglike_individual = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<bool>(false, "cap_loglike_individual_analyses");
+        if (use_cap_loglike_individual)
+        {
+          result += std::min(analysis_loglike, 0.0);
+        }
+        else
+        {
+          result += analysis_loglike;
+        }
+
+        // Add to log summary
+        if(write_summary_to_log)
+        {
+          summary_line_included_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+        }
+
+        #ifdef COLLIDERBIT_DEBUG
+          cout.precision(5);
+          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
+        #endif
+      }
+
+      #ifdef COLLIDERBIT_DEBUG
+        cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: LHC_Combined_LogLike = " << result << endl;
+      #endif
+
+      // If using a "global" capped likelihood, set result = min(result,0)
+      static const bool use_cap_loglike = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<bool>(false, "cap_loglike");
+      if (use_cap_loglike)
+      {
+        result = std::min(result, 0.0);
+      }
+
+      // Write log summary
+      if(write_summary_to_log)
+      {
+        summary_line_combined_loglike << result;
+
+        logger() << summary_line_combined_loglike.str() << EOM;
+        logger() << summary_line_included_analyses.str() << EOM;
+        logger() << summary_line_skipped_analyses.str() << EOM;
+      }  
+    }
+
+
+
   }
 }

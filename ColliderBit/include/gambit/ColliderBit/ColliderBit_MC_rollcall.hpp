@@ -342,6 +342,16 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// Calculate the total LHC log likelihood
+  #define CAPABILITY LHC_Combined_LogLike_scaledsignals
+  START_CAPABILITY
+    #define FUNCTION calc_combined_LHC_LogLike_scaledsignals
+    START_FUNCTION(double)
+    DEPENDENCY(LHC_LogLike_per_analysis_scaledsignals, map_str_dbl)
+    DEPENDENCY(RunMC, MCLoopInfo)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // =============================
 
 
