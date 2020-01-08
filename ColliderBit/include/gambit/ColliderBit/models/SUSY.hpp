@@ -217,4 +217,16 @@
   /// @}
 
 
+  #define CAPABILITY susy_spectrum_scan_guide
+  START_CAPABILITY
+    #define FUNCTION calc_susy_spectrum_scan_guide
+    START_FUNCTION(double)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
+    DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
 #undef MODULE
