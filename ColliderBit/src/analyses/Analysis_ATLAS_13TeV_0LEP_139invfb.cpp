@@ -233,7 +233,7 @@ namespace Gambit {
 
         // 2 jet regions
         if (nJets50 >= 2) {
-          if (_cutflows["2j-1600"].filltail({
+          if (_cutflows["2j-1600"].fillnext({
                 signalJets[0]->pT() > 250,
                 dphimin_123 > 0.8, dphimin_more > 0.4,
                 signalJets[1]->pT() > 250, etamax_2 < 2.0,
