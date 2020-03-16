@@ -1196,7 +1196,6 @@ namespace Gambit
             srcorr_b.row(SR) /= diagsd;
             srcorr_b.col(SR) /= diagsd;
           }
-          const Eigen::MatrixXd srinvcorr_b = srcorr_b.inverse();
           const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_b(adata.srcov);
           const Eigen::ArrayXd Eb = eig_b.eigenvalues();
           const Eigen::ArrayXd sqrtEb = Eb.sqrt();
@@ -1212,7 +1211,6 @@ namespace Gambit
             srcorr_sb.row(SR) /= diagsd;
             srcorr_sb.col(SR) /= diagsd;
           }
-          const Eigen::MatrixXd srinvcorr_sb = srcorr_sb.inverse();
           const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_sb(srcov_sb);
           const Eigen::ArrayXd Esb = eig_sb.eigenvalues();
           const Eigen::ArrayXd sqrtEsb = Esb.sqrt();
@@ -1223,8 +1221,8 @@ namespace Gambit
 
           // Compute the single, correlated analysis-level DLL as the difference of s+b and b (partial) LLs
           /// @todo Only compute this once per run
-          const double ll_b = marg_prof_fn(n_pred_b, n_obs, sqrtEb, Vb, srinvcorr_b);
-          const double ll_sb = marg_prof_fn(n_pred_sb, n_obs, sqrtEsb, Vsb, srinvcorr_b);
+          const double ll_b = marg_prof_fn(n_pred_b, n_obs, sqrtEb, Vb);
+          const double ll_sb = marg_prof_fn(n_pred_sb, n_obs, sqrtEsb, Vsb);
           const double dll = ll_sb - ll_b;
 
           // Store result
@@ -1304,11 +1302,11 @@ namespace Gambit
             // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
             /// @todo Or compute all the exp DLLs first, then only the best-expected SR's obs DLL?
             /// @todo Only compute this once per run
-            const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy, dummy);
+            const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
             /// @todo Only compute this once per run
-            const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy, dummy);
-            const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy, dummy);
-            const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy, dummy);
+            const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
+            const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
+            const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
             const double dll_exp = ll_sb_exp - ll_b_exp;
             const double dll_obs = ll_sb_obs - ll_b_obs;
 
