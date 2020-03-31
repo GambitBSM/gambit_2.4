@@ -15,7 +15,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Contur_1_0_0.hpp"
+#include "gambit/Backends/frontends/Contur_1_1_0.hpp"
 
 BE_NAMESPACE
 {
