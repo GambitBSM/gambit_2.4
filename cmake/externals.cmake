@@ -133,7 +133,7 @@ endmacro()
 
 # Function to check whether or not a given scanner or backend has been ditched
 function(check_ditch_status name version dir)
-  # Check first for optional argument for Mathematica backends
+  # Check first for optional argument
   foreach(arg ${ARGN})
     if ((arg STREQUAL "Mathematica" OR arg STREQUAL "mathematica") AND NOT HAVE_MATHEMATICA)
       set (itch "${itch}" "${name}_${version}")

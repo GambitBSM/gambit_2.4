@@ -21,9 +21,11 @@ BE_NAMESPACE
 {
 
   // Convenience functions
-  double Contur_LogLike(vector_shared_ptr<YODA::AnalysisObject> &ao)
+  double Contur_LogLike(vector_shared_ptr<YODA::AnalysisObject> &aos)
   {
 
+    
+ 
     return 0.0;
 
   }

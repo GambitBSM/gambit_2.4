@@ -203,8 +203,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 500
-        max_nEvents: 500
+        min_nEvents: 100
+        max_nEvents: 100
         events_between_convergence_checks: 500
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -274,14 +274,13 @@ Rules:
     options:
       drop_YODA_file: true
       analyses: 
-        - ATLAS_2019_I1718132
         - ATLAS_2019_I1720442
-        - CMS_2018_I1680318
 
   - capability: LHC_measurements_LogLike
-    function: Contur_LHC_measurements_LogLike_from_file
-    options:
-      YODA_filename: "./GAMBIT_collider_measurements.yoda"
+    function: Contur_LHC_measurements_LogLike
+    #function: Contur_LHC_measurements_LogLike_from_file
+    #options:
+    #  YODA_filename: "./GAMBIT_collider_measurements.yoda"
 
 # Set the names of key log files
 

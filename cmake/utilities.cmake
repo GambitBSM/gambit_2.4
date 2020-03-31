@@ -23,8 +23,9 @@
 #  \date 2016 Jan
 #
 #  \author Tomas Gonzalo
-#          (t.e.gonzalo@fys.uio.no)
+#          (tomas.gonzalo@monash.edu)
 #  \date 2016 Sep
+#        2019 Oct
 #
 #  \author Will Handley
 #          (wh260@cam.ac.uk)

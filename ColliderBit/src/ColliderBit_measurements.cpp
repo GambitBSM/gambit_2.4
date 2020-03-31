@@ -139,7 +139,7 @@ namespace Gambit
         vector_shared_ptr<YODA::AnalysisObject> aos = *Dep::Rivet_measurements;
 
         // Call Contur
-        //result = BEreq::Contur_LogLike(aos);
+        result = BEreq::Contur_LogLike(aos);
 
       }
 
