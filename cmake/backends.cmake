@@ -555,7 +555,7 @@ if(EXCLUDE_HEPMC)
 else()
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
   # - Add HepMC3 library path
-  set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_PATH}/local/lib -Wl,-rpath ${HEPMC_PATH}/local/lib -lHepMC3")
+  set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_LIB} -Wl,-rpath ${HEPMC_LIB} -lHepMC3")
   check_ditch_status(${name} ${ver} ${dir})
   if(NOT ditched_${name}_${ver})
     ExternalProject_Add(${name}_${ver}
@@ -1239,6 +1239,38 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+# Prospino
+set(name "prospino")
+set(ver "2.1")
+set(lib "libprospino")
+set(dl "https://www.thphys.uni-heidelberg.de/~plehn/includes/prospino/on_the_web_10_17_14.tar.gz")
+set(md5 "40e73d6b56a5008c134cc89c769e274c")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+# Prospino fails to compile with -openmp flags
+set(PROSPINO_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
+string(REGEX REPLACE "-fopenmp" "" PROSPINO_Fortran_FLAGS "${PROSPINO_Fortran_FLAGS}")
+string(REGEX REPLACE "-qopenmp" "" PROSPINO_Fortran_FLAGS "${PROSPINO_Fortran_FLAGS}")
+# Some extra optimization for Intel
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  # Options used in xsec project: -fast -xAVX -mkl -fno-alias -fomit-frame-pointer -O3 -finline-functions
+  set(PROSPINO_Fortran_FLAGS "${PROSPINO_Fortran_FLAGS} -fast -mkl -O3 -fno-alias -fomit-frame-pointer -finline-functions")
+endif()
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so COMP=${CMAKE_Fortran_COMPILER} OPTION=${PROSPINO_Fortran_FLAGS}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
 

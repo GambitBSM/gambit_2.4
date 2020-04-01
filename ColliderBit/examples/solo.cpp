@@ -80,6 +80,7 @@ int main(int argc, char* argv[])
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
+    double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
     bool event_file_is_LHEF = Gambit::Utils::endsWith(event_filename, ".lhe");
     bool event_file_is_HepMC = (   Gambit::Utils::endsWith(event_filename, ".hepmc")
@@ -90,7 +91,7 @@ int main(int argc, char* argv[])
 
     // Choose the event file reader according to file format
     if (debug) cout << "Reading " << (event_file_is_LHEF ? "LHEF" : "HepMC") << " file: " << event_filename << endl;
-    auto& getEvent = (event_file_is_LHEF ? getLHEvent : getHepMCEvent);
+    auto& getEvent = (event_file_is_LHEF ? getLHEvent_HEPUtils : getHepMCEvent_HEPUtils);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
@@ -109,21 +110,22 @@ int main(int argc, char* argv[])
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 
-    // Pass the filename to the LHEF/HepMC reader function
+    // Pass the filename and the jet pt cutoff to the LHEF/HepMC reader function
     getEvent.setOption<str>((event_file_is_LHEF ? "lhef_filename" : "hepmc_filename"), event_filename);
+    getEvent.setOption<double>("jet_pt_min", jet_pt_min);
 
     // Pass options to the cross-section function
-    if (settings.hasKey("xsec_pb"))
+    if (settings.hasKey("cross_section_pb"))
     {
-      getYAMLxsec.setOption<double>("xsec_pb", settings.getValue<double>("xsec_pb"));
-      if (settings.hasKey("xsec_fractional_uncert")) { getYAMLxsec.setOption<double>("xsec_fractional_uncert", settings.getValue<double>("xsec_fractional_uncert")); }
-      else {getYAMLxsec.setOption<double>("xsec_uncert_pb", settings.getValue<double>("xsec_uncert_pb")); }
+      getYAMLCrossSection.setOption<double>("cross_section_pb", settings.getValue<double>("cross_section_pb"));
+      if (settings.hasKey("cross_section_fractional_uncert")) { getYAMLCrossSection.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
+      else {getYAMLCrossSection.setOption<double>("cross_section_uncert_pb", settings.getValue<double>("cross_section_uncert_pb")); }
     }
-    else // <-- must have option "xsec_fb"
+    else // <-- must have option "cross_section_fb"
     {
-      getYAMLxsec.setOption<double>("xsec_fb", settings.getValue<double>("xsec_fb"));
-      if (settings.hasKey("xsec_fractional_uncert")) { getYAMLxsec.setOption<double>("xsec_fractional_uncert", settings.getValue<double>("xsec_fractional_uncert")); }
-      else { getYAMLxsec.setOption<double>("xsec_uncert_fb", settings.getValue<double>("xsec_uncert_fb")); }
+      getYAMLCrossSection.setOption<double>("cross_section_fb", settings.getValue<double>("cross_section_fb"));
+      if (settings.hasKey("cross_section_fractional_uncert")) { getYAMLCrossSection.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
+      else { getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
     }
 
     // Pass options to the likelihood function
@@ -147,9 +149,9 @@ int main(int argc, char* argv[])
     runCMSAnalyses.resolveDependency(&smearEventCMS);
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&copyEvent);
-    getATLASAnalysisContainer.resolveDependency(&getYAMLxsec);
-    getCMSAnalysisContainer.resolveDependency(&getYAMLxsec);
-    getIdentityAnalysisContainer.resolveDependency(&getYAMLxsec);
+    getATLASAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getCMSAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getIdentityAnalysisContainer.resolveDependency(&getYAMLCrossSection);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
     smearEventATLAS.resolveDependency(&getEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
@@ -168,7 +170,7 @@ int main(int argc, char* argv[])
     smearEventATLAS.resolveLoopManager(&operateLHCLoop);
     smearEventCMS.resolveLoopManager(&operateLHCLoop);
     copyEvent.resolveLoopManager(&operateLHCLoop);
-    getYAMLxsec.resolveLoopManager(&operateLHCLoop);
+    getYAMLCrossSection.resolveLoopManager(&operateLHCLoop);
     runATLASAnalyses.resolveLoopManager(&operateLHCLoop);
     runCMSAnalyses.resolveLoopManager(&operateLHCLoop);
     runIdentityAnalyses.resolveLoopManager(&operateLHCLoop);
@@ -176,7 +178,7 @@ int main(int argc, char* argv[])
                                                                   &getBuckFastATLAS,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
-                                                                  &getYAMLxsec,
+                                                                  &getYAMLCrossSection,
                                                                   &getATLASAnalysisContainer,
                                                                   &getCMSAnalysisContainer,
                                                                   &getIdentityAnalysisContainer,
@@ -199,7 +201,7 @@ int main(int argc, char* argv[])
     calc_combined_LHC_LogLike.reset_and_calculate();
 
     // Retrieve and print the predicted + observed counts and likelihoods for the individual SRs and analyses, as well as the total likelihood.
-    long long n_events = getYAMLxsec(0).num_events();
+    int n_events = operateLHCLoop(0).event_count.at("CBS");
     std::stringstream summary_line;
     for (size_t analysis = 0; analysis < CollectAnalyses(0).size(); ++analysis)
     {
@@ -210,16 +212,12 @@ int main(int argc, char* argv[])
       for (size_t sr_index = 0; sr_index < adata.size(); ++sr_index)
       {
         const Gambit::ColliderBit::SignalRegionData srData = adata[sr_index];
-        const double abs_uncertainty_s_stat = (srData.n_signal == 0 ? 0 : sqrt(srData.n_signal) * (srData.n_signal_at_lumi/srData.n_signal));
-        const double abs_uncertainty_s_sys = srData.signal_sys;
-        const double combined_s_uncertainty = HEPUtils::add_quad(abs_uncertainty_s_stat, abs_uncertainty_s_sys);
-        const double abs_uncertainty_bg_stat = (srData.n_background == 0 ? 0 : sqrt(srData.n_background));
-        const double abs_uncertainty_bg_sys = srData.background_sys;
-        const double combined_bg_uncertainty = HEPUtils::add_quad(abs_uncertainty_bg_stat, abs_uncertainty_bg_sys);
+        const double combined_s_uncertainty = srData.calc_n_sig_scaled_err();
+        const double combined_bg_uncertainty = srData.n_bkg_err;
         summary_line << "    Signal region " << srData.sr_label << " (SR index " << sr_index << "):" << endl;
-        summary_line << "      Observed events: " << srData.n_observed << endl;
-        summary_line << "      SM prediction: " << srData.n_background << " +/- " << combined_bg_uncertainty << endl;
-        summary_line << "      Signal prediction: " << srData.n_signal_at_lumi << " +/- " << combined_s_uncertainty << endl;
+        summary_line << "      Observed events: " << srData.n_obs << endl;
+        summary_line << "      SM prediction: " << srData.n_bkg << " +/- " << combined_bg_uncertainty << endl;
+        summary_line << "      Signal prediction: " << srData.n_sig_scaled << " +/- " << combined_s_uncertainty << endl;
         auto loglike_it = analysis_loglikes.sr_loglikes.find(srData.sr_label);
         if (loglike_it != analysis_loglikes.sr_loglikes.end())
         {

@@ -64,19 +64,28 @@ namespace Gambit
   typedef std::pair<str, str> sspair;
   /// Shorthand for a pair of doubles
   typedef std::pair<double, double> ddpair;
+  /// Shorthand for a pair of ints
+  typedef std::pair<int, int> iipair;
   /// Shorthand for a string-to-double map
   typedef std::map<std::string,double> map_str_dbl;
   /// Shorthand for a string-to-string-to-double map
   typedef std::map<std::string,std::map<std::string,double> > map_str_map_str_dbl;
   /// Shorthand for a string-to-string map
   typedef std::map<std::string,std::string> map_str_str;
+  /// Shorthand for a string-to-bool map
+  typedef std::map<std::string,bool> map_str_bool;
 
+  /// Shorthand for an int to double map
+  typedef std::map<int,double> map_int_dbl;
   /// Shorthand for an int-int pair to double map
   typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
 
   // Shorthand for vector of shared pointers
   template <typename T>
   using vector_shared_ptr = std::vector<std::shared_ptr<T>>;
+
+  /// Shorthand for a pointer to a void function with no arguments
+  typedef void (*fptr_void)();
 
   // Useful unqualified functions
   using std::cout;
@@ -294,6 +303,10 @@ namespace Gambit
       }
 
   };
+
+  /// Shorthand for the type of the 'Param' map (string-to-double-safe_ptr map)
+  typedef std::map<std::string, safe_ptr<const double> > param_map_type;
+
 
 
   /// Array class that matches the memory structure and functionality of arrays in Fortran codes

@@ -506,8 +506,12 @@ Rules:
     function: generateEventPythia
 
   # Choose to where to get cross-sections from
-  - capability: CrossSection
-    function: getMCxsec
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
 
   # Choose Monte Carlo event simulator and options.
   - capability: HardScatteringSim

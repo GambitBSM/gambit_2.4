@@ -33,13 +33,14 @@ namespace Gambit
   {
 
     /// A nested function that reads in Les Houches Event files and converts them to HEPUtils::Event format
-    void getLHEvent(HEPUtils::Event& result)
+    void getLHEvent_HEPUtils(HEPUtils::Event& result)
     {
-      using namespace Pipes::getLHEvent;
+      using namespace Pipes::getLHEvent_HEPUtils;
 
       result.clear();
 
-      // Get the filename and initialise the LHEF reader
+      // Get yaml options and initialise the LHEF reader
+      const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
       const static str lhef_filename = runOptions->getValue<str>("lhef_filename");
       static bool first = true;
       if (first)
@@ -56,10 +57,16 @@ namespace Gambit
       bool event_retrieved = true;
       #pragma omp critical (reading_LHEvent)
       {
-        if (lhe.readEvent()) get_HEPUtils_event(lhe, result);
+        if (lhe.readEvent()) get_HEPUtils_event(lhe, result, jet_pt_min);
         else event_retrieved = false;
       }
-      if (not event_retrieved) Loop::halt();
+      if (not event_retrieved)
+      {
+        // Tell the MCLoopInfo instance that we have reached the end of the file
+        Dep::RunMC->report_end_of_event_file();
+        Loop::halt();
+      }
+
     }
 
   }

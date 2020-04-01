@@ -33,10 +33,12 @@
 ///  \date   2017 March
 ///  \date   2018 Jan
 ///  \date   2018 May
+///  \date   2019 Sep
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 Sep, Oct
+///  \date 2002 Apr
 ///
 ///  *********************************************
 
@@ -89,7 +91,7 @@ namespace Gambit
             hepmc_writer.write_event_HepMC2(const_cast<PythiaT*>(Pythia));
           if(drop_HepMC3_file)
             hepmc_writer.write_event_HepMC3(const_cast<PythiaT*>(Pythia));
-         
+
         }
       }
     #endif
@@ -127,13 +129,17 @@ namespace Gambit
       {
         try
         {
+          #ifdef COLLIDERBIT_DEBUG
+          cerr << DEBUG_PREFIX << "Will now call HardScatteringSim.nextEvent(pythia_event)..." << endl;
+          #endif
+
           HardScatteringSim.nextEvent(pythia_event);
           break;
         }
         catch (typename Py8Collider<PythiaT,EventT>::EventGenerationError& e)
         {
           #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "Py8Collider::EventGenerationError caught in generateEventPy8Collider. Check the ColliderBit log for event details." << endl;
+          cerr << DEBUG_PREFIX << "Py8Collider::EventGenerationError caught in generateEventPy8Collider. Check the ColliderBit log for event details." << endl;
           #endif
           #pragma omp critical (pythia_event_failure)
           {
@@ -150,13 +156,11 @@ namespace Gambit
       // Wrap up event loop if too many events fail.
       if(nFailedEvents > RunMC.current_maxFailedEvents())
       {
+        // Tell the MCLoopInfo instance that we have exceeded maxFailedEvents
+        RunMC.report_exceeded_maxFailedEvents();
         if(RunMC.current_invalidate_failed_points())
         {
           piped_invalid_point.request("exceeded maxFailedEvents");
-        }
-        else
-        {
-          piped_warnings.request(LOCAL_INFO,"exceeded maxFailedEvents");
         }
         wrapup();
         return;
@@ -169,8 +173,11 @@ namespace Gambit
     void convertEventToHEPUtilsPy8Collider(HEPUtils::Event& event,
                                   const EventT &pythia_event,
                                   const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                  const EventWeighterFunctionType& EventWeighterFunction,
                                   const int iteration,
-                                  void(*wrapup)())
+                                  void(*wrapup)(),
+                                  const safe_ptr<Options>& runOptions)
+ 
     {
 
       // If in any other special iteration, do nothing
@@ -179,13 +186,15 @@ namespace Gambit
       // Clear the HEPUtils event
       event.clear();
 
+      static const double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
+
       // Attempt to convert the Pythia event to a HEPUtils event
       try
       {
         if (HardScatteringSim.partonOnly)
-          convertPartonEvent(pythia_event, event, HardScatteringSim.antiktR);
+          convertPartonEvent(pythia_event, event, HardScatteringSim.antiktR, jet_pt_min);
         else
-          convertParticleEvent(pythia_event, event, HardScatteringSim.antiktR);
+          convertParticleEvent(pythia_event, event, HardScatteringSim.antiktR, jet_pt_min);
       }
       // No good.
       catch (Gambit::exception& e)
@@ -209,7 +218,8 @@ namespace Gambit
         return;
       }
 
-
+      // Assign weight to event
+      EventWeighterFunction(event, &HardScatteringSim);
     }
 
     #ifndef EXCLUDE_HEPMC
@@ -291,7 +301,8 @@ namespace Gambit
       using namespace Pipes::CAT(NAME,_HEPUtils);                \
       convertEventToHEPUtilsPy8Collider(result,                  \
        *Dep::HardScatteringEvent, *Dep::HardScatteringSim,       \
-       *Loop::iteration, Loop::wrapup);                          \
+       *Dep::EventWeighterFunction, *Loop::iteration,            \
+       Loop::wrapup, runOptions);                                \
     }                                                            \
                                                                  \
     IF_NOT_DEFINED(EXCLUDE_HEPMC,                                \
