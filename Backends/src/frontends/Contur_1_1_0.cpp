@@ -24,7 +24,7 @@ BE_NAMESPACE
   double Contur_LogLike(vector_shared_ptr<YODA::AnalysisObject> &aos)
   {
 
-    
+    //pybind11::object ao = yoda.attr("AnalysisObject");
  
     return 0.0;
 

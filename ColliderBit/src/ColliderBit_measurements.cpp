@@ -29,7 +29,7 @@
   #include "YODA/IO.h"
 #endif
 
-//#define COLLIDERBIT_DEBUG
+#define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -59,6 +59,11 @@ namespace Gambit
 
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
+            #ifdef COLLIDERBIT_DEBUG
+              std::cout<< "Rivet analyses: ";
+              for(auto analysis: analyses) std::cout << analysis << ",";
+              std::cout << endl;
+            #endif
 
             if(not analyses.size())
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");

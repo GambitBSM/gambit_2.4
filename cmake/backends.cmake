@@ -1153,8 +1153,8 @@ set(ver "1.1.0")
 set(git_repo "https://gitlab.com/hepcedar/contur.git")
 set(git_tag "contur-1.1.0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(init_file ${dir}/AnalysisTools/contur/init_by_GAMBIT.py)
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(contur_dir "${dir}/AnalysisTools/contur")
+set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
 set(Rivet_ver "3.0.1")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
@@ -1168,13 +1168,13 @@ if(NOT ditched_${name}_${ver})
     GIT_TAG ${git_tag}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-#    PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
               COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
               COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
               COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
               COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
               COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${init_file}
+              COMMAND sed -i "" -e "s/from tqdm import tqdm/#from tqdm import tqdm \# Commented by GAMBIT/g" "${contur_dir}/contur/histFactory.py"
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
     INSTALL_COMMAND ""
   )
