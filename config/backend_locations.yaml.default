@@ -28,6 +28,8 @@ DDCalc:
   1.1.0:       ./Backends/installed/ddcalc/1.1.0/lib/libDDCalc.so
   1.2.0:       ./Backends/installed/ddcalc/1.2.0/lib/libDDCalc.so
   2.0.0:       ./Backends/installed/ddcalc/2.0.0/lib/libDDCalc.so
+  2.1.0:       ./Backends/installed/ddcalc/2.1.0/lib/libDDCalc.so
+  2.2.0:       ./Backends/installed/ddcalc/2.2.0/lib/libDDCalc.so
 
 HiggsBounds:
   4.2.1:       ./Backends/installed/higgsbounds/4.2.1/lib/libhiggsbounds.so
@@ -76,6 +78,7 @@ nulike:
   1.0.5:       ./Backends/installed/nulike/1.0.5/lib/libnulike.so
   1.0.6:       ./Backends/installed/nulike/1.0.6/lib/libnulike.so
   1.0.7:       ./Backends/installed/nulike/1.0.7/lib/libnulike.so
+  1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
 
 Rivet:
   3.0.1:       ./Backends/installed/rivet/3.0.1/local/lib/libRivet.so
