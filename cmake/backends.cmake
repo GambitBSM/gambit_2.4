@@ -1235,7 +1235,6 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
     INSTALL_COMMAND ""
   )
-  Python_modules(${name} ${ver} "cython;tqdm;myModule;myothermodule")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

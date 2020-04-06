@@ -35,17 +35,17 @@ BE_NAMESPACE
 
     pybind11::object yodaFactory = Contur.attr("yodaFactory")(YODA_filename);
 
-    // Set the test method to be used
-    // TODO: LL for now
-    yodaFactory.attr("_testMethod") = "LL";
+    // Disable grid runs
     yodaFactory.attr("_GridRun") = false;
 
-    yodaFactory.attr("getConturPoints")();
+    // Sort the list of contur buckets
+    yodaFactory.attr("sortBuckets")();
 
-    pybind11::object conturPoint  = yodaFactory.attr("_ctPt");
-    double CLs = conturPoint.attr("CLs").cast<double>();
-    
-    // TODO: This is not a likelihood, need to figure out how to convert it to one
+    // Build a final conturPoint combining all buckets into one test
+    yodaFactory.attr("buildFinal")();
+
+    double CLs = yodaFactory.attr("conturPoint").attr("CLs").cast<double>();
+
     return CLs;
   }
 
