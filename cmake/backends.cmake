@@ -1155,12 +1155,11 @@ endif()
 
 # Rivet
 set(name "rivet")
-set(ver "3.0.1")
+set(ver "3.1.0")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-set(md5 "1254178627bb3b2ffca0cb0fa0d34f05")
+set(md5 "d5eb0e69aa3fdf44f5925419e0d40dc9")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
-#set(yoda_ver "1.7.7")
 #set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
 set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
@@ -1172,7 +1171,6 @@ set(fjcontrib_name "fjcontrib")
 set(fjcontrib_ver "1.041")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(ditch_if_absent "HepMC;YODA")
-#TODO: Manually add these, but I think this should be automatic
 set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
@@ -1216,10 +1214,9 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/AnalysisTools/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
-set(Rivet_ver "3.0.1")
+set(Rivet_ver "3.1.0")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
-find_python_module(cython)
-set(ditch_if_absent "SQLITE3;YODA;PY_cython")
+set(ditch_if_absent "SQLITE3;YODA")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1234,10 +1231,11 @@ if(NOT ditched_${name}_${ver})
               COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
               COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
               COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${init_file}
-              COMMAND sed -i "" -e "s/from tqdm import tqdm/#from tqdm import tqdm \# Commented by GAMBIT/g" "${contur_dir}/contur/histFactory.py"
+              #COMMAND sed -i "" -e "s/from tqdm import tqdm/#from tqdm import tqdm \# Commented by GAMBIT/g" "${contur_dir}/contur/histFactory.py"
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
     INSTALL_COMMAND ""
   )
+  Python_modules(${name} ${ver} "cython;tqdm;myModule;myothermodule")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
