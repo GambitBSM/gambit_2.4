@@ -104,10 +104,10 @@ endmacro()
 
 # Macro to add all additional targets for a new backend or scanner
 macro(add_extra_targets type package ver dir dl target)
-  string(REPLACE "|" "| ${CMAKE_MAKE_PROGRAM}" updated_target ${target})
+  string(REPLACE "|" "| ${MAKE_SERIAL}" updated_target ${target})
   string(FIND "${target}" "|" pipe_found)
   if (pipe_found STREQUAL "-1")
-    set(updated_target "${CMAKE_MAKE_PROGRAM} ${target}")
+    set(updated_target "${MAKE_SERIAL} ${target}")
   endif()
   string(REGEX REPLACE " " ";" updated_target "${updated_target}")
   if (${type} STREQUAL "backend model")
