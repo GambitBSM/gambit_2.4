@@ -118,9 +118,13 @@ endmacro()
 if(CMAKE_MAKE_PROGRAM MATCHES "make$")
   set(MAKE_SERIAL   $(MAKE) -j1)
   set(MAKE_PARALLEL $(MAKE))
+  set(MAKE_INSTALL_SERIAL    $(MAKE) install -j1)
+  set(MAKE_INSTALL_PARALLEL  $(MAKE) install)
 else()
   set(MAKE_SERIAL   "${CMAKE_MAKE_PROGRAM}")
   set(MAKE_PARALLEL "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_SERIAL   "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_PARALLEL "${CMAKE_MAKE_PROGRAM}")
 endif()
 
 # Arrange clean commands

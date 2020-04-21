@@ -33,7 +33,16 @@ BE_NAMESPACE
   double Contur_LogLike_from_file(str &YODA_filename)
   {
 
-    pybind11::object yodaFactory = Contur.attr("yodaFactory")(YODA_filename);
+    pybind11::object contur = Contur.attr("conturDepot")(false);
+    pybind11::dict param = {};
+    //param["No parameters specified"] = 0.0;
+
+    contur.attr("addParamPoint")(YODA_filename, param);
+
+    pybind11::list list = contur.attr("conturDepotInbox");
+    double CLs = list[0].attr("yodaFactory").attr("_conturPoint").attr("CLs").cast<double>();
+
+    /*pybind11::object yodaFactory = Contur.attr("yodaFactory")(YODA_filename);
 
     // Disable grid runs
     yodaFactory.attr("_GridRun") = false;
@@ -45,8 +54,15 @@ BE_NAMESPACE
     yodaFactory.attr("buildFinal")();
 
     double CLs = yodaFactory.attr("conturPoint").attr("CLs").cast<double>();
-
+    */
     return CLs;
+
+    // TODO: We actually need a loglike value. Contur provides a chisq, check that it is what we want
+    //double chisq = yodaFactory.attr("conturPoint").attr("__chisq")(1.0,0.0).cast<double>();
+
+    //return chisq;
+
+    
   }
 
 }

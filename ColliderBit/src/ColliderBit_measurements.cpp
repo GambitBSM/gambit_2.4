@@ -165,6 +165,8 @@ namespace Gambit
           result = BEreq::Contur_LogLike(YODA_filename);
         } 
 
+        std::cout << "Contur loglike = " << result << std::endl;
+
       }
 
     #endif //EXCLUDE_YODA
