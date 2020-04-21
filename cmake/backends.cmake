@@ -1094,8 +1094,8 @@ endif()
 #    PATCH_COMMAND patch -p1 < ${patch}
 #    PATCH_COMMAND ""
 #    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --disable-static
-#    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
-#    INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
+#    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+#    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
 #  )
 ##  BOSS_backend(${name} ${ver})
 #  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -1118,8 +1118,8 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --prefix=${dir}/local --enable-allcxxplugins --disable-static
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}"
-    INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
@@ -1145,8 +1145,8 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
-    INSTALL_COMMAND ${CMAKE_INSTALL_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
@@ -1196,7 +1196,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-hepmc3-libpath=${hepmc_dir}/lib --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} ${dir}/local/lib/libRivet.so
+    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} ${dir}/local/lib/libRivet.so
     INSTALL_COMMAND ""
   )
   BOSS_backend(${name} ${ver})
@@ -1216,24 +1216,29 @@ set(Rivet_name "rivet")
 set(Rivet_ver "3.1.0")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 set(ditch_if_absent "SQLITE3;YODA")
+set(required_modules "cython")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS ${Rivet_name}_${Rivet_ver}
-    GIT_REPOSITORY ${git_repo}
-    GIT_TAG ${git_tag}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
-              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
-              COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
-              COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
-              COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
-              COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${init_file}
-              #COMMAND sed -i "" -e "s/from tqdm import tqdm/#from tqdm import tqdm \# Commented by GAMBIT/g" "${contur_dir}/contur/histFactory.py"
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
-    INSTALL_COMMAND ""
-  )
+  check_python_modules(${name} ${ver} ${required_modules})
+  if(modules_missing_${name}_${ver})
+    inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    ExternalProject_Add(${name}_${ver}
+      DEPENDS ${Rivet_name}_${Rivet_ver}
+      GIT_REPOSITORY ${git_repo}
+      GIT_TAG ${git_tag}
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${init_file}
+      BUILD_COMMAND ${MAKE_PARALLEL} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
+      INSTALL_COMMAND ""
+    )
+  endif()
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -1263,7 +1268,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so COMP=${CMAKE_Fortran_COMPILER} OPTION=${PROSPINO_Fortran_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so COMP=${CMAKE_Fortran_COMPILER} OPTION=${PROSPINO_Fortran_FLAGS}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
