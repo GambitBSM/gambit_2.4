@@ -183,6 +183,20 @@ BE_NAMESPACE
 END_BE_NAMESPACE
 
 
+// Callback function for error handling
+BE_NAMESPACE
+{
+  // This function will be called from Prospino. Needs C linkage, and thus also
+  // a backend-specific name to guard against name clashes.
+  extern "C"
+  void CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler)()
+  {
+    throw std::runtime_error("Prospino backend called HARD_STOP.");
+  }
+}
+END_BE_NAMESPACE
+
+
 // Backend init function
 BE_INI_FUNCTION
 {
@@ -190,10 +204,14 @@ BE_INI_FUNCTION
   static bool scan_level = true;
   if (scan_level)
   {
+    // Point the function pointer variable from Prospino to our ErrorHandler callback function
+    *ErrorHandler_cptr = & CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler);
+
     // Help Prospino find itself
     std::string prospino_dir = Backends::backendInfo().path_dir(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));
     Fstring<500> prospino_dir_in = prospino_dir.c_str();
-    prospino_gb_init(prospino_dir_in);
+    try{ prospino_gb_init(prospino_dir_in); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
   }
   scan_level = false;
 
@@ -358,17 +376,26 @@ BE_NAMESPACE
   }
 
 
-  // Convenience function to run Prospino and get a vector of cross-sections
+  // Convenience function to run Prospino and get a vector of cross-sections,
+  // with Prospino settings from YAML options
   map_str_dbl prospino_run(const PID_pair& pid_pair, const Options& runOptions)
   {
     // Get run options
     // @todo Should the collider settings (e.g. energy) be automatically matched to the Pythia instance?
-    const static Finteger inlo = runOptions.getValueOrDef<Finteger>(1, "inlo");                 // specify LO only[0] or complete NLO (slower)[1]
-    const static Finteger isq_ng_in = runOptions.getValueOrDef<Finteger>(1, "isq_ng_in");       // specify degenerate [0] or free [1] squark masses
-    const static Finteger icoll_in = runOptions.getValueOrDef<Finteger>(1, "icoll_in");         // collider : tevatron[0], lhc[1]
-    const static Fdouble energy_in = runOptions.getValueOrDef<Fdouble>(13000.0, "energy_in");  // collider energy in GeV
-    const static Finteger i_error_in = runOptions.getValueOrDef<Finteger>(0, "i_error_in");     // with central scale [0] or scale variation [1]
-    const static bool set_missing_cross_sections_to_zero = runOptions.getValueOrDef<bool>(false, "set_missing_cross_sections_to_zero");
+    int inlo = runOptions.getValueOrDef<int>(1, "inlo");                 // specify LO only[0] or complete NLO (slower)[1]
+    int isq_ng_in = runOptions.getValueOrDef<int>(1, "isq_ng_in");       // specify degenerate [0] or free [1] squark masses
+    int icoll_in = runOptions.getValueOrDef<int>(1, "icoll_in");         // collider : tevatron[0], lhc[1]
+    double energy_in = runOptions.getValueOrDef<double>(13000.0, "energy_in");  // collider energy in GeV
+    int i_error_in = runOptions.getValueOrDef<int>(0, "i_error_in");     // with central scale [0] or scale variation [1]
+    bool set_missing_cross_sections_to_zero = runOptions.getValueOrDef<bool>(false, "set_missing_cross_sections_to_zero");
+
+    return prospino_run_alloptions(pid_pair, inlo, isq_ng_in, icoll_in, energy_in, i_error_in, set_missing_cross_sections_to_zero);
+  }
+
+  // Convenience function to run Prospino and get a vector of cross-sections,
+  // with Prospino settings directly as function arguments
+  map_str_dbl prospino_run_alloptions(const PID_pair& pid_pair, const int& inlo, const int& isq_ng_in, const int& icoll_in, const double& energy_in, const int& i_error_in, const bool& set_missing_cross_sections_to_zero)
+  {
 
     // Check that we have a set of prospino settings for the given PID_pair
     if(PID_pairs_to_prospino_settings.find(pid_pair) == PID_pairs_to_prospino_settings.end())
@@ -405,9 +432,14 @@ BE_NAMESPACE
 
     // Call prospino
     Farray<Fdouble,0,6> prospino_result;
-    prospino_gb(prospino_result, ps.inlo, ps.isq_ng_in, ps.icoll_in, ps.energy_in, ps.i_error_in, 
-                ps.final_state_in, ps.ipart1_in, ps.ipart2_in, ps.isquark1_in, ps.isquark2_in,
-                unimass, lowmass, uu_in, vv_in, bw_in, mst_in, msb_in, msl_in);
+
+    try
+    { 
+        prospino_gb(prospino_result, ps.inlo, ps.isq_ng_in, ps.icoll_in, ps.energy_in, ps.i_error_in, 
+                    ps.final_state_in, ps.ipart1_in, ps.ipart2_in, ps.isquark1_in, ps.isquark2_in,
+                    unimass, lowmass, uu_in, vv_in, bw_in, mst_in, msb_in, msl_in);
+    }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     // Fill the result map with the content of prospino_result
     map_str_dbl result;

@@ -37,11 +37,11 @@ namespace Gambit {
   namespace ColliderBit {
 
     // Need two different functions here for use with std::sort
-    bool sortByPT_1l(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
+    bool sortByPT_1l(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
     bool sortByPT_1l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT_1l(jet1.get(), jet2.get()); }
 
     // Need two different functions here for use with std::sort
-    bool sortByMass_1l(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->mass() > jet2->mass()); }
+    bool sortByMass_1l(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->mass() > jet2->mass()); }
     bool sortByMass_1l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByMass_1l(jet1.get(), jet2.get()); }
 
     double calcMT_1l(HEPUtils::P4 jetMom,HEPUtils::P4 metMom)
@@ -80,13 +80,13 @@ namespace Gambit {
       int NCUTS; //=16;
 
 
-      void LeptonLeptonOverlapRemoval(vector<HEPUtils::Particle*> &lep1vec, vector<HEPUtils::Particle*> &lep2vec, double DeltaRMax)
+      void LeptonLeptonOverlapRemoval(vector<const HEPUtils::Particle*> &lep1vec, vector<const HEPUtils::Particle*> &lep2vec, double DeltaRMax)
       {
 
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep1 = 0; itlep1 < lep1vec.size(); itlep1++)
         {
@@ -110,12 +110,12 @@ namespace Gambit {
       }
 
 
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax)
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax)
       {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Jet*> Survivors;
+        vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
         {
@@ -139,12 +139,12 @@ namespace Gambit {
       }
 
 
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec)
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec)
       {
         //Routine to do lepton-jet check
         //Discards leptons if they are within dR of a jet as defined in analysis paper
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
         {
@@ -291,7 +291,7 @@ namespace Gambit {
       }
 
 
-      HEPUtils::P4 reclusteredParticle(vector<HEPUtils::Jet*> jets, vector<HEPUtils::Jet*> bjets,
+      HEPUtils::P4 reclusteredParticle(vector<const HEPUtils::Jet*> jets, vector<const HEPUtils::Jet*> bjets,
                                        const double mass, const bool useBJets)
       {
 
@@ -299,15 +299,15 @@ namespace Gambit {
         HEPUtils::P4 p;
         double r0 = 3.0;
 
-        vector<HEPUtils::Jet*> usejets;
-        for(HEPUtils::Jet* jet : jets)
+        vector<const HEPUtils::Jet*> usejets;
+        for(const HEPUtils::Jet* jet : jets)
         {
           usejets.push_back(jet);
         }
 
         if (useBJets && bjets.size())
         {
-          for(HEPUtils::Jet* bjet : bjets)
+          for(const HEPUtils::Jet* bjet : bjets)
           {
             usejets.push_back(bjet);
           }
@@ -315,7 +315,7 @@ namespace Gambit {
 
         std::vector<FJNS::PseudoJet> initialJets;
 
-        for (HEPUtils::Jet* jet : usejets)
+        for (const HEPUtils::Jet* jet : usejets)
         {
           FJNS::PseudoJet Pjet(jet->mom().px(), jet->mom().py(), jet->mom().pz(), jet->mom().E());
           initialJets.push_back(Pjet);
@@ -381,8 +381,8 @@ namespace Gambit {
         double Met = event->met();
 
         // Construct baseline electron objects
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons())
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT() > 5. && electron->abseta() < 2.47)
           {
@@ -394,8 +394,8 @@ namespace Gambit {
         ATLAS::applyElectronEff(baselineElectrons);
 
         // Construct baseline muon objects
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons())
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 4. && muon->abseta() < 2.7)
           {
@@ -407,12 +407,12 @@ namespace Gambit {
         ATLAS::applyMuonEff(baselineMuons);
 
         // Construct set of all light baseline leptons
-        vector<HEPUtils::Particle*> baselineLeptons = baselineElectrons;
+        vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
         baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end() );
 
         // Construct baseline tau objects
-        vector<HEPUtils::Particle*> baselineTaus;
-        for (HEPUtils::Particle* tau : event->taus())
+        vector<const HEPUtils::Particle*> baselineTaus;
+        for (const HEPUtils::Particle* tau : event->taus())
         {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.5) baselineTaus.push_back(tau);
         }
@@ -420,16 +420,16 @@ namespace Gambit {
         ATLAS::applyTauEfficiencyR1(baselineTaus);
 
         // Photons
-        vector<HEPUtils::Particle*> signalPhotons;
-        for (HEPUtils::Particle* photon : event->photons())
+        vector<const HEPUtils::Particle*> signalPhotons;
+        for (const HEPUtils::Particle* photon : event->photons())
         {
           signalPhotons.push_back(photon);
         }
 
         // Jets
-        vector<HEPUtils::Jet*> bJets;
-        vector<HEPUtils::Jet*> nonBJets;
-        vector<HEPUtils::Jet*> trueBJets; //for debugging
+        vector<const HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> nonBJets;
+        vector<const HEPUtils::Jet*> trueBJets; //for debugging
 
         // Get b jets
         /// @note We assume that b jets have previously been 100% tagged
@@ -437,7 +437,7 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets())
         {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.9)
@@ -453,20 +453,6 @@ namespace Gambit {
           }
         }
 
-        // Overlap removal
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalSoftElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Particle*> signalSoftMuons;
-        vector<HEPUtils::Particle*> signalLeptons;
-        vector<HEPUtils::Particle*> signalSoftLeptons;
-        vector<HEPUtils::Particle*> electronsForVeto;
-        vector<HEPUtils::Particle*> muonsForVeto;
-
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> signalBJets;
-        vector<HEPUtils::Jet*> signalNonBJets;
-
         // Note: use paper description instead of code snippet
         // This is not identical to the overlap removal in the paper
         // Probably good enough though
@@ -478,22 +464,44 @@ namespace Gambit {
         LeptonJetOverlapRemoval(baselineMuons,bJets);
         LeptonLeptonOverlapRemoval(baselineTaus,baselineElectrons,0.1);
 
+        // Fill a jet-pointer-to-bool map to make it easy to check
+        // if a given jet is treated as a b-jet in this analysis
+        map<const HEPUtils::Jet*,bool> analysisBtags;
+        for (const HEPUtils::Jet* jet : bJets) {
+          analysisBtags[jet] = true;
+        }
+        for (const HEPUtils::Jet* jet : nonBJets) {
+          analysisBtags[jet] = false;
+        }
+
+        // Signal object containers
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalSoftElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> signalSoftMuons;
+        vector<const HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> signalSoftLeptons;
+        vector<const HEPUtils::Particle*> electronsForVeto;
+        vector<const HEPUtils::Particle*> muonsForVeto;
+
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> signalBJets;
+        vector<const HEPUtils::Jet*> signalNonBJets;
+
         // Now apply signal jet cuts
-        for (HEPUtils::Jet* jet : bJets)
+        for (const HEPUtils::Jet* jet : bJets)
         {
           if(jet->pT() > 25. && fabs(jet->eta())<2.5)
           {
-            jet->set_btag(true);
             signalJets.push_back(jet);
             signalBJets.push_back(jet);
           }
         }
 
-        for (HEPUtils::Jet* jet : nonBJets)
+        for (const HEPUtils::Jet* jet : nonBJets)
         {
           if(jet->pT() > 25. && fabs(jet->eta())<2.5)
           {
-            jet->set_btag(false);
             signalJets.push_back(jet);
             signalNonBJets.push_back(jet);
           }
@@ -501,7 +509,7 @@ namespace Gambit {
 
         // Note that the isolation requirements and tight selection are currently missing
 
-        for (HEPUtils::Particle* electron : baselineElectrons)
+        for (const HEPUtils::Particle* electron : baselineElectrons)
         {
           signalSoftElectrons.push_back(electron);
           signalSoftLeptons.push_back(electron);
@@ -512,7 +520,7 @@ namespace Gambit {
           }
         }
 
-        for (HEPUtils::Particle* muon : baselineMuons)
+        for (const HEPUtils::Particle* muon : baselineMuons)
         {
           signalSoftMuons.push_back(muon);
           signalSoftLeptons.push_back(muon);
@@ -533,16 +541,16 @@ namespace Gambit {
         if((Met > 100. && (baselineElectrons.size()+baselineMuons.size()) == 1 &&
             ((signalSoftLeptons.size() == 1 || signalLeptons.size() == 1)) && nJets > 1)) cut_minSelection=true;
 
-        vector<HEPUtils::Jet*> mostBjetLike;
-        vector<HEPUtils::Jet*> signalNotBjetLike;
-        vector<HEPUtils::Jet*> signalNotBjet;
+        vector<const HEPUtils::Jet*> mostBjetLike;
+        vector<const HEPUtils::Jet*> signalNotBjetLike;
+        vector<const HEPUtils::Jet*> signalNotBjet;
 
         // create containers with exactly 2 jets being considered to be b-jets and the inverse
         int bJet1 = -1, bJet2 = -1;
 
         for (unsigned int i = 0; i < signalJets.size(); ++i)
         {
-          if (!signalJets[i]->btag()) continue;
+          if (!analysisBtags.at(signalJets[i])) continue;
           if (bJet1 == -1)
             bJet1 = i;
           else if (bJet2 == -1)
@@ -555,7 +563,7 @@ namespace Gambit {
         {
           for (unsigned int i = 0; i < signalJets.size(); ++i)
           {
-            if (signalJets[i]->btag()) continue;
+            if (analysisBtags.at(signalJets[i])) continue;
             if (bJet1 == -1)
               bJet1 = i;
             else if (bJet2 == -1)
@@ -574,7 +582,7 @@ namespace Gambit {
 
         for (int i = 0; i < (int)signalJets.size(); ++i)
         {
-          if (!signalJets[i]->btag()) signalNotBjet.push_back(signalJets.at(i));
+          if (!analysisBtags.at(signalJets[i])) signalNotBjet.push_back(signalJets.at(i));
           if (i == bJet1 || i == bJet2) continue;
           signalNotBjetLike.push_back(signalJets.at(i));
         }
@@ -630,7 +638,7 @@ namespace Gambit {
             vecHtMiss -= signalJets[i]->mom();
 
           /* calculate Ht and HtSig */
-          for (HEPUtils::Jet* jet : signalJets) Ht += jet->pT();
+          for (const HEPUtils::Jet* jet : signalJets) Ht += jet->pT();
 
           TRandom3 myRandom;
           myRandom.SetSeed(signalJets[0]->pT());
@@ -699,7 +707,7 @@ namespace Gambit {
           // Note that we have already applied a 1 lepton cut
           if (baselineElectrons.size()==1 && baselineMuons.size()==0)
           {
-            vector<HEPUtils::Particle*> tightElectrons;
+            vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(baselineElectrons[0]);
             ATLAS::applyTightIDElectronSelection(tightElectrons);
             preselLowMet = preselLowMet && (tightElectrons.size()==1);
@@ -908,7 +916,7 @@ namespace Gambit {
           // Note that we have already applied a 1 lepton cut
           if (signalSoftElectrons.size()==1 && signalSoftMuons.size()==0)
           {
-            vector<HEPUtils::Particle*> tightElectrons;
+            vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(signalSoftElectrons[0]);
             ATLAS::applyTightIDElectronSelection(tightElectrons);
             preselSoftLep = preselSoftLep && (tightElectrons.size()==1);
@@ -920,12 +928,12 @@ namespace Gambit {
         //bffN
         if (nJets > 1 && nBJets > 0 && preselSoftLep && signalJets[0]->pT() > 400 && Met > 300 && mT < 160 &&
             pTLepOverMet < 0.02 && minDPhiMetBJet < 1.5 && absDPhiJMet0 > 0.4 && absDPhiJMet1 > 0.4 &&
-            topReclM < 150 && !signalJets[0]->btag())is_bffN=true;
+            topReclM < 150 && !analysisBtags.at(signalJets[0]))is_bffN=true;
 
         //bCsoft_diag
         if (nJets > 1 && nBJets > 0 && preselSoftLep && signalJets[0]->pT() > 400 && Met > 300 && mT < 50 &&
             pTLepOverMet < 0.02 && minDPhiMetBJet < 1.5 && absDPhiJMet0 > 0.4 && absDPhiJMet1 > 0.4 &&
-            topReclM < 150 && !signalJets[0]->btag())is_bCsoft_diag=true;
+            topReclM < 150 && !analysisBtags.at(signalJets[0]))is_bCsoft_diag=true;
 
         //bCsoft_med
         if (nJets > 2 && nBJets > 1 && preselSoftLep && signalJets[0]->pT() > 120 && signalJets[1]->pT() > 60 &&
@@ -1157,15 +1165,15 @@ namespace Gambit {
 
              (j==42 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160.) ||
 
-             (j==43 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag()) ||
+             (j==43 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0])) ||
 
-             (j==44 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5) ||
+             (j==44 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5) ||
 
-             (j==45 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05) ||
+             (j==45 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05) ||
 
-             (j==46 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150) ||
+             (j==46 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150) ||
 
-             (j==47 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150 && pTLepOverMet < 0.02) ||
+             (j==47 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150 && pTLepOverMet < 0.02) ||
 
              // bC2x_diag cutflow
 
@@ -1251,17 +1259,17 @@ namespace Gambit {
 
              (j==85 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160) ||
 
-             (j==86 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag()) ||
+             (j==86 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0])) ||
 
-             (j==87 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50) ||
+             (j==87 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50) ||
 
-             (j==88 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5) ||
+             (j==88 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5) ||
 
-             (j==89 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05) ||
+             (j==89 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05) ||
 
-             (j==90 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 ) ||
+             (j==90 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 ) ||
 
-             (j==91 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 &&  pTLepOverMet < 0.02) ||
+             (j==91 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 &&  pTLepOverMet < 0.02) ||
 
              // bCsoft_med cutflow
 
@@ -1351,7 +1359,7 @@ namespace Gambit {
                 = dynamic_cast<const Analysis_ATLAS_13TeV_1LEPStop_36invfb*>(other);
 
         for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        
+
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (int j=0; j<NCUTS; j++)
         {

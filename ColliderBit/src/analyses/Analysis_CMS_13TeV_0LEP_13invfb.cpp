@@ -13,7 +13,7 @@ namespace Gambit {
 
     /// @brief CMS Run 2 0-lepton jet+MET SUSY analysis, with 13/fb of data
     ///
-    /// Based on:
+    /// Based on: CMS-SUS-16-014,  http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-16-014/index.html
     ///
     class Analysis_CMS_13TeV_0LEP_13invfb : public Analysis {
     public:
@@ -82,8 +82,8 @@ namespace Gambit {
 
 
         // Get baseline electrons
-        vector<Particle*> baseelecs;
-        for (Particle* electron : event->electrons())
+        vector<const Particle*> baseelecs;
+        for (const Particle* electron : event->electrons())
           if (electron->pT() > 10. && electron->abseta() < 2.5)
             baseelecs.push_back(electron);
 
@@ -91,8 +91,8 @@ namespace Gambit {
         CMS::applyElectronEff(baseelecs);
 
         // Get baseline muons
-        vector<Particle*> basemuons;
-        for (Particle* muon : event->muons())
+        vector<const Particle*> basemuons;
+        for (const Particle* muon : event->muons())
           if (muon->pT() > 10. && muon->abseta() < 2.4)
             basemuons.push_back(muon);
 
