@@ -35,10 +35,6 @@
 include(CMakeParseArguments)
 include(ExternalProject)
 
-# Add precompiled header support
-##include(cmake/PrecompiledHeader.cmake)
-#include(cmake/cotire.cmake)
-
 # defining some colors
 string(ASCII 27 Esc)
 set(ColourReset "${Esc}[m")
@@ -112,6 +108,15 @@ macro(retrieve_bits bits root excludes quiet)
   endforeach()
 
 endmacro()
+
+# Specify native make command to be put into external build steps (for correct usage of gmake jobserver)
+if(CMAKE_MAKE_PROGRAM MATCHES "make$")
+  set(MAKE_SERIAL   $(MAKE) -j1)
+  set(MAKE_PARALLEL $(MAKE))
+else()
+  set(MAKE_SERIAL   "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_PARALLEL "${CMAKE_MAKE_PROGRAM}")
+endif()
 
 # Arrange clean commands
 include(cmake/cleaning.cmake)
@@ -200,10 +205,6 @@ function(add_gambit_library libraryname)
   if(${ARG_VISIBLE})
     make_symbols_visible(${libraryname})
   endif()
-
-  # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
-  #cotire(${libraryname})
-  ##add_precompiled_header(${libraryname} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/common.hpp" TRUE)
 
 endfunction()
 
@@ -341,10 +342,6 @@ function(add_gambit_executable executablename LIBRARIES)
     message(STATUS ${LIBRARIES})
   endif()
 
-  # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
-  #cotire(${executablename})
-  ##add_precompiled_header(${executablename} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/common.hpp" TRUE)
-
 endfunction()
 
 # Standalone harvester script
@@ -375,10 +372,6 @@ function(add_standalone executablename)
       endif()
       if(module STREQUAL "SpecBit")
         set(USES_SPECBIT TRUE)
-        # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
-        if (EXCLUDE_FLEXIBLESUSY)
-          set(standalone_permitted 0)
-        endif()
       endif()
       if(module STREQUAL "ColliderBit")
         set(USES_COLLIDERBIT TRUE)
@@ -582,11 +575,14 @@ macro(find_python_module module)
     message(STATUS "Found Python module ${module}.")
     set(PY_${module}_FOUND TRUE)
   else()
-    if(${ARGC} GREATER 1 AND ${ARGV1} STREQUAL "REQUIRED")
-      message(FATAL_ERROR "-- FAILED to find Python module ${module}.")
-    else()
-      message(STATUS "FAILED to find Python module ${module}.")
+    if(${ARGC} GREATER 1)
+      if (${ARGV1} STREQUAL "REQUIRED")
+        message(FATAL_ERROR "-- FAILED to find Python module ${module}.")
+      else()
+        message(FATAL_ERROR "-- Unrecognised second argument to find_python_module: ${ARGV1}.")
+      endif()
     endif()
+    message(STATUS "FAILED to find Python module ${module}.")
   endif()
 endmacro()
 

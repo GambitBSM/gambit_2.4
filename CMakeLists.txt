@@ -35,12 +35,12 @@
 # Require a minimum cmake version of 2.8.5
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_03 RelWithDebInfo MinSizeRel.")
+SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   SET(CMAKE_BUILD_TYPE None CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release_03")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release_O3")
   SET(CMAKE_BUILD_TYPE Release CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-  SET(FORCE_03 TRUE)
+  SET(FORCE_O3 TRUE)
 endif()
 message("${Yellow}-- Build type is set to ${CMAKE_BUILD_TYPE} ${ColourReset}")
 
@@ -53,6 +53,7 @@ foreach(p
   CMP0042 # CMake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
+  CMP0060 # CMake 3.16.2
   CMP0063 # CMake 3.3.2
   CMP0068 # CMake 3.9.1
   CMP0074 # CMake 3.12
@@ -75,14 +76,6 @@ elseif (CXX_COMPILER_NAME MATCHES "icc.*$")
   message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to icc.  Did you mean icpc?")
 endif()
 
-# Use ccache to speed up re-compiling if it is available
-#find_program(CCACHE_FOUND ccache)
-#if(CCACHE_FOUND)
-#  message("-- Found ccache. Will use it to speed up recompilation.")
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-#endif(CCACHE_FOUND)
-
 # Don't relink all binaries when shared lib changes (programs will be rebuilt anyway if used headers change)
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 
@@ -102,22 +95,34 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Include cmake utility scripts, including colour definitions.
 include(cmake/utilities.cmake)
 
+# Check if pybind11 is to be ditched
+string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
+
 # Check for Python interpreter
 # We also need to search for PythonLibs before letting pybind11 look for them,
 # otherwise it seems to get it wrong.  Also, we need to add versions of python
 # greater than 3.3 manually, for compatibility with CMake 2.8.12.
+# If pybind11 is ditched, do not worry about PythonLibs
 set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7)
+# If both FORCE_PYTHON2 and FORCE_PYTHON3 are set, throw error
+if (FORCE_PYTHON2 AND FORCE_PYTHON3)
+  message(FATAL_ERROR "Two different versions of python requested. Switch either FORCE_PYTHON2 or FORCE_PYTHON3 off.")
+endif()
 if (FORCE_PYTHON2)
   message("${BoldYellow}   Python 2 requested; searching for Python 2.7${ColourReset}")
   find_package(PythonInterp 2.7 REQUIRED)
-  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if(NOT DITCH_PYBIND)
+    find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  endif()
 elseif (FORCE_PYTHON3)
   message("${BoldYellow}   Python 3 requested; searching for Python 3.x${ColourReset}")
   find_package(PythonInterp 3 REQUIRED)
-  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if(NOT DITCH_PYBIND)
+    find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  endif()
 else()
   find_package(PythonInterp 3)
-  if(PYTHONINTERP_FOUND)
+  if(PYTHONINTERP_FOUND AND NOT DITCH_PYBIND)
     find_package(PythonLibs 3)
   else()
     message("${BoldYellow}   Python 3 not found, searching for Python 2.7${ColourReset}")
@@ -126,12 +131,22 @@ else()
       message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
                           "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
     endif()
-    find_package(PythonLibs 2)
+    if(NOT DITCH_PYBIND)
+      find_package(PythonLibs 2)
+    endif()
   endif()
 endif()
 message("${BoldYellow}   Using Python interpreter version ${PYTHON_VERSION_STRING} for build.${ColourReset}")
+
 if(PYTHONLIBS_FOUND)
-  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}")
+  string(FIND "${PYTHONLIBS_VERSION_STRING}" "2.7" PY2_POSITION)
+  if(PY2_POSITION EQUAL 0)
+    set(UNSUPPORTED_PYTHON_VERSION "3")
+  else()
+    set(UNSUPPORTED_PYTHON_VERSION "2.7")
+  endif()
+  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}\n"
+          "   Backends requiring Python ${UNSUPPORTED_PYTHON_VERSION} will be ditched.")
   if (NOT "${PYTHON_VERSION_STRING}" STREQUAL "${PYTHONLIBS_VERSION_STRING}")
     message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}\n"
             "   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the\n"
@@ -148,8 +163,10 @@ if(PYTHONLIBS_FOUND)
   endif()
 endif()
 
-# Check for pybind11 if PythonLibs were found
-if(NOT PYTHONLIBS_FOUND)
+# Check for pybind11 if PythonLibs were found and not ditched
+if(DITCH_PYBIND)
+  message("${BoldCyan} X Excluding pybind11 from GAMBIT configuration. Ditching support for Python backends.${ColourReset}")
+elseif(NOT PYTHONLIBS_FOUND)
   message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
           "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
           "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
@@ -239,13 +256,27 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
 endforeach()
 
-# Check for C++11, C++14 and C++17 support
+# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
+if(HAVE_PYBIND11)
+  if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 18.0.6) OR
+     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.6 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.3))
+    set(PERMIT_CXX17_CHECK FALSE)
+  else()
+    set(PERMIT_CXX17_CHECK TRUE)
+  endif()
+endif()
+
+# Check for C++11, C++14 and C++17 support.
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(PERMIT_CXX17_CHECK)
+  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+endif()
 if(COMPILER_SUPPORTS_CXX17)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 else()
-  CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  if(PERMIT_CXX17_CHECK)
+    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  endif()
   CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
   if(COMPILER_SUPPORTS_CXX14)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
