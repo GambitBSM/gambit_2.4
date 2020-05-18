@@ -82,7 +82,6 @@ namespace Gambit
   /// Shorthand for a pointer to a void function with no arguments
   typedef void (*fptr_void)();
 
-
   // Useful unqualified functions
   using std::cout;
   using std::cerr;
