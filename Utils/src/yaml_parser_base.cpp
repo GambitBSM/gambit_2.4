@@ -16,6 +16,10 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Mar
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 
 #include <iostream>
@@ -184,6 +188,11 @@ namespace Gambit
       logNode    ["default_output_path"] = Utils::ensure_path_exists(defpath+"/logs/");
       printerNode["options"]["default_output_path"] = Utils::ensure_path_exists(defpath+"/samples/");
 
+      // Make a copy of yaml file in output dir
+      std::cout << "filename = " << filename << std::endl;
+      str new_filename = defpath+'/'+Utils::base_name(filename);
+      printNode(root,new_filename);
+
       // Postprocessor is currently incompatible with 'print_timing_data', so need to pass this option on for checking
       scannerNode["print_timing_data"] = getValueOrDef<bool>(false,"print_timing_data");
 
@@ -287,6 +296,21 @@ namespace Gambit
       //    param1:
       //      fixed_value: 5.678
       // Parameter must have no entries besides the value for this syntax to be valid
+    }
+
+    /// Print a yaml node to file
+    void Parser::printNode(YAML::Node node, str filename)
+    {
+      #ifdef WITH_MPI
+        int rank = GMPI::Comm().Get_rank();
+      #else
+        int rank = 0;
+      #endif
+      if (rank == 0) 
+      {
+        std::ofstream fout(filename); 
+        fout << node;
+      }
     }
 
     /// Getters for key/value section
