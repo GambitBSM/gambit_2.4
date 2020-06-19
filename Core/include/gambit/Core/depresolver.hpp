@@ -22,6 +22,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
+///
 ///  *********************************************
 
 #ifndef __depresolver_hpp__
@@ -132,7 +136,7 @@ namespace Gambit
         std::vector<VertexID> getObsLikeOrder();
 
         /// Calculate a single target vertex.
-        void calcObsLike(VertexID, const int);
+        void calcObsLike(VertexID);
 
         /// Print a single target vertex.
         void printObsLike(VertexID, const int);
@@ -195,6 +199,9 @@ namespace Gambit
 
         /// Derive options from ini-entries
         Options collectIniOptions(const DRes::VertexID & vertex);
+
+        /// Collect sub-capabilities
+        Options collectSubCaps(const DRes::VertexID & vertex);
 
         /// Generate full dependency tree
         void generateTree(std::queue<QueueEntry> parQueue);
@@ -274,6 +281,8 @@ namespace Gambit
         /// Global flag for triggering printing of timing data
         bool print_timing = false;
 
+        /// Global flag for triggering printing of unitCubeParameters
+        bool print_unitcube = false;
   };
   }
 }

@@ -53,12 +53,12 @@
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/integration.hpp"
 
 #include <string>
 #include <map>
 #include <complex>
 #include <functional>
-#include <gsl/gsl_integration.h>
 
 #define pow2(a) ((a)*(a))          // Get speedy
 #define pow3(a) ((a)*(a)*(a))
@@ -76,36 +76,6 @@ namespace Gambit
 
     /// \name Helper functions for DecayBit
     /// @{
-
-    /// Unwrapper for passing std::function to GSL integrator
-    /// Based on example from https://martin-ueding.de/articles/cpp-lambda-into-gsl/index.html
-    double unwrap(double x, void *p)
-    {
-      auto fp = static_cast<std::function<double(double)> *>(p);
-      return (*fp)(x);
-    }
-
-    /// Integrate a std::function using GSL cquad
-    double integrate_cquad(std::function<double(double)> ftor, double a, double b, double abseps, double releps)
-    {
-      double result = 0.0;
-      gsl_integration_cquad_workspace * gsl_ws = gsl_integration_cquad_workspace_alloc(100);
-
-      gsl_function F;
-      F.function = unwrap;
-      F.params = &ftor;
-
-      gsl_integration_cquad(&F, a, b, abseps, releps, gsl_ws, &result, NULL, NULL);
-      gsl_integration_cquad_workspace_free(gsl_ws);
-
-      // Check result
-      if (Utils::isnan(result))
-      {
-        invalid_point().raise("Integration returned NaN.");
-      }
-
-      return result;
-    }
 
     /// Square root of the standard kinematic function lambda(a,b,c)
     double sqrt_lambda(double a, double b, double c) { return sqrt(pow2(a+b-c) - 4*a*b); }
@@ -2383,8 +2353,8 @@ namespace Gambit
         };
 
         // Perform integrations
-        double N_el_nu_I1 = integrate_cquad(N_el_nu_integrand_1, pow2(m_N+m_el), m_C2, 0, 1e-2);
-        double N_el_nu_I2 = integrate_cquad(N_el_nu_integrand_2, m_el2, pow2(m_C-m_N), 0, 1e-2);
+        double N_el_nu_I1 = Utils::integrate_cquad(N_el_nu_integrand_1, pow2(m_N+m_el), m_C2, 0, 1e-2);
+        double N_el_nu_I2 = Utils::integrate_cquad(N_el_nu_integrand_2, m_el2, pow2(m_C-m_N), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_el+_nu"] = (1.*G_F2/pow3(2*pi)) * ( m_C*(O11L2 + O11R2)*N_el_nu_I1 - 2.*m_N*O11L*O11R*N_el_nu_I2 );
@@ -2409,8 +2379,8 @@ namespace Gambit
         };
 
         // Perform integrations
-        double N_mu_nu_I1 = integrate_cquad(N_mu_nu_integrand_1, pow2(m_N+m_mu), m_C2, 0, 1e-2);
-        double N_mu_nu_I2 = integrate_cquad(N_mu_nu_integrand_2, m_mu2, pow2(m_C-m_N), 0, 1e-2);
+        double N_mu_nu_I1 = Utils::integrate_cquad(N_mu_nu_integrand_1, pow2(m_N+m_mu), m_C2, 0, 1e-2);
+        double N_mu_nu_I2 = Utils::integrate_cquad(N_mu_nu_integrand_2, m_mu2, pow2(m_C-m_N), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_mu+_nu"] = (1.*G_F2/pow3(2*pi)) * ( m_C*(O11L2 + O11R2)*N_mu_nu_I1 - 2.*m_N*O11L*O11R*N_mu_nu_I2 );
@@ -2448,7 +2418,7 @@ namespace Gambit
         };
 
         // Perform integration
-        double N_2pi_I = integrate_cquad(N_2pi_integrand, 4*m_pi2, pow2(delta_m), 0, 1e-2);
+        double N_2pi_I = Utils::integrate_cquad(N_2pi_integrand, 4*m_pi2, pow2(delta_m), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_pi+_pi0"] = G_F2 / (192. * pow3(pi) * pow3(m_C)) * N_2pi_I;
@@ -2476,7 +2446,7 @@ namespace Gambit
         double gamma_a = 0.562;
 
         // Integrand
-        std::function<double(double)> N_3pi_integrand = [&g,&m_N,&m_C,&m_N2,&m_C2,&O11L,&O11R,&O11L2,&O11R2,&f_pi2,&m_a,&gamma_a](double q2)
+        std::function<double(double)> N_3pi_integrand = [&g,&m_N,&m_C,&m_N2,&m_C2,&O11L,&O11R,&O11L2,&O11R2,&m_a,&gamma_a](double q2)
         {
           double BW_imag_term = m_a * gamma_a * g(q2)/g(pow2(m_a));
 
@@ -2486,7 +2456,7 @@ namespace Gambit
         };
 
         // Perform integration
-        double N_3pi_I = integrate_cquad(N_3pi_integrand, 9*m_pi2, pow2(delta_m), 0, 1e-2);
+        double N_3pi_I = Utils::integrate_cquad(N_3pi_integrand, 9*m_pi2, pow2(delta_m), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_pi+_pi0_pi0"] = G_F2 / (6912. * pow(pi,5) * pow3(m_C) * f_pi2) * N_3pi_I;
@@ -2715,13 +2685,13 @@ namespace Gambit
           // Split integration by hand to avoid pole
           double I;
           if(dm < m_tau)
-            I = integrate_cquad(integ_3b, 0, 1, 0, 1e-2);
+            I = Utils::integrate_cquad(integ_3b, 0, 1, 0, 1e-2);
           else
           {
             double pole = (pow2(dm)-pow2(m_tau))/(pow2(dm)-pow2(m_pi));
             double eps = 1E-15;
-            double I1 = integrate_cquad(integ_3b, 0, pole-eps, 0, 1e-2);
-            double I2 = integrate_cquad(integ_3b, pole-eps, 1, 0, 1e-2);
+            double I1 = Utils::integrate_cquad(integ_3b, 0, pole-eps, 0, 1e-2);
+            double I2 = Utils::integrate_cquad(integ_3b, pole-eps, 1, 0, 1e-2);
             I = I1 + I2;
           }
 
@@ -2759,13 +2729,13 @@ namespace Gambit
           // Split integration by hand to avoid pole
           double I;
           if(dm < m_tau)
-            I = integrate_cquad(integ_4b, 0, 1, 0, 1e-2);
+            I = Utils::integrate_cquad(integ_4b, 0, 1, 0, 1e-2);
           else
           {
             double pole = (pow2(dm)-pow2(m_tau))/(pow2(dm)-pow2(m_l));
             double eps = 1E-15;
-            double I1 = integrate_cquad(integ_4b, 0, pole-eps, 0, 1e-2);
-            double I2 = integrate_cquad(integ_4b, pole-eps, 1, 0, 1e-2);
+            double I1 = Utils::integrate_cquad(integ_4b, 0, pole-eps, 0, 1e-2);
+            double I2 = Utils::integrate_cquad(integ_4b, pole-eps, 1, 0, 1e-2);
             I = I1 + I2;
           }
 
@@ -2850,7 +2820,7 @@ namespace Gambit
 
       // Get the spectrum information
       bool self_conjugate = true;
-      dep_bucket<Spectrum>* spectrum_dependency;
+      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running"))
       {
         spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;
@@ -3485,34 +3455,41 @@ namespace Gambit
       lnL = -0.5 * chi2->bind("BR")->eval(BF);
     }
 
-    void lnL_Z_inv_MSSMlike(double& lnL)
+    void lnL_Z_inv(double& lnL)
     {
       /**
          @brief Log-likelihood from LEP measurements of \f$Z\f$-boson invisible
          width
 
-         @warning This is for MSSM-like models with Z-boson invisible decays
+         @warning This is valid for SM, RHN models and for MSSM-like models with Z-boson invisible decays
          to neutralinos and neutrinos
 
          @param lnL Log-likelihood
       */
-      using namespace Pipes::lnL_Z_inv_MSSMlike;
+      using namespace Pipes::lnL_Z_inv;
       const triplet<double> gamma_nu = *Dep::Z_gamma_nu;
-      const triplet<double> gamma_chi_0 = *Dep::Z_gamma_chi_0;
-      const double gamma_inv = gamma_chi_0.central + gamma_nu.central;
-      // Average + and - errors
+      double gamma_inv = gamma_nu.central;
       const double tau_nu = 0.5 * (gamma_nu.upper + gamma_nu.lower);
-      const double tau_chi_0 = 0.5 * (gamma_chi_0.upper + gamma_chi_0.lower);
-      // Add theory errors in quadrature
-      const double tau = std::sqrt(pow(tau_nu, 2) + pow(tau_chi_0, 2));
-      lnL = Stats::gaussian_loglikelihood(gamma_inv, SM_Z::gamma_inv.mu,
-        tau, SM_Z::gamma_inv.sigma, false);
+      double tau = tau_nu;
+ 
+      if(ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
+      {
+        const triplet<double> gamma_chi_0 = *Dep::Z_gamma_chi_0;
+        gamma_inv += gamma_chi_0.central;
+        // Average + and - errors
+        const double tau_chi_0 = 0.5 * (gamma_chi_0.upper + gamma_chi_0.lower);
+        // Add theory errors in quadrature
+        tau = std::sqrt(pow(tau, 2) + pow(tau_chi_0, 2));
+      }
+
+      lnL = Stats::gaussian_loglikelihood(gamma_inv, SM_Z::gamma_inv.mu, tau, SM_Z::gamma_inv.sigma, false);
+   
     }
 
-    void Z_gamma_nu_SM_2l(triplet<double>& gamma)
+    void Z_gamma_nu_2l(triplet<double>& gamma)
     {
       /**
-         @brief Calculate width of \f$Z\f$ decays to neutrinos,
+         @brief Calculate width of \f$Z\f$ decays to neutrinos (with RHN correction if present),
          \f$\Gamma(Z\to\nu\nu)\f$ at two-loop in GeV
 
          @warning This uses input \f$\alpha(M_Z)\f$ - does not include input
@@ -3520,7 +3497,7 @@ namespace Gambit
 
          @param gamma \f$\Gamma(Z\to\chi\chi)\f$
       */
-      using namespace Pipes::Z_gamma_nu_SM_2l;
+      using namespace Pipes::Z_gamma_nu_2l;
 
       const SMInputs& SM = Dep::SM_spectrum->get_SMInputs();
 
@@ -3536,10 +3513,39 @@ namespace Gambit
           "variation in SM nuisance parameters");
       }
 
+      double Z_inv_width = Z.gamma_inv();
+
+      // Apply RHN correction, from 1311.2830 in the limit m_nu / m_Z-> 0
+      if(ModelInUse("RightHandedNeutrinos"))
+      {
+        double Z_to_nu = Z_inv_width/3;
+        std::vector<double> mN = {*Param["M_1"], *Param["M_2"], *Param["M_3"]};
+        Eigen::Matrix3cd VnuNorm = Dep::SeesawI_Vnu->adjoint() * *Dep::SeesawI_Vnu;
+        Eigen::Matrix3cd ThetaVnuNorm = Dep::SeesawI_Vnu->adjoint() * *Dep::SeesawI_Theta;
+        Eigen::Matrix3cd ThetaNorm = *Dep::SeesawI_Theta * Dep::SeesawI_Theta->adjoint();
+
+        // Z -> nu nu with RHN mixing
+        Z_inv_width = Z_to_nu*( std::norm(VnuNorm(0,0)) + std::norm(VnuNorm(0,1)) + std::norm(VnuNorm(0,2)) 
+                              + std::norm(VnuNorm(1,0)) + std::norm(VnuNorm(1,1)) + std::norm(VnuNorm(1,2))
+                              + std::norm(VnuNorm(2,0)) + std::norm(VnuNorm(2,1)) + std::norm(VnuNorm(2,2)) );
+
+        // Z -> nu N with RHN mixing
+        for(int i = 0; i < 3; i++)
+          if(mN[i] < MZ)
+            Z_inv_width += Z_to_nu*(std::norm(ThetaVnuNorm(0,i)) + std::norm(ThetaVnuNorm(1,i)) + std::norm(ThetaVnuNorm(2,i)))*pow(1.0 - pow(mN[i]/MZ,2),2)*(1 + 0.5*pow(mN[i]/MZ,2));
+
+        // Z -> NN with RHN mixing. Contribution neglected because is of order Theta^4
+
+        // Add Gmu correction
+        Z_inv_width /= sqrt(1 - std::abs(ThetaNorm(0,0)) - std::abs(ThetaNorm(1,1)));
+
+      }
+
       // Set elements of triplet to the width and its error
-      gamma.central = Z.gamma_inv();
+      gamma.central = Z_inv_width;
       gamma.lower = Z.error_gamma_inv();
       gamma.upper = gamma.lower;  // Error is symmetric
+
     }
 
     void Z_gamma_chi_0_MSSM_tree(triplet<double>& gamma)
@@ -3585,6 +3591,52 @@ namespace Gambit
       gamma.lower = gamma.central * 0.1;
       gamma.upper = gamma.lower;  // Error is symmetric
     }
+
+    // W decays, calculation from 1407.6607
+    void RHN_W_to_l_decays(std::vector<double> &result)
+    {
+      using namespace Pipes::RHN_W_to_l_decays;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      double Gmu = sminputs.GF;
+      double mw = Dep::mw->central;
+
+      Eigen::Matrix3d ThetaNorm = (Theta * Theta.adjoint()).real();
+      std::vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      std::vector<double> M = {*Param["M_1"], *Param["M_2"], *Param["M_3"]};
+
+      result.clear();
+      for(int i=0; i<3; i++)
+      {
+        if(M[i] < mw)
+          result.push_back(Gmu*pow(mw,3)/(6*sqrt(2)*M_PI)*pow(1.0 - pow(ml[i]/mw,2),2)*(1.0 + pow(ml[i]/mw,2))/sqrt(1.0 - ThetaNorm(0,0) -ThetaNorm(1,1)));
+        else
+          result.push_back(Gmu*pow(mw,3)/(6*sqrt(2)*M_PI)*(1.0-ThetaNorm(i,i))*pow(1.0 - pow(ml[i]/mw,2),2)*(1.0 + pow(ml[i]/mw,2))/sqrt(1.0 - ThetaNorm(0,0) -ThetaNorm(1,1)));
+      }
+    }
+
+    // Likelihood from W decays
+    void lnL_W_decays_chi2(double &result)
+    {
+      using namespace Pipes::lnL_W_decays_chi2;
+      std::vector<double> Wtoldecays = *Dep::W_to_l_decays;
+      DecayTable::Entry decays = *Dep::W_plus_decay_rates;
+
+      std::vector<double> Wwidth;
+      std::vector<double> Wwidth_error;
+
+      Wwidth.push_back(decays.width_in_GeV * decays.BF("e+","nu_e"));
+      Wwidth_error.push_back(sqrt(pow(decays.width_in_GeV*decays.BF_error("e+","nu_e"),2) + pow(std::max(decays.positive_error, decays.negative_error)*decays.BF("e+","nu_e"),2)));
+      Wwidth.push_back(decays.width_in_GeV * decays.BF("mu+","nu_mu"));
+      Wwidth_error.push_back(sqrt(pow(decays.width_in_GeV*decays.BF_error("mu+","nu_mu"),2) + pow(std::max(decays.positive_error, decays.negative_error)*decays.BF("mu+","nu_mu"),2)));
+      Wwidth.push_back(decays.width_in_GeV * decays.BF("tau+","nu_tau"));
+      Wwidth_error.push_back(sqrt(pow(decays.width_in_GeV*decays.BF_error("tau+","nu_tau"),2) + pow(std::max(decays.positive_error, decays.negative_error)*decays.BF("tau+","nu_tau"),2)));
+
+      result = Stats::gaussian_loglikelihood(Wtoldecays[0], Wwidth[0], 0.0, Wwidth_error[0], false);
+      result += Stats::gaussian_loglikelihood(Wtoldecays[1], Wwidth[1], 0.0, Wwidth_error[1], false);
+      result += Stats::gaussian_loglikelihood(Wtoldecays[2], Wwidth[2], 0.0, Wwidth_error[2], false);
+    }
+
 
   }  // namespace DecayBit
 

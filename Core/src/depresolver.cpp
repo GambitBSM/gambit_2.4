@@ -30,6 +30,10 @@
 ///  \date 2017 June
 ///        2019 May
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
+///
 ///  *********************************************
 
 #include "gambit/Core/depresolver.hpp"
@@ -43,11 +47,10 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-#ifdef HAVE_REGEX_H
-  #include <regex>
-#endif
+#include <regex>
 
 #include <boost/format.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #ifdef HAVE_GRAPHVIZ
   #include <boost/graph/graphviz.hpp>
 #endif
@@ -196,10 +199,8 @@ namespace Gambit
     // Graphviz output for edges/dependencies
     class edgeWriter
     {
-      private:
-        const DRes::MasterGraphType * myGraph;
       public:
-        edgeWriter(const DRes::MasterGraphType * masterGraph) : myGraph(masterGraph) {};
+        edgeWriter(const DRes::MasterGraphType*) {};
         void operator()(std::ostream&, const EdgeID&) const
         {
           //out << "[style=\"dotted\"]";
@@ -254,7 +255,6 @@ namespace Gambit
       if ( s1 == s2 ) return true;
       if ( s1 == "" ) return true;
       if ( s1 == "*" ) return true;
-#ifdef HAVE_REGEX_H
       try
       {
         if (with_regex) if (std::regex_match(s2, std::regex(s1))) return true;
@@ -267,7 +267,6 @@ namespace Gambit
         errmsg << "  with test string: " << s2 << std::endl;
         dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
       }
-#endif
       return false;
     }
 
@@ -275,11 +274,11 @@ namespace Gambit
     bool typeComp(str s1, str s2, const Utils::type_equivalency & eq, bool with_regex)
     {
       bool match1, match2;
-      // Loop over all the default versions of BOSSed backends and strip off any corresponding leading namespace.
+      // Loop over all the default versions of BOSSed backends and replace any corresponding *_default leading namespace with the explicit version.
       for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
       {
-        s1 = Utils::strip_leading_namespace(s1, it->first+"_"+it->second);
-        s2 = Utils::strip_leading_namespace(s2, it->first+"_"+it->second);
+        s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
+        s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
       }
       // Does it just match?
       if (stringComp(s1, s2, with_regex)) return true;
@@ -314,7 +313,7 @@ namespace Gambit
        boundTEs(&equiv_classes),
        boundPrinter(&printer),
        index(get(vertex_index,masterGraph)),
-       activeFunctorGraphFile(GAMBIT_DIR "/scratch/GAMBIT_active_functor_graph.gv")
+       activeFunctorGraphFile(Utils::runtime_scratch()+"GAMBIT_active_functor_graph.gv")
     {
       addFunctors();
       logger() << LogTags::dependency_resolver << endl;
@@ -624,11 +623,8 @@ namespace Gambit
     }
 
     // Evaluates ObsLike vertex, and everything it depends on, and prints results
-    void DependencyResolver::calcObsLike(VertexID vertex, const int pointID)
+    void DependencyResolver::calcObsLike(VertexID vertex)
     {
-      // pointID is supplied by the scanner, and is used to tell the printer which model
-      // point the results should be associated with.
-
       if (SortedParentVertices.find(vertex) == SortedParentVertices.end())
         core_error().raise(LOCAL_INFO, "Tried to calculate a function not in or not at top of dependency graph.");
       std::vector<VertexID> order = SortedParentVertices.at(vertex);
@@ -873,6 +869,9 @@ namespace Gambit
     // (i.e. give it the list of functors that need printing)
     void DependencyResolver::initialisePrinter()
     {
+      // Send the state of the "print_unitcube" flag to the printer
+      boundPrinter->set_printUnitcube(print_unitcube);
+
       std::vector<int> functors_to_print;
       graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
       //IndexMap index = get(vertex_index, masterGraph); // Now done in the constructor
@@ -964,11 +963,10 @@ namespace Gambit
       #endif
 
       const IniParser::ObservablesType & entries = boundIniFile->getRules();
-      //entries = boundIniFile->getObservables();
       for (IniParser::ObservablesType::const_iterator it =
           entries.begin(); it != entries.end(); ++it)
       {
-        if ( moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs) )
+        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs))
         {
           #ifdef DEPRES_DEBUG
             cout << "Getting option from: " << it->capability << " " << it->type << endl;
@@ -1003,8 +1001,63 @@ namespace Gambit
           }
         }
       }
-      Options myOptions(nodes);
-      return myOptions;
+      return Options(nodes);
+    }
+
+    /// Collect sub-capabilities
+    Options DependencyResolver::collectSubCaps(const DRes::VertexID & vertex)
+    {
+      #ifdef DEPRES_DEBUG
+        cout << "Searching for subcaps of " << masterGraph[vertex]->capability() << endl;
+      #endif
+
+      YAML::Node nodes;
+      const IniParser::ObservablesType& entries = boundIniFile->getObservables();
+
+      // Iterate over the ObsLikes entries
+      for (auto it = entries.begin(); it != entries.end(); ++it)
+      {
+        // Select only those entries that match the current graph vertex (i.e. module function)
+        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs) and not it->subcaps.IsNull())
+        {
+          #ifdef DEPRES_DEBUG
+            cout << "Found subcaps for " << it->capability << " " << it->type << " " << it->module << ":" << endl;
+          #endif
+          // The user has given just a single entry as a subcap
+          if (it->subcaps.IsScalar())
+          {
+            str key = it->subcaps.as<str>();
+            if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+            nodes[key] = YAML::Node();
+          }
+          // The user has passed a simple list of subcaps
+          else if (it->subcaps.IsSequence())
+          {
+            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            {
+              if (not jt->IsScalar())
+               dependency_resolver_error().raise(LOCAL_INFO,"Attempt to pass map using sequence syntax for subcaps of "+it->capability+".");
+              str key = jt->as<str>();
+              if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+              nodes[key] = YAML::Node();
+            }
+          }
+          // The user has passed some more complicated subcap structure than just a list of strings
+          else if (it->subcaps.IsMap())
+          {
+            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            {
+              str key = jt->first.as<str>();
+              if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+              nodes[key] = jt->second.as<YAML::Node>();
+            }
+          }
+          #ifdef DEPRES_DEBUG
+            cout << nodes << endl;
+          #endif
+        }
+      }
+      return Options(nodes);
     }
 
     /// Resolve dependency
@@ -1031,10 +1084,10 @@ namespace Gambit
       for (tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
         // Match capabilities and types (no type comparison when no types are
-        // given; this can only apply to output nodes).
+        // given; this can only apply to output nodes or loop managers).
         if ( stringComp(masterGraph[*vi]->capability(), quantity.first) and
              *vi != toVertex and // No self-resolution
-             ( quantity.second == "" or quantity.second == "*" or
+             ( quantity.second == "" or quantity.second == "*" or quantity.second == "any" or
                typeComp(masterGraph[*vi]->type(), quantity.second, *boundTEs, false) ) )
         {
           // Add vertex to appropriate candidate list
@@ -1229,7 +1282,9 @@ namespace Gambit
         str errmsg = "None of the vertex candidates for";
         errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
         errmsg += "\nfulfills all rules in the YAML file.";
-        errmsg += "\nPlease check your YAML file for contradictory rules.";
+        errmsg += "\nPlease check your YAML file for contradictory rules, and";
+        errmsg += "\nensure that you have built GAMBIT in the first place with";
+        errmsg += "\nall of the components that you are trying to use.";
         dependency_resolver_error().raise(LOCAL_INFO,errmsg);
       }
 
@@ -1430,16 +1485,20 @@ namespace Gambit
       #endif
 
       // Read ini entries
-      use_regex    = boundIniFile->getValueOrDef<bool>(false, "dependency_resolution", "use_regex");
-      print_timing = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
-      if ( use_regex )    logger() << "Using regex for string comparison." << endl;
-      if ( print_timing ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
+      use_regex      = boundIniFile->getValueOrDef<bool>(true,  "dependency_resolution", "use_regex");
+      print_timing   = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
+      print_unitcube = boundIniFile->getValueOrDef<bool>(false, "print_unitcube");
+
+      if ( use_regex      ) logger() << "Using regex for string comparison." << endl;
+      if ( print_timing   ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
+      if ( print_unitcube ) logger() << "Printing of unitCubeParameters will be enabled." << EOM;
 
       //
       // Main loop: repeat until dependency queue is empty
       //
 
-      while (not parQueue.empty()) {
+      while (not parQueue.empty())
+      {
 
         // Retrieve capability, type and vertex ID of dependency of interest
         quantity = parQueue.front().first;  // (capability, type) pair
@@ -1493,10 +1552,9 @@ namespace Gambit
             // Check whether fromVertex is allowed to manage loops
             if (not masterGraph[fromVertex]->canBeLoopManager())
             {
-              str errmsg = "Trying to resolve dependency on loop manager with";
-              errmsg += "\nmodule function that is not declared as loop manager.\n";
-              errmsg += printGenericFunctorList(
-                    initVector<functor*>(masterGraph[fromVertex]));
+              str errmsg = "Trying to resolve dependency on loop manager with\n"
+               "module function that is not declared as loop manager.\n"
+               + printGenericFunctorList(initVector<functor*>(masterGraph[fromVertex]));
               dependency_resolver_error().raise(LOCAL_INFO,errmsg);
             }
             std::set<DRes::VertexID> v;
@@ -1532,16 +1590,21 @@ namespace Gambit
 
           // In the case that toVertex is a nested function, add fromVertex to
           // the edges of toVertex's loop manager.
-          str cap = (*masterGraph[toVertex]).loopManagerCapability();
-          if (cap != "none")
+          str to_lmcap = (*masterGraph[toVertex]).loopManagerCapability();
+          str to_lmtype = (*masterGraph[toVertex]).loopManagerType();
+          str from_lmcap = (*masterGraph[fromVertex]).loopManagerCapability();
+          str from_lmtype = (*masterGraph[fromVertex]).loopManagerType();
+          if (to_lmcap != "none")
           {
             // This function runs nested.  Check if its loop manager has been resolved yet.
             if ((*masterGraph[toVertex]).loopManagerName() == "none")
             {
               // toVertex's loop manager has not yet been determined.
               // Add the edge to the list to deal with when the loop manager dependency is resolved,
-              // as long as toVertex and fromVertex don't share the same management requirements.
-              if (cap != (*masterGraph[fromVertex]).loopManagerCapability())
+              // as long as toVertex and fromVertex cannot end up inside the same loop.
+              if (to_lmcap != from_lmcap or
+                  (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
+                 )
               {
                 if (edges_to_force_on_manager.find(toVertex) == edges_to_force_on_manager.end())
                  edges_to_force_on_manager[toVertex] = std::set<DRes::VertexID>();
@@ -1552,14 +1615,17 @@ namespace Gambit
             {
               // toVertex's loop manager has already been resolved.
               // If fromVertex is not the manager itself, and is not
-              // itself a nested function with the same management
-              // requirements as toVertex, then add fromVertex as an edge
-              // of the manager.
+              // itself a nested function that has the possibility to
+              // end up in the same loop as toVertex, then add
+              // fromVertex as an edge of the manager.
               str name = (*masterGraph[toVertex]).loopManagerName();
               str origin = (*masterGraph[toVertex]).loopManagerOrigin();
-              if (name   != (*masterGraph[fromVertex]).name() and
+              if (name != (*masterGraph[fromVertex]).name() and
                   origin != (*masterGraph[fromVertex]).origin() and
-                  cap    != (*masterGraph[fromVertex]).loopManagerCapability())
+                  (to_lmcap != from_lmcap or
+                   (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
+                  )
+                 )
               {
                 // Hunt through the edges of toVertex and find the one that corresponds to its loop manager.
                 graph_traits<DRes::MasterGraphType>::in_edge_iterator ibegin, iend;
@@ -1588,12 +1654,16 @@ namespace Gambit
         }
         else // if output vertex
         {
-          //iniEntry = NULL;
-          //boost::tie(iniEntry, fromVertex) = resolveDependency(toVertex, quantity);
           iniEntry = findIniEntry(quantity, boundIniFile->getObservables(), "ObsLike");
           outInfo.vertex = fromVertex;
           outInfo.iniEntry = iniEntry;
           outputVertexInfos.push_back(outInfo);
+          // Don't need subcaps during dry-run
+          if (not boundCore->show_runorder)
+          {
+            Options mySubCaps = collectSubCaps(fromVertex);
+            masterGraph[fromVertex]->notifyOfSubCaps(mySubCaps);
+          }
         }
 
         // If fromVertex is new, activate it
@@ -1633,28 +1703,43 @@ namespace Gambit
       }
     }
 
-    /// Push module function dependencies on parameter queue
+    /// Push module function dependencies onto the parameter queue
     void DependencyResolver::fillParQueue( std::queue<QueueEntry> *parQueue,
             DRes::VertexID vertex)
     {
-      bool printme_default = false; // for parQueue constructor
-      std::set<sspair> s = (*masterGraph[vertex]).dependencies();
+      // Set the default printing flag for functors to pass to the parQueue constructor.
+      bool printme_default = false;
+
+      // Tell the logger what the following messages are about.
       logger() << LogTags::dependency_resolver;
+
+      // Digest capability of loop manager (if defined)
+      str lmcap = (*masterGraph[vertex]).loopManagerCapability();
+      str lmtype = (*masterGraph[vertex]).loopManagerType();
+      if (lmcap != "none")
+      {
+        logger() << "Adding module function loop manager to resolution queue:" << endl;
+        logger() << lmcap << " ()" << endl;
+        parQueue->push(QueueEntry(sspair(lmcap, lmtype), vertex, LOOP_MANAGER_DEPENDENCY, printme_default));
+      }
+
+      // Digest regular dependencies
+      std::set<sspair> s = (*masterGraph[vertex]).dependencies();
       if (s.size() > 0) logger() << "Add dependencies of new module function to queue" << endl;
       for (std::set<sspair>::iterator it = s.begin(); it != s.end(); ++it)
       {
-        logger() << (*it).first << " (" << (*it).second << ")" << endl;
-        (*parQueue).push(QueueEntry (*it, vertex, NORMAL_DEPENDENCY, printme_default));
+        // If the loop manager requirement exists and is type-specific, it is a true depencency,
+        // and thus appears in the output of functor.dependencies(). So, we need to take care
+        // not to double-count it for entry into the parQueue.
+        if (lmcap == "none" or lmtype == "any" or lmcap != it->first or lmtype != it->second)
+        {
+          logger() << it->first << " (" << it->second << ")" << endl;
+          parQueue->push(QueueEntry(*it, vertex, NORMAL_DEPENDENCY, printme_default));
+        }
       }
-      // Digest capability of loop manager (if defined)
-      str loopManagerCapability = (*masterGraph[vertex]).loopManagerCapability();
-      if (loopManagerCapability != "none")
-      {
-        logger() << "Adding module function loop manager to resolution queue:" << endl;
-        logger() << loopManagerCapability << " ()" << endl;
-        (*parQueue).push(QueueEntry (sspair
-                  (loopManagerCapability, ""), vertex, LOOP_MANAGER_DEPENDENCY, printme_default));
-      }
+
+      // Tell the logger we're done here.
+      logger() << EOM;
     }
 
     /// Boost lib topological sort

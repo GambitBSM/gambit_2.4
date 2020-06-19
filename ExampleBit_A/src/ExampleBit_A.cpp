@@ -93,11 +93,18 @@ namespace Gambit
         //Example of how to declare a point invalid.
         invalid_point().raise("I don't like this point.");
       }
+      // Example of how to check if computation of another capability depends on this one at all.
+      cout << "My name is nevents_pred_rounded, and I am " <<
+       (Pipes::nevents_pred_rounded::Downstream::neededFor("nevents") ?
+       "proud to contribute to the calculation of nevents today." :
+       "completely superfluous to the calculation of nevents.")
+      << endl;
+
     }
 
     void test_sigma(double &result)
     {
-       result = 1.; //trivial test
+      result = 1.; //trivial test
     }
 
     void function_pointer_retriever( double(*&result)(int&) )
@@ -201,7 +208,7 @@ namespace Gambit
       double eval_time = runOptions->getValueOrDef<double>(-1, "eval_time"); // Measured in seconds
       //std::cout << "eval_time:" << eval_time <<std::endl;
       if(eval_time>0)
-      {          
+      {
          struct timespec sleeptime;
          sleeptime.tv_sec = floor(eval_time);
          sleeptime.tv_nsec = floor((eval_time-floor(eval_time))*1e9); // Allow user to choose fractions of second
@@ -300,9 +307,24 @@ namespace Gambit
     /// Rounds an event count to the nearest integer
     void exampleCut(int &result)
     {
+      static bool first = true;
       using namespace Pipes::exampleCut;
       result = (int) *Dep::event;
       logger()<<"  Running exampleCut in iteration "<<*Loop::iteration<<endl;
+      if (first)
+      {
+        cout << "exampleCut has the following dependees: " << endl;
+        for (auto x : *Downstream::dependees) { cout << "  " << x << endl; }
+
+        cout << "and the following subcaps: " << endl;
+        cout << "  " << Downstream::subcaps->getNames() << endl;
+
+        str s1 = (Downstream::neededFor("eventAccumulation") ? " " : " not ");
+        str s2 = (Downstream::neededFor("xsection") ? " " : " not ");
+        cout << "It is" << s1 << "needed for eventAccumulation." << endl;
+        cout << "It is" << s2 << "needed for xsection." << endl;
+        first = false;
+      }
     }
 
     /// Adds an integral event count to a total number of accumulated events.
@@ -440,6 +462,17 @@ namespace Gambit
 
     /// @}
 
+    /// Scale test for various aspects of the printer buffer system
+    /// Creates 1000 items to be printed per point
+    void large_print(std::map<std::string,double>& result)
+    {
+        for(int i=0; i<1000; i++)
+        {
+            std::stringstream ss;
+            ss<<i;
+            result[ss.str()] = i;
+        }
+    }
 
     /// Test inline marginalisation of a Poisson likelihood over a log-normally or Gaussianly-distributed nuisance parameter.
     void marg_poisson_test(double &result)
@@ -478,7 +511,7 @@ namespace Gambit
                                     Backends::backendInfo().default_version("Pythia") +
                                     "/share/Pythia8/xmldoc/";
 
-      Pythia8::Pythia pythia(default_doc_path, false);
+      Pythia_default::Pythia8::Pythia pythia(default_doc_path, false);
 
       pythia.readString("Beams:eCM = 8000.");
       pythia.readString("HardQCD:all = on");
@@ -490,7 +523,7 @@ namespace Gambit
 
       pythia.init();
 
-      Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
+      Pythia_default::Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
       // Begin event loop. Generate event. Skip if error. List first one.
       for (int iEvent = 0; iEvent < 2; ++iEvent) {
         if (!pythia.next()) continue;

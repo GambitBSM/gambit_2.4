@@ -32,15 +32,19 @@
 #
 #************************************************
 
-# Require a minimum cmake version of 2.8.5
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+# Define minimum cmake version
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
-SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_03 RelWithDebInfo MinSizeRel.")
+# Define minimum compiler versions
+set(MIN_GCC_VERSION 5.1)
+set(MIN_ICC_VERSION 15.0.2)
+
+SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   SET(CMAKE_BUILD_TYPE None CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release_03")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release_O3")
   SET(CMAKE_BUILD_TYPE Release CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-  SET(FORCE_03 TRUE)
+  SET(FORCE_O3 TRUE)
 endif()
 message("${Yellow}-- Build type is set to ${CMAKE_BUILD_TYPE} ${ColourReset}")
 
@@ -53,8 +57,10 @@ foreach(p
   CMP0042 # CMake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
+  CMP0060 # CMake 3.16.2
   CMP0063 # CMake 3.3.2
   CMP0068 # CMake 3.9.1
+  CMP0074 # CMake 3.12
   )
   if(POLICY ${p})
     cmake_policy(SET ${p} NEW)
@@ -64,23 +70,24 @@ endforeach()
 # Set the project name, enabling C, C++ and Fortran support
 project(gambit C CXX Fortran)
 
-# Disable clang support
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  message(FATAL_ERROR "\nYou seem to have selected the Clang compiler.  Beware that if you are using a mac, Clang may be your default compiler even though you might think it is gcc.  You can thank Apple for that, not GAMBIT/cmake.  \nGAMBIT does not support the Clang compiler. Please choose another compiler.")
+# Make sure the user hasn't accidentally set the C++ compiler to the C compiler.
+get_filename_component(CXX_COMPILER_NAME ${CMAKE_CXX_COMPILER} NAME)
+if (CXX_COMPILER_NAME MATCHES "gcc.*$")
+  message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to gcc.  Did you mean g++?")
+elseif (CXX_COMPILER_NAME MATCHES "clang($|-.*)")
+  message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to clang.  Did you mean clang++?")
+elseif (CXX_COMPILER_NAME MATCHES "icc.*$")
+  message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to icc.  Did you mean icpc?")
 endif()
 
-# Make sure the user hasn't accidentally passed gcc instead of g++.
-if (CMAKE_CXX_COMPILER MATCHES "gcc$")
-  message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to gcc.  I don't think that means what you think it means.  Do you really want to compile C++ with gcc rather than g++?")
-endif()
+# Include cmake utility scripts, including colour definitions.
+include(cmake/utilities.cmake)
 
-# Use ccache to speed up re-compiling if it is available
-#find_program(CCACHE_FOUND ccache)
-#if(CCACHE_FOUND)
-#  message("-- Found ccache. Will use it to speed up recompilation.")
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-#endif(CCACHE_FOUND)
+# Enforce minimum versions for the C/C++ compiler
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_ICC_VERSION) OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_GCC_VERSION))
+  message(FATAL_ERROR "${BoldRed}\nGAMBIT requires at least g++ ${MIN_GCC_VERSION} or icpc ${MIN_ICC_VERSION}.  Please install a newer compiler.${ColourReset}")
+endif()
 
 # Don't relink all binaries when shared lib changes (programs will be rebuilt anyway if used headers change)
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
@@ -98,25 +105,34 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # Add the automatically determined parts of the RPATH that point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# Include cmake utility scripts, including colour definitions.
-include(cmake/utilities.cmake)
+# Check if pybind11 is to be ditched
+string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
 
 # Check for Python interpreter
 # We also need to search for PythonLibs before letting pybind11 look for them,
 # otherwise it seems to get it wrong.  Also, we need to add versions of python
 # greater than 3.3 manually, for compatibility with CMake 2.8.12.
+# If pybind11 is ditched, do not worry about PythonLibs
 set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7)
+# If both FORCE_PYTHON2 and FORCE_PYTHON3 are set, throw error
+if (FORCE_PYTHON2 AND FORCE_PYTHON3)
+  message(FATAL_ERROR "Two different versions of python requested. Switch either FORCE_PYTHON2 or FORCE_PYTHON3 off.")
+endif()
 if (FORCE_PYTHON2)
   message("${BoldYellow}   Python 2 requested; searching for Python 2.7${ColourReset}")
   find_package(PythonInterp 2.7 REQUIRED)
-  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if(NOT DITCH_PYBIND)
+    find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  endif()
 elseif (FORCE_PYTHON3)
   message("${BoldYellow}   Python 3 requested; searching for Python 3.x${ColourReset}")
   find_package(PythonInterp 3 REQUIRED)
-  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if(NOT DITCH_PYBIND)
+    find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  endif()
 else()
   find_package(PythonInterp 3)
-  if(PYTHONINTERP_FOUND)
+  if(PYTHONINTERP_FOUND AND NOT DITCH_PYBIND)
     find_package(PythonLibs 3)
   else()
     message("${BoldYellow}   Python 3 not found, searching for Python 2.7${ColourReset}")
@@ -125,12 +141,22 @@ else()
       message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
                           "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
     endif()
-    find_package(PythonLibs 2)
+    if(NOT DITCH_PYBIND)
+      find_package(PythonLibs 2)
+    endif()
   endif()
 endif()
 message("${BoldYellow}   Using Python interpreter version ${PYTHON_VERSION_STRING} for build.${ColourReset}")
+
 if(PYTHONLIBS_FOUND)
-  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}")
+  string(FIND "${PYTHONLIBS_VERSION_STRING}" "2.7" PY2_POSITION)
+  if(PY2_POSITION EQUAL 0)
+    set(UNSUPPORTED_PYTHON_VERSION "3")
+  else()
+    set(UNSUPPORTED_PYTHON_VERSION "2.7")
+  endif()
+  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}\n"
+          "   Backends requiring Python ${UNSUPPORTED_PYTHON_VERSION} will be ditched.")
   if (NOT "${PYTHON_VERSION_STRING}" STREQUAL "${PYTHONLIBS_VERSION_STRING}")
     message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}\n"
             "   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the\n"
@@ -147,8 +173,10 @@ if(PYTHONLIBS_FOUND)
   endif()
 endif()
 
-# Check for pybind11 if PythonLibs were found
-if(NOT PYTHONLIBS_FOUND)
+# Check for pybind11 if PythonLibs were found and not ditched
+if(DITCH_PYBIND)
+  message("${BoldCyan} X Excluding pybind11 from GAMBIT configuration. Ditching support for Python backends.${ColourReset}")
+elseif(NOT PYTHONLIBS_FOUND)
   message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
           "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
           "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
@@ -159,8 +187,8 @@ if(NOT PYTHONLIBS_FOUND)
           "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
           "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
 else()
-  set(MIN_pybind11_VERSION "2.2.4")
-  set(PREFERRED_pybind11_VERSION "2.2.4")
+  set(MIN_pybind11_VERSION "2.4.3")
+  set(PREFERRED_pybind11_VERSION "2.4.3")
   set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
   find_package(pybind11 QUIET)
   if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")
@@ -199,11 +227,18 @@ foreach(module yaml os re datetime sys getopt shutil itertools)
 endforeach()
 
 # Check for axel
-find_program(axel_FOUND axel)
-if(axel_FOUND)
-  message("${BoldYellow}   Found axel.${ColourReset} Backend and scanner downloads will be as fast as possible.")
+set(CMAKE_DOWNLOAD_FLAGS "NONE")
+option(WITH_AXEL "Compile with Axel enabled" OFF)
+if(WITH_AXEL)
+  find_program(axel_FOUND axel)
+  if(axel_FOUND)
+    message("${BoldYellow}   Found axel.${ColourReset} Backend and scanner downloads will be as fast as possible.")
+    set(CMAKE_DOWNLOAD_FLAGS "WITH_AXEL")
+  else()
+    message("${Red}   Axel utility not found.  Backend downloads would be faster if you installed axel.${ColourReset}")
+  endif()
 else()
-  message("${Red}   Axel utility not found.  Backend downloads would be faster if you installed axel.${ColourReset}")
+  message("${BoldCyan} X Axel is disabled. Please use -DWITH_AXEL=ON to enable fast downloads with Axel.${ColourReset}")
 endif()
 
 # Do OSX checks
@@ -238,21 +273,42 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
 endforeach()
 
-# Check for C++11 and C++14 support
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-if(COMPILER_SUPPORTS_CXX14)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-else()
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-  if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
+if(HAVE_PYBIND11)
+  if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 18.0.6) OR
+     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.6 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.3))
+    set(PERMIT_CXX17_CHECK FALSE)
   else()
-    CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-    if(COMPILER_SUPPORTS_CXX0X)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    set(PERMIT_CXX17_CHECK TRUE)
+  endif()
+endif()
+
+# Check for C++11, C++14 and C++17 support.
+include(CheckCXXCompilerFlag)
+if(PERMIT_CXX17_CHECK)
+  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+endif()
+if(COMPILER_SUPPORTS_CXX17)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+else()
+  if(PERMIT_CXX17_CHECK)
+    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  endif()
+  CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+  if(COMPILER_SUPPORTS_CXX14)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+  else()
+    CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1y)
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+    if(COMPILER_SUPPORTS_CXX11)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     else()
-      message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+      CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+      if(COMPILER_SUPPORTS_CXX0X)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+      else()
+        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+      endif()
     endif()
   endif()
 endif()
@@ -264,6 +320,15 @@ if(Boost_FOUND)
   include_directories("${Boost_INCLUDE_DIR}")
 else()
   message(FATAL_ERROR "GAMBIT requires Boost v1.41 or greater.\nPlease install a suitable version of Boost and rerun cmake.")
+endif()
+
+# Fix Boost < 1.55 for Clang
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  if(${CMAKE_VERSION} VERSION_LESS 3.12.0)
+    add_definitions(-DBOOST_PP_VARIADICS=1)
+  else()
+    add_compile_definitions(BOOST_PP_VARIADICS=1)
+  endif()
 endif()
 
 # Check for Eigen
@@ -278,15 +343,39 @@ else()
 endif()
 
 # Check for OpenMP
-find_package(OpenMP REQUIRED)
+find_package(OpenMP QUIET)
 if (OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    if (NOT DEFINED OpenMP_Fortran_FLAGS)
-      set(OpenMP_Fortran_FLAGS "-fopenmp")
+  message("-- OpenMP found successfully")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  if (NOT DEFINED OpenMP_Fortran_FLAGS)
+    set(OpenMP_Fortran_FLAGS "-fopenmp")
+  endif()
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
+else()
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    find_program(BREW NAMES brew)
+    # This block modified from https://github.com/CLIUtils/cmake/blob/master/PatchOpenMPApple.cmake
+    if(BREW)
+      execute_process(COMMAND ${BREW} ls libomp RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_QUIET ERROR_QUIET)
+      if(BREW_RESULT_CODE)
+        message(FATAL_ERROR "You are using the Apple Clang compiler, and have HomeBrew installed, but have not installed OpenMP. Please run \"brew install libomp\"")
+      else()
+        execute_process(COMMAND ${BREW} --prefix libomp OUTPUT_VARIABLE BREW_LIBOMP_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp")
+        set(OpenMP_CXX_LIB_NAMES "omp")
+        set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
+        include_directories("${BREW_LIBOMP_PREFIX}/include")
+        message(STATUS "Using Homebrew libomp from ${BREW_LIBOMP_PREFIX}")
+      endif()
+    else()
+      message(FATAL_ERROR "\nOpenMP libraries not found. You are using the Apple Clang compiler. The easiest way to get OpenMP support for Apple Clang is to install it via HomeBrew. If you want to install it some other way, e.g. via MacPorts, you need to manually set -DOpenMP_CXX_FLAGS -DOpenMP_CXX_LIB_NAMES -DOpenMP_C_FLAGS -DOpenMP_C_LIB_NAMES -DOpenMP_omp_LIBRARY when invoking cmake.")
     endif()
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
+  else()
+    message(FATAL_ERROR "\nOpenMP libraries not found.  Your compiler installation seems to be broken.")
+  endif()
 endif()
+
 
 # Check for Gnu Scientific Library (GSL)
 include(cmake/FindGSL.cmake)
@@ -307,7 +396,7 @@ else()
   find_library(LIBUUID NAMES uuid)
   if(LIBUUID)
     message("   Found library libuuid")
-    find_package(Mathematica 10.0)
+    find_package(Mathematica 10.0 QUIET)
     if(Mathematica_FOUND AND (NOT DEFINED Mathematica_Invalid_License OR IGNORE_MATHEMATICA_LICENSE))
       message("${BoldYellow}   Found Mathematica.${ColourReset}")
       if(Mathematica_WSTP_FOUND)
@@ -423,6 +512,8 @@ string (REPLACE ";" "," itch_with_commas "${itch}")
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/scratch")
   message("${Yellow}-- Creating scratch directory${ColourReset}")
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory scratch WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory build_time WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/scratch)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory run_time WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/scratch)
   message("${Yellow}-- Creating scratch directory - done.${ColourReset}")
 endif()
 
@@ -445,51 +536,59 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Models/")
   message("${Yellow}-- Generated particle_database.cpp from particle_database.yaml.${ColourReset}")
 endif()
 
+# Add the main gambit sources and identify which modules are to be included.
+include(cmake/gambit.cmake)
+
 # Identify the different harvester scripts
-set(MODEL_HARVESTER ${PROJECT_SOURCE_DIR}/Models/scripts/model_harvester.py)
-set(BACKEND_HARVESTER ${PROJECT_SOURCE_DIR}/Backends/scripts/backend_harvester.py)
 set(MODULE_HARVESTER ${PROJECT_SOURCE_DIR}/Elements/scripts/module_harvester.py)
+set(BACKEND_HARVESTER ${PROJECT_SOURCE_DIR}/Backends/scripts/backend_harvester.py)
+set(MODEL_HARVESTER ${PROJECT_SOURCE_DIR}/Models/scripts/model_harvester.py)
 set(PRINTER_HARVESTER ${PROJECT_SOURCE_DIR}/Printers/scripts/printer_harvester.py)
+set(COLLIDER_HARVESTER ${PROJECT_SOURCE_DIR}/ColliderBit/scripts/collider_harvester.py)
 set(HARVEST_TOOLS ${PROJECT_SOURCE_DIR}/Utils/scripts/harvesting_tools.py)
 
 # Create module_rollcall.hpp, module_types_rollcall.hpp, module_functor_types.hpp, models_rollcall.hpp, model_types_rollcall.hpp,
-# backend_rollcall.hpp, backend_types_rollcall.hpp, backend_functor_types.hpp, printer_rollcall.hpp, particle_database.cpp.
-file(GLOB MODEL_HARVESTER_FILES    "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/models/*.hpp"
-                                   "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
-file(GLOB BACKEND_HARVESTER_FILES  "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/*.hpp"
-                                   "${PROJECT_SOURCE_DIR}/Backends/CMakeLists.txt")
-file(GLOB PRINTER_HARVESTER_FILES  "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printers/*.hpp"
-                                   "${PROJECT_SOURCE_DIR}/Printers/CMakeLists.txt")
+# backend_rollcall.hpp, backend_types_rollcall.hpp, backend_functor_types.hpp, printer_rollcall.hpp, particle_database.cpp,
+# ColliderBit_model_rollcall.hpp, ColliderPythia_typedefs.hpp
 file(GLOB MODULE_HARVESTER_FILES   "${PROJECT_SOURCE_DIR}/*Bit*/include/gambit/*Bit*/*_rollcall.hpp"
                                    "${PROJECT_SOURCE_DIR}/*Bit*/include/gambit/*Bit*/*_types.hpp")
-string (REPLACE "//" "/" MODEL_HARVESTER_FILES    "${MODEL_HARVESTER_FILES}")   # (GLOB creates erroneous double slashes)
-string (REPLACE "//" "/" BACKEND_HARVESTER_FILES  "${BACKEND_HARVESTER_FILES}")
-string (REPLACE "//" "/" PRINTER_HARVESTER_FILES  "${PRINTER_HARVESTER_FILES}")
+file(GLOB BACKEND_HARVESTER_FILES  "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/*.hpp"
+                                   "${PROJECT_SOURCE_DIR}/Backends/CMakeLists.txt")
+file(GLOB MODEL_HARVESTER_FILES    "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/models/*.hpp"
+                                   "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
+file(GLOB PRINTER_HARVESTER_FILES  "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printers/*.hpp"
+                                   "${PROJECT_SOURCE_DIR}/Printers/CMakeLists.txt")
+file(GLOB COLLIDER_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/models/*.hpp"
+                                   "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
 string (REPLACE "//" "/" MODULE_HARVESTER_FILES   "${MODULE_HARVESTER_FILES}")
+string (REPLACE "//" "/" BACKEND_HARVESTER_FILES  "${BACKEND_HARVESTER_FILES}")
+string (REPLACE "//" "/" MODEL_HARVESTER_FILES    "${MODEL_HARVESTER_FILES}")   # (GLOB creates erroneous double slashes)
+string (REPLACE "//" "/" PRINTER_HARVESTER_FILES  "${PRINTER_HARVESTER_FILES}")
+string (REPLACE "//" "/" COLLIDER_HARVESTER_FILES "${COLLIDER_HARVESTER_FILES}")
 list(REMOVE_ITEM MODULE_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/ScannerBit//include//gambit//ScannerBit//priors_rollcall.hpp"
                                         "${PROJECT_SOURCE_DIR}/ScannerBit//include//gambit//ScannerBit//test_function_rollcall.hpp")
 list(APPEND MODULE_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/config/resolution_type_equivalency_classes.yaml")
 set(MODULE_HARVESTER_FILES ${MODULE_HARVESTER_FILES} ${BACKEND_HARVESTER_FILES})
-remove_build_files(models_harvested backends_harvested modules_harvested printers_harvested)
+remove_build_files(models_harvested backends_harvested modules_harvested printers_harvested colliders_harvested)
+if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
+  add_gambit_custom(module_harvest modules_harvested MODULE_HARVESTER MODULE_HARVESTER_FILES ${itch_with_commas})
+endif()
+if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
+  add_gambit_custom(backend_harvest backends_harvested BACKEND_HARVESTER BACKEND_HARVESTER_FILES ${itch_with_commas})
+  add_dependencies(module_harvest backend_harvest)
+endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/Models/")
  add_gambit_custom(model_harvest models_harvested MODEL_HARVESTER MODEL_HARVESTER_FILES)
 endif()
-if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
-  add_gambit_custom(backend_harvest backends_harvested BACKEND_HARVESTER BACKEND_HARVESTER_FILES)
-endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/Printers/")
-  add_gambit_custom(printer_harvest printers_harvested PRINTER_HARVESTER PRINTER_HARVESTER_FILES)
+  add_gambit_custom(printer_harvest printers_harvested PRINTER_HARVESTER PRINTER_HARVESTER_FILES ${itch_with_commas})
+  add_dependencies(printer_harvest module_harvest)
 else()
   add_definitions(-DNO_PRINTERS)
 endif()
-if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
-  add_gambit_custom(module_harvest modules_harvested MODULE_HARVESTER  MODULE_HARVESTER_FILES)
-endif()
-if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
-  add_dependencies(module_harvest backend_harvest)
-endif()
-if(EXISTS "${PROJECT_SOURCE_DIR}/Printers/")
-  add_dependencies(printer_harvest module_harvest)
+if(EXISTS "${PROJECT_SOURCE_DIR}/ColliderBit/" AND ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  add_gambit_custom(collider_harvest colliders_harvested COLLIDER_HARVESTER COLLIDER_HARVESTER_FILES)
+  add_dependencies(module_harvest collider_harvest)
 endif()
 
 # Generate the CMakeLists.txt files for GAMBIT modules, Backends, Models and Printers)
@@ -499,8 +598,7 @@ execute_process(RESULT_VARIABLE result COMMAND ${PYTHON_EXECUTABLE} ${update_cma
 check_result(${result} ${update_cmakelists})
 message("${Yellow}-- Updating GAMBIT module, backend, and printer CMake files - done.${ColourReset}")
 
-# Include other cmake scripts
-include(cmake/gambit.cmake)
+# Add backends and scanners
 include(cmake/externals.cmake)
 
 # Add GAMBIT subdirectories.
@@ -522,9 +620,22 @@ foreach(bit ${GAMBIT_BITS})
   set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
 endforeach()
 
-# If ColliderBit and RestFrames is used, make RestFrames a dependency of ColliderBit
-if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;" AND NOT EXCLUDE_RESTFRAMES)
-  add_dependencies(ColliderBit restframes)
+# If ColliderBit is in use, make the collider_harvest step a dependency of ColliderBit
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  add_dependencies(ColliderBit collider_harvest)
+  # If RestFrames is in use, make it a dependency of ColliderBit
+  if(NOT EXCLUDE_RESTFRAMES)
+    add_dependencies(ColliderBit restframes)
+  endif()
+  # If HepMC is in use, make it a dependency of ColliderBit
+  if(NOT EXCLUDE_HEPMC)
+    add_dependencies(ColliderBit hepmc)
+  endif()
+endif()
+
+# If SpecBit is in use, make flexiblesusy a dependency of SpecBit
+if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
+  add_dependencies(SpecBit flexiblesusy)
 endif()
 
 # Add the executables
