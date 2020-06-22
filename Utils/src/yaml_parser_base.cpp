@@ -189,9 +189,9 @@ namespace Gambit
       printerNode["options"]["default_output_path"] = Utils::ensure_path_exists(defpath+"/samples/");
 
       // Make a copy of yaml file in output dir
-      std::cout << "filename = " << filename << std::endl;
       str new_filename = defpath+'/'+Utils::base_name(filename);
-      printNode(root,new_filename);
+      bool replace_yaml_file = getValueOrDef<bool>(true, "replace_yaml_file");
+      printNode(root,new_filename,replace_yaml_file);
 
       // Postprocessor is currently incompatible with 'print_timing_data', so need to pass this option on for checking
       scannerNode["print_timing_data"] = getValueOrDef<bool>(false,"print_timing_data");
@@ -299,7 +299,7 @@ namespace Gambit
     }
 
     /// Print a yaml node to file
-    void Parser::printNode(YAML::Node node, str filename)
+    void Parser::printNode(YAML::Node node, str filename, bool replace_yaml_file)
     {
       #ifdef WITH_MPI
         int rank = GMPI::Comm().Get_rank();
@@ -308,8 +308,11 @@ namespace Gambit
       #endif
       if (rank == 0) 
       {
-        std::ofstream fout(filename); 
-        fout << node;
+        if(not Utils::file_exists(filename) or replace_yaml_file)
+        {
+          std::ofstream fout(filename); 
+          fout << node;
+        }
       }
     }
 

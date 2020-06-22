@@ -115,7 +115,7 @@ namespace Gambit
         void basicParse(YAML::Node,str);
 
         /// Print a node to file
-        void printNode(YAML::Node,str);
+        void printNode(YAML::Node,str,bool);
         
       private:     
 
