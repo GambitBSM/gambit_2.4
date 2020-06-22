@@ -12,6 +12,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 //
 #include <math.h>
@@ -387,7 +391,7 @@ namespace Gambit
 
     /// @{ Member functions of HDF5MasterBuffer
 
-    HDF5MasterBuffer::HDF5MasterBuffer(const std::string& filename, const std::string& groupname, const bool sync, const std::size_t buflen
+    HDF5MasterBuffer::HDF5MasterBuffer(const std::string& filename, const std::string& groupname, const std::string& metadata_groupname, const bool sync, const std::size_t buflen
 #ifdef WITH_MPI
         , GMPI::Comm& comm
 #endif
@@ -396,8 +400,10 @@ namespace Gambit
         , buffer_length(sync ? buflen : MAX_BUFFER_SIZE) // Use buflen for the bufferlength if this is a sync buffer, otherwise use MAX_BUFFER_SIZE
         , file(filename)
         , group(groupname)
+        , metadata_group(metadata_groupname)
         , file_id(-1)
         , group_id(-1)
+        , metadata_id(-1)
         , location_id(-1)
         , hdf5out(file,false)
         , file_open(false)
@@ -448,10 +454,17 @@ namespace Gambit
     std::string HDF5MasterBuffer::get_file()  { return file; }
 
     /// Report which group in the output file we are targeting
-    std::string HDF5MasterBuffer::get_group() { 
+    std::string HDF5MasterBuffer::get_group()
+    { 
         //std::cout<<"Accessing variable 'group'"<<std::endl;
         //std::cout<<"group = "<<group<<std::endl;
         return group; 
+    }
+
+    /// Report the name of the metadata group on this file
+    std::string HDF5MasterBuffer::get_metadata_group()
+    {
+        return metadata_group;
     }
 
     /// Report number of points currently in the buffer
@@ -796,6 +809,7 @@ namespace Gambit
         // Open the file and target groups
         file_id  = HDF5::openFile(file,false,access_type);
         group_id = HDF5::openGroup(file_id,group);
+        metadata_id = HDF5::openGroup(file_id,metadata_group);
 
         // Set the target dataset write location to the chosen group
         location_id = group_id;
@@ -829,6 +843,14 @@ namespace Gambit
             printer_error().raise(LOCAL_INFO, err.str());
         }
 
+        if(metadata_id<0)
+        {
+            // This especially shouldn't happen because the 'file_open' flag should not be 'true' if the group has been closed.
+            std::stringstream err;
+            err<<"HDF5Printer2 attempted to close the output hdf5 file, but metadata_id<0 indicating that that metadata group is already closed (or was never opened)! This is a bug, please report it."<<std::endl;
+            printer_error().raise(LOCAL_INFO, err.str());
+        }
+
         if(file_id<0)
         {
             // This especially shouldn't happen because the 'file_open' flag should not be 'true' if the group has been closed.
@@ -839,6 +861,7 @@ namespace Gambit
 
         // Close groups and file
         HDF5::closeGroup(group_id);
+        HDF5::closeGroup(metadata_id);
         HDF5::closeFile(file_id);
 
         // Release the lock
@@ -855,6 +878,7 @@ namespace Gambit
         for(auto it=all_buffers.begin(); it!=all_buffers.end(); ++it)
         {
             it->second->reset(location_id);
+            it->second->reset(metadata_id);
         }
         close_and_unlock_file();
         buffered_points.clear();
@@ -1181,6 +1205,13 @@ namespace Gambit
         return location_id;
     }
 
+    // Retrieve the id where metadata should be written in the HDF5 file
+    hid_t HDF5MasterBuffer::get_metadata_id()
+    {
+        ensure_file_is_open();
+        return metadata_id;
+    }
+
     /// Extend all datasets to the specified size;
     void HDF5MasterBuffer::extend_all_datasets_to(const std::size_t length)
     {
@@ -1335,7 +1366,7 @@ namespace Gambit
 #ifdef WITH_MPI
       , myComm() // initially attaches to MPI_COMM_WORLD
 #endif
-      , buffermaster(get_filename(options),get_groupname(options),get_sync(options),get_buffer_length(options)
+      , buffermaster(get_filename(options),get_groupname(options),get_metadata_groupname(options),get_sync(options),get_buffer_length(options)
 #ifdef WITH_MPI
         , myComm
 #endif  
@@ -1526,7 +1557,12 @@ namespace Gambit
                 pointids      .create_dataset(buffermaster.get_location_id());
                 pointids_valid.create_dataset(buffermaster.get_location_id());
 
+                // Fill metadata info and flush buffer
+                HDF5DataSet<std::string> test("Test");
+                test.create_dataset(buffermaster.get_metadata_id());
+
                 buffermaster.close_and_unlock_file();
+
             }
 
 #ifdef WITH_MPI
@@ -1865,7 +1901,7 @@ namespace Gambit
             // Gather RA print buffer data from all other processes
 
             // Create a dedicate unsynchronised 'aux' buffer handler to receive data from other processes (and also this one!)
-            HDF5MasterBuffer RAbuffer(get_filename(),get_groupname(),false,get_buffer_length(),myComm);
+            HDF5MasterBuffer RAbuffer(get_filename(),get_groupname(),get_metadata_groupname(),false,get_buffer_length(),myComm);
  
             // Add it to RA_buffers in case there are none, to satisfy various collective operation requirements
             RA_buffers.push_back(&RAbuffer);
@@ -1960,6 +1996,12 @@ namespace Gambit
         return buffermaster.get_group();
     }
 
+    /// Report the name of the metadata group on this file
+    std::string HDF5Printer2::get_metadata_groupname()
+    {
+        return buffermaster.get_metadata_group();
+    }
+
     /// Report length of buffer for HDF5 output
     std::size_t HDF5Printer2::get_buffer_length()
     {
@@ -2016,6 +2058,21 @@ namespace Gambit
         return groupname;
     }
 
+    /// Get the name of the metadata group
+    std::string HDF5Printer2::get_metadata_groupname(const Options& options)
+    {
+      std::string metadatagroup = options.getValueOrDef<std::string>("/Metadata", "metadata_group");
+      std::string groupname = get_groupname(options);
+      if(groupname == metadatagroup)
+      {
+        std::ostringstream errmsg;
+        errmsg<<"Metadata group name matches primary group name. Please change one of the two.";
+        printer_error().raise(LOCAL_INFO, errmsg.str());
+      }
+      return metadatagroup;
+
+    }
+
     /// Get length of buffer from options (or primary printer)
     std::size_t HDF5Printer2::get_buffer_length(const Options& options)
     {
@@ -2053,6 +2110,7 @@ namespace Gambit
         options.setValue("type", "hdf5");
         options.setValue("file", buffermaster.get_file());
         options.setValue("group", buffermaster.get_group());
+        options.setValue("metadata_group", buffermaster.get_metadata_group());
         return options;
     }
 

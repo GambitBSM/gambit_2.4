@@ -1184,7 +1184,7 @@ namespace Gambit
       public:
 
         /// Constructor  
-        HDF5MasterBuffer(const std::string& filename, const std::string& groupname, const bool sync, const std::size_t buffer_length
+        HDF5MasterBuffer(const std::string& filename, const std::string& groupname, const std::string& metadata_groupname, const bool sync, const std::size_t buffer_length
 #ifdef WITH_MPI
           , GMPI::Comm& comm
 #endif
@@ -1329,6 +1329,9 @@ namespace Gambit
         /// Report which group in the output file we are targeting
         std::string get_group();
 
+        /// Report the name of the metadata group on this file
+        std::string get_metadata_group();
+
         /// Report length of buffer for HDF5 output
         std::size_t get_buffer_length();
 
@@ -1349,6 +1352,9 @@ namespace Gambit
 
         /// Retrieve the location_id specifying where output should be created in the HDF5 file
         hid_t get_location_id();
+
+        /// Retrieve the metadata_id where the metadata should be created in the HDF5 file
+        hid_t get_metadata_id();
  
         /// Get next available position in the synchronised output datasets
         std::size_t get_next_free_position();
@@ -1412,10 +1418,12 @@ namespace Gambit
         /// Output file variales 
         std::string file;  // Output HDF5 file
         std::string group; // HDF5 group location to store datasets
+        std::string metadata_group; // HDF5 group location to store metadata
 
         // Handles for HDF5 files and groups containing the datasets
         hid_t file_id;
         hid_t group_id;
+        hid_t metadata_id;
 
         // Handle to a location in a HDF5 to which the datasets will be written
         // i.e. a file or a group.
@@ -1477,6 +1485,9 @@ namespace Gambit
 
         /// Report group in output HDF5 file of output datasets
         std::string get_groupname();
+
+        /// Report metdata group in HDF5 file
+        std::string get_metadata_groupname();
 
         /// Report length of buffer for HDF5 output
         std::size_t get_buffer_length();
@@ -1551,7 +1562,7 @@ namespace Gambit
 
         /// Object interfacing to HDF5 file and all datasets
         HDF5MasterBuffer buffermaster;
-       
+
         /// Vector of pointers to master buffer objects for auxilliary printers
         /// Only the primary printer will have anything in this.
         std::vector<HDF5MasterBuffer*> aux_buffers;
@@ -1561,6 +1572,9 @@ namespace Gambit
                 
         /// Determine target group in output HDF5 file from options
         std::string get_groupname(const Options& options);
+
+        /// Get the name of the metadata group
+        std::string get_metadata_groupname(const Options& options);
 
         /// Get length of buffer from options (or primary printer)
         std::size_t get_buffer_length(const Options& options);
