@@ -28,6 +28,10 @@
 ///          (markus.prim@kit.edu)
 ///  \date 2020 April
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 
 #ifndef __yaml_options_hpp__
@@ -219,6 +223,31 @@ namespace Gambit
       /// Return begin and end of options
       YAML::const_iterator begin() const { return options.begin(); }
       YAML::const_iterator end() const { return options.end(); }
+
+      /// Convert to string with some indentation
+      std::string toString(size_t level)
+      {
+        std::stringstream ss;
+        for (YAML::const_iterator it = begin(); it != end(); it++)
+        {
+          for(size_t i=0; i<level; i++) ss << "  ";
+          ss << it->first.as<std::string>() << " : ";
+          if(it->second.IsScalar())
+            ss << it->second << endl;
+          else if(it->second.IsMap())
+            ss << endl << Options(it->second).toString(level+1);
+          else if(it->second.IsSequence())
+          {
+            ss << endl;
+            for (unsigned int j = 0; j<it->second.size(); ++j)
+            {
+              for(size_t i=0; i<level+1; i++) ss << "  ";
+              ss << "- " << it->second[j] << endl;
+            }
+          }
+        }
+        return ss.str();
+      }
 
     private:
 

@@ -1557,9 +1557,9 @@ namespace Gambit
                 pointids      .create_dataset(buffermaster.get_location_id());
                 pointids_valid.create_dataset(buffermaster.get_location_id());
 
-                // Fill metadata info and flush buffer
-                HDF5DataSet<std::string> test("Test");
-                test.create_dataset(buffermaster.get_metadata_id());
+                // Fill basic metadata info
+                HDF5DataSet<std::string> gambitver("Gambit");
+                gambitver.create_dataset(buffermaster.get_metadata_id());
 
                 buffermaster.close_and_unlock_file();
 

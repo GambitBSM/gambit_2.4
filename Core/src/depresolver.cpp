@@ -2199,6 +2199,56 @@ namespace Gambit
       logger() << EOM;
     }
 
+    /// Check for unused rules and options
+    void DependencyResolver::checkForUnusedRules(int mpi_rank)
+    {
+      std::vector<Rule> unusedRules;
+
+      const IniParser::ObservablesType & entries = boundIniFile->getRules();
+      for (IniParser::ObservablesType::const_iterator it =
+          entries.begin(); it != entries.end(); ++it)
+      {
+        graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
+        bool unused = true;
+        for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+        {
+          // Check only for enabled functors
+          if (masterGraph[*vi]->status() == 2)
+          {
+            if (matchesRules(masterGraph[*vi], Rule(*it)))
+            {
+              unused = false;
+              continue;
+            }
+          }
+        }
+        if (unused)
+          unusedRules.push_back(Rule(*it));
+      }
+
+      if(unusedRules.size() > 0)
+      {
+        std::stringstream msg;
+        msg << "The following rules and options are not used in the current scan. Please remove them from  your yaml file to remove this warning." << endl;
+        for(auto rule :unusedRules)
+        {
+          if(rule.capability != "") msg << "  capability: " << rule.capability << endl;
+          if(rule.function != "")   msg << "  function: " << rule.function<< endl;
+          if(rule.module != "")     msg << "  module: " << rule.module << endl;
+          if(rule.type != "")       msg << "  type: " << rule.type << endl;
+          if(rule.backend != "")    msg << "  backend: " << rule.backend << endl;
+          if(rule.version != "")    msg << "  version: " << rule.version << endl;
+          if (rule.options.getNames().size() > 0)
+          {
+            msg << "  options:" << endl;
+            msg << rule.options.toString(2);
+          }
+          msg << endl;
+        }
+        logger() << msg.str() << EOM;
+        if(mpi_rank == 0) std::cout << msg.str() << std::endl;
+      }
+    }
 
   }
 

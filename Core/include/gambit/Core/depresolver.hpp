@@ -21,6 +21,7 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
+///  \date 2020 June
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
@@ -83,11 +84,21 @@ namespace Gambit
       Rule(std::string function, std::string module) : function(function), module(module) {};
       Rule(IniParser::ObservableType t)
       {
-        module = t.module;
+        capability = t.capability;
+        type  = t.type;
         function = t.function;
+        module = t.module;
+        backend = t.backend;
+        version = t.version;
+        options = t.options;
       };
+      std::string capability;
+      std::string type;
       std::string function;
       std::string module;
+      std::string backend;
+      std::string version;
+      Options options;
     };
 
     /// Information in parameter queue
@@ -172,6 +183,9 @@ namespace Gambit
         void invalidatePointAt(VertexID, bool);
 
         void resetAll();
+
+        /// Check for unused rules and options
+        void checkForUnusedRules(int);
 
       private:
         /// Adds list of functor pointers to master graph
