@@ -204,7 +204,8 @@ int main(int argc, char* argv[])
         scanner_node["Priors"] = iniFile.getPriorsNode();
 
         // Print scan metadata
-        printerManager.printerptr->print_metadata();
+        if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))
+          printerManager.printerptr->print_metadata(dependencyResolver.getMetadata());
 
         //Create the master scan manager
         Scanner::Scan_Manager scan(scanner_node, &printerManager, &factory);

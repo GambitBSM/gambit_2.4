@@ -26,6 +26,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 
 
@@ -217,6 +221,22 @@ namespace Gambit
          HDF5DataSet(const std::string& name)
            : HDF5DataSetBase(name,get_hdf5_data_type<T>::type())
          {}
+
+         /// Write a single piece of data to disk at the target position
+         std::size_t write_single(const hid_t loc_id, const T& data, const std::size_t target_pos, const bool force=false)
+         {
+             open_dataset(loc_id);
+             T buffer[MAX_BUFFER_SIZE];
+
+             buffer[0] = data;
+
+             write_buffer(buffer,1,target_pos,force);
+
+             std::size_t new_dset_size = get_dset_length();
+             close_dataset();
+
+             return new_dset_size;
+         }
         
          /// Write a vector of data to disk at the target position
          std::size_t write_vector(const hid_t loc_id, const std::vector<T>& data, const std::size_t target_pos, const bool force=false)
@@ -1253,6 +1273,9 @@ namespace Gambit
         /// Empty all buffers to disk
         void flush();
 
+        /// Print metadata directly to disk
+        void print_metadata(std::map<std::string,std::string>);
+
         #ifdef WITH_MPI
         /// Gather all buffer data on a certain rank process
         /// (only gathers data from buffers known to that process)
@@ -1507,6 +1530,7 @@ namespace Gambit
         // the previous output of this printer.
         Options resume_reader_options();
  
+        void _print_metadata(map_str_str);
         ///@}
 
         ///@{ Print functions

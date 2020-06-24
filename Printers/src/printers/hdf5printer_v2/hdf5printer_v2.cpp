@@ -597,6 +597,29 @@ namespace Gambit
         }
     }
 
+    /// Print metadata directly to file
+    void HDF5MasterBuffer::print_metadata(map_str_str datasets)
+    {
+        // Obtain lock on the output file
+        lock_and_open_file();
+
+        // Ensure file is open
+        ensure_file_is_open();
+
+        for(auto it = datasets.begin(); it != datasets.end(); ++it)
+        {
+          // Create dataset
+          HDF5DataSet<std::string> dataset(it->first);
+          dataset.create_dataset(metadata_id);
+
+          // Write dataset to file
+          dataset.write_single(metadata_id, it->second, 0);
+        }
+
+        // Release lock on output file
+        close_and_unlock_file();
+    }
+
     /// Get names of all datasets in the group that we are pointed at
     std::vector<std::pair<std::string,int>> HDF5MasterBuffer::get_all_dset_names_on_disk()
     {
@@ -1557,10 +1580,6 @@ namespace Gambit
                 pointids      .create_dataset(buffermaster.get_location_id());
                 pointids_valid.create_dataset(buffermaster.get_location_id());
 
-                // Fill basic metadata info
-                HDF5DataSet<std::string> gambitver("Gambit");
-                gambitver.create_dataset(buffermaster.get_metadata_id());
-
                 buffermaster.close_and_unlock_file();
 
             }
@@ -2112,6 +2131,13 @@ namespace Gambit
         options.setValue("group", buffermaster.get_group());
         options.setValue("metadata_group", buffermaster.get_metadata_group());
         return options;
+    }
+
+    // Print metadata to file
+    void HDF5Printer2::_print_metadata(map_str_str datasets)
+    {
+      // Forward the print information on to the master buffer manager object
+      buffermaster.print_metadata(datasets);
     }
 
 #ifdef WITH_MPI

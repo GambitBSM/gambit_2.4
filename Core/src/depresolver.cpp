@@ -29,6 +29,7 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 June
 ///        2019 May
+///        2020 June
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
@@ -2243,11 +2244,18 @@ namespace Gambit
             msg << "  options:" << endl;
             msg << rule.options.toString(2);
           }
-          msg << endl;
         }
         logger() << msg.str() << EOM;
         if(mpi_rank == 0) std::cout << msg.str() << std::endl;
       }
+    }
+
+    /// Construct metadata information from used observables, rules and options
+    map_str_str DependencyResolver::getMetadata()
+    {
+      map_str_str metadata;
+
+      return metadata;
     }
 
   }

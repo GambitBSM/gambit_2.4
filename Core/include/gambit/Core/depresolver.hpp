@@ -187,6 +187,9 @@ namespace Gambit
         /// Check for unused rules and options
         void checkForUnusedRules(int);
 
+        /// Construct metadata information from used observables, rules and options
+        map_str_str getMetadata();
+
       private:
         /// Adds list of functor pointers to master graph
         void addFunctors();

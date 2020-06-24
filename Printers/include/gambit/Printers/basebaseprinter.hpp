@@ -22,6 +22,7 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
+///        2020 June
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
@@ -158,10 +159,9 @@ namespace Gambit
         }
 
         // Print metadata information
-        void print_metadata()
+        void print_metadata(map_str_str datasets)
         {
-          ///if(printer_enabled) _print_metadata();
-          cout << "Printing metadata" << endl;
+          if(printer_enabled) _print_metadata(datasets);
         }
 
       protected:
@@ -204,6 +204,16 @@ namespace Gambit
            _print(in,label,rank,pointID);
         }
 
+        // Default _print_metadata function. Should be overloaded by printers
+        virtual void _print_metadata(map_str_str )
+        {
+          std::ostringstream err;
+
+          err << "Attempted to print metadata to a printer type "
+              << "that does not accept metadata. Please change "
+              << "your printer or disable priting metadata.";
+          printer_error().raise(LOCAL_INFO,err.str());
+        }
 
         // Virtual print methods for base printer classes
         #define VPRINT(r,data,elem)                                   \
