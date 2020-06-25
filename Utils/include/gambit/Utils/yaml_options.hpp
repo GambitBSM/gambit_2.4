@@ -225,7 +225,7 @@ namespace Gambit
       YAML::const_iterator end() const { return options.end(); }
 
       /// Convert to string with some indentation
-      std::string toString(size_t level)
+      std::string toString(size_t level) const
       {
         std::stringstream ss;
         for (YAML::const_iterator it = begin(); it != end(); it++)
@@ -245,8 +245,46 @@ namespace Gambit
               ss << "- " << it->second[j] << endl;
             }
           }
+          else
+          {
+            std::ostringstream os;
+            os << "Couldn't convert options to string. YAML type unknown. ";
+            utils_error().raise(LOCAL_INFO,os.str());
+          }
         }
         return ss.str();
+      }
+
+      /// Convert the options node a map
+      void toMap(map_str_str& map, str header = "") const
+      {
+        str head = header;
+        if(head != "") head += "::";
+
+        for (YAML::const_iterator it = begin(); it != end(); it++)
+        {
+          str key = it->first.as<str>();
+          if(it->second.IsScalar())
+            map[head + key] = it->second.as<str>();
+          else if(it->second.IsMap())
+            Options(it->second).toMap(map, head + key);
+          else if(it->second.IsSequence())
+          {
+            str val;
+            for(size_t j=0; j<it->second.size()-1; ++j)
+            {
+              val += it->second[j].as<str>() + ", "; 
+            }
+            val += it->second[it->second.size()-1].as<str>();
+            map[head + key] = val;
+          }
+          else
+          {
+            std::ostringstream os;
+            os << "Couldn't convert options to map. YAML type unknown. ";
+            utils_error().raise(LOCAL_INFO,os.str());
+          }
+        }
       }
 
     private:

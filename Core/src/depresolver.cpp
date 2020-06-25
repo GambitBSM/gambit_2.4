@@ -2245,6 +2245,7 @@ namespace Gambit
             msg << "  options:" << endl;
             msg << rule.options.toString(2);
           }
+          msg << endl;
         }
         logger() << msg.str() << EOM;
         if(mpi_rank == 0) std::cout << msg.str() << std::endl;
@@ -2256,7 +2257,46 @@ namespace Gambit
     {
       map_str_str metadata;
 
+      // Gambit version
       metadata["GAMBIT_VERSION"] = gambit_version();
+
+      // Used rules and options
+      const IniParser::ObservablesType & entries = boundIniFile->getRules();
+      for (IniParser::ObservablesType::const_iterator it =
+          entries.begin(); it != entries.end(); ++it)
+      {
+        graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
+        for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+        {
+          // Check only for enabled functors
+          if (masterGraph[*vi]->status() == 2)
+          {
+            if (matchesRules(masterGraph[*vi], Rule(*it)))
+            {
+              str key = "Rules";
+              if(it->capability != "")
+              {
+                metadata["Rules::capability"] = it->capability;
+                key += "::" + it->capability;
+              }
+              if(it->function != "")
+              {
+                metadata[key+"::function"] = it->function;
+                if (it->capability == "") key += "::" + it->function;
+              }
+              if(it->module != "")     metadata[key+"::module"] = it->module;
+              if(it->type != "")       metadata[key+"::type"] = it->type;
+              if(it->backend != "")    metadata[key+"::backend"] = it->backend;
+              if(it->version != "")    metadata[key+"::version"] = it->version;
+              if(it->options.getNames().size()) it->options.toMap(metadata, key+"::options");
+              
+
+            }
+          }
+        }
+      }
+
+      // TODO: Not sure what else to add here
 
       return metadata;
     }
