@@ -2276,13 +2276,13 @@ namespace Gambit
               str key = "Rules";
               if(it->capability != "")
               {
-                metadata["Rules::capability"] = it->capability;
                 key += "::" + it->capability;
+                metadata[key + "::capability"] = it->capability;
               }
               if(it->function != "")
               {
-                metadata[key+"::function"] = it->function;
                 if (it->capability == "") key += "::" + it->function;
+                metadata[key+"::function"] = it->function;
               }
               if(it->module != "")     metadata[key+"::module"] = it->module;
               if(it->type != "")       metadata[key+"::type"] = it->type;
