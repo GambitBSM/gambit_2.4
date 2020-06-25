@@ -203,8 +203,8 @@ int main(int argc, char* argv[])
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
 
-        // Print scan metadata
-        if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))
+        // Print scan metadata from rank 0
+        if (iniFile.getValueOrDef<bool>(true, "print_metadata_info") and !rank)
           printerManager.printerptr->print_metadata(dependencyResolver.getMetadata());
 
         //Create the master scan manager

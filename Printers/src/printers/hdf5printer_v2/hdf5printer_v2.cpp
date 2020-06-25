@@ -608,12 +608,17 @@ namespace Gambit
 
         for(auto it = datasets.begin(); it != datasets.end(); ++it)
         {
-          // Create dataset
+          // Create dataset if it doesn't exist
           HDF5DataSet<std::string> dataset(it->first);
-          dataset.create_dataset(metadata_id);
+          if(not dataset.dataset_exists(metadata_id))
+          {
+            dataset.create_dataset(metadata_id);
 
-          // Write dataset to file
-          dataset.write_single(metadata_id, it->second, 0);
+            // Write dataset to file
+            dataset.write_single(metadata_id, it->second, 0);
+
+            dataset.set_exists_on_disk();
+          }
         }
 
         // Release lock on output file
@@ -2080,7 +2085,7 @@ namespace Gambit
     /// Get the name of the metadata group
     std::string HDF5Printer2::get_metadata_groupname(const Options& options)
     {
-      std::string metadatagroup = options.getValueOrDef<std::string>("/Metadata", "metadata_group");
+      std::string metadatagroup = options.getValueOrDef<std::string>("/metadata", "metadata_group");
       std::string groupname = get_groupname(options);
       if(groupname == metadatagroup)
       {

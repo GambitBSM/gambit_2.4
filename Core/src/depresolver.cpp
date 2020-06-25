@@ -41,6 +41,7 @@
 #include "gambit/Models/models.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/version.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
@@ -2254,6 +2255,8 @@ namespace Gambit
     map_str_str DependencyResolver::getMetadata()
     {
       map_str_str metadata;
+
+      metadata["GAMBIT_VERSION"] = gambit_version();
 
       return metadata;
     }
