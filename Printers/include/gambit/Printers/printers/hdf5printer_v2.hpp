@@ -1530,7 +1530,6 @@ namespace Gambit
         // the previous output of this printer.
         Options resume_reader_options();
  
-        void _print_metadata(map_str_str);
         ///@}
 
         ///@{ Print functions
@@ -1541,6 +1540,10 @@ namespace Gambit
           BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_MODULE_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
+
+        // Print metadata info to file
+        void _print_metadata(map_str_str);
+
         ///@}
 
         /// Add buffer to the primary printers records

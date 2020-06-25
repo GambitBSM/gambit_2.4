@@ -169,6 +169,13 @@ namespace Gambit
           BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_MODULE_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
+
+        // Print metadata info to file
+        void _print_metadata(map_str_str)
+        {
+          // Do nothing
+        }
+
         ///@}
 
         /// @{ HDF5Printer-specific functions
