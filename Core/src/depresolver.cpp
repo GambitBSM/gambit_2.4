@@ -2260,10 +2260,57 @@ namespace Gambit
       // Gambit version
       metadata["GAMBIT_VERSION"] = gambit_version();
 
-      // Used rules and options
-      const IniParser::ObservablesType & entries = boundIniFile->getRules();
+      // Date
+      auto now = std::chrono::system_clock::now();
+      auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+      std::stringstream ss;
+      ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d");
+      std::cout << ss.str() << std::endl;
+      metadata["Date"] =  ss.str();
+
+      // Parameters
+      YAML::Node parametersNode = boundIniFile->getParametersNode();
+      Options(parametersNode).toMap(metadata, "Parameters");
+
+      // Priors
+      YAML::Node priorsNode = boundIniFile->getPriorsNode();
+      Options(priorsNode).toMap(metadata, "Priors");
+
+      // Printer
+      YAML::Node printerNode = boundIniFile->getPrinterNode();
+      Options(printerNode).toMap(metadata, "Printer");
+
+      // Scanners
+      YAML::Node scanNode = boundIniFile->getScannerNode();
+      str scanner = scanNode["use_scanner"].as<str>();
+      metadata["Scanner::scanner"] = scanner;
+      for(auto it = scanNode.begin(); it != scanNode.end(); ++it)
+      {
+        if(it->first.as<str>() == "scanners")
+          Options(scanNode["scanners"][scanner]).toMap(metadata, "Scanner::options");
+        else if(it->first.as<str>() != "use_scanner")
+          Options(*it).toMap(metadata, "Scanner::" + it->first.as<str>());
+      }
+
+      // ObsLikes
+      const IniParser::ObservablesType &obslikes = boundIniFile->getObservables();
       for (IniParser::ObservablesType::const_iterator it =
-          entries.begin(); it != entries.end(); ++it)
+           obslikes.begin(); it != obslikes.end(); ++it)
+      {
+        str key = "ObsLikes::" + it->capability;
+        metadata[key + "::capability"] = it->capability;
+        if(it->purpose != "")  metadata[key + "::purpose"] = it->purpose;
+        if(it->function != "") metadata[key + "::function"] = it->function;
+        if(it->type != "")     metadata[key + "::type"] = it->type;
+        if(it->module != "")   metadata[key + "::module"] = it->module;
+        //if(it->subcaps != "") {} // TODO Deal with subcaps
+      }
+
+      // Used rules and options
+      const IniParser::ObservablesType &rules = boundIniFile->getRules();
+      for (IniParser::ObservablesType::const_iterator it =
+          rules.begin(); it != rules.end(); ++it)
       {
         graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
         for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
@@ -2296,7 +2343,18 @@ namespace Gambit
         }
       }
 
-      // TODO: Not sure what else to add here
+      // Logger
+      // FIXME: This doesn't work for some reason
+//      YAML::Node logNode = boundIniFile->getLoggerNode();
+//      Options(logNode).toMap(metadata,"Logger");
+
+      // KeyValues
+      YAML::Node keyvalue = boundIniFile->getKeyValuePairNode();
+      Options(keyvalue).toMap(metadata,"KeyValue");
+
+      // YAML file
+      // FIXME: This doesn't work for some reason
+//      metadata["YAML"] = boundIniFile->getYAMLNode().as<str>();
 
       return metadata;
     }

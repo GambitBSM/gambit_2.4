@@ -158,6 +158,7 @@ namespace Gambit
     void Parser::basicParse(YAML::Node root, std::string filename)
     {
       recursiveImport(root,filename);
+      YAMLNode = root;
       parametersNode = root["Parameters"];
       priorsNode = root["Priors"];
       printerNode = root["Printer"];
@@ -316,6 +317,8 @@ namespace Gambit
       }
     }
 
+    /// Getter for the full YAML Node
+    YAML::Node Parser::getYAMLNode()         const {return YAMLNode;}
     /// Getters for key/value section
     /// @{
     YAML::Node Parser::getParametersNode()   const {return parametersNode;}

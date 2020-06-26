@@ -57,6 +57,9 @@ namespace Gambit
         /// Read in the YAML file
         virtual void readFile(str filename);
 
+        /// Getter for the full YAML node
+        YAML::Node getYAMLNode() const;
+
         /// Getters for key/value section
         /// @{
         YAML::Node getParametersNode() const;
@@ -119,6 +122,7 @@ namespace Gambit
         
       private:     
 
+        YAML::Node YAMLNode;
         YAML::Node keyValuePairNode;
         YAML::Node parametersNode;
         YAML::Node priorsNode;
