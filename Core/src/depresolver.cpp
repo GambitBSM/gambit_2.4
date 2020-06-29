@@ -2266,7 +2266,6 @@ namespace Gambit
 
       std::stringstream ss;
       ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d");
-      std::cout << ss.str() << std::endl;
       metadata["Date"] =  ss.str();
 
       // Parameters
@@ -2344,9 +2343,8 @@ namespace Gambit
       }
 
       // Logger
-      // FIXME: This doesn't work for some reason
-//      YAML::Node logNode = boundIniFile->getLoggerNode();
-//      Options(logNode).toMap(metadata,"Logger");
+      YAML::Node logNode = boundIniFile->getLoggerNode();
+      Options(logNode).toMap(metadata,"Logger");
 
       // KeyValues
       YAML::Node keyvalue = boundIniFile->getKeyValuePairNode();

@@ -263,7 +263,16 @@ namespace Gambit
 
         for (YAML::const_iterator it = begin(); it != end(); it++)
         {
-          str key = it->first.as<str>();
+          str key;
+          if(it->first.IsScalar())
+            key = it->first.as<str>();
+          else if(it->first.IsSequence())
+          {
+            key = "[";
+            for(size_t j=0; j<it->first.size()-1; ++j)
+              key += it->first[j].as<str>() + ",";
+            key += it->first[it->first.size()-1].as<str>() + "]";
+          }
           if(it->second.IsScalar())
             map[head + key] = it->second.as<str>();
           else if(it->second.IsMap())
