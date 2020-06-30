@@ -188,9 +188,19 @@ namespace Gambit
         cout << (*f).name() << " vs " << rule.function << endl;
         cout << (*f).origin() << " vs " << rule.module << endl;
       #endif
-      return ( stringComp( rule.function, (*f).name()) and
-               stringComp( rule.module, (*f).origin())
-             );
+      // Rule matches functor if the capability or module function
+      // is present and they (and the module if given) match
+      bool matches = false;
+      if (rule.capability != "")
+        matches = stringComp( rule.capability, f->capability() );
+      if (rule.function != "")
+        matches = stringComp( rule.function, f->name() );
+      if (rule.module != "")
+        matches = matches and stringComp( rule.module, f->origin());
+      return matches;
+      //return ( stringComp( rule.function, (*f).name()) and
+      //         stringComp( rule.module, (*f).origin())
+      //       );
     }
 
 
@@ -2210,6 +2220,9 @@ namespace Gambit
       for (IniParser::ObservablesType::const_iterator it =
           entries.begin(); it != entries.end(); ++it)
       {
+        #ifdef DEPRES_DEBUG
+          std::cout << "checking rule with capability " << it->capability << std::endl;
+        #endif
         graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
         bool unused = true;
         for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
@@ -2217,8 +2230,11 @@ namespace Gambit
           // Check only for enabled functors
           if (masterGraph[*vi]->status() == 2)
           {
-            if (matchesRules(masterGraph[*vi], Rule(*it)))
+            if ( matchesRules(masterGraph[*vi], Rule(*it)) )
             {
+              #ifdef DEPRES_DEBUG
+                std::cout << "rule for capability " << it->capability <<" used by vertex " << masterGraph[*vi]->capability() << std::endl;
+              #endif
               unused = false;
               continue;
             }
