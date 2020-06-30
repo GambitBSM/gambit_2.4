@@ -1382,6 +1382,9 @@ namespace Gambit
         /// Get next available position in the synchronised output datasets
         std::size_t get_next_free_position();
 
+        /// Get the next position for metadata entries
+        std::size_t get_next_metadata_position();
+
         /// Report number of buffers that we are managing
         std::size_t get_Nbuffers();
 

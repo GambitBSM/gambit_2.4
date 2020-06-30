@@ -606,19 +606,27 @@ namespace Gambit
         // Ensure file is open
         ensure_file_is_open();
 
+        // Get length of existing datasets if there is any
+        std::size_t size = get_next_metadata_position();
+
         for(auto it = datasets.begin(); it != datasets.end(); ++it)
         {
-          // Create dataset if it doesn't exist
+          // Create dataset if it doesn't exist and extend to current size
           HDF5DataSet<std::string> dataset(it->first);
-          if(not dataset.dataset_exists(metadata_id))
-          {
-            dataset.create_dataset(metadata_id);
+          dataset.ensure_dataset_exists(metadata_id, size);
 
-            // Write dataset to file
-            dataset.write_single(metadata_id, it->second, 0);
+          // Write dataset to file
+          dataset.write_single(metadata_id, it->second, size);
 
-            dataset.set_exists_on_disk();
-          }
+          dataset.set_exists_on_disk();
+        }
+
+        // Extend existing datasets on file
+        std::vector<std::string> datasets_on_file = HDF5::lsGroup(metadata_id);
+        for(auto dset : datasets_on_file)
+        {
+          HDF5DataSet<std::string> dataset(dset);
+          dataset.ensure_dataset_exists(metadata_id,size);
         }
 
         // Release lock on output file
@@ -1007,6 +1015,27 @@ namespace Gambit
         pointids_valid.close_dataset();
 
         return r_size;
+    }
+
+    /// Determine the next position for metadata entries
+    std::size_t HDF5MasterBuffer::get_next_metadata_position()
+    {
+        ensure_file_is_open();
+
+        // If the GAMBIT dataset is present, get size from it
+        HDF5DataSet<str> gambit("GAMBIT");
+        if(gambit.dataset_exists(metadata_id))
+        {
+          gambit.open_dataset(metadata_id);
+
+          // Get length
+          std::size_t size = gambit.get_dset_length();
+ 
+          gambit.close_dataset();
+
+          return size;
+        }
+        return 0;
     }
 
     /// Obtain positions in output datasets for a buffer of points
