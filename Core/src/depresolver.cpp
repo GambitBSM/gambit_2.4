@@ -2351,8 +2351,9 @@ namespace Gambit
       Options(keyvalue).toMap(metadata,"KeyValue");
 
       // YAML file
-      // FIXME: This doesn't work for some reason
-//      metadata["YAML"] = boundIniFile->getYAMLNode().as<str>();
+      ss.clear();
+      ss << boundIniFile->getYAMLNode();
+      metadata["YAML"] = ss.str();
 
       return metadata;
     }
