@@ -2170,8 +2170,17 @@ namespace Gambit
     // Print metadata to file
     void HDF5Printer2::_print_metadata(map_str_str datasets)
     {
-      // Forward the print information on to the master buffer manager object
-      buffermaster.print_metadata(datasets);
+      // Only print from rank 0
+      int rank = 0;
+      #ifdef WITH_MPI
+        rank = myComm.Get_rank();
+      #endif
+
+      if(!rank)
+      {
+        // Forward the print information on to the master buffer manager object
+        buffermaster.print_metadata(datasets);
+      }
     }
 
 #ifdef WITH_MPI
