@@ -459,16 +459,20 @@ namespace Gambit
 
       if(missing_flag)
       {
+        int mpirank = GET_RANK;
         // Warn user of missing descriptions
-        cout << "Descriptions are missing for the following models:" << endl;
-        for (std::vector<model_info>::const_iterator it = model_dbase.begin(); it != model_dbase.end(); ++it)
+        if(mpirank == 0)
         {
-          if(not it->has_description)
+          cout << "Descriptions are missing for the following models:" << endl;
+          for (std::vector<model_info>::const_iterator it = model_dbase.begin(); it != model_dbase.end(); ++it)
           {
-            cout << "   " << it->name << endl;
+            if(not it->has_description)
+            {
+              cout << "   " << it->name << endl;
+            }
           }
+          cout << "Please add descriptions of these to "<< input_model_descriptions << endl;
         }
-        cout << "Please add descriptions of these to "<< input_model_descriptions << endl;
       }
 
       // Write out the centralised database file containing all this information
@@ -646,11 +650,11 @@ namespace Gambit
           if (not processed_options)
           {
             filename = process_primary_options(argc,argv);
-            check_capability_descriptions();
+            int mpirank = GET_RANK;
+            if(mpirank == 0) check_capability_descriptions();
             // Check if we indeed received a valid filename (needs the -f option)
             if (found_inifile) return filename;
             // Ok then, report an unrecognised command and bail
-            int mpirank = GET_RANK;
             if (mpirank == 0) cout << "Unrecognised command received!" << endl;
             // Give a list of valid commands that user might have mistyped
             for (std::vector<str>::iterator it = valid_commands.begin(); it != valid_commands.end(); ++it)
