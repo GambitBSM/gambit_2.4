@@ -6,6 +6,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
+#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
 
 using namespace std;
 
@@ -15,11 +16,12 @@ using namespace std;
 // based on: arXiv:1308.2631
 //
 //    Code by Martin White, Sky French.
+//    Updated by Kelton Whiteaker, June 2020
 //    Known errors:
 //    a) The isolation is already applied in the simulation rather than after overlap removal -> the electron and muon veto technically require a veto on base-line electrons/muons not overlapping with jets
 //
 //    Known features:
-//    a) Must run simulator with 60% b tagging efficiency and ?% mis-id rate
+//    a) Must run simulator with 60% b tagging efficiency and ?% mis-id rate. Note from Kelton: detailed pT- and eta-dependent efficiencies for 60% operating point not available from public ATLAS results.
 
 
 namespace Gambit {
@@ -30,6 +32,8 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
+      // number of events in each signal region (after initial cuts?) (first line), and after each cut? (2nd line)
+      // uses doubles whereas others use EventCounters
       double _numSRA, _numSRB;
       double _numSRA15, _numSRA20, _numSRA25, _numSRA30, _numSRA35;
 
@@ -39,27 +43,45 @@ namespace Gambit {
 
       // Debug histos
 
+      Perf_Plot* plots_mct;
+      Perf_Plot* plots_mbb;
+      Perf_Plot* plots_met;
+      Perf_Plot* plots_ht3;
+      Perf_Plot* plots_allAcuts;
+      Perf_Plot* plots_allBcuts;
+
+
     public:
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
+      // constructor
       Analysis_ATLAS_8TeV_2bStop_20invfb() {
 
         set_analysis_name("ATLAS_8TeV_2bStop_20invfb");
         set_luminosity(20.1);
 
         _numSRA = 0 ; _numSRB = 0; _numSRA15 = 0; _numSRA20 = 0; _numSRA25 = 0; _numSRA30 = 0; _numSRA35 = 0;
-        NCUTS=30;
+        NCUTS=30; // there are way less than 30 cuts, but maybe they just want to make sure the vectors are big enough
 
-        for(int i=0;i<NCUTS;i++){
+        for(int i=0;i<NCUTS;i++){  // loop to make the vectors bigger by NCUTS
           cutFlowVector.push_back(0);
           cutFlowVector_str.push_back("");
         }
 
+        vector<const char*> variablesNames = {"met","mct","mbb","ht3"};
+        plots_mct = new Perf_Plot(analysis_name()+"_SRA_no-mct-cut", &variablesNames);
+        plots_mbb = new Perf_Plot(analysis_name()+"_SRA_no-mbb-cut", &variablesNames);
+        plots_met = new Perf_Plot(analysis_name()+"_SRB_no-met-cut", &variablesNames);
+        plots_ht3 = new Perf_Plot(analysis_name()+"_SRB_no-ht3-cut", &variablesNames);
+        plots_allAcuts = new Perf_Plot(analysis_name()+"_SRA_all-cuts", &variablesNames);
+        plots_allBcuts = new Perf_Plot(analysis_name()+"_SRB_all-cuts", &variablesNames);
+
       }
 
-      void run(const HEPUtils::Event* event) {
+
+      void run(const HEPUtils::Event* event) { 
 
         // Missing energy
         HEPUtils::P4 ptot = event->missingmom();
@@ -67,8 +89,9 @@ namespace Gambit {
 
         // Now define vector of baseline electrons
         vector<const HEPUtils::Particle*> baselineElectrons;
-        for (const HEPUtils::Particle* electron : event->electrons()) {
-          if (electron->pT() > 7. && fabs(electron->eta()) < 2.47) baselineElectrons.push_back(electron);
+        for (const HEPUtils::Particle* electron : event->electrons()) {  // for each electron particlepointer in event's electron list...
+        // if passes these criteria to be baseline e-, save it as such (well, save a pointer)
+	  if (electron->pT() > 7. && fabs(electron->eta()) < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Apply electron efficiency
@@ -85,7 +108,10 @@ namespace Gambit {
 
         const std::vector<double> a = {0,10.};
         const std::vector<double> b = {0,10000.};
-        const std::vector<double> c = {0.60};
+        const std::vector<double> c = {0.60};  // b tagging efficiency
+//        const std::vector<double> a = {0,2.1,10.};
+//        const std::vector<double> b = {0,30.,40.,50.,70.,10000.};
+//        const std::vector<double> c = {0.54,0.63,0.67,0.7,0.75,0.35,0.42,0.44,0.46,0.49};  // b tagging efficiency for 70% WP (this analysis is 60%)
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
         vector<const HEPUtils::Jet*> baselineJets;
@@ -105,6 +131,7 @@ namespace Gambit {
         vector<const HEPUtils::Jet*> signalJets;
 
         // Remove any jet within dR=0.2 of an electrons
+	// preprocessing
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
           bool overlap=false;
           HEPUtils::P4 jetVec=baselineJets.at(iJet)->mom();
@@ -142,6 +169,8 @@ namespace Gambit {
           if(!overlap)muonsForVeto.push_back(baselineMuons.at(iMu));
         }
 
+        // for all signal (good) jets, b-tag if mc b hadron present
+        // btag() is mc
         for (const HEPUtils::Jet* jet : signalJets) {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if(jet->btag() && hasTag && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
@@ -280,12 +309,13 @@ namespace Gambit {
           if(num>3 && jet->pT()>20.)ht3 += jet->pT();
         }
 
+
         //Cutflow flags
         bool cut_ElectronVeto=false;
         bool cut_MuonVeto=false;
         //bool cut_2jets=false;
         //bool cut_3jets=false;
-        //bool cut_dPhiJet1=false;
+        bool cut_dPhiJet1=false;
         bool cut_METGt150=false;
         bool cut_METGt250=false;
         bool cut_dPhiJets=false;
@@ -296,29 +326,44 @@ namespace Gambit {
         if(muonsForVeto.size()==0)cut_MuonVeto=true;
         //if(passSRAJetCut)cut_2jets=true;
         //if(passSRBJetCut)cut_3jets=true;
-        //if(dphi_jetmet1>2.5)cut_dPhiJet1=true;
+        if(dphi_jetmet1>2.5)cut_dPhiJet1=true;
         if(dphi_min>0.4)cut_dPhiJets=true;
         if(met>150.)cut_METGt150=true;
         if(met>250.)cut_METGt250=true;
         if(met/meff2>0.25)cut_METmeff2=true;
         if(met/meff3>0.25)cut_METmeff3=true;
 
+        
+        vector<double> variables={met, mCT, mbb, ht3};
+        if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200.)plots_mct->fill(&variables);
+        if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mCT > 150.)plots_mbb->fill(&variables);
+        if(met>80. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)plots_met->fill(&variables);
+        if(met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3)plots_ht3->fill(&variables);
+        if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 150.)plots_allAcuts->fill(&variables);
+        if(met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)plots_allBcuts->fill(&variables);
+
+
         cutFlowVector_str[0] = "No cuts ";
         cutFlowVector_str[1] = "MET > 80 ";
-        cutFlowVector_str[2] = "Lepton veto ";
-        cutFlowVector_str[3] = "MET > 150 ";
-        cutFlowVector_str[4] = "Jet selection ";
-        cutFlowVector_str[5] = "mbb > 200 ";
-        cutFlowVector_str[6] = "mCT > 150 ";
-        cutFlowVector_str[7] = "mCT > 200 ";
-        cutFlowVector_str[8] = "mCT > 250 ";
-        cutFlowVector_str[9] = "mCT > 300 ";
-        cutFlowVector_str[10] = "SRB: lepton veto ";
-        cutFlowVector_str[11] = "SRB: MET > 250 ";
-        cutFlowVector_str[12] = "SRB: Jet selection ";
-        cutFlowVector_str[13] = "SRB: HT3 < 50  ";
-        cutFlowVector_str[14] = "SRA: Jet selection  ";
-        cutFlowVector_str[15] = "SRA: B jet selection  ";
+        cutFlowVector_str[2] = "SRA: Lepton veto ";
+        cutFlowVector_str[3] = "SRA: MET > 150 ";
+        cutFlowVector_str[4] = "SRA: Jet selection  ";
+        cutFlowVector_str[5] = "SRA: B jet selection  ";
+        cutFlowVector_str[6] = "SRA: dPhi_min > 0.4 ";
+        cutFlowVector_str[7] = "SRA: MET/meff(2) > 0.25 ";
+        cutFlowVector_str[8] = "SRA: mbb > 200 ";
+        cutFlowVector_str[9] = "SRA: mCT > 150 ";
+        cutFlowVector_str[10] = "SRA: mCT > 200 ";
+        cutFlowVector_str[11] = "SRA: mCT > 250 ";
+        cutFlowVector_str[12] = "SRA: mCT > 300 ";
+        cutFlowVector_str[13] = "SRB: lepton veto ";
+        cutFlowVector_str[14] = "SRB: MET > 250 ";
+        cutFlowVector_str[15] = "SRB: Jet selection ";
+        cutFlowVector_str[16] = "SRB: dPhi(pTmiss,j1) > 2.5 ";
+        cutFlowVector_str[17] = "SRB: B jet selection ";
+        cutFlowVector_str[18] = "SRB: dPhi_min > 0.4 ";
+        cutFlowVector_str[19] = "SRB: MET/meff(3) > 0.25 ";
+        cutFlowVector_str[20] = "SRB: HT3 < 50  ";
 
 
         for(int j=0;j<NCUTS;j++){
@@ -331,30 +376,39 @@ namespace Gambit {
 
              (j==3 && met>150. && cut_MuonVeto && cut_ElectronVeto) ||
 
-             (j==4 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAbJetCut && passSRAJetCut) ||
+             (j==4 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut) ||
 
-             (j==5 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAbJetCut && passSRAJetCut && mbb > 200.) ||
+             (j==5 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut) ||
 
-             (j==6 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAbJetCut && passSRAJetCut && mbb > 200. && mCT > 150.) ||
+             (j==6 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets) ||
 
-             (j==7 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAbJetCut && passSRAJetCut && mbb > 200. && mCT > 200.) ||
+             (j==7 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2) ||
 
-             (j==8 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAbJetCut && passSRAJetCut && mbb > 200. && mCT > 250.) ||
+             (j==8 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200.) ||
 
-             (j==9 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAbJetCut && passSRAJetCut && mbb > 200. && mCT > 300.) ||
+             (j==9 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 150.) ||
 
-             (j==10 && met>150. && cut_MuonVeto && cut_ElectronVeto) ||
+             (j==10 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 200.) ||
 
-             (j==11 && met>250. && cut_MuonVeto && cut_ElectronVeto) ||
+             (j==11 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 250.) ||
 
-             (j==12 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && passSRBbJetCut) ||
+             (j==12 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 300.) ||
 
-             (j==13 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && passSRBbJetCut && ht3<50.) ||
+             (j==13 && met>80. && cut_MuonVeto && cut_ElectronVeto) ||
 
-             (j==14 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut) ||
+             (j==14 && met>250. && cut_MuonVeto && cut_ElectronVeto) ||
 
-             (j==15 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut)
+             (j==15 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut) ||
 
+             (j==16 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1) ||
+
+             (j==17 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut) ||
+
+             (j==18 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets) ||
+
+             (j==19 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3) ||
+
+             (j==20 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.) 
 
              )cutFlowVector[j]++;
         }
@@ -368,9 +422,9 @@ namespace Gambit {
           if(mCT>200.) _numSRA20 += event->weight();
           if(mCT>250.) _numSRA25 += event->weight();
           if(mCT>300.) _numSRA30 += event->weight();
-          if(mCT>350.) _numSRA35 += event->weight();
+          if(mCT>350.) _numSRA35 += event->weight();  // why is this 350 GeV threshold here? It wasn't used in the ATLAS cutflow.
         }
-        if(cut_ElectronVeto && cut_MuonVeto && cut_METGt250 && passSRBJetCut && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.) _numSRB += event->weight();
+        if(cut_ElectronVeto && cut_MuonVeto && cut_METGt250 && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.) _numSRB += event->weight();
 
 
         return;
@@ -400,6 +454,19 @@ namespace Gambit {
 
       void collect_results() {
 
+        double scale_by=1.;
+        cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
+        cout << "CUT FLOW: ATLAS 8 TeV 2b stop paper SUSY-2013-05"<<endl;
+        cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
+        cout<< right << setw(40) << "CUT" <<  "," << setw(20) << "RAW" <<  "," << setw(20) << "SCALED"
+        <<  "," << setw(20) << "%" <<  "," << setw(20) << endl;
+        for (int j=0; j<NCUTS; j++) {
+            cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
+            << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
+            << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << endl;
+        }
+        cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
+
         // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
         add_result(SignalRegionData("SRA15", 102., {_numSRA15, 0.}, { 94., 13.}));
@@ -408,6 +475,13 @@ namespace Gambit {
         add_result(SignalRegionData("SRA30", 7., {_numSRA30, 0.}, { 5.9, 1.1}));
         add_result(SignalRegionData("SRA35", 3., {_numSRA35, 0.}, { 2.5, 0.6}));
         add_result(SignalRegionData("SRB", 65., {_numSRB, 0.}, { 64., 10.}));
+
+        plots_mct->createFile(luminosity(),(85.5847/50000));
+        plots_mbb->createFile(luminosity(),(85.5847/50000));
+        plots_met->createFile(luminosity(),(85.5847/50000));
+        plots_ht3->createFile(luminosity(),(85.5847/50000));
+        plots_allAcuts->createFile(luminosity(),(85.5847/50000));
+        plots_allBcuts->createFile(luminosity(),(85.5847/50000));
 
         return;
       }

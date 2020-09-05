@@ -187,4 +187,5 @@ if normalize:
 else:
     plt.savefig('compare_'+name+'.png',dpi=250)
 
+plt.title("Kelton's normalized cutflow comparison")
 plt.show()
