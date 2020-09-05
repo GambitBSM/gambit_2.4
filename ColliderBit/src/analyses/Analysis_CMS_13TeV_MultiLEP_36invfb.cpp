@@ -67,7 +67,7 @@ namespace Gambit {
 
       Analysis_CMS_13TeV_MultiLEP_36invfb() {
 
-        set_analysis_name("CMS_13TeV_MultiLEP_36invfb_250_150");
+        set_analysis_name("CMS_13TeV_MultiLEP_36invfb_200_100");
         set_luminosity(35.9);
 
         NCUTS1=10;

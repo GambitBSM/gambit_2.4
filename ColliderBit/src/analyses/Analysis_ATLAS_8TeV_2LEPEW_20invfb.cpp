@@ -6,7 +6,7 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
+//#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
 
 /* The ATLAS 2 lepton EW analysis (20fb^-1)
 
@@ -58,13 +58,13 @@ namespace Gambit {
       const static int NCUTS=90;
 
       // Debug histos
-      Perf_Plot* plots_mt2_NOmt2_SF;  // SR-mT2, no mt2 cut, SF
-      Perf_Plot* plots_mt2_NOmt2_DF;  // SR-mT2, no mt2 cut, DF
-      Perf_Plot* plots_Zjets_NOmet_SF;  // SR-Zjets, no met cut, SF
-      Perf_Plot* plots_WWa_NOmll_SF;  // SR-WWa, no mll cut, SF
-      Perf_Plot* plots_WWa_NOmll_DF;  // SR-WWa, no mll cut, DF
-      Perf_Plot* plots_WWa_NOmllORmet_SF;  // SR-WWa, no mll cut or met cut, SF
-      Perf_Plot* plots_WWa_NOmllORmet_DF;  // SR-WWa, no mll cut or met cut, DF
+//      Perf_Plot* plots_mt2_NOmt2_SF;  // SR-mT2, no mt2 cut, SF
+//      Perf_Plot* plots_mt2_NOmt2_DF;  // SR-mT2, no mt2 cut, DF
+//      Perf_Plot* plots_Zjets_NOmet_SF;  // SR-Zjets, no met cut, SF
+//      Perf_Plot* plots_WWa_NOmll_SF;  // SR-WWa, no mll cut, SF
+//      Perf_Plot* plots_WWa_NOmll_DF;  // SR-WWa, no mll cut, DF
+//      Perf_Plot* plots_WWa_NOmllORmet_SF;  // SR-WWa, no mll cut or met cut, SF
+//      Perf_Plot* plots_WWa_NOmllORmet_DF;  // SR-WWa, no mll cut or met cut, DF
 
     public:
 
@@ -95,14 +95,14 @@ namespace Gambit {
           cutFlowVector_str.push_back("");
           cutFlowIncrements.push_back(0.);
 
-        vector<const char*> variablesNames = {"mll","met","mt2"};
-        plots_mt2_NOmt2_SF = new Perf_Plot(analysis_name()+"_SF_SR-mT2_no-mt2-cut", &variablesNames);
-        plots_mt2_NOmt2_DF = new Perf_Plot(analysis_name()+"_DF_SR-mT2_no-mt2-cut", &variablesNames);
-        plots_Zjets_NOmet_SF = new Perf_Plot(analysis_name()+"_SF_SR-Zjets_no-met-cut", &variablesNames);
-        plots_WWa_NOmll_SF = new Perf_Plot(analysis_name()+"_SF_SR-WWa_no-mll-cut", &variablesNames);
-        plots_WWa_NOmll_DF = new Perf_Plot(analysis_name()+"_DF_SR-WWa_no-mll-cut", &variablesNames);
-        plots_WWa_NOmllORmet_SF = new Perf_Plot(analysis_name()+"_SF_SR-WWa_no-mll-met-cuts", &variablesNames);
-        plots_WWa_NOmllORmet_DF = new Perf_Plot(analysis_name()+"_DF_SR-WWa_no-mll-met-cuts", &variablesNames);
+//        vector<const char*> variablesNames = {"mll","met","mt2"};
+//        plots_mt2_NOmt2_SF = new Perf_Plot(analysis_name()+"_SF_SR-mT2_no-mt2-cut", &variablesNames);
+//        plots_mt2_NOmt2_DF = new Perf_Plot(analysis_name()+"_DF_SR-mT2_no-mt2-cut", &variablesNames);
+//        plots_Zjets_NOmet_SF = new Perf_Plot(analysis_name()+"_SF_SR-Zjets_no-met-cut", &variablesNames);
+//        plots_WWa_NOmll_SF = new Perf_Plot(analysis_name()+"_SF_SR-WWa_no-mll-cut", &variablesNames);
+//        plots_WWa_NOmll_DF = new Perf_Plot(analysis_name()+"_DF_SR-WWa_no-mll-cut", &variablesNames);
+//        plots_WWa_NOmllORmet_SF = new Perf_Plot(analysis_name()+"_SF_SR-WWa_no-mll-met-cuts", &variablesNames);
+//        plots_WWa_NOmllORmet_DF = new Perf_Plot(analysis_name()+"_DF_SR-WWa_no-mll-met-cuts", &variablesNames);
 
         }
 
@@ -348,7 +348,7 @@ namespace Gambit {
         std::sort(signalLeptons.begin(), signalLeptons.end(), sortByPT_2lep);
 
         if(signalLeptons.size()==2 && signalLeptons[0]->pT()>35. && signalLeptons[1]->pT()>20. && candidateLeptons.size()==2)leptonPTCut=true;
-        //if(signalLeptons.size()==2 && signalLeptons[0]->pT()>35. && signalLeptons[1]->pT()>20.)leptonPTCut=true;
+        //if(signalLeptons.size()==2 && signalLeptons[0]->pT()>35. && signalLeptons[1]->pT()>20.)leptonPTCut=true;  // if you don't want the candidates cut
 
         bool mllCut=false;
         if(signalLeptons.size()==2 && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).m() > 20.)mllCut=true;
@@ -372,7 +372,7 @@ namespace Gambit {
         int numCentralBJets=centralBJets.size();
         int numForwardJets=forwardJets.size();
       
-        // I need to initialize these in this scope so I can use them when filling plots later
+        // need to initialize these in this scope to use them when filling perf_plots later
         double mt2 = 0.0;
         double dPhiMin=9999;
         double ETmiss_rel = 0.0;
@@ -393,7 +393,7 @@ namespace Gambit {
           mt2_calc.set_momenta(pa,pb,pmiss);
           mt2_calc.set_mn(mn);
           mt2 = mt2_calc.get_mt2();
-//          double mt2 = mt2_calc.get_mt2();
+//          double mt2 = mt2_calc.get_mt2();  // was already initialized
 
           mll=(signalLeptons[0]->mom() + signalLeptons[1]->mom()).m();
 //          double mll=(signalLeptons[0]->mom() + signalLeptons[1]->mom()).m();
@@ -583,24 +583,14 @@ namespace Gambit {
 
         }
 
-        // I'm just gonna define these again outside the if statements^ to make sure they're defined how I want
-//        mll=(signalLeptons[0]->mom() + signalLeptons[1]->mom()).m();
-//        if(dPhiMin<(3.14/2)){
-//          ETmiss_rel=met*sin(dPhiMin);
-//        }
-//        else {
-//          ETmiss_rel=met;
-//        }
-//        double mt2 = mt2_calc.get_mt2();  // I can't do this one again because mt2_calc.get_mt2() doesn't happen in this scope
-
-        vector<double> variables={mll, ETmiss_rel, mt2};
-        if(leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && tauVeto && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passZVeto)plots_mt2_NOmt2_SF->fill(&variables);
-        if(leptonPTCut && mllCut && isOS && tauVeto && signalElectrons.size()==1 && signalMuons.size()==1 && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0)plots_mt2_NOmt2_DF->fill(&variables);
-        if(tauVeto && leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && numCentralNonBJets>=2 && numCentralBJets==0 && numForwardJets==0 && passZWindow && passPTll && passdRll && passMjj && passJetPT)plots_Zjets_NOmet_SF->fill(&variables);
-        if(tauVeto && leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passZVeto_WWa && passPTll_WWa && passMetRel_WWa)plots_WWa_NOmll_SF->fill(&variables);
-        if(tauVeto && leptonPTCut && mllCut && isOS && (numElectrons==1 && numMuons==1) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passPTll_WWa && passMetRel_WWa)plots_WWa_NOmll_DF->fill(&variables);
-        if(tauVeto && leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passZVeto_WWa && passPTll_WWa)plots_WWa_NOmllORmet_SF->fill(&variables);
-        if(tauVeto && leptonPTCut && mllCut && isOS && (numElectrons==1 && numMuons==1) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passPTll_WWa)plots_WWa_NOmllORmet_DF->fill(&variables);
+//        vector<double> variables={mll, ETmiss_rel, mt2};
+//        if(leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && tauVeto && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passZVeto)plots_mt2_NOmt2_SF->fill(&variables);
+//        if(leptonPTCut && mllCut && isOS && tauVeto && signalElectrons.size()==1 && signalMuons.size()==1 && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0)plots_mt2_NOmt2_DF->fill(&variables);
+//        if(tauVeto && leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && numCentralNonBJets>=2 && numCentralBJets==0 && numForwardJets==0 && passZWindow && passPTll && passdRll && passMjj && passJetPT)plots_Zjets_NOmet_SF->fill(&variables);
+//        if(tauVeto && leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passZVeto_WWa && passPTll_WWa && passMetRel_WWa)plots_WWa_NOmll_SF->fill(&variables);
+//        if(tauVeto && leptonPTCut && mllCut && isOS && (numElectrons==1 && numMuons==1) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passPTll_WWa && passMetRel_WWa)plots_WWa_NOmll_DF->fill(&variables);
+//        if(tauVeto && leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passZVeto_WWa && passPTll_WWa)plots_WWa_NOmllORmet_SF->fill(&variables);
+//        if(tauVeto && leptonPTCut && mllCut && isOS && (numElectrons==1 && numMuons==1) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passPTll_WWa)plots_WWa_NOmllORmet_DF->fill(&variables);
 
         cutFlowVector_str[0] = "No cuts ";
         cutFlowVector_str[1] = "2 electrons ";
@@ -957,13 +947,13 @@ namespace Gambit {
         add_result(SignalRegionData("WWc_DF", 11., {_num_WWc_DF, 0.}, {9.0, 2.2}));
         add_result(SignalRegionData("Zjets", 1., {_num_Zjets, 0.}, {1.4, 0.6}));
 
-        plots_mt2_NOmt2_SF->createFile(luminosity(),(34.38103/50000));
-        plots_mt2_NOmt2_DF->createFile(luminosity(),(34.38103/50000));
-        plots_Zjets_NOmet_SF->createFile(luminosity(),(310.76/50000));
-        plots_WWa_NOmll_SF->createFile(luminosity(),(5550.178/50000));
-        plots_WWa_NOmll_DF->createFile(luminosity(),(5550.178/50000));
-        plots_WWa_NOmllORmet_SF->createFile(luminosity(),(5550.178/50000));
-        plots_WWa_NOmllORmet_DF->createFile(luminosity(),(5550.178/50000));
+//        plots_mt2_NOmt2_SF->createFile(luminosity(),(34.38103/50000));
+//        plots_mt2_NOmt2_DF->createFile(luminosity(),(34.38103/50000));
+//        plots_Zjets_NOmet_SF->createFile(luminosity(),(310.76/50000));
+//        plots_WWa_NOmll_SF->createFile(luminosity(),(5550.178/50000));
+//        plots_WWa_NOmll_DF->createFile(luminosity(),(5550.178/50000));
+//        plots_WWa_NOmllORmet_SF->createFile(luminosity(),(5550.178/50000));
+//        plots_WWa_NOmllORmet_DF->createFile(luminosity(),(5550.178/50000));
 
         return;
       }
