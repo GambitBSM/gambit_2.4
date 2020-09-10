@@ -173,14 +173,6 @@ namespace Gambit
         , const safe_ptr<Options>& runOptions
         , const std::map<str, safe_ptr<const double> >& input_Param
         , bool gravitino_model
-// <<<<<<< HEAD
-//         , const safe_ptr<Options>& runOptions
-//         , const std::map<str, safe_ptr<double> >& input_Param
-//         , bool gravitino_model
-// =======
-//         , const Options& runOptions
-//         , const std::map<str, safe_ptr<const double> >& input_Param
-// >>>>>>> ColliderBit_development
         )
     {
       // SoftSUSY object used to set quark and lepton masses and gauge
@@ -765,15 +757,8 @@ namespace Gambit
       // Get the spectrum from the Backend
       myPipe::BEreq::SPheno_MSSMspectrum(spectrum, inputs);
 
-      // Get the SLHA struct from the spectrum object
-      SLHAstruct slha = spectrum.getSLHAea(1);
-
-      // Add the gravitino mass if it is present
-      if (myPipe::ModelInUse("MSSM63atQ_lightgravitino") or myPipe::ModelInUse("MSSM63atMGUT_lightgravitino"))
-       add_gravitino_mass(slha, myPipe::Param, myPipe::runOptions);
-
-      // Convert into a spectrum object
-      spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
+      // Drop SLHA files if requested
+      spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
     }
 
@@ -1212,6 +1197,7 @@ namespace Gambit
     void get_MSSM_spectrum_from_SLHAstruct(Spectrum& result)
     {
       namespace myPipe = Pipes::get_MSSM_spectrum_from_SLHAstruct;
+
       const SLHAstruct& input_slha = *myPipe::Dep::unimproved_MSSM_spectrum; // Retrieve dependency on SLHAstruct
 
       // Retrieve any mass cuts
@@ -1806,6 +1792,15 @@ namespace Gambit
       const str gs_sMuR = slhahelp::mass_es_from_gauge_es("~mu_R", mssm, tol,
                                                          LOCAL_INFO, pt_error);
       specmap["msmuonR"] = mssm.get(Par::Pole_Mass,gs_sMuR);
+      const str gs_snu1 = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol,
+                                                         LOCAL_INFO, pt_error);
+      specmap["msnue"] = mssm.get(Par::Pole_Mass,gs_snu1);
+      const str gs_snu2 = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol,
+                                                         LOCAL_INFO, pt_error);
+      specmap["msnumu"] = mssm.get(Par::Pole_Mass,gs_snu2);
+      const str gs_snu3 = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol,
+                                                         LOCAL_INFO, pt_error);
+      specmap["msnutau"] = mssm.get(Par::Pole_Mass,gs_snu3);
 
     }
 
@@ -1850,14 +1845,12 @@ namespace Gambit
            std::ostringstream label;
            label << name <<" "<< Par::toString.at(tag);
            specmap[label.str()] = subspec.get(tag,name);
-           //std::cout << label.str() <<", " << subspec.has(tag,name,overrides_only) << "," << subspec.has(tag,name,ignore_overrides) << std::endl; // debugging
            // Check again ignoring overrides (if the value has an override defined)
            if(subspec.has(tag,name,overrides_only) and
               subspec.has(tag,name,ignore_overrides))
            {
              label << " (unimproved)";
              specmap[label.str()] = subspec.get(tag,name,ignore_overrides);
-             //std::cout << label.str() << ": " << specmap[label.str()];
            }
          }
          // Check vector case
@@ -1867,14 +1860,12 @@ namespace Gambit
              std::ostringstream label;
              label << name <<"_"<<i<<" "<< Par::toString.at(tag);
              specmap[label.str()] = subspec.get(tag,name,i);
-             //std::cout << label.str() <<", " << subspec.has(tag,name,i,overrides_only) << "," << subspec.has(tag,name,i,ignore_overrides) << std::endl; // debugging
              // Check again ignoring overrides
              if(subspec.has(tag,name,i,overrides_only) and
                 subspec.has(tag,name,i,ignore_overrides))
              {
                label << " (unimproved)";
                specmap[label.str()] = subspec.get(tag,name,i,ignore_overrides);
-               //std::cout << label.str() << ": " << specmap[label.str()];
              }
            }
          }

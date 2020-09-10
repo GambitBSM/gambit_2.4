@@ -19,11 +19,10 @@ SLHA = None
 def import_slha_string(slha_string):
 
     global SLHA
-    print("Reading SLHA input...")
+    print(prefix, "Reading SLHA input...")
+    print(prefix, "DEBUG: SLHA content:\n", slha_string)
     import pyslha
-    print(slha_string)
     SLHA = pyslha.readSLHA(slha_string)
-    print("...done")
 
 
 #
@@ -31,16 +30,19 @@ def import_slha_string(slha_string):
 #
 def set_parameters(params):
 
-    for k,v in params.items():
-        xsec.set_parameter(k, v)
+    # We can use this function to set any scan-level 
+    pass
 
 
 #
 # Return the cross-section for a given process, identified by a PID pair
 #
-def get_xsection(proc, xsec_lo):
-    energy = 13000
-    xsec_lo = 1.0
+def get_xsection(proc, energy, xsec_lo_fb):
+
+    print()
+    print(prefix, "DEBUG: ====== Beginning of get_xsection ======  ", flush=True)
+    print(prefix, "DEBUG: proc = ", proc)
+    print(prefix, "DEBUG: xsec_lo_fb = ", xsec_lo_fb)
 
     pids_to_prosids = {
         # nn
@@ -72,16 +74,10 @@ def get_xsection(proc, xsec_lo):
         (-1000024,  1000035) : "47",
         ( 1000035, -1000037) : "48",
         # cc
-        ( 1000024,  1000024) : "55",
-        ( 1000024,  1000037) : "56",
         ( 1000024, -1000024) : "57",
         ( 1000024, -1000037) : "58",
-        ( 1000037,  1000037) : "66",
         (-1000024,  1000037) : "67",
         ( 1000037, -1000037) : "68",
-        (-1000024, -1000024) : "77",
-        (-1000024, -1000037) : "78",
-        (-1000037, -1000037) : "88",
     }
 
     # Load/cache predictor for this process
@@ -89,18 +85,28 @@ def get_xsection(proc, xsec_lo):
     pidkey = tuple(sorted(proc, key=lambda x : [abs(x), x < 0]))
     proskey = pids_to_prosids[pidkey]
     key = "{}_{}".format(energy, proskey)
-    try:
-        if proskey not in KPREDS:
-            print("Load process:", proc)
-            KPREDS[key] = salami.KPred(energy, proskey)
-    except:
-        print("Unknown process", proc, "-- using LO cross-section")
-        KPREDS[key] = salami.KPredDummy(1.0)
 
-    # Evaluate cross-sections and errors (factor of 1000 for Prospino pb -> Gambit fb conversion)
+    # DEBUG: Taking this out of the try except block below, 
+    #        to make sure we see all errors
+    print(prefix, "DEBUG: proskey =", proskey)
+    if proskey not in KPREDS:
+        KPREDS[key] = salami.KPred(energy, proskey)
+
+    # try:
+    #     print(prefix, "DEBUG: proskey =", proskey)
+    #     if proskey not in KPREDS:
+    #         KPREDS[key] = salami.KPred(energy, proskey)
+    # except:
+    #     print(prefix, "Unknown process", proc, "-- using LO cross-section")
+    #     KPREDS[key] = salami.KPredConst(1.0)
+
+    # Get cross-sections and errors
     kpred = KPREDS[key]
     result_dict = {}
-    result_dict["central"] = 1000*kpred.predict_xsec(SLHA, xsec_lo)
+    result_dict["central"] = kpred.predict_xsec(SLHA, xsec_lo_fb, kmin=0.0, kmax=None, freeze_xpol=True)
+
+    # def predict_xsec(self, slhadoc, xsec_lo, kmin=0, kmax=None, freeze_xpol=True):
+
     # result_dict["regdown_rel"] = 0.0
     # result_dict["regup_rel"] = 0.0
     # result_dict["scaledown_rel"] = 0.0
@@ -109,11 +115,14 @@ def get_xsection(proc, xsec_lo):
     # result_dict["pdfup_rel"] = 0.0
     # result_dict["alphasdown_rel"] = 0.0
     # result_dict["alphasup_rel"] = 0.0
-    result_dict["tot_err_down"] = 0.0
-    result_dict["tot_err_up"] = 0.0
+    result_dict["tot_err_down"] = 0.05 * result_dict["central"]  # <-- Fixed 5% error for now
+    result_dict["tot_err_up"] = 0.05 * result_dict["central"]  # <-- Fixed 5% error for now
+
+    result_dict["trust_level"] = 1   # 1: all is well; 0: questionable; -1: don't trust this
+
+    print("DEBUG: result: ", result_dict, flush=True)
 
     return result_dict
-
 
 
 # # ================ TESTING ================

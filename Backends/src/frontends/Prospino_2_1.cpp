@@ -183,6 +183,126 @@ BE_NAMESPACE
 END_BE_NAMESPACE
 
 
+// Helper function to apply mass spectrum modifications required for specific processes.
+BE_NAMESPACE
+{
+  Farray<Fdouble,0,99> process_specific_lowmass_mods(Farray<Fdouble,0,99> lowmass_in, const PID_pair& pid_pair, int& trust_level)
+  {
+    cerr << "DEBUG: process_specific_lowmass_mods: pid_pair = " << pid_pair.str() << endl;
+
+    // Copy input array to output array
+    Farray<Fdouble,0,99> lowmass_out(lowmass_in);
+
+    // Read the absolute-value pids
+    int abs_pid1 = abs(pid_pair.pid1());
+    int abs_pid2 = abs(pid_pair.pid2());
+
+    double delta_m = 0;
+
+    // These mass values are on purpose set just below the true values
+    const static double mZ = 91.18;
+    const static double mW = 80.37;
+
+    // Useful maps and vectors
+    static const std::map<int,int> pid_lowmass_map = {{1000022,5},
+                                                      {1000023,6},
+                                                      {1000025,7},
+                                                      {1000035,8},
+                                                      {1000024,9}, 
+                                                      {1000037,10}};
+    
+    static const std::vector<int> neutralino_pids = {1000022, 1000023, 1000025, 1000035};
+    static const std::vector<int> chargino_pids = {1000024, 1000037};
+
+
+    // Neutralino and chargino processes
+    bool pid1_neutralino = false; 
+    bool pid2_neutralino = false; 
+    bool pid1_chargino = false; 
+    bool pid2_chargino = false; 
+
+    if(std::find(neutralino_pids.begin(), neutralino_pids.end(), abs_pid1) != neutralino_pids.end())
+    {
+      pid1_neutralino = true;
+    }
+    else if(std::find(chargino_pids.begin(), chargino_pids.end(), abs_pid1) != chargino_pids.end())
+    {
+      pid1_chargino = true;
+    }
+
+    if(std::find(neutralino_pids.begin(), neutralino_pids.end(), abs_pid2) != neutralino_pids.end())
+    {
+      pid2_neutralino = true;
+    }
+    else if(std::find(chargino_pids.begin(), chargino_pids.end(), abs_pid2) != chargino_pids.end())
+    {
+      pid2_chargino = true;
+    }
+
+    // neutralino--neutralino 
+    if(pid1_neutralino && pid2_neutralino)
+    {
+      int pid1_index = pid_lowmass_map.at(abs_pid1);
+      int pid2_index = pid_lowmass_map.at(abs_pid2);
+      delta_m = abs(lowmass_out(pid1_index)) + abs(lowmass_out(pid2_index)) - mZ;
+    }
+    // neutralino--chargino 
+    else if((pid1_neutralino && pid2_chargino) || (pid1_chargino && pid2_neutralino))
+    {
+      int pid1_index = pid_lowmass_map.at(abs_pid1);
+      int pid2_index = pid_lowmass_map.at(abs_pid2);
+      delta_m = abs(lowmass_out(pid1_index)) + abs(lowmass_out(pid2_index)) - mW;
+    }
+    // chargino--chargino 
+    else if((pid1_chargino && pid2_chargino) || (pid1_chargino && pid2_chargino))
+    {
+      int pid1_index = pid_lowmass_map.at(abs_pid1);
+      int pid2_index = pid_lowmass_map.at(abs_pid2);
+      delta_m = abs(lowmass_out(pid1_index)) + abs(lowmass_out(pid2_index)) - mZ;
+    }
+
+
+    // Now increase the masses if necessary
+    if(delta_m < 0)
+    {
+      int pid1_index = pid_lowmass_map.at(abs_pid1);
+      int pid2_index = pid_lowmass_map.at(abs_pid2);
+
+      int sign_mass_pid1 = lowmass_out(pid1_index) < 0 ? -1 : 1;
+      int sign_mass_pid2 = lowmass_out(pid2_index) < 0 ? -1 : 1;
+      
+      cerr << "DEBUG: Adjusting masses for " << abs_pid1 << " and " << abs_pid2 << endl;
+      cerr << "DEBUG: Masses before: " << lowmass_out(pid1_index) << " and " << lowmass_out(pid2_index) << endl;
+
+      lowmass_out(pid1_index) = sign_mass_pid1 * (abs(lowmass_out(pid1_index)) + 0.5 * abs(delta_m));
+      lowmass_out(pid2_index) = sign_mass_pid2 * (abs(lowmass_out(pid2_index)) + 0.5 * abs(delta_m));
+
+      cerr << "DEBUG: Masses after: " << lowmass_out(pid1_index) << " and " << lowmass_out(pid2_index) << endl;
+
+      // Setting trust_level = 0, since we're in the region were we can't really trust the result
+      trust_level = 0;
+    }
+
+    return lowmass_out;
+  }
+}
+END_BE_NAMESPACE
+
+
+// Callback function for error handling
+BE_NAMESPACE
+{
+  // This function will be called from Prospino. Needs C linkage, and thus also
+  // a backend-specific name to guard against name clashes.
+  extern "C"
+  void CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler)()
+  {
+    throw std::runtime_error("Prospino backend called HARD_STOP.");
+  }
+}
+END_BE_NAMESPACE
+
+
 // Backend init function
 BE_INI_FUNCTION
 {
@@ -190,10 +310,14 @@ BE_INI_FUNCTION
   static bool scan_level = true;
   if (scan_level)
   {
+    // Point the function pointer variable from Prospino to our ErrorHandler callback function
+    *ErrorHandler_cptr = & CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler);
+
     // Help Prospino find itself
     std::string prospino_dir = Backends::backendInfo().path_dir(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));
     Fstring<500> prospino_dir_in = prospino_dir.c_str();
-    prospino_gb_init(prospino_dir_in);
+    try{ prospino_gb_init(prospino_dir_in); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
   }
   scan_level = false;
 
@@ -376,8 +500,11 @@ BE_NAMESPACE
 
   // Convenience function to run Prospino and get a vector of cross-sections,
   // with Prospino settings directly as function arguments
-  map_str_dbl prospino_run_alloptions(const PID_pair& pid_pair, const int& inlo, const int& isq_ng_in, const int& icoll_in, const double& energy_in, const int& i_error_in, const bool& set_missing_cross_sections_to_zero)
+  map_str_dbl prospino_run_alloptions(const PID_pair& pid_pair, const int& inlo, const int& isq_ng_in, const int& icoll_in, const double& energy_in, const int& i_error_in,
+                                      const bool& set_missing_cross_sections_to_zero)
   {
+    // Initially set trust_level = 1
+    int trust_level = 1;
 
     // Check that we have a set of prospino settings for the given PID_pair
     if(PID_pairs_to_prospino_settings.find(pid_pair) == PID_pairs_to_prospino_settings.end())
@@ -392,6 +519,7 @@ BE_NAMESPACE
         result["K"] = 0.0;
         result["LO_ms[pb]"] = 0.0;
         result["NLO_ms[pb]"] = 0.0;
+        result["trust_level"] = 1.0;
         return result;
       }
       else
@@ -412,11 +540,20 @@ BE_NAMESPACE
     ps.energy_in = energy_in;
     ps.i_error_in = i_error_in;
 
+    // Are any process-specific modifications required for this process? And do they affect the trust_level?
+    Farray<Fdouble,0,99> lowmass_mod;
+    lowmass_mod = process_specific_lowmass_mods(lowmass, pid_pair, trust_level);
+
     // Call prospino
     Farray<Fdouble,0,6> prospino_result;
-    prospino_gb(prospino_result, ps.inlo, ps.isq_ng_in, ps.icoll_in, ps.energy_in, ps.i_error_in, 
-                ps.final_state_in, ps.ipart1_in, ps.ipart2_in, ps.isquark1_in, ps.isquark2_in,
-                unimass, lowmass, uu_in, vv_in, bw_in, mst_in, msb_in, msl_in);
+
+    try
+    { 
+        prospino_gb(prospino_result, ps.inlo, ps.isq_ng_in, ps.icoll_in, ps.energy_in, ps.i_error_in, 
+                    ps.final_state_in, ps.ipart1_in, ps.ipart2_in, ps.isquark1_in, ps.isquark2_in,
+                    unimass, lowmass_mod, uu_in, vv_in, bw_in, mst_in, msb_in, msl_in);
+    }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     // Fill the result map with the content of prospino_result
     map_str_dbl result;
@@ -428,7 +565,12 @@ BE_NAMESPACE
     result["LO_ms[pb]"] = prospino_result(5);
     result["NLO_ms[pb]"] = prospino_result(6);
 
+    result["trust_level"] = static_cast<double>(trust_level);
+
+    cerr << "DEBUG: trust_level = " << trust_level << endl;
+
     return result;
   }
+
 }
 END_BE_NAMESPACE
