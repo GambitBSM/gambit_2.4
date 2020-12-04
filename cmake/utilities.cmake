@@ -265,7 +265,9 @@ macro(use_contributed_pybind11)
   set(pybind11_FOUND TRUE)
   set(pybind11_DIR "${pybind11_CONTRIB_DIR}")
   set(pybind11_VERSION "${PREFERRED_pybind11_VERSION}")
+  message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
   add_subdirectory("${pybind11_DIR}")
+  include_directories("${PYBIND11_INCLUDE_DIR}")
   add_custom_target(nuke-pybind11 COMMAND ${CMAKE_COMMAND} -E remove_directory "${pybind11_DIR}")
   add_dependencies(nuke-contrib nuke-pybind11)
 endmacro()
@@ -329,8 +331,8 @@ function(add_gambit_executable executablename LIBRARIES)
   if(pybind11_FOUND)
     set(LIBRARIES ${LIBRARIES} ${PYTHON_LIBRARIES})
   endif()
-  if(SQLITE3_FOUND)
-      set(LIBRARIES ${LIBRARIES} ${SQLITE3_LIBRARIES})
+  if(SQLite3_FOUND)
+      set(LIBRARIES ${LIBRARIES} ${SQLite3_LIBRARIES})
   endif()
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -622,13 +624,20 @@ macro(BOSS_backend name backend_version ${ARGN})
     file(READ "${config_file_path}" conf_file)
     string(REGEX MATCH "gambit_backend_name[ \t\n]*=[ \t\n]*'\([^\n]+\)'" dummy "${conf_file}")
     set(name_in_frontend "${CMAKE_MATCH_1}")
-    set(BOSS_includes "-I ${Boost_INCLUDE_DIR}")
+
+    set(BOSS_includes_Boost "")
+    if (NOT ${Boost_INCLUDE_DIR} STREQUAL "")
+        set(BOSS_includes_Boost "-I${Boost_INCLUDE_DIR}")
+    endif()
+    set(BOSS_includes_GSL "")
     if (NOT ${GSL_INCLUDE_DIRS} STREQUAL "")
-      set(BOSS_includes "${BOSS_includes} -I ${GSL_INCLUDE_DIRS}")
+      set(BOSS_includes_GSL "-I${GSL_INCLUDE_DIRS}")
     endif()
+    set(BOSS_includes_Eigen3 "")
     if (NOT ${EIGEN3_INCLUDE_DIR} STREQUAL "")
-      set(BOSS_includes "${BOSS_includes} -I ${EIGEN3_INCLUDE_DIR}")
+      set(BOSS_includes_Eigen3 "-I${EIGEN3_INCLUDE_DIR}")
     endif()
+
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
       set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
@@ -645,7 +654,7 @@ macro(BOSS_backend name backend_version ${ARGN})
       # Check for castxml binaries and download if they do not exist
       COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${CMAKE_DOWNLOAD_FLAGS} ${dl} ${dl_filename}
       # Run BOSS
-      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes} ${name}_${backend_version_safe}${suffix}
+      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}${suffix}
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
       COMMAND cp BOSS_output/${name_in_frontend}_${backend_version_safe}/frontends/${name_in_frontend}_${backend_version_safe}.hpp ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/${name_in_frontend}_${backend_version_safe}.hpp

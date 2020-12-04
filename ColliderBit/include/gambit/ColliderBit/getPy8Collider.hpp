@@ -148,7 +148,7 @@ namespace Gambit
 
         try
         {
-            result.init(pythia_doc_path, pythiaOptions, &slha, processLevelOutput);
+          result.init(pythia_doc_path, pythiaOptions, &slha, processLevelOutput);
         }
         catch (typename Py8Collider<PythiaT,EventT>::InitializationError& e)
         {
@@ -242,66 +242,60 @@ namespace Gambit
 
 
     // Get SLHAea object with spectrum and decays for Pythia -- SUSY version
-    #define GET_SPECTRUM_AND_DECAYS_FOR_PYTHIA_SUSY(NAME, SPECTRUM)                         \
-    void NAME(SLHAstruct& result)                                                           \
-    {                                                                                       \
-      using namespace Pipes::NAME;                                                          \
-      static SLHAstruct slha_spectrum;                                                      \
-      static const int slha_version = runOptions->getValueOrDef<int>(2, "slha_version");    \
-      static const bool write_summary_to_log = runOptions->getValueOrDef<bool>(false, "write_summary_to_log");  \
+    #define GET_SPECTRUM_AND_DECAYS_FOR_PYTHIA_SUSY(NAME, SPECTRUM)                           \
+    void NAME(SLHAstruct& result)                                                             \
+    {                                                                                         \
+      using namespace Pipes::NAME;                                                            \
+      static const int slha_version = runOptions->getValueOrDef<int>(2, "slha_version");      \
+      static const bool write_summary_to_log =                                                \
+       runOptions->getValueOrDef<bool>(false, "write_summary_to_log");                        \
+                                                                                              \
       if ((slha_version != 1) && (slha_version != 2))                                       \
       {                                                                                     \
         ColliderBit_error().raise(LOCAL_INFO,                                               \
           "The option 'slha_version' must be set to 1 or 2 (default).");                    \
       }                                                                                     \
-                                                                                            \
-      if (*Loop::iteration == BASE_INIT)                                                    \
+      result.clear();                                                                       \
+      /* Get decays */                                                                      \
+      result = Dep::decay_rates->getSLHAea(slha_version, false, *Dep::SLHA_pseudonyms);     \
+      /* Get spectrum */                                                                    \
+      SLHAstruct slha_spectrum = Dep::SPECTRUM->getSLHAea(slha_version);                    \
+      result.insert(result.begin(), slha_spectrum.begin(), slha_spectrum.end());            \
+      /* Add MODSEL block if not found */                                                   \
+      if(result.find("MODSEL") == result.end())                                             \
       {                                                                                     \
-        result.clear();                                                                     \
-        slha_spectrum.clear();                                                              \
-        /* Get decays */                                                                    \
-        result = Dep::decay_rates->getSLHAea(slha_version, false, *Dep::SLHA_pseudonyms);   \
-        /* Get spectrum */                                                                  \
-        slha_spectrum = Dep::SPECTRUM->getSLHAea(slha_version);                             \
-        result.insert(result.begin(), slha_spectrum.begin(), slha_spectrum.end());          \
-        /* Add MODSEL block if not found */                                                 \
-        if(result.find("MODSEL") == result.end())                                           \
-        {                                                                                   \
-          SLHAea::Block block("MODSEL");                                                    \
-          block.push_back("BLOCK MODSEL              # Model selection");                   \
-          SLHAea::Line line;                                                                \
-          line << 1 << 0 << "# Tell Pythia that this is a SUSY model.";                     \
-          block.push_back(line);                                                            \
-          result.push_front(block);                                                         \
-        }                                                                                   \
+        SLHAea::Block block("MODSEL");                                                      \
+        block.push_back("BLOCK MODSEL              # Model selection");                     \
+        SLHAea::Line line;                                                                  \
+        line << 1 << 0 << "# Tell Pythia that this is a SUSY model.";                       \
+        block.push_back(line);                                                              \
+        result.push_front(block);                                                           \
+      }                                                                                     \
                                                                                             \
-        if(write_summary_to_log)                                                            \
-        {                                                                                   \
-          std::stringstream SLHA_log_output;                                                \
-          SLHA_log_output << "SLHA" << slha_version << " input to Pythia:\n" << result.str() << "\n";  \
-          logger() << SLHA_log_output.str() << EOM;                                         \
-        }                                                                                   \
+      if (write_summary_to_log)                                                             \
+      {                                                                                     \
+        std::stringstream SLHA_log_output;                                                  \
+        SLHA_log_output << "SLHA" << slha_version << " input to Pythia:\n" << result.str()  \
+         << "\n";                                                                           \
+        logger() << SLHA_log_output.str() << EOM;                                           \
       }                                                                                     \
     }
 
 
     // Get SLHAea object with spectrum and decays for Pythia -- non-SUSY version
-    #define GET_SPECTRUM_AND_DECAYS_FOR_PYTHIA_NONSUSY(NAME, SPECTRUM)                      \
-    void NAME(SLHAstruct& result)                                                           \
-    {                                                                                       \
-      using namespace Pipes::NAME;                                                          \
-      static SLHAstruct slha_spectrum;                                                      \
-                                                                                            \
-      if (*Loop::iteration == BASE_INIT)                                                    \
-      {                                                                                     \
-        result.clear();                                                                     \
-        slha_spectrum.clear();                                                              \
-        /* Get decays */                                                                    \
-        result = Dep::decay_rates->getSLHAea(2);                                            \
-        /* Get spectrum */                                                                  \
-        slha_spectrum = Dep::SPECTRUM->getSLHAea(2);                                        \
-        result.insert(result.begin(), slha_spectrum.begin(), slha_spectrum.end());          \
-      }                                                                                     \
+    #define GET_SPECTRUM_AND_DECAYS_FOR_PYTHIA_NONSUSY(NAME, SPECTRUM)                    \
+    void NAME(SLHAstruct& result)                                                         \
+    {                                                                                     \
+      using namespace Pipes::NAME;                                                        \
+      if (*Loop::iteration == BASE_INIT)                                                  \
+      {                                                                                   \
+        result.clear();                                                                   \
+        /* Get decays */                                                                  \
+        result = Dep::decay_rates->getSLHAea(2);                                          \
+        /* Get spectrum */                                                                \
+        SLHAstruct slha_spectrum = Dep::SPECTRUM->getSLHAea(2);                           \
+        result.insert(result.begin(), slha_spectrum.begin(), slha_spectrum.end());        \
+      }                                                                                   \
     }
 
 
@@ -315,6 +309,7 @@ namespace Gambit
     {                                                                                 \
       using namespace Pipes::NAME;                                                    \
       static SLHAstruct slha;                                                         \
+                                                                                      \
       if (*Loop::iteration == BASE_INIT)                                              \
       {                                                                               \
         /* SLHAea object constructed from dependencies on the spectrum and decays. */ \
