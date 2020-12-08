@@ -75,7 +75,7 @@ Rules:
     function: getNextSLHAFileNameAndContent
     options:
       SLHA_filenames:
-        - CBS_yaml/ATLAS_0lep_139invfb_table_17_param_card.dat
+        - CBS_yaml/ATLAS_0lep_139invfb/ATLAS_0lep_139invfb_table_17_param_card.dat
 
   # List the SLHA file entries that should be stored in the GAMBIT output.
   # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
@@ -136,7 +136,7 @@ Rules:
     module: ColliderBit
     options:
       drop_HepMC2_file: true
-      drop_HepMC3_file: true
+      #drop_HepMC3_file: true
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # # Generate evens (don't read LH event files)
@@ -151,7 +151,7 @@ Rules:
       silenceLoop: false
       LHC_13TeV_SUSY:
         min_nEvents: 50000
-        max_nEvents: 5000000
+        max_nEvents: 500000
         events_between_convergence_checks: 5000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true
