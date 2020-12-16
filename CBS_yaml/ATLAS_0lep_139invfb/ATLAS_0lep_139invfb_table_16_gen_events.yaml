@@ -109,7 +109,7 @@ Rules:
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true
         all_analyses_must_converge: true
-        all_SR_must_converge: True
+        all_SR_must_converge: false
         maxFailedEvents: 10
         analyses:
           - ATLAS_13TeV_0LEP_139invfb

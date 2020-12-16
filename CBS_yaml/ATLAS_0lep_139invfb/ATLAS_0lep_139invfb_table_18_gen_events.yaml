@@ -136,7 +136,7 @@ Rules:
     module: ColliderBit
     options:
       drop_HepMC2_file: true
-      drop_HepMC3_file: true
+#      drop_HepMC3_file: true
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # # Generate evens (don't read LH event files)
@@ -156,7 +156,7 @@ Rules:
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true
         all_analyses_must_converge: true
-        all_SR_must_converge: True
+        all_SR_must_converge: False
         maxFailedEvents: 10
         analyses:
           - ATLAS_13TeV_0LEP_139invfb
