@@ -49,6 +49,7 @@
     #define FUNCTION operateLHCLoop
     START_FUNCTION(MCLoopInfo, CAN_MANAGE_LOOPS)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    BACKEND_REQ(ATLAS_ReadJsonFiles, (ATLAS_FullLikes), int, (str&))
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -286,6 +287,7 @@
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
+    BACKEND_REQ(ATLAS_FullLikeBackend, (ATLAS_FullLikes), double, (PyDict&))
     #undef FUNCTION
   #undef CAPABILITY
 
