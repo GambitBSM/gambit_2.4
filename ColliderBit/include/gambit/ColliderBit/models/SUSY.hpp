@@ -44,7 +44,6 @@
     START_FUNCTION(SLHAstruct)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)      // @todo Why is this needed?
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
@@ -120,22 +119,24 @@
 
   /// A map between PID pairs and cross-sections
   #define CAPABILITY PIDPairCrossSectionsMap
-  
-    /// Get the PIDPairCrossSectionsMap using the 'xsec' backend
-    /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)
-    /// @todo 2. Add a CB utility function that checks if a SLHAstruct is SLHA1 or SLHA2, and use it in this function
-    #define FUNCTION getPIDPairCrossSectionsMap_xsecBE
-    START_FUNCTION(map_PID_pair_PID_pair_xsec)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(ActivePIDPairs, vec_PID_pair)
-    DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
-    ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
-    ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
-    BACKEND_REQ(xsecBE_import_slha_string, (), void, (std::string&))
-    BACKEND_REQ(xsecBE_set_parameters, (), void, (pybind11::dict&))
-    BACKEND_REQ(xsecBE_get_xsection, (), pybind11::dict, (iipair&))
-    #undef FUNCTION
+
+    #ifdef HAVE_PYBIND11
+      /// Get the PIDPairCrossSectionsMap using the 'xsec' backend
+      /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)
+      /// @todo 2. Add a CB utility function that checks if a SLHAstruct is SLHA1 or SLHA2, and use it in this function
+      #define FUNCTION getPIDPairCrossSectionsMap_xsecBE
+      START_FUNCTION(map_PID_pair_PID_pair_xsec)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      DEPENDENCY(ActivePIDPairs, vec_PID_pair)
+      DEPENDENCY(SLHA1Spectrum, SLHAstruct)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+      ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
+      ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+      BACKEND_REQ(xsecBE_import_slha_string, (), void, (std::string&))
+      BACKEND_REQ(xsecBE_set_parameters, (), void, (PyDict&))
+      BACKEND_REQ(xsecBE_get_xsection, (), PyDict, (iipair&))
+      #undef FUNCTION
+    #endif
 
     /// Get the PIDPairCrossSectionsMap using the Prospino backend
     #define FUNCTION getPIDPairCrossSectionsMap_prospino
@@ -150,25 +151,26 @@
     BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
     #undef FUNCTION
 
-    /// Get the PIDPairCrossSectionsMap using the 'salami' backend
-    /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)
-    /// @todo 2. Add a CB utility function that checks if a SLHAstruct is SLHA1 or SLHA2, and use it in this function
-    #define FUNCTION getPIDPairCrossSectionsMap_salami
-    START_FUNCTION(map_PID_pair_PID_pair_xsec)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(ActivePIDPairs, vec_PID_pair)
-    DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
-    ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
-    ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
-    BACKEND_REQ(salami_import_slha_string, (), void, (std::string&))
-    BACKEND_REQ(salami_set_parameters, (), void, (pybind11::dict&))
-    BACKEND_REQ(salami_get_xsection, (), pybind11::dict, (iipair&, double&))
-    // Needs Prospino to get LO cross-section
-    BACKEND_REQ(prospino_run_alloptions, (libprospino), map_str_dbl, (const PID_pair&, const int&, const int&, const int&, const double&, const int&, const bool&))
-    BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
-    #undef FUNCTION
-
+    #ifdef HAVE_PYBIND11
+      /// Get the PIDPairCrossSectionsMap using the 'salami' backend
+      /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)
+      /// @todo 2. Add a CB utility function that checks if a SLHAstruct is SLHA1 or SLHA2, and use it in this function
+      #define FUNCTION getPIDPairCrossSectionsMap_salami
+      START_FUNCTION(map_PID_pair_PID_pair_xsec)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      DEPENDENCY(ActivePIDPairs, vec_PID_pair)
+      DEPENDENCY(SLHA1Spectrum, SLHAstruct)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+      ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
+      ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+      BACKEND_REQ(salami_import_slha_string, (), void, (std::string&))
+      BACKEND_REQ(salami_set_parameters, (), void, (PyDict&))
+      BACKEND_REQ(salami_get_xsection, (), PyDict, (iipair&, double&, double&))
+      // Needs Prospino to get LO cross-section
+      BACKEND_REQ(prospino_run_alloptions, (libprospino), map_str_dbl, (const PID_pair&, const int&, const int&, const int&, const double&, const int&, const bool&))
+      BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
+      #undef FUNCTION
+    #endif
 
   #undef CAPABILITY
   /// @}
@@ -215,7 +217,6 @@
   START_CAPABILITY
     #define FUNCTION getSLHA1Spectrum
     START_FUNCTION(SLHAstruct)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)      // @todo Why is this needed?
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
     ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
@@ -228,7 +229,6 @@
   START_CAPABILITY
     #define FUNCTION getSLHA2Spectrum
     START_FUNCTION(SLHAstruct)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)      // @todo Why is this needed?
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
     ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)

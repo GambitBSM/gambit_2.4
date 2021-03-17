@@ -31,7 +31,7 @@ set(nl "___totally_unlikely_to_occur_naturally___")
 set(true_nl \"\\n\")
 
 # Define the download command to use for contributed packages
-set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}")
+set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
 # Define a series of functions and macros to be used for cleaning ditched components and adding nuke and clean targets for contributed codes
 macro(get_paths package build_path clean_stamps nuke_stamps)
@@ -208,10 +208,10 @@ if(NOT EXCLUDE_HEPMC)
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CMAKE_COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO}
+    CMAKE_COMMAND ${CMAKE_COMMAND}  ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
     BUILD_COMMAND ${MAKE_PARALLEL}
-    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+    INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${dir} clean)

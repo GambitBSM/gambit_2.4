@@ -43,9 +43,9 @@
 
     #define FUNCTION getSpectrumAndDecaysForPythia_EM
     START_FUNCTION(SLHAstruct)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)      // @todo Why is this needed?
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(EM_spectrum, Spectrum)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
     #undef FUNCTION
 
   #undef CAPABILITY
