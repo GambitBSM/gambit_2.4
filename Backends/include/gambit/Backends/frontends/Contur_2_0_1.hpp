@@ -14,13 +14,14 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 Oct, 2020 Mar
+///  \date 2021 Mar
 ///
 ///  *********************************************
 
 #define BACKENDNAME Contur
 #define BACKENDLANG Python2
-#define VERSION 1.1.0
-#define SAFE_VERSION 1_1_0
+#define VERSION 2.0.1
+#define SAFE_VERSION 2_0_1
 
 LOAD_LIBRARY
 

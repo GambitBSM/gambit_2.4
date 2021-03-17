@@ -227,7 +227,7 @@ elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
 endif()
 
 set(name "yoda")
-set(ver "1.8.1")
+set(ver "1.8.5")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")

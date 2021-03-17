@@ -1379,9 +1379,9 @@ endif()
 
 # Rivet
 set(name "rivet")
-set(ver "3.1.0")
+set(ver "3.1.3")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-set(md5 "d5eb0e69aa3fdf44f5925419e0d40dc9")
+set(md5 "4738ae56037ce7edfedc2fe59432563c")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
 #set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
@@ -1432,14 +1432,14 @@ endif()
 
 # Contur
 set(name "contur")
-set(ver "1.1.0")
-set(git_repo "https://gitlab.com/hepcedar/contur.git")
-set(git_tag "contur-1.1.0")
+set(ver "2.0.1")
+set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
+set(md5 "12918158c84b006e7e8996c5f41553b4")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(contur_dir "${dir}/AnalysisTools/contur")
+set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
-set(Rivet_ver "3.1.0")
+set(Rivet_ver "3.1.3")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 set(ditch_if_absent "SQLITE3;YODA")
 set(required_modules "cython")
@@ -1451,17 +1451,17 @@ if(NOT ditched_${name}_${ver})
   else()
     ExternalProject_Add(${name}_${ver}
       DEPENDS ${Rivet_name}_${Rivet_ver}
-      GIT_REPOSITORY ${git_repo}
-      GIT_TAG ${git_tag}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
+      #CONFIGURE_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from contur.conturDepot import yodaFactory" >> ${init_file}
-      BUILD_COMMAND ${MAKE_PARALLEL} "AnalysisTools/contur/contur/TestingFunctions/analyses.db"
+                COMMAND ${CMAKE_COMMAND} -E echo "from factories import yoda_factories" >> ${init_file}
+      BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
       INSTALL_COMMAND ""
     )
   endif()
