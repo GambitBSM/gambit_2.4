@@ -72,18 +72,52 @@ namespace Gambit
     /// @brief Container for loglike information for an analysis
     struct AnalysisLogLikes
     {
-      std::map<std::string,int> sr_indices;  // Signed indices so that we can use negative values for special cases
+      // Signed indices so that we can use negative values for special cases
+      std::map<std::string,int> sr_indices;  
+      // The "observed" log-likelihood
       std::map<std::string,double> sr_loglikes;
+      // The *expected* log-likelihoods, under the assumption that data (n) 
+      // will equal background-only expectation (b). These are the log-likelihoods 
+      // used to pick the most sensitive SR when we're forced to only use a single SR.
+      std::map<std::string,double> sr_expected_loglikes;  
 
       std::string combination_sr_label;
       int combination_sr_index;
       double combination_loglike;
+      // double combination_expected_loglike;  // Might be interesting to include this in the future
 
       AnalysisLogLikes() :
         combination_sr_label("undefined"),
         combination_sr_index(-2),
         combination_loglike(0.0)
+        // combination_expected_loglike(0.0)
         { }
+
+      void set_no_signal_result_combination(std::string combination_sr_label_in, int combination_sr_index_in)
+      {
+        // Fill the variables for the combined result
+        combination_sr_index = combination_sr_index_in;
+        combination_sr_label = combination_sr_label_in;
+        combination_loglike = 0.0;
+        // combination_expected_loglike = 0.0;
+      }
+
+      void set_no_signal_result_all_SRs(std::string combination_sr_label_in, int combination_sr_index_in, const std::vector<std::string>& sr_labels_in)
+      {
+        // Fill the variables for the combined result
+        set_no_signal_result_combination(combination_sr_label_in, combination_sr_index_in);
+
+        // Fill the maps of per-SR results
+        for (size_t sr_index = 0; sr_index < sr_labels_in.size(); ++sr_index)
+        {
+          const std::string& sr_label = sr_labels_in[sr_index];
+
+          sr_indices[sr_label] = sr_index;
+          sr_loglikes[sr_label] = 0.0;
+          sr_expected_loglikes[sr_label] = 0.0;
+        }
+      }
+
     };
 
     /// @brief Typedef for a string-to-AnalysisLogLikes map

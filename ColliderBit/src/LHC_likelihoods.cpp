@@ -434,6 +434,13 @@ namespace Gambit
         const size_t nSR = adata.size();
         const bool has_covar = adata.srcov.rows() > 0;
 
+        // Fill a vector of the signal region labels 
+        std::vector<std::string> sr_labels;
+        for (const std::pair<std::string, int>& label_index_pair : adata.srdata_identifiers)
+        {
+          sr_labels.push_back(label_index_pair.first);
+        }
+
         #ifdef COLLIDERBIT_DEBUG
           std::streamsize stream_precision = cout.precision();  // get current precision
           cout.precision(2);  // set precision
@@ -468,20 +475,13 @@ namespace Gambit
           // If this is an analysis with covariance info, only add a single 0-entry in the map
           if (USE_COVAR && has_covar)
           {
-            result[ananame].combination_sr_label = "none";
-            result[ananame].combination_loglike = 0.0;
+            result[ananame].set_no_signal_result_combination("none", -1);
           }
           // If this is an analysis without covariance info, add 0-entries for all SRs plus
           // one for the combined LogLike
           else
           {
-            for (size_t SR = 0; SR < adata.size(); ++SR)
-            {
-              result[ananame].sr_indices[adata[SR].sr_label] = SR;
-              result[ananame].sr_loglikes[adata[SR].sr_label] = 0.0;
-            }
-            result[ananame].combination_sr_label = "none";
-            result[ananame].combination_loglike = 0.0;
+            result[ananame].set_no_signal_result_all_SRs("none", -1, sr_labels);
           }
 
           #ifdef COLLIDERBIT_DEBUG
@@ -508,9 +508,14 @@ namespace Gambit
         if (all_zero_signal)
         {
           // Store result
-          result[ananame].combination_sr_label = "all";
-          result[ananame].combination_sr_index = -1;
-          result[ananame].combination_loglike = 0.0;
+          if (USE_COVAR && has_covar)
+          {
+            result[ananame].set_no_signal_result_combination("all", -1);
+          }
+          else
+          {
+            result[ananame].set_no_signal_result_all_SRs("all", -1, sr_labels);
+          }
 
           #ifdef COLLIDERBIT_DEBUG
           cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ananame << "_LogLike : " << 0.0 << " (No signal predicted. Skipped full calculation.)" << endl;
@@ -643,6 +648,7 @@ namespace Gambit
               // Store (obs) result for this SR
               result[ananame].sr_indices[srData.sr_label] = SR;
               result[ananame].sr_loglikes[srData.sr_label] = 0.0;
+              result[ananame].sr_expected_loglikes[srData.sr_label] = 0.0;
 
               // Update the running best-expected-exclusion detail
               if (0.0 < bestexp_dll_exp || SR == 0)
@@ -733,6 +739,8 @@ namespace Gambit
             // Store (obs) result for this SR
             result[ananame].sr_indices[srData.sr_label] = SR;
             result[ananame].sr_loglikes[srData.sr_label] = dll_obs;
+            result[ananame].sr_expected_loglikes[srData.sr_label] = dll_exp;
+
             // Also add the obs loglike to the no-correlations sum over SRs
             nocovar_srsum_dll_obs += dll_obs;
 
@@ -832,10 +840,16 @@ namespace Gambit
           const double& sr_loglike = pair_j.second;
           const int sr_index = analysis_loglikes.sr_indices.at(sr_label);
 
-          const str key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
-          result[key] = sr_loglike;
+          // const str key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
+          str base_key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index); // + "__LogLike";
+          result[base_key + "__LogLike"] = sr_loglike;
 
-          summary_line << sr_label + "__i" + std::to_string(sr_index) << ":" << sr_loglike << ", ";
+          // Also add the *expected* log likelihood (from the assumption n = b)
+          const double& sr_expected_loglike = analysis_loglikes.sr_expected_loglikes.at(sr_label);
+          // key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__expected_LogLike";
+          result[base_key + "__expected_LogLike"] = sr_expected_loglike;          
+
+          summary_line << sr_label + "__i" + std::to_string(sr_index) << ":(" << sr_loglike << "," << sr_expected_loglike << "), ";
         }
 
         result[analysis_name + "__combined_LogLike"] = analysis_loglikes.combination_loglike;
