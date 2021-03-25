@@ -4,6 +4,8 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "Eigen/Eigen"
 
+// #define CHECK_CUTFLOW
+
 namespace Gambit {
   namespace ColliderBit {
 
@@ -323,22 +325,24 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("6j-3400"),    0, {  0.8,  0.4}));
 
         // Cutflow printout
-        // const double sf = 139*crossSection()/femtobarn/sumOfWeights();
-        _cutflows["2j-1600"].normalize(1763, 1);
-        _cutflows["2j-2200"].normalize(1763, 1);
-        _cutflows["2j-2800"].normalize(1763, 1);
-        _cutflows["4j-1000"].normalize(2562, 1);
-        _cutflows["4j-2200"].normalize(2562, 1);
-        _cutflows["4j-3400"].normalize(2562, 1);
-        _cutflows["5j-1600"].normalize(6101, 1);
-        _cutflows["6j-1000"].normalize(6101, 1);
-        _cutflows["6j-2200"].normalize(6101, 1);
-        _cutflows["6j-3400"].normalize(6101, 1);
-        cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-        cout << "\nSRCOUNTS:\n";
-        // for (double x : _srnums) cout << x << "  ";
-        for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-        cout << "\n" << endl;
+        #ifdef CHECK_CUTFLOW
+          // const double sf = 139*crossSection()/femtobarn/sumOfWeights();
+          _cutflows["2j-1600"].normalize(1763, 1);
+          _cutflows["2j-2200"].normalize(1763, 1);
+          _cutflows["2j-2800"].normalize(1763, 1);
+          _cutflows["4j-1000"].normalize(2562, 1);
+          _cutflows["4j-2200"].normalize(2562, 1);
+          _cutflows["4j-3400"].normalize(2562, 1);
+          _cutflows["5j-1600"].normalize(6101, 1);
+          _cutflows["6j-1000"].normalize(6101, 1);
+          _cutflows["6j-2200"].normalize(6101, 1);
+          _cutflows["6j-3400"].normalize(6101, 1);
+          cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+          cout << "\nSRCOUNTS:\n";
+          // for (double x : _srnums) cout << x << "  ";
+          for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
+          cout << "\n" << endl;
+        #endif
       }
 
 
