@@ -84,13 +84,13 @@ namespace Gambit
       std::string combination_sr_label;
       int combination_sr_index;
       double combination_loglike;
-      // double combination_expected_loglike;  // Might be interesting to include this in the future
+      double combination_expected_loglike;  // Might be interesting to include this in the future
 
       AnalysisLogLikes() :
         combination_sr_label("undefined"),
         combination_sr_index(-2),
-        combination_loglike(0.0)
-        // combination_expected_loglike(0.0)
+        combination_loglike(0.0),
+        combination_expected_loglike(0.0)
         { }
 
       // Get the number of SRs and the correponding SR labels from 
@@ -112,7 +112,7 @@ namespace Gambit
         combination_sr_index = combination_sr_index_in;
         combination_sr_label = combination_sr_label_in;
         combination_loglike = 0.0;
-        // combination_expected_loglike = 0.0;
+        combination_expected_loglike = 0.0;
       }
 
       void set_no_signal_result_all_SRs(std::string combination_sr_label_in, int combination_sr_index_in) //, const std::vector<std::string>& sr_labels_in)
