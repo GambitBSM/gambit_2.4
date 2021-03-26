@@ -90,12 +90,8 @@ Rules:
     options:
       cross_section_fb:
         ColliderBit/data/param_card.SM.C1N2.Whall.slha: 1.1
-#        ColliderBit/data/ATLAS_13TeV_2OSLEP_chargino_80invfb.slha: 1.1
-#        ColliderBit/data/CMS_13TeV_Photon_GMSB_36invfb_T5Wg.slha: 2.2
-#        ColliderBit/data/CMS_13TeV_Photon_GMSB_36invfb_TChiWg.slha: 3.3
       cross_section_fractional_uncert:
         ColliderBit/data/param_card.SM.C1N2.Whall.slha: 0.1
-#        ColliderBit/data/ATLAS_13TeV_2OSLEP_chargino_80invfb.slha: 0.1
 
 
   # Generate evens (don't read LH event files)
@@ -107,57 +103,57 @@ Rules:
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # # Generate evens (don't read LH event files)
-  # - capability: HardScatteringEvent
-  #   function: generateEventPythia_SLHA
-  #   module: ColliderBit
+  #- capability: HardScatteringEvent
+  #  function: generateEventPythia_SLHA
+  #  module: ColliderBit
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
     function: operateLHCLoop
     options:
       silenceLoop: false
-      FullLikesAnalyses: # TODO: I really should find a way so I dont have to double list it
+      FullLikesAnalyses: # TODO: I really should find a way so I dont have to double list it (I will do once validated)
         - ATLAS_13TeV_1Lep2b_139invfb
       LHC_13TeV:
-        min_nEvents: 30000
-        max_nEvents: 30000
-        events_between_convergence_checks: 500
+        min_nEvents: 50000
+        max_nEvents: 50000
+        events_between_convergence_checks: 5000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
         all_analyses_must_converge: false
         all_SR_must_converge: false
         maxFailedEvents: 10
         analyses:
-          #- ATLAS_13TeV_PhotonGGM_36invfb
-          #- ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
           - ATLAS_13TeV_1Lep2b_139invfb
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
     type: Py8Collider_defaultversion
-    function: getPythia_SLHA   # <-- The function to use for the model CB_SLHA_file_model
+    function: getPythia_SLHA 
     options:
-      #LHC_13TeV_SUSY_EWonly:
       LHC_13TeV:
-        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1
           - Print:quiet = off
           - Next:numberCount = 1000
-          - Random:setSeed = on
           - Beams:eCM = 13000
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = on
           - HadronLevel:all = on
-          - SUSY:all = on #off
-          #- SUSY:qqbar2chi0chi0 = on
-          #- SUSY:qqbar2chi+-chi0 = on
-          #- SUSY:qqbar2chi+chi- = on
+          #- SUSY:all = on
+          - SUSY:qqbar2chi0chi0 = on
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = on
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
+          # These settings should force the W boson to only decay to leptons. For validating a certain analysis
+          - 24:onMode=off
+          - 24:onIfAny = 13 11 # 15
+          - 25:onMode=off # Forcing the higgs to decay to b bar
+          - 25:onIfAny = 5
 
   - capability: HardScatteringSim
     type: const BaseCollider*
@@ -191,14 +187,6 @@ Rules:
         antiktR: 0.4
 
 
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
-
-
 # Set the names of key log files
 Logger:
 
@@ -226,15 +214,4 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   # Set the default output path
-  default_output_path: "runs/CB_SLHA_file_model/"
-
-  # We set the errors from the physics modules to be non-fatal
-  # to avoid crashing the entire scan due to a rare problem point.
-  # This means we should pay close attention to the log files...
-  #exceptions:
-  #  ColliderBit_error: fatal
-  #  DarkBit_error: fatal
-  #  DecayBit_error: fatal
-  #  FlavBit_error: fatal
-  #  PrecisionBit_error: fatal
-  #  SpecBit_error: fatal
+  default_output_path: "runs/Analysis_Validation/"

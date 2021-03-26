@@ -6,7 +6,6 @@
 
 // Based on [TODO: Put Arxiv Link]
 // TODO: Debug + validate
-// TODO: VRs aren't provided in the json, should I be using these regions?
 
 #include <vector>
 #include <cmath>
@@ -18,7 +17,10 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisUtil.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
+
+#define CHECK_CUTFLOW
 
 using namespace std;
 
@@ -30,7 +32,7 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_1Lep2b_139invfb : public Analysis
     {
 
-    protected:
+    public:
 
       // Counters for the number of accepted events for each signal region
       std::map<string, EventCounter> _counters = {
@@ -50,7 +52,9 @@ namespace Gambit
         {"SRLMEM_mct2_2", EventCounter("SRLMEM_mct2_2")},
       };
 
-    public:
+      #ifdef CHECK_CUTFLOW
+        Cutflows _cutflows;
+      #endif
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
@@ -62,11 +66,30 @@ namespace Gambit
         set_analysis_name("ATLAS_13TeV_1Lep2b_139invfb");
         set_luminosity(139.);
 
+        #ifdef CHECK_CUTFLOW
+          // Book Cutflows
+          _cutflows.addCutflow("SR",{"no cut",
+                                        "Njet > 2",
+                                        "1st signal lepton",
+                                        "2nd baseline lepton",
+                                        "mT > 50 GeV",
+                                        "MET > 180 GeV",
+                                        "N jet < 3",
+                                        "Nbjet = 2",
+                                        "mbb > 50 GeV",
+                                        "MET > 240 GeV",
+                                        "mbb [100,140]",
+                                        "mlb > 120 GeV",
+                                        "mT [100,160]",
+                                        "mT [160,240]",
+                                        "mT > 240"});//TODO: Add any others for checking other cutflow tables
+        #endif
+
+
       }
 
       // Lepton jet overlap removal
       // Discards leptons if they are within DeltaRMax of a jet
-      // This uses a deltaR specific to this analysis. Be careful copying without thought.
       void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*>& leptons, vector<const HEPUtils::Jet*>& jets)
       {
         vector<const HEPUtils::Particle*> survivors;
@@ -123,6 +146,29 @@ namespace Gambit
         return;
       }
 
+      // electron overlap removal
+      // Discards lower pT or particle (from "particles1") if it is within DeltaRMax of another particle TODO: This is currently not being used 
+      void eeOverlapRemoval(vector<const HEPUtils::Particle*>& particles1, double DeltaRMax)
+      {
+        vector<const HEPUtils::Particle*> survivors;
+        for(const HEPUtils::Particle* p1 : particles1)
+        {
+          bool overlap = false;
+          bool largerpT = true;
+          for(const HEPUtils::Particle* p2 : particles1)
+          {
+            double dR = p1->mom().deltaR_eta(p2->mom());
+            if(fabs(dR) <= DeltaRMax) {
+              overlap = true;
+              if (p1->pT() < p2->pT()) largerpT = false;
+            }
+          }
+          if(!overlap && largerpT) survivors.push_back(p1);
+        }
+        particles1 = survivors;
+        return;
+      }
+
       bool sortJetsByPt(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2)
       {
         return (jet1->pT() > jet2->pT());
@@ -131,118 +177,262 @@ namespace Gambit
       void run(const HEPUtils::Event* event)
       {
 
-        // Baseline objects
-        vector<const HEPUtils::Particle*> baselineElectrons = event->electrons();
+        #ifdef CHECK_CUTFLOW
+          const double w = event->weight();
+          _cutflows.fillinit(w);
+          _cutflows.fillnext(w); // no cut
+        #endif
+
+        HEPUtils::P4 pmiss = event->missingmom();
+        double met = event->met();
+
+        // Baseline lepton objects
+        vector<const HEPUtils::Particle*> baselineElectrons, baselineMuons;
+        for (const HEPUtils::Particle* electron : event->electrons())
+        {
+          if (electron->pT() > 7 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
+        }
+
+        // Apply electron efficiency
         ATLAS::applyElectronEff(baselineElectrons);
 
-        vector<const HEPUtils::Particle*> baselineMuons = event->muons();
+        for (const HEPUtils::Particle* muon : event->muons())
+        {
+          if (muon->pT() > 6 && muon->abseta() < 2.7) baselineMuons.push_back(muon);
+        }
+
         ATLAS::applyMuonEff(baselineMuons);
 
-        vector<const HEPUtils::Particle*> baselineLepton;
-        vector<const HEPUtils::Jet*> baselineJets;
 
-        const P4 pmiss = event->missingmom();
-        const double met = pmiss.pT();
-        // MET Cut
-        if (met < 240) return; //< VETO
+        vector<const Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets())
+        {
+          if (jet->pT() > 20.0 && jet->abseta() < 4.5)
+          {
+            baselineJets.push_back(jet);
+          }
 
-        // Count the lepton s.
-        for (const Particle* e : baselineElectrons) {
-          if (e->pT() < 7 && e->abseta() > 2.47) return; //< VETO
-          baselineLepton.push_back(e);
         }
 
-        for (const Particle* m : baselineMuons) {
-          if (m->pT() < 6 && m->abseta() > 2.7) return; //< VETO
-          baselineLepton.push_back(m);
-        }
+        // B-tag efficiencies
+        std::map<const Jet*,bool> analysisBtags = generateBTagsMap(baselineJets,0.77,0.204,0.009);
 
-        // Get jets (including b-tagged)
-        vector<const Jet*> nonBJets;
-        vector<const HEPUtils::Jet*> bJets;
-        int Njet = 0;
-        int Nbjet = 0;
-        for (const Jet* jet : event->jets()) {
-          if (jet->pT() > 30 && jet->abseta() < 2.8 ) {
-
-            Njet = Njet + 1;
-
-            // Trying to implement a b-tagging effeciency of 77%
-            const double btag_rate = jet->btag() ? 0.77 : 0.0; 
-
-            if (jet->abseta() < 2.5 && Random::draw() < btag_rate) {
-              bJets.push_back(jet);
-              Nbjet = Nbjet + 1;
-            } else {
-              nonBJets.push_back(jet);
-            }
+        vector<const HEPUtils::Jet*> baselineNonBJets;
+        vector<const HEPUtils::Jet*> baselineBJets;
+        for (const HEPUtils::Jet* j : baselineJets)
+        {
+          if (j->abseta() < 2.5 && analysisBtags.at(j))
+          {
+            baselineBJets.push_back(j);
+          }
+          else
+          {
+            baselineNonBJets.push_back(j);
           }
         }
 
         // Remove Overlapped electrons, muons and jets
-        // 1. Jets are rejected if they lie within deltaR=0.2 of a muon
-        JetLeptonOverlapRemoval(nonBJets, baselineMuons, 0.2);
-        JetLeptonOverlapRemoval(bJets, baselineMuons, 0.2);
-        // 2. Electrons are removed if theu lie in a cone (see function for size) around a jet
-        LeptonJetOverlapRemoval(baselineElectrons, nonBJets);
-        LeptonJetOverlapRemoval(baselineElectrons, bJets);
-        // 3. Muons are removed if theu lie in a cone (see function for size) around a jet
-        LeptonJetOverlapRemoval(baselineMuons, nonBJets);
-        LeptonJetOverlapRemoval(baselineMuons, bJets);
+        // 1. If electrons or muons share the same track (by using small deltaR), reject electron
+        ParticleOverlapRemoval(baselineElectrons, baselineMuons, 0.01); //TODO: implement e-e overlap?
+        // 2. Jets are rejected if they lie within deltaR=0.2 of a muon
+        JetLeptonOverlapRemoval(baselineNonBJets, baselineMuons, 0.2);
+        JetLeptonOverlapRemoval(baselineBJets, baselineMuons, 0.2);
+        JetLeptonOverlapRemoval(baselineNonBJets, baselineElectrons, 0.2);//TODO: This was unclear in text, but exists in their analysis cxx file
+        JetLeptonOverlapRemoval(baselineBJets, baselineElectrons, 0.2); //TODO: Adding in these two lines fixes the lepton cut, but causes teh Njet>2 cut to be wrong :(
+        // 3. Electrons are removed if theu lie in a cone (see function for size) around a jet
+        LeptonJetOverlapRemoval(baselineElectrons, baselineNonBJets);
+        LeptonJetOverlapRemoval(baselineElectrons, baselineBJets);
+        // 4. Muons are removed if theu lie in a cone (see function for size) around a jet
+        LeptonJetOverlapRemoval(baselineMuons, baselineNonBJets);
+        LeptonJetOverlapRemoval(baselineMuons, baselineBJets);
 
-        // Count the leptons after removal.
-        int Nlep = 0;
-        for (const Particle* e : baselineElectrons) {
-          Nlep = Nlep+1; 
+
+        vector<const HEPUtils::Jet*> signalNonBJets;
+        vector<const HEPUtils::Jet*> signalBJets;
+
+        // Get jets (including b-tagged)
+        for (const Jet* jet : baselineNonBJets) {
+          if (jet->pT() > 30 && jet->abseta() < 2.8 ) {
+            signalNonBJets.push_back(jet);
+          }
         }
 
-        for (const Particle* m : baselineMuons) {
-          Nlep = Nlep+1;
+        for (const Jet* jet : baselineBJets) {
+          if (jet->pT() > 30 && jet->abseta() < 2.8 ) {
+            signalBJets.push_back(jet);
+          }
         }
 
-        // Cut on a single lepton
-        if (Nlep != 1) return; //< VETO
+        vector<const HEPUtils::Jet*> signalJets = signalBJets;
+        signalJets.insert(signalJets.end(), signalNonBJets.begin(), signalNonBJets.end());
 
-        // Njet and Nbjet Cuts (2-3 jets, 2 of which must be b-tagged)
-        if (Nbjet != 2 || (Njet !=2 && Njet !=3)) return; //< VETO
+        // electrons
+        vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
+        ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
 
-        // Order the b-jets by pT
-        std::sort(bJets.begin(), bJets.end(), AnalysisUtil::sortJetsByPt);
+        // muons TODO: medium selection criteria??
+        vector<const HEPUtils::Particle*> signalMuons = baselineMuons;
 
-        // Calculate mbb
-        double mbb = (bJets[0]->mom() + bJets[1]->mom()).m();
+        // all leptons
+        vector<const HEPUtils::Particle*> signalLeptons;
+        signalLeptons = signalElectrons;
+        signalLeptons.insert(signalLeptons.end(), signalMuons.begin(), signalMuons.end());
 
-        // Calculate invariant mass of lepton and leading jet
-        double mlb = (bJets[0]->mom() + baselineLepton[0]->mom()).m();
+        // Sort in order of decreasing pT
+        sortByPt(signalBJets);
+        sortByPt(signalNonBJets);
+        sortByPt(signalJets);
+        sortByPt(signalElectrons);
+        sortByPt(signalMuons);
+        sortByPt(signalLeptons);
 
-        // Calculate transverse mass
-        double mT = sqrt( 2* baselineLepton[0]->pT() * met * (1. - cos( deltaPhi(baselineLepton[0]->mom(), pmiss) ) )  );
+          /////////////////////
+         // Event Selection //
+        /////////////////////
 
-        // Calculate contransverse mass of the two b-jets
-        double mCT = sqrt(2 * (bJets[0]->pT()) * (bJets[0]->pT()) * (1. + cos(deltaPhi(bJets[0]->mom(), bJets[1]->mom()))) );
-        const static vector<double> mCTedges = {180, 230, 280};
-        const int i_sr = binIndex(mCT, mCTedges, true);
+        bool SR_njet_geq_2 = false;
+        bool SR_nlep_gt_0 = false;
+        bool SR_nlep_lt_2 = false;
+        bool SR_mt_gt_50 = false;
+        bool SR_ETmiss_gt_180 = false;
+        bool SR_njet_leq_3 = false;
+        bool SR_nbjet_eq_2 = false;
+        bool SR_mbb_gt_50 = false;
+        bool SR_ETmiss_gt_240 = false;
 
-        // Assign to signal regions
-        if ((mbb > 100 && mbb < 140) && (mT > 100 && mT < 160)) {
-          std::stringstream sr_key; sr_key << "SRLMEM_mct2_" << i_sr;
-          _counters.at(sr_key.str()).add_event(event->weight(), event->weight_err());
-        } else if ((mbb > 100 && mbb < 140) && (mT > 160 && mT < 240)) {
-          std::stringstream sr_key; sr_key << "SRMMEM_mct2_" << i_sr;
-          _counters.at(sr_key.str()).add_event(event->weight(), event->weight_err());
-        } else if ((mbb > 100 && mbb < 140) && (mT > 240) && (mlb > 120)) {
-          std::stringstream sr_key; sr_key << "SRHMEM_mct2_" << i_sr;
-          _counters.at(sr_key.str()).add_event(event->weight(), event->weight_err());
-        } else if ((mbb < 100 || mbb > 140) && (mT > 100 && mT < 160) && (mCT < 180)) {
-          _counters.at("TRLMEM_cuts_0").add_event(event->weight(), event->weight_err());
-        } else if ((mbb < 100 || mbb > 140) && (mT > 160 && mT < 240) && (mCT < 180)) {
-          _counters.at("TRMMEM_cuts_0").add_event(event->weight(), event->weight_err());
-        } else if ((mbb < 100 || mbb > 140) && (mT > 240) && (mCT < 180)) {
-          _counters.at("TRHMEM_cuts_0").add_event(event->weight(), event->weight_err());
-        } else if ((mbb > 50 && mbb < 80) && (mT > 50 && mT < 100) && (mCT > 180)) {
-          _counters.at("WREM_cuts_0").add_event(event->weight(), event->weight_err());
-        } else if ((mbb > 195) && (mT > 100) && (mCT > 180)) {
-          _counters.at("STCREM_cuts_0").add_event(event->weight(), event->weight_err());
+        bool SR_mbb_100_140 = false;
+
+        bool SR_mlb_gt_120 = false;
+
+        bool SR_mt_100_160 = false;
+        bool SR_mt_160_240 = false;
+        bool SR_mt_gt_240 = false;
+
+        bool SR_mct_180_230 = false;
+        bool SR_mct_230_280 = false;
+        bool SR_mct_gt_280 = false;
+
+        // Performing the Cuts
+        while(true)
+        {
+
+          // Require at least 2 jets
+          if (signalJets.size() >= 2) {SR_njet_geq_2 = true;}
+          else break;
+
+          // Require at least 1 signal lepton
+          if (signalLeptons.size() > 0) {SR_nlep_gt_0 = true;}
+          else break;
+
+          // Require no more than 1 signal lepton
+          if (signalLeptons.size() < 2) {SR_nlep_lt_2 = true;}
+          else break;
+
+          // Calculating mT
+          double mT = sqrt(2* signalLeptons[0]->pT() * met * (1. - cos(deltaPhi(signalLeptons[0]->mom(), pmiss))));
+
+          // Require mT > 50 GeV
+          if (mT > 50) {SR_mt_gt_50 = true;}
+          else break;
+
+          // Require ETmiss > 180 GeV
+          if (met > 180) {SR_ETmiss_gt_180 = true;}
+          else break;
+
+          // Require no more than three jets
+          if (signalJets.size() <= 3) {SR_njet_leq_3 = true;}
+          else break;
+
+          // Require exactly 2 b-tagged jets
+          if (signalBJets.size() == 2) {SR_nbjet_eq_2 = true;}
+          else break;
+
+          // Calculating mbb
+          double mbb = (signalBJets[0]->mom() + signalBJets[1]->mom()).m();
+
+          // Require mbb > 50 GeV
+          if (mbb > 50) {SR_mbb_gt_50 = true;}
+          else break;
+
+          // Require ETmiss > 240 GeV
+          if (met > 240) {SR_ETmiss_gt_240 = true;}
+          else break;
+
+          // Require mbb [100,140]
+          if (mbb > 100 && mbb < 140) {SR_mbb_100_140 = true;}
+          else break;
+
+          // Calculating mlb
+          double mlb = (signalBJets[0]->mom() + signalLeptons[0]->mom()).m();
+
+          // Require mlb>120 (only for one signal region, hence no break until later)
+          if (mlb > 120) {SR_mlb_gt_120 = true;}
+
+          // Calculate mT bins
+          if (mT > 100 && mT < 160) {SR_mt_100_160 = true;}
+          else if (mT > 160 && mT < 240) {SR_mt_160_240 = true;}
+          else if (mT > 240 && SR_mlb_gt_120) {SR_mt_gt_240 = true;} //This includes both mT and mlb cut
+          else break; 
+
+          // Calculating mCT
+          double mCT = sqrt(2 * (signalBJets[0]->pT()) * (signalBJets[0]->pT()) * (1. + cos(deltaPhi(signalBJets[0]->mom(), signalBJets[1]->mom()))));
+
+          // Calculate mCT bins
+          if (mCT > 180 && mCT < 230) {SR_mct_180_230 = true;}
+          else if (mCT > 230 && mCT < 280) {SR_mct_230_280 = true;}
+          else if (mCT > 280) {SR_mct_gt_280 = true;}
+          else break; 
+
+          // Applied all cuts
+          break;
+        }
+
+        // Fill cutflow
+        #ifdef CHECK_CUTFLOW
+          if (SR_njet_geq_2) _cutflows["SR"].fillnext(w);
+          if (SR_nlep_gt_0) _cutflows["SR"].fillnext(w);
+          if (SR_nlep_lt_2) _cutflows["SR"].fillnext(w);
+          if (SR_mt_gt_50) _cutflows["SR"].fillnext(w);
+          if (SR_ETmiss_gt_180) _cutflows["SR"].fillnext(w);
+          if (SR_njet_leq_3) _cutflows["SR"].fillnext(w);
+          if (SR_nbjet_eq_2) _cutflows["SR"].fillnext(w);
+          if (SR_mbb_gt_50) _cutflows["SR"].fillnext(w);
+          if (SR_ETmiss_gt_240) _cutflows["SR"].fillnext(w);
+          if (SR_mbb_100_140) _cutflows["SR"].fillnext(w);
+          if (SR_mlb_gt_120) _cutflows["SR"].fillnext(w);
+          
+          if (SR_mt_100_160) _cutflows["SR"].fillnext(w);
+          if (SR_mt_160_240) _cutflows["SR"].fillnext(w);
+          if (SR_mt_gt_240) _cutflows["SR"].fillnext(w);
+        #endif
+
+        // Fill SR's
+        if (SR_njet_geq_2 && SR_nlep_gt_0 && SR_nlep_lt_2 && SR_mt_gt_50 && SR_ETmiss_gt_180 && SR_njet_leq_3 && SR_nbjet_eq_2 && SR_mbb_gt_50 && SR_ETmiss_gt_240 && SR_mbb_100_140)
+        {
+          // SR low mCT
+          if (SR_mt_100_160)
+          {
+            if (SR_mct_180_230) _counters.at("SRLMEM_mct2_0").add_event(event);
+            if (SR_mct_230_280) _counters.at("SRLMEM_mct2_1").add_event(event);
+            if (SR_mct_gt_280) _counters.at("SRLMEM_mct2_2").add_event(event);
+          }
+
+          // SR med mCT
+          if (SR_mt_160_240)
+          {
+            if (SR_mct_180_230) _counters.at("SRMMEM_mct2_0").add_event(event);
+            if (SR_mct_230_280) _counters.at("SRMMEM_mct2_1").add_event(event);
+            if (SR_mct_gt_280) _counters.at("SRMMEM_mct2_2").add_event(event);
+          }
+
+          // SR high mCT
+          if (SR_mt_gt_240)
+          {
+            if (SR_mct_180_230) _counters.at("SRHMEM_mct2_0").add_event(event);
+            if (SR_mct_230_280) _counters.at("SRHMEM_mct2_1").add_event(event);
+            if (SR_mct_gt_280) _counters.at("SRHMEM_mct2_2").add_event(event);
+          }
+
         }
 
       }
@@ -270,6 +460,13 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRLMEM_mct2_1"), 11 , {11.3, 3.1}));
         add_result(SignalRegionData(_counters.at("SRLMEM_mct2_2"), 7 , {7.3, 1.5}));
 
+        #ifdef CHECK_CUTFLOW
+          // Cutflow printout
+          cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+          cout << "\nSRCOUNTS:\n";
+          for (auto& pair : _counters) cout << pair.first << ": " << pair.second.weight_sum() << "\n"; //TODO: Change form back to something neater
+          cout << "\n" << endl;
+        #endif
 
       }
 
