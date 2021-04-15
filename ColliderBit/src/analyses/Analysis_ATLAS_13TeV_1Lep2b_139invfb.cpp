@@ -4,8 +4,7 @@
 ///
 ///  *********************************************
 
-// Based on [TODO: Put Arxiv Link]
-// TODO: Debug + validate
+// Based on https://arxiv.org/pdf/1909.09226.pdf
 
 #include <vector>
 #include <cmath>
@@ -79,10 +78,8 @@ namespace Gambit
                                         "mbb > 50 GeV",
                                         "MET > 240 GeV",
                                         "mbb [100,140]",
-                                        "mlb > 120 GeV",
-                                        "mT [100,160]",
-                                        "mT [160,240]",
-                                        "mT > 240"});//TODO: Add any others for checking other cutflow tables
+                                        //"mlb > 120 GeV",
+                                        "mT cut"});//TODO: Neatly output all mT cutflows at onece. Add any others for checking other cutflow tables
         #endif
 
 
@@ -141,29 +138,6 @@ namespace Gambit
             if(fabs(dR) <= DeltaRMax) overlap = true;
           }
           if(!overlap) survivors.push_back(p1);
-        }
-        particles1 = survivors;
-        return;
-      }
-
-      // electron overlap removal
-      // Discards lower pT or particle (from "particles1") if it is within DeltaRMax of another particle TODO: This is currently not being used 
-      void eeOverlapRemoval(vector<const HEPUtils::Particle*>& particles1, double DeltaRMax)
-      {
-        vector<const HEPUtils::Particle*> survivors;
-        for(const HEPUtils::Particle* p1 : particles1)
-        {
-          bool overlap = false;
-          bool largerpT = true;
-          for(const HEPUtils::Particle* p2 : particles1)
-          {
-            double dR = p1->mom().deltaR_eta(p2->mom());
-            if(fabs(dR) <= DeltaRMax) {
-              overlap = true;
-              if (p1->pT() < p2->pT()) largerpT = false;
-            }
-          }
-          if(!overlap && largerpT) survivors.push_back(p1);
         }
         particles1 = survivors;
         return;
@@ -233,12 +207,12 @@ namespace Gambit
 
         // Remove Overlapped electrons, muons and jets
         // 1. If electrons or muons share the same track (by using small deltaR), reject electron
-        ParticleOverlapRemoval(baselineElectrons, baselineMuons, 0.01); //TODO: implement e-e overlap?
+        ParticleOverlapRemoval(baselineElectrons, baselineMuons, 0.01);
         // 2. Jets are rejected if they lie within deltaR=0.2 of a muon
         JetLeptonOverlapRemoval(baselineNonBJets, baselineMuons, 0.2);
         JetLeptonOverlapRemoval(baselineBJets, baselineMuons, 0.2);
-        JetLeptonOverlapRemoval(baselineNonBJets, baselineElectrons, 0.2);//TODO: This was unclear in text, but exists in their analysis cxx file
-        JetLeptonOverlapRemoval(baselineBJets, baselineElectrons, 0.2); //TODO: Adding in these two lines fixes the lepton cut, but causes teh Njet>2 cut to be wrong :(
+        JetLeptonOverlapRemoval(baselineNonBJets, baselineElectrons, 0.2);
+        JetLeptonOverlapRemoval(baselineBJets, baselineElectrons, 0.2);
         // 3. Electrons are removed if theu lie in a cone (see function for size) around a jet
         LeptonJetOverlapRemoval(baselineElectrons, baselineNonBJets);
         LeptonJetOverlapRemoval(baselineElectrons, baselineBJets);
@@ -270,7 +244,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
         ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
 
-        // muons TODO: medium selection criteria??
+        // muons
         vector<const HEPUtils::Particle*> signalMuons = baselineMuons;
 
         // all leptons
@@ -375,7 +349,7 @@ namespace Gambit
           else break; 
 
           // Calculating mCT
-          double mCT = sqrt(2 * (signalBJets[0]->pT()) * (signalBJets[0]->pT()) * (1. + cos(deltaPhi(signalBJets[0]->mom(), signalBJets[1]->mom()))));
+          double mCT = sqrt(2 * (signalBJets[0]->pT()) * (signalBJets[1]->pT()) * (1. + cos(deltaPhi(signalBJets[0]->mom(), signalBJets[1]->mom()) ) ));
 
           // Calculate mCT bins
           if (mCT > 180 && mCT < 230) {SR_mct_180_230 = true;}
@@ -399,11 +373,11 @@ namespace Gambit
           if (SR_mbb_gt_50) _cutflows["SR"].fillnext(w);
           if (SR_ETmiss_gt_240) _cutflows["SR"].fillnext(w);
           if (SR_mbb_100_140) _cutflows["SR"].fillnext(w);
-          if (SR_mlb_gt_120) _cutflows["SR"].fillnext(w);
+          //if (SR_mlb_gt_120) _cutflows["SR"].fillnext(w);
           
           if (SR_mt_100_160) _cutflows["SR"].fillnext(w);
-          if (SR_mt_160_240) _cutflows["SR"].fillnext(w);
-          if (SR_mt_gt_240) _cutflows["SR"].fillnext(w);
+          //if (SR_mt_160_240) _cutflows["SR"].fillnext(w);
+          //if (SR_mt_gt_240) _cutflows["SR"].fillnext(w);
         #endif
 
         // Fill SR's
@@ -445,11 +419,11 @@ namespace Gambit
       }
 
       void collect_results() { //TODO: This is if not running ATLAS_FullLikes. 
-        add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //TODO: Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //TODO: Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //TODO: Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRMMEM_cuts_0"), 491, {491.0,0.0 })); //TODO: Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRLMEM_cuts_0"), 657, {657.0,0.0 })); //TODO: Hard-setting equal obs and pred
+        add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
+        add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
+        add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred
+        add_result(SignalRegionData(_counters.at("TRMMEM_cuts_0"), 491, {491.0,0.0 })); //Hard-setting equal obs and pred
+        add_result(SignalRegionData(_counters.at("TRLMEM_cuts_0"), 657, {657.0,0.0 })); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_0"), 6, {4.1, 1.9}));
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_1"), 5, {2.9, 1.3}));
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_2"), 3, {1.1, 0.5}));
@@ -464,7 +438,7 @@ namespace Gambit
           // Cutflow printout
           cout << "\nCUTFLOWS:\n" << _cutflows << endl;
           cout << "\nSRCOUNTS:\n";
-          for (auto& pair : _counters) cout << pair.first << ": " << pair.second.weight_sum() << "\n"; //TODO: Change form back to something neater
+          for (auto& pair : _counters) cout << pair.first << ": " << pair.second.weight_sum() << "\n";
           cout << "\n" << endl;
         #endif
 
