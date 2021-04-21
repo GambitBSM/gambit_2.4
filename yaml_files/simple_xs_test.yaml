@@ -1,0 +1,416 @@
+
+Parameters:
+
+  # Dummy model to allow ColliderBit to loop through a set of SLHA files
+  CB_SLHA_file_model:
+    dummy: 1.0
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Printer:
+
+  printer: cout
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  LogLike
+      files:
+        output_file: "weights ..."
+
+
+ObsLikes:
+
+    #
+    # Likelihoods
+    #
+
+    # # LHC likelihoods
+    # - purpose:    LogLike
+    #   capability: LHC_Combined_LogLike
+
+    #
+    # Observables
+    #
+
+    - purpose:    Observable 
+      capability: TotalCrossSectionAsMap
+      printme:    true
+
+    - purpose:    Observable 
+      capability: PIDPairCrossSectionsInfo
+      printme:    true
+
+    # - purpose:    Observable
+    #   capability: LHC_signals
+
+    # - purpose:    likelihood_details
+    #   capability: LHC_LogLike_per_SR
+
+    # - purpose:    likelihood_details
+    #   capability: LHC_LogLike_SR_indices
+
+    # - purpose:    Observable
+    #   capability: LHCEventLoopInfo
+
+
+Rules:
+
+  # Give the set of SLHA files that ColliderBit should use
+  - capability: SLHAFileNameAndContent
+    function: getNextSLHAFileNameAndContent
+    options:
+      SLHA_filenames:
+        - ColliderBit/data/slha1-example.slha
+
+  # List the SLHA file entries that should be stored in the GAMBIT output.
+  # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
+  - capability: SLHAFileElements
+    function: getSLHAFileElements
+    type: map_str_dbl
+    options:
+      value_for_missing_elements: -9999
+      SLHA_keys:
+        - MASS;1000022;1
+        - MASS;1000024;1
+        - NMIX;1,1;2
+        - NMIX;1,2;2
+        - NMIX;1,3;2
+        - NMIX;1,4;2
+        - 1000024;DECAY;2               # <-- Total decay width for 1000024 (chargino1)
+        - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24
+
+  # Choose to where to get total cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+    # function: getYAMLCrossSection
+    # options:
+    #   cross_section_fb: 123.0
+    #   cross_section_uncert_fb: 1.23
+
+
+  # Choose how to do event weighting 
+  - capability: EventWeighterFunction
+    # function: setEventWeight_unity
+    function: setEventWeight_fromCrossSection
+
+
+  # Choose where to get PID pair cross-sections from.
+  # Note: This is not required if the "setEventWeight_unity" 
+  #       function is chosen above.
+  - capability: PIDPairCrossSectionsMap
+    function: getPIDPairCrossSectionsMap_simplexs
+    options:
+
+      13_degeneratehino_000_000.txt:
+        energy_TeV: 13
+        degeneracy_factor: 3
+        use_for_PID_pairs:
+          - 1000022_1000022
+          - 1000022_1000023
+          - 1000023_1000023
+          #- 1000023_1000023  # Including this duplicate will give an error
+
+      13_1000022_1000024_hinolike_CTEQ_m.txt:
+        energy_TeV: 13
+        degeneracy_factor: 1
+        use_for_PID_pairs:
+          - -1000024_1000022
+          - -1000024_1000023
+
+      13_1000022_1000024_hinolike_CTEQ_p.txt:
+        energy_TeV: 13
+        degeneracy_factor: 1
+        use_for_PID_pairs:
+          - 1000024_1000022
+          - 1000024_1000023
+
+      13_1000024_1000024_hinolike_CTEQ.txt:
+        energy_TeV: 13
+        degeneracy_factor: 1
+        use_for_PID_pairs:
+          - -1000024_1000024
+
+
+
+    # function: getPIDPairCrossSectionsMap_salami
+    # function: getPIDPairCrossSectionsMap_xsecBE
+    # function: getPIDPairCrossSectionsMap_prospino
+    # options:
+    #   set_missing_cross_sections_to_zero: true
+
+  # Generate evens (don't read LH event files)
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+    module: ColliderBit
+    options:
+      drop_HepMC_file: false
+      # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
+
+
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia
+    options:
+      slha_version: 1
+      write_summary_to_log: true
+
+
+  # Choose Monte Carlo event simulator and options.
+  - capability: HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia_SLHA
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        pythia_settings:
+          - Print:quiet = off
+          - Next:numberCount = 0
+          - Random:setSeed = on
+          - Beams:eCM = 13000
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - SUSY:all = off
+          - SUSY:qqbar2chi0chi0 = on
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = on
+          # - SUSY:idVecA = 1000022
+          # - SUSY:idVecB = 1000022
+          - SUSY:idVecA = 1000022,1000023,1000024
+          - SUSY:idVecB = 1000022,1000023,1000024
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
+  - capability: HardScatteringSim
+    type: const BaseCollider*
+    function: getPythiaAsBase
+    module: ColliderBit
+
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        min_nEvents: 100
+        max_nEvents: 100
+        events_between_convergence_checks: 10000000
+        target_fractional_uncert: 0.1
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: true
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        invalidate_failed_points: true
+        analyses:
+          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
+          # - ATLAS_13TeV_RJ3L_3Lep_36invfb
+          # #
+          - ATLAS_13TeV_0LEP_36invfb  # skip
+          - ATLAS_13TeV_0LEP_139invfb
+          # #
+          # - ATLAS_13TeV_0LEPStop_36invfb
+          # - ATLAS_13TeV_1LEPStop_36invfb
+          # - ATLAS_13TeV_2LEPStop_36invfb
+          # #
+          # - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
+          # - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
+          # - ATLAS_13TeV_MultiLEP_3Lep_36invfb
+          # #
+          # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          # - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
+          # #
+          # - ATLAS_13TeV_4LEP_36invfb
+          # #
+          # - ATLAS_13TeV_2bMET_36invfb
+          # #
+          # - ATLAS_13TeV_3b_24invfb
+          # - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
+          # - ATLAS_13TeV_3b_36invfb  # skip
+          # - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
+          # #
+          # - ATLAS_13TeV_PhotonGGM_36invfb
+          # - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+          # #
+          # - ATLAS_13TeV_2OSLEP_Z_139invfb
+          # #
+          # - CMS_13TeV_0LEP_36invfb  # skip
+          # - CMS_13TeV_0LEP_137invfb
+          # #
+          # - CMS_13TeV_1LEPbb_36invfb
+          # #
+          # - CMS_13TeV_1LEPStop_36invfb
+          # - CMS_13TeV_2LEPStop_36invfb
+          # #
+          # - CMS_13TeV_2LEPsoft_36invfb
+          # - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
+          # - CMS_13TeV_2LEPsoft_stop_36invfb
+          # - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
+          # #
+          # - CMS_13TeV_2OSLEP_36invfb
+          # - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
+          # #
+          # - CMS_13TeV_2OSLEP_for_stop_36invfb
+          # - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          # #
+          # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
+          # - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
+          # - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
+          # #
+          # - CMS_13TeV_Photon_GMSB_36invfb
+          # - CMS_13TeV_2Photon_GMSB_36invfb
+          # #
+          # - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          # - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+          # #
+          # - CMS_13TeV_MONOJET_36invfb
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6  # 1
+      nuisance_prof_verbosity: 0
+
+
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: true
+      cap_loglike: true
+      cap_loglike_individual_analyses: false
+      skip_analyses:
+          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
+          # - ATLAS_13TeV_RJ3L_3Lep_36invfb
+          #
+          - ATLAS_13TeV_0LEP_36invfb  # skip
+          # - ATLAS_13TeV_0LEP_139invfb
+          #
+          # - ATLAS_13TeV_0LEPStop_36invfb
+          # - ATLAS_13TeV_1LEPStop_36invfb
+          # - ATLAS_13TeV_2LEPStop_36invfb
+          #
+          # - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
+          # - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
+          # - ATLAS_13TeV_MultiLEP_3Lep_36invfb
+          #
+          # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
+          #
+          # - ATLAS_13TeV_4LEP_36invfb
+          #
+          # - ATLAS_13TeV_2bMET_36invfb
+          #
+          # - ATLAS_13TeV_3b_24invfb
+          - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
+          - ATLAS_13TeV_3b_36invfb  # skip
+          - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
+          #
+          # - ATLAS_13TeV_PhotonGGM_36invfb
+          # - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+          #
+          # - ATLAS_13TeV_2OSLEP_Z_139invfb
+          #
+          - CMS_13TeV_0LEP_36invfb  # skip
+          # - CMS_13TeV_0LEP_137invfb
+          #
+          # - CMS_13TeV_1LEPbb_36invfb
+          #
+          # - CMS_13TeV_1LEPStop_36invfb
+          # - CMS_13TeV_2LEPStop_36invfb
+          #
+          # - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
+          # - CMS_13TeV_2LEPsoft_stop_36invfb
+          - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
+          #
+          # - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
+          #
+          # - CMS_13TeV_2OSLEP_for_stop_36invfb
+          # - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          #
+          # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
+          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
+          - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
+          #
+          # - CMS_13TeV_Photon_GMSB_36invfb
+          # - CMS_13TeV_2Photon_GMSB_36invfb
+          #
+          - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
+          - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+          #
+          # - CMS_13TeV_MONOJET_36invfb
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    # [DarkBit] : "DarkBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
+    # [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  rng:
+    seed: 187303
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/simple_xs_test/"
+
+  debug: false

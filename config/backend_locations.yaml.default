@@ -99,7 +99,7 @@ nulike:
 
 Rivet:
   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
-
+  
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
 
@@ -146,3 +146,6 @@ xsecBE:
 
 salami:
   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
+  
+simple_xs:
+  1.0:       ./Backends/examples/simple_xs/1.0/simple_xs.py
