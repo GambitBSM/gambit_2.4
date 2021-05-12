@@ -45,7 +45,7 @@
 #include <gsl/gsl_sf_gamma.h>
 #include "gambit/ColliderBit/multimin.h"
 
-//#define COLLIDERBIT_DEBUG
+#define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
 
 namespace Gambit
@@ -538,30 +538,15 @@ namespace Gambit
         if (is_FullLikes)
         {
 
-          //TODO: Do we need to do some form of check that pybind is defined?
+          //@todo: Do we need to do some form of check that pybind is defined?
           pybind11::dict mydict;
 
           for (size_t SR = 0; SR < nSR; ++SR)
           {
             pybind11::str SRName = adata[SR].sr_label;
             mydict[SRName] = adata[SR].n_sig_scaled;
+	    
           }
-
-          //TODO: For the purpose of testing when not using FullLikes, uncomment (TODO: Remove before merging).
-          //mydict["WREM_cuts_0"] = 14.21;
-          //mydict["STCREM_cuts_0"] = 0.2 ;
-          //mydict["TRHMEM_cuts_0"] = 40.0;
-          //mydict["TRMMEM_cuts_0"] = 0.2;
-          //mydict["TRLMEM_cuts_0"] = 60.0;
-          //mydict["SRHMEM_mct2_0"] = 2.0;
-          //mydict["SRHMEM_mct2_1"] = 2.2;
-          //mydict["SRHMEM_mct2_2"] = 2.0;
-          //mydict["SRMMEM_mct2_0"] = 1.4;
-          //mydict["SRMMEM_mct2_1"] = 4.5;
-          //mydict["SRMMEM_mct2_2"] = 0.8;
-          //mydict["SRLMEM_mct2_0"] = 5.2;
-          //mydict["SRLMEM_mct2_1"] = 0.8;
-          //mydict["SRLMEM_mct2_2"] = 0.2;
 
           ana_dll = BEreq::ATLAS_FullLikeBackend(mydict);
           // Store Result

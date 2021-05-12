@@ -19,7 +19,7 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 using namespace std;
 
@@ -78,8 +78,8 @@ namespace Gambit
                                         "mbb > 50 GeV",
                                         "MET > 240 GeV",
                                         "mbb [100,140]",
-                                        //"mlb > 120 GeV",
-                                        "mT cut"});//TODO: Neatly output all mT cutflows at onece. Add any others for checking other cutflow tables
+                                        "mlb > 120 GeV",
+                                        "mT cut"});
         #endif
 
 
@@ -373,11 +373,12 @@ namespace Gambit
           if (SR_mbb_gt_50) _cutflows["SR"].fillnext(w);
           if (SR_ETmiss_gt_240) _cutflows["SR"].fillnext(w);
           if (SR_mbb_100_140) _cutflows["SR"].fillnext(w);
-          //if (SR_mlb_gt_120) _cutflows["SR"].fillnext(w);
+          if (SR_mlb_gt_120) _cutflows["SR"].fillnext(w);
           
-          if (SR_mt_100_160) _cutflows["SR"].fillnext(w);
+          // @todo change such that all three mT bin cuts be checked at once
+          //if (SR_mt_100_160) _cutflows["SR"].fillnext(w);
           //if (SR_mt_160_240) _cutflows["SR"].fillnext(w);
-          //if (SR_mt_gt_240) _cutflows["SR"].fillnext(w);
+          if (SR_mt_gt_240) _cutflows["SR"].fillnext(w);
         #endif
 
         // Fill SR's
@@ -418,7 +419,8 @@ namespace Gambit
         for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
-      void collect_results() { //TODO: This is if not running ATLAS_FullLikes. 
+      void collect_results() { 
+        //This is if not running ATLAS_FullLikes. 
         add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred

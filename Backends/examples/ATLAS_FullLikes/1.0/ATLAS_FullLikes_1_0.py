@@ -19,12 +19,8 @@ Required:
   - python >= v3.6 + pyhf
 Outputs:
   - Loglike (s+b) - Loglike (b) 
-Current Tasks:
-  - Plot the exclusion contours to reproduce the plots in ATLAS_1Lep2b Analysis
+todo:
   - Calculating the loglike gives a pyhf Runtime warning about an invalid value inside of the calculation (may be unavoidable)
-  - Need to throw error if trying to call analysis that isn't implemented
-  - Fix author sections on all ATLAS FullLikes code (mostly left to what copied over)
-  - Move the background likelihood estimation to the ReadJsonFiles function so that it is only performed once
 """
 
 import pyhf as pyhf
@@ -73,8 +69,10 @@ def ReadJsonFiles(AnalysisName):
 def FullLikeBackend(mydict):
   # Creating the json patch
   data = {}
+  
+  # metadata must meet requirement in json scheme
   data['metadata'] = {
-      "description": "signal patchset for the SUSY EWK 1Lbb analysis",
+      "description": "signal patchset for ColliderBit Analysis",
       "digests": {
               "sha256": "2563672e1a165384faf49f1431e921d88c9c07ec10f150d5045576564f98f820"
           },
@@ -110,7 +108,7 @@ def FullLikeBackend(mydict):
 
   data['patches'][0]['patch'] = []
 
-  # TODO: First calculating the LogLike for background only, by adding in a patch with a data entry of zero.
+  # First calculating the LogLike for background only, by adding in a patch with a data entry of zero.
   for key,value in channelsample_dict.items():
     BKG = []
     for i in range(Nbindict[key]):
@@ -129,15 +127,20 @@ def FullLikeBackend(mydict):
                               "data": None,
                               "name": "mu_SIG",
                               "type": "normfactor"
-                          }
+                          },
+                          {
+                              "data": None,
+                              "name": "lumi",
+                              "type": "lumi"
+                          }                          
                       ],
                       "name": "Zero for calculating BKG likelihood"
                   }
               },)
   PatchJson = pyhf.patchset.PatchSet(data)
   model = ws.model(patches=PatchJson)
-  bestfit_pars, twice_nll_b = pyhf.infer.mle.fit(ws.data(model),model, return_fitted_val=True)  
-    
+  bestfit_pars, twice_nll_b = pyhf.infer.mle.fixed_poi_fit(1.,ws.data(model),model, return_fitted_val=True)
+  
   # Appending for each separate path
   for key,value in channelsample_dict.items():
     data['patches'][0]['patch'].append(
@@ -153,7 +156,12 @@ def FullLikeBackend(mydict):
                               "data": None,
                               "name": "mu_SIG",
                               "type": "normfactor"
-                          }
+                          },
+                          {
+                              "data": None,
+                              "name": "lumi",
+                              "type": "lumi"
+                          } 
                       ],
                       "name": "SignalData"
                   }
@@ -162,7 +170,7 @@ def FullLikeBackend(mydict):
   # Patching the background data and setting the model
   PatchJson = pyhf.patchset.PatchSet(data)
   model = ws.model(patches=PatchJson)
-  bestfit_pars, twice_nll_sb = pyhf.infer.mle.fit(ws.data(model),model, return_fitted_val=True)
+  bestfit_pars, twice_nll_sb = pyhf.infer.mle.fixed_poi_fit(1.,ws.data(model),model, return_fitted_val=True)
 
   dll = (-0.5*twice_nll_sb) - (-0.5*twice_nll_b)
 

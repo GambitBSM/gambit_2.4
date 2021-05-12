@@ -2,7 +2,7 @@
 Parameters:
 
   # Dummy model to allow ColliderBit to loop through a set of SLHA files
-  CB_SLHA_file_model:
+  FullLikes_Test:
     dummy: 1.0
 
 
@@ -89,9 +89,9 @@ Rules:
     function: getYAMLCrossSection_SLHA
     options:
       cross_section_fb:
-        ColliderBit/data/param_card.SM.C1N2.Whall.slha: 1.1
+        ColliderBit/data/param_card.SM.C1N2.Whall.slha: 4.5
       cross_section_fractional_uncert:
-        ColliderBit/data/param_card.SM.C1N2.Whall.slha: 0.1
+        ColliderBit/data/param_card.SM.C1N2.Whall.slha: 0.225
 
 
   # Generate evens (don't read LH event files)
@@ -100,18 +100,12 @@ Rules:
     module: ColliderBit
     options:
       drop_HepMC_file: false
-      # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
-
-  # # Generate evens (don't read LH event files)
-  #- capability: HardScatteringEvent
-  #  function: generateEventPythia_SLHA
-  #  module: ColliderBit
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
     function: operateLHCLoop
     options:
-      silenceLoop: false
+      silenceLoop: true
       FullLikesAnalyses: # TODO: I really should find a way so I dont have to double list it (I will do once validated)
         - ATLAS_13TeV_1Lep2b_139invfb
       LHC_13TeV:
@@ -136,7 +130,7 @@ Rules:
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1
-          - Print:quiet = off
+          - Print:quiet = on
           - Next:numberCount = 1000
           - Beams:eCM = 13000
           - PartonLevel:MPI = off
@@ -193,12 +187,7 @@ Logger:
   redirection:
     [Debug] : "debug.log"
     [Default] : "default.log"
-    # [DecayBit] : "DecayBit.log"
-    # [DarkBit] : "DarkBit.log"
-    # [PrecisionBit] : "PrecisionBit.log"
-    # [FlavBit] : "FlavBit.log"
     [ColliderBit] : "ColliderBit.log"
-    # [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
 
 KeyValues:
@@ -214,4 +203,4 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   # Set the default output path
-  default_output_path: "runs/Analysis_Validation/"
+  default_output_path: "runs/FullLikes_test/"
