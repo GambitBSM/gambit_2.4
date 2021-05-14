@@ -37,7 +37,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
-// #define COLLIDERBIT_DEBUG
+#define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
 
 namespace Gambit
@@ -66,18 +66,20 @@ namespace Gambit
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
+      static std::vector<str> analysesFullLikes;
       if (first)
       {
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
 
-        // Check analyses that use the FullLikes backend actually exist in this backend TODO: Currently just cout rather than throw error.
-        std::vector<str> analysesFullLikes = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
+        // Check analyses that use the FullLikes backend actually exist in this backend.
+        analysesFullLikes = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
+        
         for (str& analysis : analysesFullLikes)
         {
-          int FullLikes = BEreq::ATLAS_ReadJsonFiles(analysis);
-          if (FullLikes) {
-            cout << "HEY THERE. You are trying to use ATLAS full likes even though I can't find the background data files for the anaysis: " << analysis << endl;
+          int FullLikes_err = BEreq::ATLAS_ReadJsonFiles(analysis);
+          if (FullLikes_err) {
+            ColliderBit_error().raise(LOCAL_INFO,"Requested ATLAS FullLikes backend for analysis " + analysis + ", but cannot find background JSON file.");
           }
         }
 
