@@ -12,10 +12,16 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 Oct
 ///
+/// \author Tomasz Procter
+///          (t.procter.1@research.gla.ac.uk)
+/// \date 2021 June
+///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/Contur_2_0_1.hpp"
+
+using namespace pybind11::literals;
 
 BE_NAMESPACE
 {
@@ -25,9 +31,23 @@ BE_NAMESPACE
   {
 
     //pybind11::object ao = yoda.attr("AnalysisObject");
- 
     return 0.0;
 
+  }
+
+  double Contur_LogLike_from_stream(std::ostream& yodastream)
+  {
+    pybind11::object contur = Contur.attr("factories").attr("Depot")(false);
+    pybind11::dict params = {};
+    params["No parameters specified"] = 0.0;
+
+    contur.attr("add_point")("param_dict"_a=params, "yodafile"_a=yodastream);
+
+    pybind11::list inbox = contur.attr("_inbox");
+
+    double LLR = inbox[0].attr("yoda_factory").attr("_full_likelihood").attr("._ts_s_b").cast<double>() 
+     - inbox[0].attr("yoda_factory").attr("_full_likelihood").attr("_ts_b").cast<double>();
+    return LLR;
   }
 
   double Contur_LogLike_from_file(str &YODA_filename)

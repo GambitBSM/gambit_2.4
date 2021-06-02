@@ -16,6 +16,10 @@
 ///  \date 2019 Oct, 2020 Mar
 ///  \date 2021 Mar
 ///
+/// \author Tomasz Procter
+///          (t.procter.1@research.gla.ac.uk)
+/// \date 2021 June
+///
 ///  *********************************************
 
 #define BACKENDNAME Contur
@@ -26,6 +30,7 @@
 LOAD_LIBRARY
 
 BE_CONV_FUNCTION(Contur_LogLike, double, (vector_shared_ptr<YODA::AnalysisObject> &), "Contur_LogLike")
+BE_CONV_FUNCTION(Contur_LogLike_from_stream, double, (std::ostream&), "Contur_LogLike")
 BE_CONV_FUNCTION(Contur_LogLike_from_file, double, (str &), "Contur_LogLike")
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

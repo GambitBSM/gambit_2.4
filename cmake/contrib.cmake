@@ -21,6 +21,10 @@
 #         (tomas.gonzalo@monash.edu)
 # \dae 2019 June, Oct
 #
+# \author Tomasz Procter
+#         (t.procter.1@research.gla.ac.uk)
+# \date June 2021
+#
 #************************************************
 
 include(ExternalProject)
@@ -242,9 +246,10 @@ endif()
 
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
-  set(YODA_VERSION "1.8.1")
+  set(YODA_VERSION "1.8.5")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${YODA_VERSION}.tar.gz")
-  set(md5 "4a2f0b5562bad12e02b656dac6fd62f6")
+  #set(md5 "4a2f0b5562bad12e02b656dac6fd62f6")
+  set(md5 "420abe730380f7e0c3221b1357ee0ae4")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
