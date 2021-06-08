@@ -251,6 +251,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->writeData__BOSS(arg_1);
       }
+
+      inline void AnalysisHandler::writeData(::std::shared_ptr<std::ostream> dataOutStream) const
+      {
+         get_BEptr()->writeData(*dataOutStream, "yoda");
+      }
       
       inline void AnalysisHandler::setAODump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period)
       {

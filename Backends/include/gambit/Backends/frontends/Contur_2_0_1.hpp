@@ -23,14 +23,14 @@
 ///  *********************************************
 
 #define BACKENDNAME Contur
-#define BACKENDLANG Python2
+#define BACKENDLANG Python3
 #define VERSION 2.0.1
 #define SAFE_VERSION 2_0_1
 
 LOAD_LIBRARY
 
+BE_CONV_FUNCTION(Contur_LogLike_from_stream, double, (std::shared_ptr<std::ostream>), "Contur_LogLike")
 BE_CONV_FUNCTION(Contur_LogLike, double, (vector_shared_ptr<YODA::AnalysisObject> &), "Contur_LogLike")
-BE_CONV_FUNCTION(Contur_LogLike_from_stream, double, (std::ostream&), "Contur_LogLike")
 BE_CONV_FUNCTION(Contur_LogLike_from_file, double, (str &), "Contur_LogLike")
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

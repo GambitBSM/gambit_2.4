@@ -35,13 +35,13 @@ BE_NAMESPACE
 
   }
 
-  double Contur_LogLike_from_stream(std::ostream& yodastream)
+  double Contur_LogLike_from_stream(std::shared_ptr<std::ostream> yodastream)
   {
     pybind11::object contur = Contur.attr("factories").attr("Depot")(false);
     pybind11::dict params = {};
     params["No parameters specified"] = 0.0;
 
-    contur.attr("add_point")("param_dict"_a=params, "yodafile"_a=yodastream);
+    contur.attr("add_point")("param_dict"_a=params, "yodafile"_a=(*yodastream));
 
     pybind11::list inbox = contur.attr("_inbox");
 
