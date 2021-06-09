@@ -31,6 +31,8 @@
 ///  \date   2017 March
 ///  \date   2018 Jan
 ///  \date   2018 May
+///  \date   2020 May
+///  \date   2020 Jun
 ///
 ///  *********************************************
 
@@ -45,7 +47,7 @@
 #include <gsl/gsl_sf_gamma.h>
 #include "gambit/ColliderBit/multimin.h"
 
-//#define COLLIDERBIT_DEBUG
+// #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
 
 namespace Gambit
@@ -967,6 +969,18 @@ namespace Gambit
       {
         const str& analysis_name = analysis_loglike_pair.first;
         const double& analysis_loglike = analysis_loglike_pair.second;
+
+        // If this is an "expected loglike" (from the assumption n=b), don't include it in the scan loglike
+        // @todo This is a temporary fix. Once this function depends on a AnalysisLogLikes instance instead of a map_str_dbl we can avoid this silly string parsing.
+        if (analysis_name.find("__expected_LogLike") != std::string::npos)
+        {
+          #ifdef COLLIDERBIT_DEBUG
+            cout.precision(5);
+            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out expected loglike " << analysis_name << " with LogL = " << analysis_loglike << endl;
+          #endif
+
+          continue;
+        }
 
         // If the analysis name is in skip_analyses, don't add its loglike to the total loglike.
         if (std::find(skip_analyses.begin(), skip_analyses.end(), analysis_name) != skip_analyses.end())
