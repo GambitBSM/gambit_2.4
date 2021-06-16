@@ -1430,6 +1430,61 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# # Rivet
+# set(name "rivet")
+# set(ver "3.1.4")
+# set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
+# set(md5 "43ff4bcab2209d483417ed878d1e6483")
+# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+# set(yoda_name "yoda")
+# #set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
+# set(yoda_dir "${YODA_PATH}/local")
+# set(hepmc_name "hepmc")
+# set(hepmc_dir "${HEPMC_PATH}/local")
+# set(fastjet_name "fastjet")
+# set(fastjet_ver "3.3.2")
+# set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}/local")
+# set(fjcontrib_name "fjcontrib")
+# set(fjcontrib_ver "1.041")
+# set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+# set(ditch_if_absent "HepMC;YODA")
+# set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet")
+# set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
+# set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
+# set(Rivet_LD_FLAGS "-L${dir}/include/Rivet")
+# # If cython is not installed disable the python extension
+# find_python_module(cython)
+# if(PY_cython_FOUND)
+#   set(pyext yes)
+#   set(Rivet_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+#   set(Rivet_LIB "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/libRivet.so")
+#   message("   Backends depending on Rivet's python extension will be enabled.")
+# else()
+#   set(pyext no)
+#   message("   Backends depending on Rivet's python extension (e.g. Contur) will be disabled.")
+# endif()
+# check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
+# if(NOT ditched_${name}_${ver})
+#   ExternalProject_Add(${name}_${ver}
+#     DEPENDS ${yoda_name}
+#     DEPENDS ${hepmc_name}
+#     DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
+#     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+#     SOURCE_DIR ${dir}
+#     BUILD_IN_SOURCE 1
+#     #PATCH_COMMAND patch -p1 < ${patch}
+#     CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-hepmc3-libpath=${hepmc_dir}/lib --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
+#     BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} ${dir}/local/lib/libRivet.so
+#     INSTALL_COMMAND ""
+#   )
+#   BOSS_backend(${name} ${ver})
+#   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+#   #set_as_default_version("backend" ${name} ${ver})
+# endif()
+
+
+
+
 # Contur
 set(name "contur")
 set(ver "2.0.1")
@@ -1440,9 +1495,8 @@ set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
 set(Rivet_ver "3.1.3")
-# TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 set(ditch_if_absent "SQLITE3;YODA")
-set(required_modules "cython")
+set(required_modules "cython;configobj;pandas")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1456,8 +1510,11 @@ if(NOT ditched_${name}_${ver})
       BUILD_IN_SOURCE 1
       #CONFIGURE_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${dir}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from factories import yoda_factories" >> ${init_file}

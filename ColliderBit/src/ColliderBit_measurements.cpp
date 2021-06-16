@@ -88,7 +88,7 @@ namespace Gambit
             ah.finalize();
 
             // Get YODA object
-            ah.writeData(result);
+            ah.writeData(*result, "yoda");
 
             // Drop YODA file if requested
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");

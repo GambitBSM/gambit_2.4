@@ -150,15 +150,16 @@ diff -rupN Rivet-3.1.3/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.3
  
      /// The destructor is not virtual, as this class should not be inherited from.
      ~AnalysisHandler();
-@@ -261,6 +261,7 @@ namespace Rivet {
+@@ -261,6 +261,8 @@ namespace Rivet {
  
      /// Write all analyses' plots (via getData) to the named file.
      void writeData(const string& filename) const;
 +    void writeData(vector<YODA::AnalysisObjectPtr>&, YODA::AnalysisObject* = NULL) const; // Added by GAMBIT
- 
++    void writeData(std::ostream& ostr, const string& fmt) const; 
+
      /// @brief Configure the AnalysisObject dump rate and destination.
      ///
-@@ -426,7 +427,7 @@ namespace Rivet {
+@@ -426,7 +428,7 @@ namespace Rivet {
  
      /// @}
  
@@ -211,10 +212,19 @@ diff -rupN Rivet-3.1.3/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.3/src/
      }
  
      // Warn if any analysis' status is not unblemished
-@@ -779,6 +780,38 @@ namespace Rivet {
+@@ -779,6 +780,47 @@ namespace Rivet {
  
    }
  
++  void AnalysisHandler::writeData(std::ostream& ostr, const string& fmt) const {
++    const vector<YODA::AnalysisObjectPtr> output = getYodaAOs(true);
++    try {
++      YODA::write(ostr, begin(output), end(output), fmt);
++    } catch (...) { //< YODA::WriteError&
++    throw UserError("Unexpected error in writing output");
++  }
++}
++
 +  // Added by GAMBIT
 +  void AnalysisHandler::writeData(vector<YODA::AnalysisObjectPtr> &output, YODA::AnalysisObject* object) const {
 +
