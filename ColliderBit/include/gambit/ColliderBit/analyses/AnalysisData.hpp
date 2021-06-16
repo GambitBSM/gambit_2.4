@@ -235,13 +235,12 @@ namespace Gambit {
       /// @todo Allow naming the SRs?
       void add(const SignalRegionData& srd)
       {
-        std::string key = analysis_name + srd.sr_label;
-        auto loc = srdata_identifiers.find(key);
+        auto loc = srdata_identifiers.find(srd.sr_label);
         if (loc == srdata_identifiers.end())
         {
           // If the signal region doesn't exist in this object yet, add it
           srdata.push_back(srd);
-          srdata_identifiers[key] = srdata.size() - 1;
+          srdata_identifiers[srd.sr_label] = srdata.size() - 1;
         }
         else
         {
