@@ -44,7 +44,6 @@
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -100,6 +99,19 @@
   /// A map between PID pairs and cross-sections
   #define CAPABILITY PIDPairCrossSectionsMap
   
+    #ifdef HAVE_PYBIND11
+      //Simple_xs
+      #define FUNCTION getPIDPairCrossSectionsMap_simplexs
+      START_FUNCTION(map_PID_pair_PID_pair_xsec)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      DEPENDENCY(ActivePIDPairs, vec_PID_pair)
+      DEPENDENCY(SLHA1Spectrum, SLHAstruct)
+      ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+      BACKEND_REQ(simplexs_init, (), void, (PyDict&))
+      BACKEND_REQ(simplexs_get_xsection, (), PyDict, (PyDict&, PyDict&))
+      #undef FUNCTION
+    #endif
+    
     #ifdef HAVE_PYBIND11
       /// Get the PIDPairCrossSectionsMap using the 'xsec' backend
       /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)

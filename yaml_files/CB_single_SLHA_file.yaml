@@ -130,7 +130,10 @@ Rules:
           # - SUSY:qqbar2squarkantisquark = on
           # - SUSY:qq2squarksquark = on
 
-
+  - capability: HardScatteringSim
+    type: const BaseCollider*
+    function: getPythiaAsBase
+    module: ColliderBit
 
   # Choose ATLAS detector simulation and options.
   - capability: ATLASDetectorSim
