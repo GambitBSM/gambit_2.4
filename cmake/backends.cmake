@@ -113,7 +113,6 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND sed ${dashi} -e "s#CC = gcc#CC = ${CMAKE_C_COMPILER}#g" Makefile
-          COMMAND sed ${dashi} -e "s#rcsU#rcs#g" Makefile
           COMMAND sed ${dashi} -e "s/CFLAGS= -O3 -pipe -fomit-frame-pointer -mtune=native -ffast-math -fno-finite-math-only/CFLAGS= ${AlterBBN_C_FLAGS}/g" Makefile
           COMMAND sed ${dashi} -e "s/CFLAGS_MP= -fopenmp/CFLAGS_MP= ${OpenMP_C_FLAGS}/g" Makefile
           COMMAND ${MAKE_PARALLEL}
@@ -131,12 +130,13 @@ endif()
 set(name "capgen")
 set(ver "1.0")
 set(lib "gencaplib")
-set(dl "null")
+set(dl "https://github.com/aaronvincent/captngen/archive/${ver}.tar.gz")
+set(md5 "410034ac91593c6695a8ed1751a4214c")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    GIT_REPOSITORY https://github.com/aaronvincent/captngen.git
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -171,7 +171,122 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+# DarkSUSY base (for all models)
+set(name "darksusy")
+set(ver "6.1.1")
+set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
+set(md5 "448f72e9bfafbb086bf4526a2094a189")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_.${name}_${ver}_base)
+  ExternalProject_Add(.${name}_${ver}_base
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} tspack ds_core ds_common ds_empty inst_tab_if_loc
+    # FIXME Need to add shared option
+    #BUILD_COMMAND ${MAKE_PARALLEL} dslib_shared
+    #      COMMAND ${MAKE_PARALLEL} install_tables
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+# DarkSUSY MSSM module
+set(model "MSSM")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} feynhiggs higgsbounds higgssignals superiso libisajet ds_mssm
+          COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY generic_wimp module
+set(model "generic_wimp")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_generic_wimp
+          COMMAND ${MAKE_PARALLEL} ds_generic_wimp_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY base (for all models)
+set(name "darksusy")
+set(ver "6.2.2")
+set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
+set(md5 "e23feb7363aebc5460aa8ae2c6906ce1")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_.${name}_${ver}_base)
+  ExternalProject_Add(.${name}_${ver}_base
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} makedirs tspack healpix ds_core ds_common ds_empty inst_tab_if_loc
+    # FIXME Need to add shared option
+    #BUILD_COMMAND ${MAKE_PARALLEL} dslib_shared
+    #COMMAND ${MAKE_PARALLEL} install_tables
+    #COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend base (not functional alone)" ${name} ${ver})
+endif()
+
+# DarkSUSY MSSM module
+set(model "MSSM")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} feynhiggs higgsbounds higgssignals superiso libisajet ds_mssm
+          COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+  set_as_default_version("backend model" ${name} ${ver} ${model})
+endif()
+
+# DarkSUSY generic_wimp module
+set(model "generic_wimp")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_generic_wimp
+          COMMAND ${MAKE_PARALLEL} ds_generic_wimp_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 
@@ -409,8 +524,8 @@ set(md5 "72807f6d0ef80737554d8702b6b212c1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
+if(NOT ditched_.${name}_${ver}_base)
+  ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     PATCH_COMMAND patch -p1 < ${patch}
@@ -433,8 +548,8 @@ if(NOT ditched_${name}_${ver})
           COMMAND make
     INSTALL_COMMAND ""
   )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} "yes | clean")
-  set_as_default_version("backend" ${name} ${ver})
+  add_extra_targets("backend base (functional alone)" ${name} ${ver} ${dir} ${dl} "yes | clean")
+  set_as_default_version("backend base (functional alone)" ${name} ${ver})
 endif()
 
 # MicrOmegas MSSM model
@@ -452,7 +567,7 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas ScalarSingletDM_Z2 model
@@ -470,7 +585,7 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas ScalarSingletDM_Z3 model
@@ -488,7 +603,7 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas VectorSingletDM_Z2 model
@@ -506,7 +621,7 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas MajoranaSingletDM_Z2 model
@@ -524,7 +639,7 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas DiracSingletDM_Z2 model
@@ -542,19 +657,20 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MontePythonLike
 set(name "montepythonlike")
 set(ver "3.3.0")
 set(sfver "3_3_0")
-set(dl "null")
+set(dl "https://github.com/brinckmann/montepython_public/archive/${ver}.tar.gz")
+set(md5 "84944f0a5b9fb1cab0ddb5dd7be3ea17")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${name}_${ver}.diff")
 set(ditch_if_absent "Python")
-set(required_modules "scipy")
+set(required_modules "numpy,scipy")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -562,13 +678,13 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      GIT_REPOSITORY https://github.com/brinckmann/montepython_public.git
-      GIT_TAG ${ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/MontePythonLike.py ${dir}/montepython/MontePythonLike_${sfver}.py
       COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/fastPantheon__init__.py ${dir}/montepython/likelihoods/Pantheon/__init__.py
+      COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/__init__eBOSS_DR14_Lya_combined.py ${dir}/montepython/likelihoods/eBOSS_DR14_Lya_combined/__init__.py
       COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/sdss_lrgDR7_fiducialmodel.dat ${dir}/data/sdss_lrgDR7/sdss_lrgDR7_fiducialmodel.dat
       COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/bao_eBOSS_2017.txt ${dir}/data/bao_eBOSS_2017.txt
       COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/bao_smallz_combined_2018.txt ${dir}/data/bao_smallz_combined_2018.txt
@@ -580,7 +696,6 @@ if(NOT ditched_${name}_${ver})
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/bao_correlations_data ${dir}/data/bao_correlations/
       COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/MPLike_patch_script.py ${dir}/montepython/MPLike_patch_script.py
       COMMAND sed ${dashi} -e "s#from MontePythonLike import#from MontePythonLike_${sfver} import#g" ${dir}/montepython/MPLike_patch_script.py
-      COMMAND ${CMAKE_COMMAND} -E copy ${patchdir}/__init__eBOSS_DR14_Lya_combined.py ${dir}/montepython/likelihoods/eBOSS_DR14_Lya_combined/__init__.py
       BUILD_COMMAND ""
       INSTALL_COMMAND ${PYTHON_EXECUTABLE} ${dir}/montepython/MPLike_patch_script.py
     )
@@ -803,8 +918,29 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+endif()
+
+# Nulike
+set(name "nulike")
+set(ver "1.0.9")
+set(lib "libnulike")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(md5 "b3f9d626fc964e9b0d1f33187504662d")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
 
 # SUSY-HIT
 set(name "susyhit")
@@ -893,7 +1029,6 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # FeynHiggs
@@ -1080,7 +1215,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1104,7 +1239,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1188,7 +1323,7 @@ set(ditch_if_absent "Mathematica")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
@@ -1199,32 +1334,6 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-
-
-# Yoda
-#set(name "yoda")
-#set(ver "1.7.7")
-#set(dl "https://yoda.hepforge.org/downloads/?f=YODA-1.7.7.tar.gz")
-#set(md5 "9106b343cbf64319e117aafba663467a")
-#set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-#set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-#check_ditch_status(${name} ${ver} ${dir})
-#if(NOT ditched_${name}_${ver})
-#  ExternalProject_Add(${name}_${ver}
-#    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
-#    SOURCE_DIR ${dir}
-#    BUILD_IN_SOURCE 1
-#    PATCH_COMMAND patch -p1 < ${patch}
-#    PATCH_COMMAND ""
-#    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --disable-pyext --disable-static
-#    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
-#    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
-#  )
-##  BOSS_backend(${name} ${ver})
-#  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-#  set_as_default_version("backend" ${name} ${ver})
-#endif()
-
 
 # cfitsio
 set(name "cfitsio")
@@ -1237,7 +1346,7 @@ set(CFITSIO_SO ".so")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure --includedir=${dir}/include --libdir=${dir}/lib FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} SHLIB_SUFFIX=${CFITSIO_SO}
@@ -1247,58 +1356,6 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-
-
-# Fastjet
-set(name "fastjet")
-set(ver "3.3.2")
-set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
-set(md5 "ca3708785c9194513717a54c1087bfb0")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(FASTJET_CXX_FLAGS ${BACKEND_CXX_FLAGS})
-set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --prefix=${dir}/local --enable-allcxxplugins --disable-static
-    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
-    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
-endif()
-
-# Fjcontrib
-set(name "fjcontrib")
-set(ver "1.041")
-set(dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.041.tar.gz")
-set(md5 "b37674a8701af52b58ebced94a270877")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(fastjet_name "fastjet")
-set(fastjet_ver "3.3.2")
-set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
-set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
-set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS ${fastjet_name}_${fastjet_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
-    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
-    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
-endif()
-
 
 # plc data
 set(name "plc_data")
@@ -1376,15 +1433,63 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# Fastjet
+set(name "fastjet")
+set(ver "3.3.2")
+set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
+set(md5 "ca3708785c9194513717a54c1087bfb0")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(FASTJET_CXX_FLAGS ${BACKEND_CXX_FLAGS})
+set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND ""
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --prefix=${dir}/local --enable-allcxxplugins --disable-static
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+# Fjcontrib
+set(name "fjcontrib")
+set(ver "1.041")
+set(dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.041.tar.gz")
+set(md5 "b37674a8701af52b58ebced94a270877")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(fastjet_name "fastjet")
+set(fastjet_ver "3.3.2")
+set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
+set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
+set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS ${fastjet_name}_${fastjet_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND ""
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # Rivet
 set(name "rivet")
-set(ver "3.1.3")
+set(ver "3.1.4")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-set(md5 "4738ae56037ce7edfedc2fe59432563c")
+set(md5 "43ff4bcab2209d483417ed878d1e6483")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
-#set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
 set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
 set(hepmc_dir "${HEPMC_PATH}/local")
@@ -1393,14 +1498,14 @@ set(fastjet_ver "3.3.2")
 set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}/local")
 set(fjcontrib_name "fjcontrib")
 set(fjcontrib_ver "1.041")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-set(ditch_if_absent "HepMC;YODA")
 set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
-set(Rivet_LD_FLAGS "-L${dir}/include/Rivet")
-# If cython is not installed disable the python extension
-find_python_module(cython)
+set(Rivet_LD_FLAGS "-L${dir}/include/Rivet ${HEPMC_LDFLAGS}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(ditch_if_absent "HepMC;YODA")
+## If cython is not installed disable the python extension
+gambit_find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
   set(Rivet_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
@@ -1416,11 +1521,11 @@ if(NOT ditched_${name}_${ver})
     DEPENDS ${yoda_name}
     DEPENDS ${hepmc_name}
     DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-hepmc3-libpath=${hepmc_dir}/lib --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} ${dir}/local/lib/libRivet.so
     INSTALL_COMMAND ""
   )
@@ -1428,62 +1533,6 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-
-
-# # Rivet
-# set(name "rivet")
-# set(ver "3.1.4")
-# set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-# set(md5 "43ff4bcab2209d483417ed878d1e6483")
-# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-# set(yoda_name "yoda")
-# #set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
-# set(yoda_dir "${YODA_PATH}/local")
-# set(hepmc_name "hepmc")
-# set(hepmc_dir "${HEPMC_PATH}/local")
-# set(fastjet_name "fastjet")
-# set(fastjet_ver "3.3.2")
-# set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}/local")
-# set(fjcontrib_name "fjcontrib")
-# set(fjcontrib_ver "1.041")
-# set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-# set(ditch_if_absent "HepMC;YODA")
-# set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet")
-# set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
-# set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
-# set(Rivet_LD_FLAGS "-L${dir}/include/Rivet")
-# # If cython is not installed disable the python extension
-# find_python_module(cython)
-# if(PY_cython_FOUND)
-#   set(pyext yes)
-#   set(Rivet_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
-#   set(Rivet_LIB "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/libRivet.so")
-#   message("   Backends depending on Rivet's python extension will be enabled.")
-# else()
-#   set(pyext no)
-#   message("   Backends depending on Rivet's python extension (e.g. Contur) will be disabled.")
-# endif()
-# check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
-# if(NOT ditched_${name}_${ver})
-#   ExternalProject_Add(${name}_${ver}
-#     DEPENDS ${yoda_name}
-#     DEPENDS ${hepmc_name}
-#     DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
-#     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
-#     SOURCE_DIR ${dir}
-#     BUILD_IN_SOURCE 1
-#     #PATCH_COMMAND patch -p1 < ${patch}
-#     CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-hepmc3-libpath=${hepmc_dir}/lib --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
-#     BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} ${dir}/local/lib/libRivet.so
-#     INSTALL_COMMAND ""
-#   )
-#   BOSS_backend(${name} ${ver})
-#   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-#   #set_as_default_version("backend" ${name} ${ver})
-# endif()
-
-
-
 
 # Contur
 set(name "contur")
@@ -1494,7 +1543,8 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
-set(Rivet_ver "3.1.3")
+set(Rivet_ver "3.1.4")
+# TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 set(ditch_if_absent "SQLITE3;YODA")
 set(required_modules "cython;configobj;pandas")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
@@ -1505,7 +1555,7 @@ if(NOT ditched_${name}_${ver})
   else()
     ExternalProject_Add(${name}_${ver}
       DEPENDS ${Rivet_name}_${Rivet_ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       #CONFIGURE_COMMAND ""
@@ -1537,7 +1587,7 @@ set(dl "https://github.com/lesgourg/class_public/archive/v${ver}.tar.gz")
 set(md5 "e6eb0fd721bb1098e642f5d1970501ce")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
-set(required_modules "cython")
+set(required_modules "cython,numpy,scipy")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1545,14 +1595,14 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
       CONFIGURE_COMMAND ""
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
-      COMMAND sed ${dashi} -e "s#\".\"#\"${dir}\"#g" include/common.h
+      COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
       BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_GNU99_FLAGS} LDFLAG=${BACKEND_GNU99_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
@@ -1575,7 +1625,7 @@ set(dl "https://github.com/lesgourg/class_public/archive/v${ver}.tar.gz")
 set(md5 "91a28b6b6ad31e0cbc6a715c8589dab2")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
-set(required_modules "cython")
+set(required_modules "cython,numpy,scipy")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1583,14 +1633,14 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
       CONFIGURE_COMMAND ""
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
-      COMMAND sed ${dashi} -e "s#\".\"#\"${dir}\"#g" include/common.h
+      COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
       BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_GNU99_FLAGS} LDFLAG=${BACKEND_GNU99_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
@@ -1613,7 +1663,7 @@ set(dl "https://github.com/lesgourg/class_public/archive/v${ver}.tar.gz")
 set(md5 "dac0e0920e333c553b76c9f4b063ec99")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
-set(required_modules "cython")
+set(required_modules "cython,numpy,scipy")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1621,14 +1671,14 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
       CONFIGURE_COMMAND ""
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
-      COMMAND sed ${dashi} -e "s#\".\"#\"${dir}\"#g" include/common.h
+      COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
       BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_GNU99_FLAGS} LDFLAG=${BACKEND_GNU99_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
@@ -1652,7 +1702,7 @@ set(dl "https://github.com/lesgourg/class_public/archive/42e8f9418e3442d1ea3f26f
 set(md5 "8f3139eacae4d1cc5bb02bab3ec75073")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
-set(required_modules "cython")
+set(required_modules "cython,numpy,scipy")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1660,14 +1710,14 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
       CONFIGURE_COMMAND ""
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
-      COMMAND sed ${dashi} -e "s#\".\"#\"${dir}\"#g" include/common.h
+      COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
       BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_GNU99_FLAGS} LDFLAG=${BACKEND_GNU99_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
@@ -1690,10 +1740,11 @@ endif()
 set(name "darkages")
 set(ver "1.2.0")
 set(sfver "1_2_0")
-set(dl "null")
+set(dl "https://github.com/pstoecker/DarkAges/archive/v${ver}.tar.gz")
+set(md5 "d39d331ab750d1f9796d2b81d55e7703")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
-set(required_modules "scipy,dill,future")
+set(required_modules "scipy,dill,future,numpy")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1701,8 +1752,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      GIT_REPOSITORY https://github.com/pstoecker/DarkAges.git
-      GIT_TAG v${ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ln ${DarkAges_SYMLINK_FLAGS} DarkAges DarkAges_${sfver}
@@ -1732,7 +1782,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}/multimodecode_${ver}.diff

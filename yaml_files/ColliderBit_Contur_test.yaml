@@ -278,6 +278,7 @@ Rules:
         - ATLAS_2019_I1720442
 
   - capability: LHC_measurements_LogLike
+    #function: LHC_measurements_LogLike
     #function: Contur_LHC_measurements_LogLike
     function: Contur_LHC_measurements_LogLike_from_stream
     #options:
