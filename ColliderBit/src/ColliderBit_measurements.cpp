@@ -50,7 +50,6 @@ namespace Gambit
         {
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
-
           
           static AnalysisHandler ah;
 
