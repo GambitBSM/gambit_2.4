@@ -1,11 +1,12 @@
-#ifndef __wrapper_AnalysisHandler_def_Rivet_3_1_0_hh__
-#define __wrapper_AnalysisHandler_def_Rivet_3_1_0_hh__
+#ifndef __wrapper_AnalysisHandler_def_Rivet_3_1_4_hh__
+#define __wrapper_AnalysisHandler_def_Rivet_3_1_4_hh__
 
 #include <string>
 #include <vector>
 #include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
+#include <ostream>
 #include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
@@ -67,12 +68,57 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->setWeightCap(maxWeight);
       }
       
-      inline void AnalysisHandler::setCrossSection(::std::pair<double, double> xsec, bool isUserSupplied)
+      inline void AnalysisHandler::setNLOSmearing(double frac)
+      {
+         get_BEptr()->setNLOSmearing(frac);
+      }
+      
+      inline void AnalysisHandler::skipMultiWeights(bool ignore)
+      {
+         get_BEptr()->skipMultiWeights(ignore);
+      }
+      
+      inline void AnalysisHandler::skipMultiWeights()
+      {
+         get_BEptr()->skipMultiWeights__BOSS();
+      }
+      
+      inline void AnalysisHandler::selectMultiWeights(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > patterns)
+      {
+         get_BEptr()->selectMultiWeights(patterns);
+      }
+      
+      inline void AnalysisHandler::selectMultiWeights()
+      {
+         get_BEptr()->selectMultiWeights__BOSS();
+      }
+      
+      inline void AnalysisHandler::deselectMultiWeights(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > patterns)
+      {
+         get_BEptr()->deselectMultiWeights(patterns);
+      }
+      
+      inline void AnalysisHandler::deselectMultiWeights()
+      {
+         get_BEptr()->deselectMultiWeights__BOSS();
+      }
+      
+      inline void AnalysisHandler::setNominalWeightName(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name)
+      {
+         get_BEptr()->setNominalWeightName(name);
+      }
+      
+      inline void AnalysisHandler::setNominalWeightName()
+      {
+         get_BEptr()->setNominalWeightName__BOSS();
+      }
+      
+      inline void AnalysisHandler::setCrossSection(const ::std::pair<double, double>& xsec, bool isUserSupplied)
       {
          get_BEptr()->setCrossSection(xsec, isUserSupplied);
       }
       
-      inline void AnalysisHandler::setCrossSection(::std::pair<double, double> xsec)
+      inline void AnalysisHandler::setCrossSection(const ::std::pair<double, double>& xsec)
       {
          get_BEptr()->setCrossSection__BOSS(xsec);
       }
@@ -102,6 +148,16 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->sqrtS();
       }
       
+      inline void AnalysisHandler::checkBeams(bool check)
+      {
+         get_BEptr()->checkBeams(check);
+      }
+      
+      inline void AnalysisHandler::checkBeams()
+      {
+         get_BEptr()->checkBeams__BOSS();
+      }
+      
       inline void AnalysisHandler::setIgnoreBeams(bool ignore)
       {
          get_BEptr()->setIgnoreBeams(ignore);
@@ -112,19 +168,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->setIgnoreBeams__BOSS();
       }
       
-      inline void AnalysisHandler::skipMultiWeights(bool ignore)
-      {
-         get_BEptr()->skipMultiWeights(ignore);
-      }
-      
-      inline void AnalysisHandler::skipMultiWeights()
-      {
-         get_BEptr()->skipMultiWeights__BOSS();
-      }
-      
       inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > AnalysisHandler::analysisNames() const
       {
          return get_BEptr()->analysisNames();
+      }
+      
+      inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > AnalysisHandler::stdAnalysisNames() const
+      {
+         return get_BEptr()->stdAnalysisNames();
       }
       
       inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& analysisname)
@@ -172,14 +223,24 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->finalize();
       }
       
-      inline void AnalysisHandler::pushToPersistent()
-      {
-         get_BEptr()->pushToPersistent();
-      }
-      
       inline void AnalysisHandler::readData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename)
       {
          get_BEptr()->readData(filename);
+      }
+      
+      inline ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > > AnalysisHandler::getYodaAOs(bool includeraw) const
+      {
+         return get_BEptr()->getYodaAOs(includeraw);
+      }
+      
+      inline ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > > AnalysisHandler::getYodaAOs() const
+      {
+         return get_BEptr()->getYodaAOs__BOSS();
+      }
+      
+      inline void AnalysisHandler::writeData(::std::basic_ostream<char, std::char_traits<char> >& ostr, const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& fmt) const
+      {
+         get_BEptr()->writeData(ostr, fmt);
       }
       
       inline void AnalysisHandler::writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename) const
@@ -197,14 +258,29 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->writeData__BOSS(arg_1);
       }
       
-      inline void AnalysisHandler::dump(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > dumpfile, int period)
+      inline void AnalysisHandler::setAODump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period)
+      {
+         get_BEptr()->setAODump(dumpfile, period);
+      }
+      
+      inline void AnalysisHandler::setNoAODump()
+      {
+         get_BEptr()->setNoAODump();
+      }
+      
+      inline void AnalysisHandler::dump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period)
       {
          get_BEptr()->dump(dumpfile, period);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, bool equiv)
+      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, bool equiv)
       {
-         get_BEptr()->mergeYodas(aofiles, delopts, equiv);
+         get_BEptr()->mergeYodas(aofiles, delopts, addopts, equiv);
+      }
+      
+      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts)
+      {
+         get_BEptr()->mergeYodas__BOSS(aofiles, delopts, addopts);
       }
       
       inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts)
@@ -287,4 +363,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_AnalysisHandler_def_Rivet_3_1_0_hh__ */
+#endif /* __wrapper_AnalysisHandler_def_Rivet_3_1_4_hh__ */

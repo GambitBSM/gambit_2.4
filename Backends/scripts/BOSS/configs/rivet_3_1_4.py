@@ -28,7 +28,7 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 # ~~~~~ GAMBIT-specific options ~~~~~
 
 gambit_backend_name    = 'Rivet'
-gambit_backend_version = '3.1.3'
+gambit_backend_version = '3.1.4'
 gambit_base_namespace  = ''
 
 
@@ -42,7 +42,7 @@ input_files = [
 include_paths = [
     '../../../Backends/installed/rivet/'+gambit_backend_version+'/include',
     '../../../contrib/HepMC3-3.1.1/local/include',
-    '../../../contrib/YODA-1.8.1/local/include',
+    '../../../contrib/YODA-1.8.5/local/include',
     '../../../Backends/installed/fastjet/3.3.2/local/include'
 ]
 base_paths = ['../../../Backends/installed/rivet/'+gambit_backend_version]

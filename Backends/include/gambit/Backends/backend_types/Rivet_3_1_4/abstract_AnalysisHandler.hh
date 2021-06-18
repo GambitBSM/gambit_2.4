@@ -1,5 +1,5 @@
-#ifndef __abstract_AnalysisHandler_Rivet_3_1_3_hh__
-#define __abstract_AnalysisHandler_Rivet_3_1_3_hh__
+#ifndef __abstract_AnalysisHandler_Rivet_3_1_4_hh__
+#define __abstract_AnalysisHandler_Rivet_3_1_4_hh__
 
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hh"
@@ -9,6 +9,7 @@
 #include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
+#include <ostream>
 #include "YODA/AnalysisObject.h"
 #include <cstddef>
 #include <iostream>
@@ -113,6 +114,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > > getYodaAOs__BOSS() const =0;
    
+            virtual void writeData(::std::basic_ostream<char, std::char_traits<char> >&, const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const =0;
+   
             virtual void writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const =0;
    
             virtual void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >&, ::YODA::AnalysisObject*) const =0;
@@ -185,4 +188,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 #include "gambit/Backends/backend_undefs.hpp"
 
 
-#endif /* __abstract_AnalysisHandler_Rivet_3_1_3_hh__ */
+#endif /* __abstract_AnalysisHandler_Rivet_3_1_4_hh__ */

@@ -4,8 +4,8 @@
 
 #define BACKENDNAME Rivet
 #define BACKENDLANG CXX
-#define VERSION 3.1.0
-#define SAFE_VERSION 3_1_0
+#define VERSION 3.1.4
+#define SAFE_VERSION 3_1_4
 
 #undef DO_CLASSLOADING
 #define DO_CLASSLOADING 1

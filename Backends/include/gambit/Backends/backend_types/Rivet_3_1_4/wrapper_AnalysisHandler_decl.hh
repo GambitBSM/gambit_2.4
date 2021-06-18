@@ -1,5 +1,5 @@
-#ifndef __wrapper_AnalysisHandler_decl_Rivet_3_0_1_hh__
-#define __wrapper_AnalysisHandler_decl_Rivet_3_0_1_hh__
+#ifndef __wrapper_AnalysisHandler_decl_Rivet_3_1_4_hh__
+#define __wrapper_AnalysisHandler_decl_Rivet_3_1_4_hh__
 
 #include <cstddef>
 #include "forward_decls_wrapper_classes.hh"
@@ -10,6 +10,7 @@
 #include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
+#include <ostream>
 #include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
@@ -50,7 +51,33 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             long unsigned int defaultWeightIndex() const;
       
-            void setCrossSection(::std::pair<double, double> xsec);
+            void setWeightCap(const double maxWeight);
+      
+            void setNLOSmearing(double frac);
+      
+            void skipMultiWeights(bool ignore);
+      
+            void skipMultiWeights();
+      
+            void selectMultiWeights(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > patterns);
+      
+            void selectMultiWeights();
+      
+            void deselectMultiWeights(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > patterns);
+      
+            void deselectMultiWeights();
+      
+            void setNominalWeightName(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name);
+      
+            void setNominalWeightName();
+      
+            void setCrossSection(const ::std::pair<double, double>& xsec, bool isUserSupplied);
+      
+            void setCrossSection(const ::std::pair<double, double>& xsec);
+      
+            void setCrossSection(double xsec, double xsecerr, bool isUserSupplied);
+      
+            void setCrossSection(double xsec, double xsecerr);
       
             double nominalCrossSection() const;
       
@@ -58,15 +85,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double sqrtS() const;
       
+            void checkBeams(bool check);
+      
+            void checkBeams();
+      
             void setIgnoreBeams(bool ignore);
       
             void setIgnoreBeams();
       
-            void skipMultiWeights(bool ignore);
-      
-            void skipMultiWeights();
-      
             ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > analysisNames() const;
+      
+            ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > stdAnalysisNames() const;
       
             Rivet::AnalysisHandler& addAnalysis(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& analysisname);
       
@@ -86,9 +115,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void finalize();
       
-            void pushToPersistent();
-      
             void readData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename);
+      
+            ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > > getYodaAOs(bool includeraw) const;
+      
+            ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > > getYodaAOs() const;
+      
+            void writeData(::std::basic_ostream<char, std::char_traits<char> >& ostr, const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& fmt) const;
       
             void writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename) const;
       
@@ -96,9 +129,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >& arg_1) const;
       
-            void dump(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > dumpfile, int period);
+            void setAODump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period);
       
-            void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, bool equiv);
+            void setNoAODump();
+      
+            void dump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period);
+      
+            void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, bool equiv);
+      
+            void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts);
       
             void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts);
       
@@ -133,4 +172,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_AnalysisHandler_decl_Rivet_3_0_1_hh__ */
+#endif /* __wrapper_AnalysisHandler_decl_Rivet_3_1_4_hh__ */
