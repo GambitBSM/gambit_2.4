@@ -253,7 +253,7 @@ if(NOT EXCLUDE_YODA)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
-  find_python_module(cython) 
+  gambit_find_python_module(cython) 
   if(PY_cython_FOUND)
     set(pyext yes)
     message("   Backends depending on YODA's python extension will be enabled.")
