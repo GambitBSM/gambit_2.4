@@ -19,15 +19,15 @@ Parameters:
     Au_3:
       fixed_value: 0
     M1:
-      # fixed_value: 900
-      prior_type: flat
-      range: [-1e3, 1e3]
+      fixed_value: 900
+      # prior_type: flat
+      # range: [-1e3, 1e3]
       # prior_type: double_log_flat_join
       # ranges: [-1e3, -1e1, 1e1, 1e3]
     M2:
-      # fixed_value: 90
-      prior_type: flat
-      range: [0, 1e3]
+      fixed_value: 90
+      # prior_type: flat
+      # range: [0, 1e3]
       # prior_type: double_log_flat_join
       # ranges: [0, 0, 1e1, 1e3]
     M3:
@@ -35,17 +35,17 @@ Parameters:
     Qin:
       fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
     TanBeta:
-      # fixed_value: 10
-      prior_type: log
-      range: [1.0, 70.0]
+      fixed_value: 10
+      # prior_type: log
+      # range: [1.0, 70.0]
     ml2:
       fixed_value: 9000000
     mq2:
       fixed_value: 9000000
     mu:
-      # fixed_value: 500
-      prior_type: flat
-      range: [-1e3, 1e3]
+      fixed_value: 500
+      # prior_type: flat
+      # range: [-1e3, 1e3]
       # prior_type: double_log_flat_join
       # ranges: [-1e3, -1e1, 1e1, 1e3]
     mA:
@@ -61,20 +61,20 @@ Priors:
 
 Printer:
 
-  # printer: cout
+  printer: cout
 
-  printer: hdf5
-  options:
-    output_file: "MSSMEW_gravitino.hdf5"
-    group: "/MSSMEW_gravitino"
-    buffer_length: 11 # 2
-    # disable_combine_routines: true
-    # delete_file_on_restart: true
+  # printer: hdf5
+  # options:
+  #   output_file: "MSSMEW_gravitino.hdf5"
+  #   group: "/MSSMEW_gravitino"
+  #   buffer_length: 11 # 2
+  #   # disable_combine_routines: true
+  #   # delete_file_on_restart: true
 
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: random
 
   scanners:
 
@@ -103,9 +103,9 @@ ObsLikes:
     # Likelihoods
     #
 
-    # Combined LHC likelihood
-    - purpose:    LogLike
-      capability: LHC_Combined_LogLike
+    # # Combined LHC likelihood
+    # - purpose:    LogLike
+    #   capability: LHC_Combined_LogLike
 
     # LEP likelihoods
     - purpose:    LogLike
@@ -136,23 +136,23 @@ ObsLikes:
     - purpose:    Observable
       capability: all_BFs
 
-    - purpose:    Observable 
-      capability: TotalCrossSectionAsMap
+    # - purpose:    Observable 
+    #   capability: TotalCrossSectionAsMap
 
-    - purpose:    Observable
-      capability: LHC_signals
+    # - purpose:    Observable
+    #   capability: LHC_signals
 
-    - purpose:    Observable
-      capability: LHC_LogLike_per_SR
+    # - purpose:    Observable
+    #   capability: LHC_LogLike_per_SR
 
-    - purpose:    Observable
-      capability: LHC_LogLike_per_SR_scaledsignals
+    # - purpose:    Observable
+    #   capability: LHC_LogLike_per_SR_scaledsignals
 
-    - purpose:    Observable
-      capability: LHC_LogLike_SR_indices
+    # - purpose:    Observable
+    #   capability: LHC_LogLike_SR_indices
 
-    - purpose:    Observable
-      capability: LHCEventLoopInfo
+    # - purpose:    Observable
+    #   capability: LHCEventLoopInfo
 
     # Other
     - purpose:    Observable
@@ -608,7 +608,7 @@ KeyValues:
     print_invalid_points: false
 
   # Set the default output path
-  default_output_path: "./output/MSSMEW_gravitino/"
+  default_output_path: "./output/MSSMEW_gravitino_LEP/"
 
   # We set the errors from the physics modules to be non-fatal
   # to avoid crashing the entire scan due to a rare problem point.
