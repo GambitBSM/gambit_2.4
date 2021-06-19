@@ -154,8 +154,7 @@ diff -rupN Rivet-3.1.4/src/Core/Makefile.in ../installed/rivet/3.1.4/src/Core/Ma
      /// Write all analyses' plots (via getData) to the named file.
      void writeData(const string& filename) const;
 +    void writeData(vector<YODA::AnalysisObjectPtr>&, YODA::AnalysisObject* = NULL) const; // Added by GAMBIT
-+    void writeData(std::ostream& ostr, const string& fmt) const; 
-
+ 
      /// @brief Configure the AnalysisObject dump rate and destination.
      ///
 diff -rupN Rivet-3.1.4/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.4/include/Rivet/Tools/RivetHepMC.hh
@@ -206,15 +205,6 @@ diff -rupN Rivet-3.1.4/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.4/src/
  
    }
  
-+  void AnalysisHandler::writeData(std::ostream& ostr, const string& fmt) const {
-+    const vector<YODA::AnalysisObjectPtr> output = getYodaAOs(true);
-+    try {
-+      YODA::write(ostr, begin(output), end(output), fmt);
-+    } catch (...) { //< YODA::WriteError&
-+    throw UserError("Unexpected error in writing output");
-+  }
-+}
-+
 +  // Added by GAMBIT
 +  void AnalysisHandler::writeData(vector<YODA::AnalysisObjectPtr> &output, YODA::AnalysisObject* object) const {
 +
@@ -262,4 +252,3 @@ diff -rupN Rivet-3.1.4/analyses/Makefile.in ../installed/rivet/3.1.4/analyses/Ma
 +@ENABLE_ANALYSES_TRYE@install-exec-local: RivetATLASAnalyses.so RivetCMSAnalyses.so # Added by GAMBIT
  @ENABLE_ANALYSES_TRUE@	$(MKDIR_P) $(DESTDIR)$(libdir)/Rivet
  @ENABLE_ANALYSES_TRUE@	$(INSTALL) $^ $(DESTDIR)$(libdir)/Rivet
- 

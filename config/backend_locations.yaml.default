@@ -110,12 +110,7 @@ nulike:
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
 Rivet:
-<<<<<<< HEAD
-  3.1.0:       ./Backends/installed/rivet/3.1.0/local/lib/libRivet.so
-  3.1.3:       ./Backends/installed/rivet/3.1.3/local/lib/libRivet.so
-=======
   3.1.4:       ./Backends/installed/rivet/3.1.4/local/lib/libRivet.so
->>>>>>> db817c8749881249fa0680b63ccd6f33b719411f
 
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
