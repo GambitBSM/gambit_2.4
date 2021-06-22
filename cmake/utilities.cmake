@@ -644,7 +644,8 @@ macro(BOSS_backend name backend_version ${ARGN})
       set(BOSS_castxml_cc "")
     endif()
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-      set(dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
+      set(dl "https://data.kitware.com/api/v1/item/57b5de948d777f10f2696373/download")
+      #set(dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
       set(dl_filename "castxml-macosx.tar.gz")
     else()
       set(dl "https://data.kitware.com/api/v1/file/57b5dea08d777f10f2696379/download")
@@ -654,7 +655,7 @@ macro(BOSS_backend name backend_version ${ARGN})
       # Check for castxml binaries and download if they do not exist
       COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${CMAKE_DOWNLOAD_FLAGS} ${dl} ${dl_filename}
       # Run BOSS
-      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}${suffix}
+      COMMAND python2.7 ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}${suffix}
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
       COMMAND cp BOSS_output/${name_in_frontend}_${backend_version_safe}/frontends/${name_in_frontend}_${backend_version_safe}.hpp ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/${name_in_frontend}_${backend_version_safe}.hpp
