@@ -35,19 +35,26 @@ BE_NAMESPACE
 
   }
 
-  double Contur_LogLike_from_stream(std::shared_ptr<std::ostream> yodastream)
+  double Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream)
   {
-    pybind11::object contur = Contur.attr("factories").attr("Depot")(false);
-    pybind11::dict params = {};
-    params["No parameters specified"] = 0.0;
+    //Convert C++ ostringstream to python StringIO
+    //pybind11::object yoda_string_IO = Contur.attr("StringIO")(pybind11::cast(yodastream->str()));
+    //yoda_string_IO.attr("write")(((pybind11::cast(yodastream->str())).attr("encode")(pybind11::cast("utf-8"))).attr("decode")(pybind11::cast("utf-8")));
+    //yoda_string_IO.attr("seek")(pybind11::int_(pybind11::cast(0)));
+    pybind11::str InputString = pybind11::cast(yodastream->str());
+    pybind11::object yoda_string_IO = Contur.attr("StringIO")(InputString);
 
-    contur.attr("add_point")("param_dict"_a=params, "yodafile"_a=(*yodastream));
+    yoda_string_IO.attr("seek")(pybind11::int_(pybind11::cast(0)));
 
-    pybind11::list inbox = contur.attr("_inbox");
+    //Get default settings for Contur run and add a couple of our own:
+    pybind11::dict args_dict = ((Contur.attr("run_analysis").attr("get_argparser")()).attr("parse_args")()).attr("__dict__");
+    args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
+    args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
+    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
 
-    double LLR = inbox[0].attr("yoda_factory").attr("_full_likelihood").attr("._ts_s_b").cast<double>() 
-     - inbox[0].attr("yoda_factory").attr("_full_likelihood").attr("_ts_b").cast<double>();
-    return LLR;
+    //Run contur, get a LLR and return it
+    return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
+    std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
   }
 
   double Contur_LogLike_from_file(str &YODA_filename)

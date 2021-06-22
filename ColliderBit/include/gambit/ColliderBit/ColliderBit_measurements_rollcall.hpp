@@ -28,7 +28,7 @@
       START_CAPABILITY
 
         #define FUNCTION Rivet_measurements
-        START_FUNCTION(std::shared_ptr<std::ostream>)
+        START_FUNCTION(std::shared_ptr<std::ostringstream>)
         NEEDS_CLASSES_FROM(Rivet, default)
         DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
         NEEDS_MANAGER(RunMC, MCLoopInfo)
@@ -62,8 +62,8 @@
       // Contur version, from YODA stream
       #define FUNCTION Contur_LHC_measurements_LogLike_from_stream
       START_FUNCTION(double)
-      DEPENDENCY(Rivet_measurements, std::shared_ptr<std::ostream>)
-      BACKEND_REQ(Contur_LogLike, (libcontur), double, (std::shared_ptr<std::ostream>))
+      DEPENDENCY(Rivet_measurements, std::shared_ptr<std::ostringstream>)
+      BACKEND_REQ(Contur_LogLike, (libcontur), double, (std::shared_ptr<std::ostringstream>))
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
 

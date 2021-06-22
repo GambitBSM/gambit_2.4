@@ -46,7 +46,7 @@ namespace Gambit
 
         // Analyse HepMC events with Rivet's measurements 
         // Collect results in a stream of a YODA file
-        void Rivet_measurements(std::shared_ptr<std::ostream> &result)
+        void Rivet_measurements(std::shared_ptr<std::ostringstream> &result)
         {
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
@@ -76,7 +76,7 @@ namespace Gambit
             // Rivet is reading from file here, so make it critical
             # pragma omp critical
             {
-              // Add the list to the AnalaysisHandler
+              // Add the list to theAnalaysisHandler
               for (auto analysis : analyses)
                 ah.addAnalysis(analysis);
             }
@@ -85,19 +85,33 @@ namespace Gambit
           if (*Loop::iteration == BASE_FINALIZE)
           {
             ah.finalize();
+            std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
+
+            std::cout << "Result is pointing to: " << result << "\n" << std::flush;
+            if (result == nullptr){
+              result = std::make_unique<std::ostringstream>();
+            }
+            std::cout << "Result is pointing to: " << result << "\n" << std::flush;
 
             // Get YODA object
             ah.writeData(*result, "yoda");
 
+            std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
+
             // Drop YODA file if requested
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
+
+            std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
             if(drop_YODA_file)
             {
+              std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
               str filename = "GAMBIT_collider_measurements.yoda";
+              
 
               try{ ah.writeData(filename); }
               catch (...)
               { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+              std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
             }
           }
 
@@ -107,6 +121,7 @@ namespace Gambit
           // Make sure this is single thread only (assuming Rivet is not thread-safe)
           # pragma omp critical
           {
+            //std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
 
             // Get the HepMC event
             HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
@@ -233,16 +248,19 @@ namespace Gambit
       void Contur_LHC_measurements_LogLike_from_stream(double &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_from_stream;
+        std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
+
+        
+        std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
 
 
-        std::shared_ptr<std::ostream> yoda_stream = *Dep::Rivet_measurements;
+        std::cout << "Yodastream is pointing to: " << yodastream << "\n" << std::flush;
 
         //TODO: Check on Rivet/Contur thread safety
         #pragma omp critical
         {
-          // Call Contur
-          //result = BEreq::Contur_LogLike(*Dep::Rivet_measurements);
-          result = BEreq::Contur_LogLike(std::move(yoda_stream));
+          ///Call contur
+          result = BEreq::Contur_LogLike(std::move(yodastream));
         } 
 
         std::cout << "Contur loglike = " << result << std::endl;

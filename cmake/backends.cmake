@@ -1567,7 +1567,8 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from factories import yoda_factories" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
       BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
       INSTALL_COMMAND ""
     )
