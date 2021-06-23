@@ -237,13 +237,8 @@ namespace Gambit
       void Contur_LHC_measurements_LogLike_from_stream(double &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_from_stream;
-        std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
-
-        
+  
         std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
-
-
-        std::cout << "Yodastream is pointing to: " << yodastream << "\n" << std::flush;
 
         //TODO: Check on Rivet/Contur thread safety
         #pragma omp critical
