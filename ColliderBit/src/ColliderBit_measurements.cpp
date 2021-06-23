@@ -57,7 +57,7 @@ namespace Gambit
           {
 
             // TODO: this is temporary cause it does not work without it
-            ah.setIgnoreBeams(true);
+            //ah.setIgnoreBeams(true);
 
             // TODO: Cross section?
 
@@ -85,33 +85,24 @@ namespace Gambit
           if (*Loop::iteration == BASE_FINALIZE)
           {
             ah.finalize();
-            std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
 
-            std::cout << "Result is pointing to: " << result << "\n" << std::flush;
             if (result == nullptr){
-              result = std::make_unique<std::ostringstream>();
+              result = std::make_shared<std::ostringstream>();
             }
-            std::cout << "Result is pointing to: " << result << "\n" << std::flush;
 
             // Get YODA object
             ah.writeData(*result, "yoda");
 
-            std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
-
             // Drop YODA file if requested
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
 
-            std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
             if(drop_YODA_file)
             {
-              std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
               str filename = "GAMBIT_collider_measurements.yoda";
               
-
               try{ ah.writeData(filename); }
               catch (...)
               { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
-              std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
             }
           }
 
@@ -121,8 +112,6 @@ namespace Gambit
           // Make sure this is single thread only (assuming Rivet is not thread-safe)
           # pragma omp critical
           {
-            //std::cout << __FILE__ << "; " << __LINE__ << "\n" << std::flush;
-
             // Get the HepMC event
             HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
 
