@@ -13,6 +13,7 @@
 ///  \author Anders Kvellestad
 ///  \author Pat Scott
 ///  \author Martin White
+///  \author Are Raklev  June 2021
 ///
 ///  *********************************************
 
@@ -250,7 +251,7 @@ namespace Gambit
       result.clear();
 
       std::vector<FJNS::PseudoJet> bhadrons; //< for input to FastJet b-tagging
-      std::vector<HEPUtils::Particle> bpartons, cpartons, tauCandidates;
+      std::vector<HEPUtils::Particle> bpartons, cpartons, tauCandidates, WCandidates, ZCandidates;
       HEPUtils::P4 pout; //< Sum of momenta outside acceptance
       std::vector<FJNS::PseudoJet> jetparticles;
 
@@ -314,6 +315,29 @@ namespace Gambit
           }
           if (isGoodTau) {
             tauCandidates.push_back(HEPUtils::Particle(p4, pid));
+          }
+        }
+        
+        // Find candidates for hadronically decaying vector bosons
+        if (apid == 23 || apid == 24)
+        {
+          bool isGoodBoson = true;
+          std::vector<int> childIDs;
+          get_unified_child_ids(p, pevt, childIDs);
+          int abschildID;
+          for (int childID : childIDs)
+          {
+            // Veto leptonically decaying bosons
+            abschildID = abs(childID);
+            if (abschildID == 23 || abschildID == 24 || abschildID == MCUtils::PID::ELECTRON || abschildID == MCUtils::PID::MUON || abschildID == MCUtils::PID::TAU)
+            {
+              isGoodBoson = false;
+            }
+          }
+          if (isGoodBoson)
+          {
+            if(apid == 23) ZCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if(apid == 24) WCandidates.push_back(HEPUtils::Particle(p4,pid));
           }
         }
 
@@ -380,7 +404,6 @@ namespace Gambit
       std::vector<FJNS::PseudoJet> pjets = sorted_by_pt(cseq.inclusive_jets(jet_pt_min));
 
 
-
       /// Do jet b-tagging, etc. and add to the Event
       /// @todo Use ghost tagging?
       /// @note We need to _remove_ this b-tag in the detector sim if outside the tracker acceptance!
@@ -411,6 +434,22 @@ namespace Gambit
             break;
           }
         }
+        
+        bool isW = false;
+        for (HEPUtils::Particle& pW : WCandidates){
+          if (jetMom.deltaR_eta(pW.mom()) < 1.0){ ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
+            isW = true;
+            break;
+          }
+        }
+
+        bool isZ = false;
+        for (HEPUtils::Particle& pZ : ZCandidates){
+          if (jetMom.deltaR_eta(pZ.mom()) < 1.0){ ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
+            isZ = true;
+            break;
+          }
+        }
 
         // Add to the event (use jet momentum for tau)
         if (isTau) {
@@ -418,7 +457,7 @@ namespace Gambit
           gp->set_prompt();
           result.add_particle(gp);
         }
-        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC));
+        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC, isW, isZ));
       }
 
       /// Calculate missing momentum
@@ -544,7 +583,7 @@ namespace Gambit
                  [](const FJNS::PseudoJet& c){ return c.user_index() == MCUtils::PID::BQUARK; });
         const bool isC = HEPUtils::any(pj.constituents(),
                  [](const FJNS::PseudoJet& c){ return c.user_index() == MCUtils::PID::CQUARK; });
-        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC));
+        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC, false, false)); // This does not currently deal with vector boson tagging
 
         bool isTau=false;
         for(auto& ptau : tauCandidates){

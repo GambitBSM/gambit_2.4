@@ -22,8 +22,8 @@ namespace HEPUtils {
     //@{
     /// Momentum vector
     P4 _p4;
-    /// B and C tags
-    bool _isB, _isC;
+    /// Tags
+    bool _isB, _isC, _isW, _isZ;
     //@}
 
 
@@ -33,8 +33,12 @@ namespace HEPUtils {
     //@{
 
     /// Constructor for a light jet without explicit constituents
-    Jet(const P4& mom, bool isB=false, bool isC=false)
-      : _p4(mom), _isB(isB), _isC(isC) {  }
+//    Jet(const P4& mom, bool isB=false, bool isC=false)
+//      : _p4(mom), _isB(isB), _isC(isC) {  }
+
+    /// Constructor for jet with tags
+    Jet(const P4& mom, bool isB=false, bool isC=false, bool isW=false, bool isZ=false)
+      : _p4(mom), _isB(isB), _isC(isC), _isW(isW), _isZ(isZ) {  }
 
     /// "Cartesian" constructor
     Jet(double px, double py, double pz, double E, bool isB=false, bool isC=false)
