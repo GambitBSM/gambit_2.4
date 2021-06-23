@@ -12,6 +12,9 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "gambit/ColliderBit/lester_mt2_bisect.h"
+
+// #define CHECK_CUTFLOW
 
 using namespace std;
 
@@ -30,10 +33,15 @@ namespace Gambit {
         {"SR-4Q-WZ", EventCounter("SR-4Q-WZ")},
         {"SR-4Q-ZZ", EventCounter("SR-4Q-ZZ")},
         {"SR-4Q-VV", EventCounter("SR-4Q-VV")},
-        {"SR-2B2Q-WZ", EventCounter("SR-4Q-VV")},
+        {"SR-2B2Q-WZ", EventCounter("SR-2B2Q-WZ")},
+        {"SR-2B2Q-ZZ", EventCounter("SR-2B2Q-ZZ")},
+        {"SR-2B2Q-Wh", EventCounter("SR-2B2Q-Wh")},
+        {"SR-2B2Q-Zh", EventCounter("SR-2B2Q-Zh")},
+        {"SR-2B2Q-VZ", EventCounter("SR-2B2Q-VZ")},
+        {"SR-2B2Q-Vh", EventCounter("SR-2B2Q-Vh")},
         // Discovery regions
-        {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},
-        {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},
+        {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
+        {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
       };
 
     private:
@@ -51,10 +59,10 @@ namespace Gambit {
 
       static bool sortByPT(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
 
-      Analysis_ATLAS_13TeV_3b_36invfb() {
+      Analysis_ATLAS_13TeV_2BoostedBosons_139invfb() {
 
-        set_analysis_name("ATLAS_13TeV_3b_36invfb");
-        set_luminosity(36.1);
+        set_analysis_name("ATLAS_13TeV_2BoostedBosons_139invfb");
+        set_luminosity(139.);
 
         NCUTS=14;
 
@@ -116,19 +124,18 @@ namespace Gambit {
         return;
       }
 
-      // Calculate transverse mass
-      double mTrans(HEPUtils::P4 pmiss, HEPUtils::P4 jet) {
-        double mT = sqrt( pow(pmiss.pT()+jet.pT(),2) - pow(pmiss.px()+jet.px(),2) - pow(pmiss.py()+jet.py(),2) );
-        //cout << "pTmiss " << pmiss.pT() << " jetpT " << jet.pT() << endl;
-        //cout << "pxmiss " << pmiss.px() << "pxjet " << jet.px() << " pymiss " << pmiss.py() << " pyjet " << jet.py() << endl;
-        return mT;
-      }
-
       void run(const HEPUtils::Event* event) {
 
         // Get the missing energy in the event
         double met = event->met();
         HEPUtils::P4 metVec = event->missingmom();
+
+        // Count large jets (minimum 2)
+        vector<const HEPUtils::Jet*> fatJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
+          if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 200.)
+            fatJets.push_back(jet);
+        }
 
         // Now define vectors of baseline objects, including:
         // - retrieval of electron, muon and jets from the event
@@ -156,34 +163,28 @@ namespace Gambit {
         // Apply muon efficiency
         ATLAS::applyMuonEff(muons);
 
-        vector<const HEPUtils::Jet*> candJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
-          if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
-            candJets.push_back(jet);
-        }
-
-   	    // Jets
-        vector<const HEPUtils::Jet*> bJets;
-        vector<const HEPUtils::Jet*> nonbJets;
-
-        // Find b-jets
-        double btag = 0.77; double cmisstag = 1/6.; double misstag = 1./134.;
-        for (const HEPUtils::Jet* jet : candJets) {
-          // Tag
-          if( jet->btag() && random_bool(btag) ) bJets.push_back(jet);
-          // Misstag c-jet
-          else if( jet->ctag() && random_bool(cmisstag) ) bJets.push_back(jet);
-          // Misstag light jet
-          else if( random_bool(misstag) ) bJets.push_back(jet);
-          // Non b-jet
-          else nonbJets.push_back(jet);
-        }
-
-        // Overlap removal
-        JetLeptonOverlapRemoval(nonbJets,electrons,0.2);
-        LeptonJetOverlapRemoval(electrons,nonbJets);
-        JetLeptonOverlapRemoval(nonbJets,muons,0.2);
-        LeptonJetOverlapRemoval(muons,nonbJets);
+//   	    // Jets
+//        vector<const HEPUtils::Jet*> bJets;
+//        vector<const HEPUtils::Jet*> nonbJets;
+//
+//        // Find b-jets
+//        double btag = 0.77; double cmisstag = 1/6.; double misstag = 1./134.;
+//        for (const HEPUtils::Jet* jet : candJets) {
+//          // Tag
+//          if( jet->btag() && random_bool(btag) ) bJets.push_back(jet);
+//          // Misstag c-jet
+//          else if( jet->ctag() && random_bool(cmisstag) ) bJets.push_back(jet);
+//          // Misstag light jet
+//          else if( random_bool(misstag) ) bJets.push_back(jet);
+//          // Non b-jet
+//          else nonbJets.push_back(jet);
+//        }
+//
+//        // Overlap removal
+//        JetLeptonOverlapRemoval(nonbJets,electrons,0.2);
+//        LeptonJetOverlapRemoval(electrons,nonbJets);
+//        JetLeptonOverlapRemoval(nonbJets,muons,0.2);
+//        LeptonJetOverlapRemoval(muons,nonbJets);
 
         // Find veto leptons with pT > 20 GeV
         vector<const HEPUtils::Particle*> vetoElectrons;
@@ -195,98 +196,44 @@ namespace Gambit {
           if (muon->pT() > 20.) vetoMuons.push_back(muon);
         }
 
-        // Restrict jets to pT > 25 GeV after overlap removal
-        vector<const HEPUtils::Jet*> bJets_survivors;
-        for (const HEPUtils::Jet* jet : bJets) {
-          if(jet->pT() > 25.) bJets_survivors.push_back(jet);
-        }
-        vector<const HEPUtils::Jet*> nonbJets_survivors;
-        for (const HEPUtils::Jet* jet : nonbJets) {
-          if(jet->pT() > 25.) nonbJets_survivors.push_back(jet);
-        }
-        vector<const HEPUtils::Jet*> jet_survivors;
-        jet_survivors = nonbJets_survivors;
-        for (const HEPUtils::Jet* jet : bJets) {
-          jet_survivors.push_back(jet);
-        }
-        std::sort(jet_survivors.begin(), jet_survivors.end(), sortByPT);
-
-        // Number of objects
-        size_t nbJets = bJets_survivors.size();
-        size_t nnonbJets = nonbJets_survivors.size();
-        size_t nJets = nbJets + nnonbJets;
-        //size_t nJets = jet_survivors.size();
+//        // Restrict jets to pT > 25 GeV after overlap removal
+//        vector<const HEPUtils::Jet*> bJets_survivors;
+//        for (const HEPUtils::Jet* jet : bJets) {
+//          if(jet->pT() > 25.) bJets_survivors.push_back(jet);
+//        }
+//        vector<const HEPUtils::Jet*> nonbJets_survivors;
+//        for (const HEPUtils::Jet* jet : nonbJets) {
+//          if(jet->pT() > 25.) nonbJets_survivors.push_back(jet);
+//        }
+//        vector<const HEPUtils::Jet*> jet_survivors;
+//        jet_survivors = nonbJets_survivors;
+//        for (const HEPUtils::Jet* jet : bJets) {
+//          jet_survivors.push_back(jet);
+//        }
+//        std::sort(jet_survivors.begin(), jet_survivors.end(), sortByPT);
+//
+//        // Number of objects
+//        size_t nbJets = bJets_survivors.size();
+//        size_t nnonbJets = nonbJets_survivors.size();
+//        size_t nJets = nbJets + nnonbJets;
+//        //size_t nJets = jet_survivors.size();
         size_t nMuons=vetoMuons.size();
         size_t nElectrons=vetoElectrons.size();
         size_t nLeptons = nElectrons+nMuons;
 
-        // Loop over jets to find angle wrt to missing momentum
-        double phi4min = 7;
-        for(int i = 0; i < min(4,(int)nJets); i++){
-          double phi = jet_survivors.at(i)->mom().deltaPhi(metVec);
-          if(phi < phi4min) phi4min = phi;
-        }
-
-        // Collect the four signal jets.
-        vector<const HEPUtils::Jet*> signalJets;
-        for(const HEPUtils::Jet* jet : bJets_survivors){
-          if(signalJets.size() < 4) signalJets.push_back(jet);
-        }
-        for(const HEPUtils::Jet* jet : nonbJets_survivors){
-          if(signalJets.size() < 4) signalJets.push_back(jet);
-        }
-
-        // Effective mass (using the four jets used in Higgses)
+        // Effective mass (missing energy plus two leading fatjet pTs)
         double meff = met;
-        for(const HEPUtils::Jet* jet : signalJets){
-          meff += jet->pT();
-        }
+        meff += fatJets[0]->pT();
+        meff += fatJets[1]->pT();
 
-        // Find Higgs candidates
-        double mlead = 0;  double msubl = 0;
-        double m1 = 0;  double m2 = 0;
-        double Rbbmax = 10;
-        if(signalJets.size() == 4){
-          double R11 = signalJets.at(0)->mom().deltaR_eta(signalJets.at(1)->mom());
-          double R12 = signalJets.at(2)->mom().deltaR_eta(signalJets.at(3)->mom());
-          double DR1 = max(R11,R12);
-          //cout << DR1 << " " << R11 << " " << R12 << endl;
-          double R21 = signalJets.at(0)->mom().deltaR_eta(signalJets.at(2)->mom());
-          double R22 = signalJets.at(1)->mom().deltaR_eta(signalJets.at(3)->mom());
-          double DR2 = max(R21,R22);
-          //cout << DR2 << " " << R21 << " " << R22 << endl;
-          double R31 = signalJets.at(0)->mom().deltaR_eta(signalJets.at(3)->mom());
-          double R32 = signalJets.at(1)->mom().deltaR_eta(signalJets.at(2)->mom());
-          double DR3 = max(R31,R32);
-          //cout << DR3 << " " << R31 << " " << R32 << endl;
-          //cout << endl;
-          if( DR1 < DR2 && DR1 < DR3 ){
-            m1 = (signalJets.at(0)->mom()+signalJets.at(1)->mom()).m();
-            m2 = (signalJets.at(2)->mom()+signalJets.at(3)->mom()).m();
-            Rbbmax = DR1;
-          }
-          else if( DR2 < DR1 && DR2 < DR3 ){
-            m1 = (signalJets.at(0)->mom()+signalJets.at(2)->mom()).m();
-            m2 = (signalJets.at(1)->mom()+signalJets.at(3)->mom()).m();
-            Rbbmax = DR2;
-          }
-          else{
-            m1 = (signalJets.at(0)->mom()+signalJets.at(3)->mom()).m();
-            m2 = (signalJets.at(1)->mom()+signalJets.at(2)->mom()).m();
-            Rbbmax = DR3;
-          }
-          mlead = max(m1,m2); msubl = min(m1,m2);
-          //cout << mlead << " " << msubl << endl;
-        }
+        // Stransverse mass (two leading fat jets as legs, assumes 100 GeV invisible mass)
+//        double MT2 =  asymm_mt2_lester_bisect::get_mT2(
+//fatJets[0]->mom()
+//        fatJets[0]->mass(), fatJets[0]->px(), fatJets[0]->py(),
+//        fatJets[1]->mass(), fatJets[1]->px(), fatJets[1]->py(),
+//        pxMiss, pyMiss,
+//        100., 100., 0);
 
-
-        // Transverse mass for leading b-jets
-        double mTmin = 10E6;
-        for(int i = 0; i < min(3,(int)nbJets); i++){
-          double mT = mTrans(metVec,bJets_survivors.at(i)->mom());
-          if(mT < mTmin) mTmin = mT;
-        }
-        //cout << "mTmin " << mTmin << endl;
 
         // Increment cutFlowVector elements
         // Cut flow strings
@@ -388,40 +335,27 @@ namespace Gambit {
 
         // Now increment signal region variables
         // First exclusion regions
-        if(nbJets == 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 150. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 600. && meff < 850.) _counters.at("SR-3b-meff1-A").add_event(event);
-        if(nbJets == 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 150. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 850. && meff < 1100.) _counters.at("SR-3b-meff2-A").add_event(event);
-        if(nbJets >= 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 130. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 1100.) _counters.at("SR-3b-meff3-A").add_event(event);
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && meff > 600. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff < 850.) _counters.at("SR-4b-meff1-A").add_event(event);
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && meff > 600. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 1.4 && Rbbmax < 2.4 && meff < 850.) _counters.at("SR-4b-meff1-B").add_event(event);
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 6 && meff > 850. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff < 1100.) _counters.at("SR-4b-meff2-A").add_event(event);
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 6 && meff > 850. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 1.4 && Rbbmax < 2.4 && meff < 1100.) _counters.at("SR-4b-meff2-B").add_event(event);
+        if(met > 200 && nLeptons == 0) _counters.at("SR-4Q-WW").add_event(event);
         // Discovery regions
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 600.) _counters.at("SR-4b-meff1-A-disc").add_event(event);
+        if(met > 200 && nLeptons == 0) _counters.at("Disc-SR-2B2Q").add_event(event);
 
         return;
 
       } // End of analyze
 
+      
       /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
       void combine(const Analysis* other)
       {
-        const Analysis_ATLAS_13TeV_3b_36invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_13TeV_3b_36invfb*>(other);
-
+        const Analysis_ATLAS_13TeV_2BoostedBosons_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_2BoostedBosons_139invfb*>(other);
         for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (size_t j=0; j<NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-
       }
 
 
-      virtual void collect_results() {
+      void collect_results() {
 
-//        // DEBUG
+        // Cut-flow printout
+        #ifdef CHECK_CUTFLOW
 //        double L = 36.1;
 ////        double xsec = 284.65; // 300 GeV
 ////        double xsec = 33.81; // 500 GeV
@@ -439,18 +373,22 @@ namespace Gambit {
 //          cout << "DEBUG 1: i: " << i << ":   " << setprecision(4) << ATLAS_abs << "\t" << GAMBIT_scaled << "\t" << "\t" << ratio << "\t\t" << cutFlowVector_str[i] << endl;
 //        }
 //        cout << "DEBUG:" << endl;
+        #endif
 
         // Now fill a results object with the results for each SR
-        // Only exclusion regions here
-        add_result(SignalRegionData(_counters.at("SR-3b-meff1-A"), 4., {2.5, 1.0}));
-        add_result(SignalRegionData(_counters.at("SR-3b-meff2-A"), 3., {2.0, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR-3b-meff3-A"), 0., {0.8, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR-4b-meff1-A"), 1., {0.43, 0.31}));
-        add_result(SignalRegionData(_counters.at("SR-4b-meff1-B"), 2., {2.6, 0.9}));
-        add_result(SignalRegionData(_counters.at("SR-4b-meff2-A"), 1., {0.43, 0.27}));
-        add_result(SignalRegionData(_counters.at("SR-4b-meff2-B"), 0., {1.3, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR-4Q-WW"),   2., {1.9, 0.4}));
+        add_result(SignalRegionData(_counters.at("SR-4Q-WZ"),   3., {3.4, 0.7}));
+        add_result(SignalRegionData(_counters.at("SR-4Q-ZZ"),   1., {1.9, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR-4Q-VV"),   3., {3.9, 0.8}));
+        add_result(SignalRegionData(_counters.at("SR-2B2Q-WZ"), 2., {1.6, 0.4}));
+        add_result(SignalRegionData(_counters.at("SR-2B2Q-ZZ"), 2., {1.7, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR-2B2Q-Wh"), 0., {1.9, 0.7}));
+        add_result(SignalRegionData(_counters.at("SR-2B2Q-Zh"), 1., {1.6, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR-2B2Q-VZ"), 2., {2.2, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR-2B2Q-Vh"), 1., {2.5, 0.8}));
+        add_result(SignalRegionData(_counters.at("Disc-SR-2B2Q"), 3., {4.7, 1.0})); // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
+        add_result(SignalRegionData(_counters.at("Disc-SR-Incl"), 6., {8.6, 1.3})); // Union of SR-4Q-VV and Disc-SR-2B2Q
 
-        return;
       }
 
       void analysis_specific_reset() {
@@ -461,33 +399,11 @@ namespace Gambit {
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
-
-
     };
 
-    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_3b_36invfb)
-
-
-    //
-    // Class for collecting results for discovery regions as a derived class
-    //
-
-    class Analysis_ATLAS_13TeV_3b_discoverySR_36invfb : public Analysis_ATLAS_13TeV_3b_36invfb {
-
-    public:
-      Analysis_ATLAS_13TeV_3b_discoverySR_36invfb() {
-        set_analysis_name("ATLAS_13TeV_3b_discoverySR_36invfb");
-      }
-
-      virtual void collect_results() {
-
-        add_result(SignalRegionData(_counters.at("SR-4b-meff1-A-disc"), 2., {0.7, 0.5}));
-      }
-
-    };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_3b_discoverySR_36invfb)
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2BoostedBosons_139invfb)
 
 
   }
