@@ -400,6 +400,7 @@ namespace Gambit
       /// Jet finding
       /// @todo Choose jet algorithm via detector _settings? Run several algs?
       const FJNS::JetDefinition jet_def(FJNS::antikt_algorithm, antiktR);
+      cout << "Fast Jet got called with " <<FJNS::antikt_algorithm << " "<< antiktR << endl;
       FJNS::ClusterSequence cseq(jetparticles, jet_def);
       std::vector<FJNS::PseudoJet> pjets = sorted_by_pt(cseq.inclusive_jets(jet_pt_min));
 
