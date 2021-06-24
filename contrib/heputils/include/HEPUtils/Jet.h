@@ -113,6 +113,12 @@ namespace HEPUtils {
     /// Set CTag value
     void set_ctag(bool isc) { _isC = isc; }
 
+    /// Is this particle tagged as a W?
+    bool Wtag()  const { return _isW; }
+    
+    /// Is this particle tagged as a Z?
+    bool Ztag()  const { return _isZ; }
+    
     /// @todo Generalize for charm tags, tau tags, multiple tags of a single type?
 
     //@}

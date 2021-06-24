@@ -12,7 +12,7 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
-#include "gambit/ColliderBit/lester_mt2_bisect.h"
+//#include "gambit/ColliderBit/lester_mt2_bisect.h"
 
 // #define CHECK_CUTFLOW
 
@@ -44,84 +44,16 @@ namespace Gambit {
         {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
       };
 
-    private:
-
-      // Cut-flows
-      size_t NCUTS;
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      vector<double> cutFlowVectorATLAS;
-
     public:
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
-
-      static bool sortByPT(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
 
       Analysis_ATLAS_13TeV_2BoostedBosons_139invfb() {
 
         set_analysis_name("ATLAS_13TeV_2BoostedBosons_139invfb");
         set_luminosity(139.);
 
-        NCUTS=14;
-
-        for(size_t i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          cutFlowVectorATLAS.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
-      }
-
-      // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
-      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
-        //Routine to do jet-lepton check
-        //Discards jets if they are within DeltaRMax of a lepton
-
-        vector<const HEPUtils::Jet*> Survivors;
-
-        for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
-          bool overlap = false;
-          HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
-          for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
-            HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-            double dR;
-
-            dR=jetmom.deltaR_eta(lepmom);
-
-            if(fabs(dR) <= DeltaRMax) overlap=true;
-          }
-          if(overlap) continue;
-          Survivors.push_back(jetvec.at(itjet));
-        }
-        jetvec=Survivors;
-
-        return;
-      }
-
-      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec) {
-        //Routine to do lepton-jet check
-        //Discards leptons if they are within dR of a jet as defined in analysis paper
-
-        vector<const HEPUtils::Particle*> Survivors;
-
-        for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
-          bool overlap = false;
-          HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-          for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++) {
-            HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
-            double dR;
-            double DeltaRMax = std::min(0.4, 0.04 + 10 / lepmom.pT());
-            dR=jetmom.deltaR_eta(lepmom);
-
-            if(fabs(dR) <= DeltaRMax) overlap=true;
-          }
-          if(overlap) continue;
-          Survivors.push_back(lepvec.at(itlep));
-        }
-        lepvec=Survivors;
-
-        return;
       }
 
       void run(const HEPUtils::Event* event) {
@@ -129,41 +61,72 @@ namespace Gambit {
         // Get the missing energy in the event
         double met = event->met();
         HEPUtils::P4 metVec = event->missingmom();
-
-        // Count large jets (minimum 2)
-        vector<const HEPUtils::Jet*> fatJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
-          if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 200.)
-            fatJets.push_back(jet);
-        }
-
-        // Now define vectors of baseline objects, including:
-        // - retrieval of electron, muon and jets from the event
-        // - application of basic pT and eta cuts
-
-        // Electrons
+        
+        // Define vectors of baseline leptons
+        // Baseline electrons
         vector<const HEPUtils::Particle*> electrons;
         for (const HEPUtils::Particle* electron : event->electrons()) {
-          if (electron->pT() > 5.
+          if (electron->pT() > 4.5
               && fabs(electron->eta()) < 2.47)
             electrons.push_back(electron);
         }
-
+        // TODO: Check this
         // Apply electron efficiency
         ATLAS::applyElectronEff(electrons);
-
-        // Muons
+        // Baseline muons
         vector<const HEPUtils::Particle*> muons;
         for (const HEPUtils::Particle* muon : event->muons()) {
-          if (muon->pT() > 5.
-              && fabs(muon->eta()) < 2.5)
+          if (muon->pT() > 3.
+              && fabs(muon->eta()) < 2.7)
             muons.push_back(muon);
         }
-
+        // TODO: Check this
         // Apply muon efficiency
         ATLAS::applyMuonEff(muons);
 
-//   	    // Jets
+        // Overlap removal
+        //        JetLeptonOverlapRemoval(nonbJets,electrons,0.2);
+        //        LeptonJetOverlapRemoval(electrons,nonbJets);
+        //        JetLeptonOverlapRemoval(nonbJets,muons,0.2);
+        //        LeptonJetOverlapRemoval(muons,nonbJets);
+        
+        // Number of leptons
+        size_t nMuons = muons.size();
+        size_t nElectrons = electrons.size();
+        size_t nLeptons = nElectrons+nMuons;
+
+        // Look at two hardest jets to see if they fullfil criteria for fat jets
+        vector<const HEPUtils::Jet*> fatJets;
+        int njet = 0; int nfat = 0;
+        for (const HEPUtils::Jet* jet : event->jets()) {
+          njet++;
+          cout << njet << " " << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
+          if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 40.){
+            nfat++;
+            fatJets.push_back(jet);
+          }
+          if (njet > 1) break;
+        }
+
+        // Tag the large jets
+        int nW = 0; int nZ = 0;
+        double Wtag = 0.5; double Wmiss = 1/30.;
+        double Ztag = 0.5; double Zmiss = 1/30.;
+        for (const HEPUtils::Jet* jet : fatJets) {
+          // Tag W
+          if( jet->Wtag() && random_bool(Wtag) ) nW++;
+          // Misstag W
+          if( !jet->Wtag() && random_bool(Wmiss) ) nW++;
+          // Tag Z
+          if( jet->Ztag() && random_bool(Ztag) ) nZ++;
+          // Misstag Z
+          if( !jet->Ztag() && random_bool(Zmiss) ) nZ++;
+        }
+        int nV = nZ + nW;
+        cout << "nZ " << nZ << " nW " << nW << " nV " << nV << endl;
+        
+
+//   	    // b-jets
 //        vector<const HEPUtils::Jet*> bJets;
 //        vector<const HEPUtils::Jet*> nonbJets;
 //
@@ -180,166 +143,34 @@ namespace Gambit {
 //          else nonbJets.push_back(jet);
 //        }
 //
-//        // Overlap removal
-//        JetLeptonOverlapRemoval(nonbJets,electrons,0.2);
-//        LeptonJetOverlapRemoval(electrons,nonbJets);
-//        JetLeptonOverlapRemoval(nonbJets,muons,0.2);
-//        LeptonJetOverlapRemoval(muons,nonbJets);
 
-        // Find veto leptons with pT > 20 GeV
-        vector<const HEPUtils::Particle*> vetoElectrons;
-        for (const HEPUtils::Particle* electron : electrons) {
-          if (electron->pT() > 20.) vetoElectrons.push_back(electron);
-        }
-        vector<const HEPUtils::Particle*> vetoMuons;
-        for (const HEPUtils::Particle* muon : muons) {
-          if (muon->pT() > 20.) vetoMuons.push_back(muon);
-        }
-
-//        // Restrict jets to pT > 25 GeV after overlap removal
-//        vector<const HEPUtils::Jet*> bJets_survivors;
-//        for (const HEPUtils::Jet* jet : bJets) {
-//          if(jet->pT() > 25.) bJets_survivors.push_back(jet);
-//        }
-//        vector<const HEPUtils::Jet*> nonbJets_survivors;
-//        for (const HEPUtils::Jet* jet : nonbJets) {
-//          if(jet->pT() > 25.) nonbJets_survivors.push_back(jet);
-//        }
-//        vector<const HEPUtils::Jet*> jet_survivors;
-//        jet_survivors = nonbJets_survivors;
-//        for (const HEPUtils::Jet* jet : bJets) {
-//          jet_survivors.push_back(jet);
-//        }
-//        std::sort(jet_survivors.begin(), jet_survivors.end(), sortByPT);
-//
-//        // Number of objects
-//        size_t nbJets = bJets_survivors.size();
-//        size_t nnonbJets = nonbJets_survivors.size();
-//        size_t nJets = nbJets + nnonbJets;
-//        //size_t nJets = jet_survivors.size();
-        size_t nMuons=vetoMuons.size();
-        size_t nElectrons=vetoElectrons.size();
-        size_t nLeptons = nElectrons+nMuons;
 
         // Effective mass (missing energy plus two leading fatjet pTs)
         double meff = met;
-        meff += fatJets[0]->pT();
-        meff += fatJets[1]->pT();
+        if(fatJets.size() > 0) meff += fatJets[0]->pT();
+        if(fatJets.size() > 1) meff += fatJets[1]->pT();
 
+//        TODO: Implement stransverse mass for the b-jet SRs
         // Stransverse mass (two leading fat jets as legs, assumes 100 GeV invisible mass)
 //        double MT2 =  asymm_mt2_lester_bisect::get_mT2(
 //fatJets[0]->mom()
 //        fatJets[0]->mass(), fatJets[0]->px(), fatJets[0]->py(),
 //        fatJets[1]->mass(), fatJets[1]->px(), fatJets[1]->py(),
-//        pxMiss, pyMiss,
+//        metVec.px(), metVec.py(),
 //        100., 100., 0);
 
 
-        // Increment cutFlowVector elements
-        // Cut flow strings
-//        cutFlowVector_str[0]  = "No cuts ";
-//        cutFlowVector_str[1]  = "Trigger, $E_T^{miss} > 200$ GeV";
-//        cutFlowVector_str[2]  = "$\\Delta\\phi_{min}^{4j} > 0.4$";
-//        cutFlowVector_str[3]  = "$N_{lep} = 0$";
-//        cutFlowVector_str[4]  = "$N_{jet} \\ge 4$, $N_{jet} \\le 5$";
-//        cutFlowVector_str[5]  = "$110 < m(h_1)< 150$ GeV";
-//        cutFlowVector_str[6]  = "$90 < m(h_2)< 140$ GeV$";
-//        cutFlowVector_str[7]  = "$m_{T,min}^{b-jets}> 130$ GeV";
-//        cutFlowVector_str[8]  = "$m_{eff} > 1100$ GeV";
-//        cutFlowVector_str[9]  = "$N_{b-jets} \\ge 3$";
-//        cutFlowVector_str[10]  = "$0.4 \\le \\Delta R_{max}^{bb} \\le 1.4$";
-//        cutFlowVector_str[11]  = "m_{eff} > 600 GeV";
-//        cutFlowVector_str[12]  = "$N_{b-jet} \\ge 4$";
-//        cutFlowVector_str[13]  = "$0.4 \\le \\Delta R_{max}^{bb} \\le 1.4$";
-
-        // Cut flow from paper
-        // Higgsino 300 GeV
-//        cutFlowVectorATLAS[0] = 10276.0;
-//        cutFlowVectorATLAS[1] =  1959.1;
-//        cutFlowVectorATLAS[2] =  1533.0;
-//        cutFlowVectorATLAS[3] =  1319.3;
-//        cutFlowVectorATLAS[4] =   664.9;
-//        cutFlowVectorATLAS[5] =   249.3;
-//        cutFlowVectorATLAS[6] =   123.0;
-//        cutFlowVectorATLAS[7] =    74.3;
-//        cutFlowVectorATLAS[8] =     4.0;
-//        cutFlowVectorATLAS[9] =     1.5;
-//        cutFlowVectorATLAS[10] =    1.4;
-//        cutFlowVectorATLAS[11] =   90.2;
-//        cutFlowVectorATLAS[12] =   15.6;
-//        cutFlowVectorATLAS[13] =    6.8;
-        // Higgsino 500 GeV
-//        cutFlowVectorATLAS[0] = 1220.7;
-//        cutFlowVectorATLAS[1] =  739.0;
-//        cutFlowVectorATLAS[2] =  647.1;
-//        cutFlowVectorATLAS[3] =  548.2;
-//        cutFlowVectorATLAS[4] =  291.9;
-//        cutFlowVectorATLAS[5] =  133.5;
-//        cutFlowVectorATLAS[6] =   78.0;
-//        cutFlowVectorATLAS[7] =   64.1;
-//        cutFlowVectorATLAS[8] =   12.0;
-//        cutFlowVectorATLAS[9] =    5.7;
-//        cutFlowVectorATLAS[10] =   4.8;
-//        cutFlowVectorATLAS[11] =  74.3;
-//        cutFlowVectorATLAS[12] =  15.0;
-//        cutFlowVectorATLAS[13] =   9.7;
-        // Higgsino 800 GeV
-//        cutFlowVectorATLAS[0] = 124.9;
-//        cutFlowVectorATLAS[1] = 101.9;
-//        cutFlowVectorATLAS[2] =  89.5;
-//        cutFlowVectorATLAS[3] =  73.7;
-//        cutFlowVectorATLAS[4] =  39.4;
-//        cutFlowVectorATLAS[5] =  19.0;
-//        cutFlowVectorATLAS[6] =  13.4;
-//        cutFlowVectorATLAS[7] =  11.8;
-//        cutFlowVectorATLAS[8] =   8.1;
-//        cutFlowVectorATLAS[9] =   3.8;
-//        cutFlowVectorATLAS[10] =  3.6;
-//        cutFlowVectorATLAS[11] = 13.3;
-//        cutFlowVectorATLAS[12] =  2.3;
-//        cutFlowVectorATLAS[13] =  2.0;
-
-        // Apply cutflow
-//        for(size_t j=0;j<NCUTS;j++){
-//          if(
-//             (j==0) ||
-//
-//             (j==1 && met > 200.) ||
-//
-//             (j==2 && met > 200 && phi4min > 0.4) ||
-//
-//             (j==3 && met > 200 && phi4min > 0.4 && nLeptons == 0) ||
-//
-//             (j==4 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5)) ||
-//
-//             (j==5 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5) && mlead > 110. && mlead < 150.) ||
-//
-//             (j==6 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5) && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140.) ||
-//
-//             (j==7 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5) && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && mTmin > 130.) ||
-//
-//             (j==8 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5)  && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && mTmin > 130. && meff > 1100.) ||
-//
-//             (j==9 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5)  && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && mTmin > 130. && meff > 1100. && nbJets >= 3) ||
-//
-//             (j==10 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5)  && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && mTmin > 130. && meff > 1100. && nbJets >= 3 && Rbbmax > 0.4 && Rbbmax < 1.4) ||
-//
-//             (j==11 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5) && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && meff > 600.) ||
-//
-//             (j==12 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5) && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && meff > 600. && nbJets >= 4) ||
-//
-//             (j==13 && met > 200 && phi4min > 0.4 && nLeptons == 0 && (nJets == 4 || nJets == 5) && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && meff > 600. && nbJets >= 4 && Rbbmax > 0.4 && Rbbmax < 1.4)
-//
-//             ) cutFlowVector[j]++;
-//        }
-
         // Now increment signal region variables
-        // First exclusion regions
-        if(met > 200 && nLeptons == 0) _counters.at("SR-4Q-WW").add_event(event);
-        // Discovery regions
-        if(met > 200 && nLeptons == 0) _counters.at("Disc-SR-2B2Q").add_event(event);
-
-        return;
+        // Preselection conditions
+        if(nfat > 1 && nLeptons == 0){
+          // First exclusion regions
+          if(met > 300. && meff > 1300. && nV == 2 && nW == 2) _counters.at("SR-4Q-WW").add_event(event);
+          if(met > 300. && meff > 1300. && nV == 2  && nW > 0 && nZ > 0) _counters.at("SR-4Q-WZ").add_event(event);
+          if(met > 300. && meff > 1300. && nV == 2  && nZ ==2) _counters.at("SR-4Q-ZZ").add_event(event);
+          if(met > 300. && meff > 1300. && nV == 2) _counters.at("SR-4Q-VV").add_event(event);
+          // Discovery regions
+          
+        }
 
       } // End of analyze
 
@@ -353,27 +184,6 @@ namespace Gambit {
 
 
       void collect_results() {
-
-        // Cut-flow printout
-        #ifdef CHECK_CUTFLOW
-//        double L = 36.1;
-////        double xsec = 284.65; // 300 GeV
-////        double xsec = 33.81; // 500 GeV
-//        double xsec = 3.460; // 800 GeV
-//        cout << "DEBUG:" << endl;
-//        for (size_t i=0; i<NCUTS; i++)
-//        {
-//          double ATLAS_abs = cutFlowVectorATLAS[i];
-//
-//          double eff = (double)cutFlowVector[i] / (double)cutFlowVector[0];
-//
-//          double GAMBIT_scaled = eff * xsec * L;
-//
-//          double ratio = GAMBIT_scaled/ATLAS_abs;
-//          cout << "DEBUG 1: i: " << i << ":   " << setprecision(4) << ATLAS_abs << "\t" << GAMBIT_scaled << "\t" << "\t" << ratio << "\t\t" << cutFlowVector_str[i] << endl;
-//        }
-//        cout << "DEBUG:" << endl;
-        #endif
 
         // Now fill a results object with the results for each SR
         add_result(SignalRegionData(_counters.at("SR-4Q-WW"),   2., {1.9, 0.4}));
@@ -394,9 +204,6 @@ namespace Gambit {
       void analysis_specific_reset() {
         // Clear signal regions
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        // Clear cut flow vector
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };
