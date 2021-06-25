@@ -21,6 +21,7 @@
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/Contur_2_0_1.hpp"
 
+
 using namespace pybind11::literals;
 
 BE_NAMESPACE
@@ -74,39 +75,38 @@ BE_NAMESPACE
     return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
   }
 
-  double Contur_LogLike_from_file(str &YODA_filename)
+
+  double Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
   {
-
-    pybind11::object contur = Contur.attr("conturDepot")(false);
-    pybind11::dict param = {};
-    //param["No parameters specified"] = 0.0;
-
-    contur.attr("addParamPoint")(YODA_filename, param);
-
-    pybind11::list list = contur.attr("conturDepotInbox");
-    double CLs = list[0].attr("yodaFactory").attr("_conturPoint").attr("CLs").cast<double>();
-
-    /*pybind11::object yodaFactory = Contur.attr("yodaFactory")(YODA_filename);
-
-    // Disable grid runs
-    yodaFactory.attr("_GridRun") = false;
-
-    // Sort the list of contur buckets
-    yodaFactory.attr("sortBuckets")();
-
-    // Build a final conturPoint combining all buckets into one test
-    yodaFactory.attr("buildFinal")();
-
-    double CLs = yodaFactory.attr("conturPoint").attr("CLs").cast<double>();
-    */
-    return CLs;
-
-    // TODO: We actually need a loglike value. Contur provides a chisq, check that it is what we want
-    //double chisq = yodaFactory.attr("conturPoint").attr("__chisq")(1.0,0.0).cast<double>();
-
-    //return chisq;
-
+    //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
+    // - these can be overwritten below.
+    pybind11::dict args_dict = ((Contur.attr("run_analysis").attr("get_argparser")()).attr("parse_args")()).attr("__dict__");
+    args_dict[pybind11::cast("YODASTREAM")];
+    args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
+    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
     
+
+    //Apply any of the additional contur args from the yodafile
+    //Note these use the DEST name, NOT the command line option: i.e. use 'THY', not '--th', '--theory', 'th', or 'theory'.
+    for (std::string arg : contur_yaml_args){
+      //The presence check is ugly, because we can't use python's "in", and the value is allowed to be False or None.
+      // Let's just hope contur never uses a key that has the default val  "NOT_A_VALID_ARGUMENT_JUST_A_TEST"!
+      // If anyone knows a better method that works, please feel free to change.
+      pybind11::object is_arg = args_dict.attr("get")(pybind11::cast(arg), pybind11::cast("NOT_A_VALID_ARGUMENT_JUST_A_TEST"));
+      if ((is_arg.attr("__str__")()).cast<std::string>() != "NOT_A_VALID_ARGUMENT_JUST_A_TEST"){
+        args_dict[pybind11::cast(arg)] = pybind11::bool_(true);
+      }
+      else{
+        //TODO: Sorry for not knowing this, is there a formal Gambit way of raising a warning?
+        std::cout << "\n\nWARNING: argument \"" << arg << "\" is not recognised in CONTUR.\n"
+          << "Have you remembered to provide it in DEST form - e.g. \"USESEARCHES\", not "
+          << "\"--usesearches\" or \"-s\".\nAlternatively, check spellings are correct and"
+          << "/or Contur version is as expected.\nContur will run ignoring this argument.\n\n";
+      }
+    }
+    
+    //Run contur, get a LLR and return it
+    return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
   }
 
 }

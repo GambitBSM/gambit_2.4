@@ -31,6 +31,6 @@ LOAD_LIBRARY
 
 BE_CONV_FUNCTION(Contur_LogLike_from_stream, double, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&), "Contur_LogLike")
 BE_CONV_FUNCTION(Contur_LogLike, double, (vector_shared_ptr<YODA::AnalysisObject> &), "Contur_LogLike")
-BE_CONV_FUNCTION(Contur_LogLike_from_file, double, (str &), "Contur_LogLike")
+BE_CONV_FUNCTION(Contur_LogLike_from_file, double, (str &, std::vector<std::string>&), "Contur_LogLike")
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

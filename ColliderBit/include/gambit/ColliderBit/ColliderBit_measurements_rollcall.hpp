@@ -70,7 +70,7 @@
       // Contur version, from file
       #define FUNCTION Contur_LHC_measurements_LogLike_from_file
       START_FUNCTION(double)
-      BACKEND_REQ(Contur_LogLike, (libcontur), double, (str &))
+      BACKEND_REQ(Contur_LogLike, (libcontur), double, (str &, std::vector<std::string>&))
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
    

@@ -205,10 +205,14 @@ namespace Gambit
         if (YODA_filename == "" or not Utils::file_exists(YODA_filename))
           ColliderBit_error().raise(LOCAL_INFO, "YODA file "+YODA_filename+" not found.");
 
+        //Note the yaml options should be in the DEST form, not the commandline form, e.g.:
+        //"USESEARCHES", not "--usesearches" or "-s".
+        std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
+
         #pragma omp critical
         {
           // Call Contur
-          result = BEreq::Contur_LogLike(YODA_filename);
+          result = BEreq::Contur_LogLike(YODA_filename, yaml_contur_options);
         } 
 
         std::cout << "Contur loglike = " << result << std::endl;
