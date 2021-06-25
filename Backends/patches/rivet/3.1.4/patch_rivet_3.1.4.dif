@@ -252,4 +252,3 @@ diff -rupN Rivet-3.1.4/analyses/Makefile.in ../installed/rivet/3.1.4/analyses/Ma
 +@ENABLE_ANALYSES_TRYE@install-exec-local: RivetATLASAnalyses.so RivetCMSAnalyses.so # Added by GAMBIT
  @ENABLE_ANALYSES_TRUE@	$(MKDIR_P) $(DESTDIR)$(libdir)/Rivet
  @ENABLE_ANALYSES_TRUE@	$(INSTALL) $^ $(DESTDIR)$(libdir)/Rivet
- 

@@ -1546,7 +1546,7 @@ set(Rivet_name "rivet")
 set(Rivet_ver "3.1.4")
 # TODO: Check if we really need SQLITE3 here, if so keep otherwise remove it here, in externals.cmake and optional.cmake
 set(ditch_if_absent "SQLITE3;YODA")
-set(required_modules "cython")
+set(required_modules "cython;configobj;pandas")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1560,11 +1560,15 @@ if(NOT ditched_${name}_${ver})
       BUILD_IN_SOURCE 1
       #CONFIGURE_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${dir}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from factories import yoda_factories" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
       BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
       INSTALL_COMMAND ""
     )

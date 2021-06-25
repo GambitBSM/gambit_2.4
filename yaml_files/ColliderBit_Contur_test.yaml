@@ -278,11 +278,11 @@ Rules:
         - ATLAS_2019_I1720442
 
   - capability: LHC_measurements_LogLike
-    function: LHC_measurements_LogLike
+    #function: LHC_measurements_LogLike
     #function: Contur_LHC_measurements_LogLike
-    #function: Contur_LHC_measurements_LogLike_from_file
+    function: Contur_LHC_measurements_LogLike_from_stream
     #options:
-    #  YODA_filename: "./runpoint_0017.yoda"
+      #YODA_filename: "./runpoint_0017.yoda"
 
 # Set the names of key log files
 

@@ -16,15 +16,20 @@
 ///  \date 2019 Oct, 2020 Mar
 ///  \date 2021 Mar
 ///
+/// \author Tomasz Procter
+///          (t.procter.1@research.gla.ac.uk)
+/// \date 2021 June
+///
 ///  *********************************************
 
 #define BACKENDNAME Contur
-#define BACKENDLANG Python2
+#define BACKENDLANG Python3
 #define VERSION 2.0.1
 #define SAFE_VERSION 2_0_1
 
 LOAD_LIBRARY
 
+BE_CONV_FUNCTION(Contur_LogLike_from_stream, double, (std::shared_ptr<std::ostringstream>), "Contur_LogLike")
 BE_CONV_FUNCTION(Contur_LogLike, double, (vector_shared_ptr<YODA::AnalysisObject> &), "Contur_LogLike")
 BE_CONV_FUNCTION(Contur_LogLike_from_file, double, (str &), "Contur_LogLike")
 // Undefine macros to avoid conflict with other backends

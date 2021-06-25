@@ -128,6 +128,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >& arg_1, ::YODA::AnalysisObject* arg_2) const;
       
             void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >& arg_1) const;
+
+            void writeData(std::shared_ptr<std::ostream> dataOutStream) const;
       
             void setAODump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period);
       
