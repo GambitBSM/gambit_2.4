@@ -13,7 +13,7 @@ diff -rupN Rivet-3.1.4/Makefile.in ../installed/rivet/3.1.4/Makefile.in
 +	cd ${top_builddir}/src/Tools && ${MAKE} libRivetTools.la
 +	cd ${top_builddir}/src/AnalysisTools && ${MAKE} libRivetAnalysisTools.la
 +	cd ${top_builddir}/src && ${MAKE} libRivet.la
-+	cd ${top_builddir}/analyses && ${MAKE} install-exec-local install-data-local
++	cd ${top_builddir}/analyses && ${MAKE} install
 +	cd ${top_builddir}/pyext && ${MAKE} install
 +	cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so
  
