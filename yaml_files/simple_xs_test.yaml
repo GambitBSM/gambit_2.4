@@ -173,6 +173,8 @@ Rules:
       LHC_13TeV:
         # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
+        partonOnly: false
+        antiktR: 0.4
         pythia_settings:
           - Print:quiet = off
           - Next:numberCount = 0
@@ -194,26 +196,6 @@ Rules:
           - SUSY:idVecB = 1000022,1000023,1000024
           - 23:mMin = 0.1
           - 24:mMin = 0.1
-
-  - capability: HardScatteringSim
-    type: const BaseCollider*
-    function: getPythiaAsBase
-    module: ColliderBit
-
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
-
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC

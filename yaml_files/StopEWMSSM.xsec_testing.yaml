@@ -390,6 +390,8 @@ Rules:
       # LHC_7TeV:
       #   # 0.213 fb corresponds to ~1 expected event at L = 4.7 fb^-1.
       #   xsec_veto: 0.213
+      #   partonOnly: false
+      #   antiktR: 0.4
       #   pythia_settings:
       #     - Print:quiet = off
       #     - Next:numberCount = 10
@@ -412,6 +414,8 @@ Rules:
       # LHC_8TeV:
       #   # 0.05 fb corresponds to ~1 expected event at L = 20 fb^-1.
       #   xsec_veto: 0.05
+      #   partonOnly: false
+      #   antiktR: 0.4
       #   pythia_settings:
       #     - Print:quiet = off
       #     - Next:numberCount = 0
