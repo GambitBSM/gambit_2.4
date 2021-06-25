@@ -436,6 +436,7 @@ Rules:
         # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
         antiktR: 0.4
+        partonOnly: false
         pythia_settings:
           - Print:quiet = off
           - Next:numberCount = 100
@@ -453,19 +454,6 @@ Rules:
           - TimeShower:pTmin = 2
           - 23:mMin = 0.1
           - 24:mMin = 0.1
-
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      Pythia_SUSY_LHC_13TeV_EWonly:
-        partonOnly: false
-        
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      Pythia_SUSY_LHC_13TeV_EWonly:
-        partonOnly: false
 
 
   - module: ColliderBit
