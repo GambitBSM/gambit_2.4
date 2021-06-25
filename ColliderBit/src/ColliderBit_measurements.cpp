@@ -33,7 +33,7 @@
   #include "YODA/IO.h"
 #endif
 
-#define COLLIDERBIT_DEBUG
+//#define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -63,11 +63,6 @@ namespace Gambit
 
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
-            #ifdef COLLIDERBIT_DEBUG
-              std::cout<< "Rivet analyses: ";
-              for(auto analysis: analyses) std::cout << analysis << ",";
-              std::cout << endl;
-            #endif
 
             if(not analyses.size())
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
@@ -84,11 +79,33 @@ namespace Gambit
 
           if (*Loop::iteration == BASE_FINALIZE)
           {
-            ah.finalize();
+            
+          #ifdef COLLIDERBIT_DEBUG
+            std::cout << "Summary data from rivet:\n\tAnalyses used: ";
+            for (auto analysis : ah.analysisNames()){
+                std::cout << analysis << ", ";
+            }
+            std::cout << "\n\tBeam IDs are " << ah.beamIds().first << ", " << ah.beamIds().second;
+            std::cout << "\n\tXS: " << ah.nominalCrossSection();
+            std::cout << "\n\tRunName: " << ah.runName();
+            std::cout << "\n\tSqrtS: " << ah.sqrtS();
+            std::cout << "\n\tList of available analyses: ";
+            for (auto analysis : ah.stdAnalysisNames()){
+                std::cout << analysis << ", ";
+            }
+            std::cout << std::flush;
+          #endif
 
+            //Initialise somewhere for the yoda file to be outputted.
+            //This circuitous route is necesarry because ostringstream does not
+            //support copy assignment or copy initialisation, and which is 
+            //necesarry to access items via Gambit's backends system, so we need
+            //to go via a pointer. 
             if (result == nullptr){
               result = std::make_shared<std::ostringstream>();
             }
+
+            ah.finalize();
 
             // Get YODA object
             ah.writeData(*result, "yoda");
@@ -100,6 +117,7 @@ namespace Gambit
             {
               str filename = "GAMBIT_collider_measurements.yoda";
               
+              //TODO: should this also be critical?
               try{ ah.writeData(filename); }
               catch (...)
               { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
@@ -122,84 +140,6 @@ namespace Gambit
             }
           }
         }
-
-        // Analyse HepMC events with Rivet's measurements 
-        // Collect results in a vector of YODA Analysis objects
-        // void Rivet_measurements(vector_shared_ptr<YODA::AnalysisObject> &result)
-        // {
-        //   using namespace Pipes::Rivet_measurements;
-        //   using namespace Rivet_default::Rivet;
-
-        //   static AnalysisHandler ah;
-
-        //   if (*Loop::iteration == BASE_INIT)
-        //   {
-
-        //     // TODO: this is temporary cause it does not work without it
-        //     ah.setIgnoreBeams(true);
-
-        //     // TODO: Cross section?
-
-        //     // Get analysis list from yaml file
-        //     std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
-        //     #ifdef COLLIDERBIT_DEBUG
-        //       std::cout<< "Rivet analyses: ";
-        //       for(auto analysis: analyses) std::cout << analysis << ",";
-        //       std::cout << endl;
-        //     #endif
-
-        //     if(not analyses.size())
-        //       ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
-        //     // TODO: Add somewhere a check to make sure we only do LHC analyses
-
-        //     // Rivet is reading from file here, so make it critical
-        //     # pragma omp critical
-        //     {
-        //       // Add the list to the AnalaysisHandler
-        //       for (auto analysis : analyses)
-        //         ah.addAnalysis(analysis);
-        //     }
-
-        //   }
-
-        //   if (*Loop::iteration == BASE_FINALIZE)
-        //   {
-        //     ah.finalize();
-
-        //     //Write the yoda file to the result stream
-        //     ah.writeData(result);
-
-        //     // Drop YODA file if requested
-        //     bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
-        //     if(drop_YODA_file)
-        //     {
-        //       str filename = "GAMBIT_collider_measurements.yoda";
-
-        //       try{ YODA::write(filename, result.begin(), result.end()); }
-        //       catch (...)
-        //       { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
-        //     }
-        //   }
-
-        //   // Don't do anything else during special iterations
-        //   if (*Loop::iteration < 0) return;
-
-        //   // Make sure this is single thread only (assuming Rivet is not thread-safe)
-        //   # pragma omp critical
-        //   {
-
-        //     // Get the HepMC event
-        //     HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-
-        //     try { ah.analyze(ge); }
-        //     catch(std::runtime_error &e)
-        //     {
-        //       ColliderBit_error().raise(LOCAL_INFO, e.what());
-        //     }
-        //   }
-
-        // }
-      
       
       #endif //EXCLUDE_YODA
     #endif // EXCLUDE_HEPMC
@@ -239,16 +179,19 @@ namespace Gambit
         using namespace Pipes::Contur_LHC_measurements_LogLike_from_stream;
   
         std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
+        
+        //Note the yaml options should be in the DEST form, not the commandline form, e.g.:
+        //"USESEARCHES", not "--usesearches" or "-s".
+        std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
 
         //TODO: Check on Rivet/Contur thread safety
         #pragma omp critical
         {
           ///Call contur
-          result = BEreq::Contur_LogLike(std::move(yodastream));
+          result = BEreq::Contur_LogLike(std::move(yodastream), yaml_contur_options);
         } 
 
         std::cout << "Contur loglike = " << result << std::endl;
-
       }
 
       // Contur version, from YODA file

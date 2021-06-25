@@ -63,7 +63,7 @@
       #define FUNCTION Contur_LHC_measurements_LogLike_from_stream
       START_FUNCTION(double)
       DEPENDENCY(Rivet_measurements, std::shared_ptr<std::ostringstream>)
-      BACKEND_REQ(Contur_LogLike, (libcontur), double, (std::shared_ptr<std::ostringstream>))
+      BACKEND_REQ(Contur_LogLike, (libcontur), double, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&))
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
 
