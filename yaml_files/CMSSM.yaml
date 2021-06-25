@@ -572,6 +572,8 @@ Rules:
       LHC_13TeV:
         # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
+        antiktR: 0.4
+        partonOnly: false
         pythia_settings:
           - Print:quiet = on
           - Random:setSeed = on
@@ -615,21 +617,6 @@ Rules:
         # - ATLAS_13TeV_RJ3L_lowmass_36invfb
         # - ATLAS_13TeV_1LEPStop_36invfb
         # The last two analyses depend on ROOT.
-
-
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
 
 
   # Choose LHC likelihood form and options.
