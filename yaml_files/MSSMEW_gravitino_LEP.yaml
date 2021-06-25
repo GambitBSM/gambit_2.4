@@ -435,6 +435,7 @@ Rules:
       Pythia_SUSY_LHC_13TeV_EWonly:
         # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
+        antiktR: 0.4
         pythia_settings:
           - Print:quiet = off
           - Next:numberCount = 100
@@ -458,14 +459,13 @@ Rules:
     options:
       Pythia_SUSY_LHC_13TeV_EWonly:
         partonOnly: false
-        antiktR: 0.4
+        
 
   # Choose CMS detector simulation and options.
   - capability: CMSDetectorSim
     options:
       Pythia_SUSY_LHC_13TeV_EWonly:
         partonOnly: false
-        antiktR: 0.4
 
 
   - module: ColliderBit
