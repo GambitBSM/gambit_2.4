@@ -117,7 +117,7 @@ namespace Gambit
               { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
             }
 
-            ah.~AnalysisHandler();
+            //ah.~AnalysisHandler();
           }
 
           // Don't do anything else during special iterations
