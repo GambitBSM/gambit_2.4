@@ -51,10 +51,15 @@ namespace Gambit
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
           
-          static AnalysisHandler ah;
+          static std::shared_ptr<AnalysisHandler> ah;
 
           if (*Loop::iteration == BASE_INIT)
           {
+            if (ah != nullptr) {
+              ah->~AnalysisHandler();  
+            }
+            ah = std::make_shared<AnalysisHandler>();
+
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
 
@@ -67,13 +72,18 @@ namespace Gambit
             {
               // Add the list to theAnalaysisHandler
               for (auto analysis : analyses)
-                ah.addAnalysis(analysis);
+                ah->addAnalysis(analysis);
             }
+          }
+          //If we're not in an init loop, seg faults will occur if the analysis handler is null.
+          //This should never happen if the loops happen in the right order, but just in case:
+          else if (ah == nullptr){
+            ColliderBit_error().raise(LOCAL_INFO, "No Analysis handler set. Is the Loop going in the right order?");
+            //TODO: Is it possible special loop iterations could break this?
           }
 
           if (*Loop::iteration == BASE_FINALIZE)
           {
-            
           #ifdef COLLIDERBIT_DEBUG
             std::cout << "Summary data from rivet:\n\tAnalyses used: ";
             for (auto analysis : ah.analysisNames()){
@@ -99,10 +109,10 @@ namespace Gambit
               result = std::make_shared<std::ostringstream>();
             }
 
-            ah.finalize();
+            ah->finalize();
 
             // Get YODA object
-            ah.writeData(*result, "yoda");
+            ah->writeData(*result, "yoda");
 
             // Drop YODA file if requested
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
@@ -112,12 +122,12 @@ namespace Gambit
               str filename = "GAMBIT_collider_measurements.yoda";
               
               //TODO: should this also be critical?
-              try{ ah.writeData(filename); }
+              try{ ah->writeData(filename); }
               catch (...)
               { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
             }
 
-            //ah.~AnalysisHandler();
+            ah->~AnalysisHandler();
           }
 
           // Don't do anything else during special iterations
@@ -129,7 +139,7 @@ namespace Gambit
             // Get the HepMC event
             HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
 
-            try { ah.analyze(ge); }
+            try { ah->analyze(ge); }
             catch(std::runtime_error &e)
             {
               ColliderBit_error().raise(LOCAL_INFO, e.what());
