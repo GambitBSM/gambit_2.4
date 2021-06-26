@@ -55,12 +55,6 @@ namespace Gambit
 
           if (*Loop::iteration == BASE_INIT)
           {
-
-            // TODO: this is temporary cause it does not work without it
-            //ah.setIgnoreBeams(true);
-
-            // TODO: Cross section?
-
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
 
@@ -122,6 +116,8 @@ namespace Gambit
               catch (...)
               { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
             }
+
+            ah.~AnalysisHandler();
           }
 
           // Don't do anything else during special iterations
