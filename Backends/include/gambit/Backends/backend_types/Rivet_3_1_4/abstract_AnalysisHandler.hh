@@ -118,11 +118,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) const =0;
    
-            virtual void writeData(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >&, ::YODA::AnalysisObject*) const =0;
-
-            virtual void writeData(std::ostream &yodaStreamOut, std::string format) const =0;
-   
-            virtual void writeData__BOSS(::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > >&) const =0;
+            virtual void dummy(::YODA::AnalysisObject*) const =0;
    
             virtual void setAODump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&, int) =0;
    

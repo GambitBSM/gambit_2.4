@@ -73,7 +73,7 @@ def get_type_equivalencies(nses):
             if newline == "" or newline.startswith("#"): continue
             newline = re.sub("^\[\s*|\s*\]", "", newline)
             equivalency_class = list()
-            for member in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", newline+","):
+            for member in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", newline+","):
               member = re.sub("\"","",member[:-1].strip())
               # Convert the leading BOSSed namespace for the default version to the explicit namespace of the actual version
               for key in nses:
@@ -230,29 +230,39 @@ def first_simple_type_equivalent(candidate_in, equivs, nses, existing):
       ns_true = key+"_"+nses[key]+"::"
       if candidate.startswith(ns_default): candidate = ns_true+candidate[len(ns_default):]
       candidate = re.sub("\s"+ns_default," "+ns_true,candidate)
+    
     # Exists in the equivalency classes
-    if candidate in equivs:
-        candidate_suffix = ""
+
+    candidate_prefix = ""
+    candidate_suffix = ""
+
+    # Qualifiers up front, e.g const
+    if "const" in candidate[:6]:
+      candidate_prefix = "const "
+      candidate = re.sub("const ","",candidate)
+    
     # Pointer or reference to something that exists in the equivalency classes
-    elif candidate[:-1] in equivs:
+    if candidate[-1] == "&" or candidate[-1] == "*":
         candidate_suffix = candidate[-1:]
         candidate = candidate[:-1]
+
     # Just not there
-    else:
-        return candidate
+    if candidate not in equivs:
+        return candidate_prefix+candidate+candidate_suffix
+
     equivalency_class = equivs[candidate]
     common_elements = set.intersection(set(equivalency_class), existing)
     if not common_elements:
       for index in range(len(equivalency_class)):
         equivalent = equivalency_class[index]
-        if "," not in equivalent: return equivalent+candidate_suffix
+        if "," not in equivalent: return candidate_prefix+equivalent+candidate_suffix
       print( "Error: all equivalent types found have commas in them!  Please typedef one without a comma." )
       print( "Types are: ", equivalency_class )
       sys.exit(1)
     if len(common_elements) != 1:
         print( "Error: existing types and equivalency class have more than one element in common!" )
         sys.exit(1)
-    return common_elements.pop()+candidate_suffix
+    return candidate_prefix+common_elements.pop()+candidate_suffix
 
 # Strips all whitespaces from a string, but re-inserts a single regular space after "const" or "struct".
 def strip_ws(s, qualifiers):
@@ -398,7 +408,7 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
                     args = re.sub("\)\s*,[^\)]*?,[^\)]*?\)\s*$", "", args)
                 else:
                     args = re.sub("\)\s*,[^\)]*?\)\s*$", "", args)
-                for arg in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", args+","):
+                for arg in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", args+","):
                     arg = arg[:-1].strip()
                     if arg != "" and not arg.startswith("\"") and not arg.startswith("("):
                         if arg == "etc": arg = "..."

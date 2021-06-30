@@ -149,11 +149,13 @@ diff -rupN Rivet-3.1.4/src/Core/Makefile.in ../installed/rivet/3.1.4/src/Core/Ma
  
      /// The destructor is not virtual, as this class should not be inherited from.
      ~AnalysisHandler();
-@@ -266,6 +266,7 @@ namespace Rivet {
+@@ -266,6 +266,9 @@ namespace Rivet {
  
      /// Write all analyses' plots (via getData) to the named file.
      void writeData(const string& filename) const;
-+    void writeData(vector<YODA::AnalysisObjectPtr>&, YODA::AnalysisObject* = NULL) const; // Added by GAMBIT
++
++    // Added by GAMBIT, Dummy function to force BOSS to add the headers for the YODA::AnalysisObject type
++    void dummy(YODA::AnalysisObject*) const;
  
      /// @brief Configure the AnalysisObject dump rate and destination.
      ///
@@ -201,40 +203,14 @@ diff -rupN Rivet-3.1.4/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.4/src/
      }
  
      // Warn if any analysis' status is not unblemished
-@@ -872,6 +873,38 @@ namespace Rivet {
+@@ -872,6 +873,12 @@ namespace Rivet {
  
    }
  
-+  // Added by GAMBIT
-+  void AnalysisHandler::writeData(vector<YODA::AnalysisObjectPtr> &output, YODA::AnalysisObject* object) const {
++  // Added by GAMBIT, dummy function to force BOSS to add the headers for the YODA::AnalysisObject type
++  void AnalysisHandler::dummy(YODA::AnalysisObject* object) const {
 +
-+    // First get all multiwight AOs
-+    vector<MultiweightAOPtr> raos = getRivetAOs();
-+    output.reserve(raos.size()*2*numWeights());
-+
-+    // Fix the oredering so that default weight is written out first.
-+    vector<size_t> order;
-+    if ( _defaultWeightIdx >= 0 && _defaultWeightIdx < numWeights() )
-+      order.push_back(_defaultWeightIdx);
-+    for ( size_t  i = 0; i < numWeights(); ++i )
-+      if ( i != _defaultWeightIdx ) order.push_back(i);
-+
-+    // Then we go through all finalized AOs one weight at a time
-+    for (size_t iW : order ) {
-+      for ( auto rao : raos ) {
-+        rao.get()->setActiveFinalWeightIdx(iW);
-+        if ( rao->path().find("/TMP/") != string::npos ) continue;
-+        output.push_back(rao.get()->activeYODAPtr());
-+      }
-+    }
-+
-+    // Finally the RAW objects.
-+    for (size_t iW : order ) {
-+      for ( auto rao : raos ) {
-+        rao.get()->setActiveWeightIdx(iW);
-+        output.push_back(rao.get()->activeYODAPtr());
-+      }
-+    }
++    // Nothing to do here
 + 
 +  } 
  

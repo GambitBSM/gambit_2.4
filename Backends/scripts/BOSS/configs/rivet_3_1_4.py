@@ -37,7 +37,8 @@ gambit_base_namespace  = ''
 # Use either absolute paths or paths relative to the main BOSS directory.
 
 input_files = [
-    '../../../Backends/installed/rivet/'+gambit_backend_version+'/include/Rivet/AnalysisHandler.hh'
+    '../../../Backends/installed/rivet/'+gambit_backend_version+'/include/Rivet/AnalysisHandler.hh',
+    '../../../Backends/installed/rivet/'+gambit_backend_version+'/include/Rivet/Tools/RivetPaths.hh'
 ]
 include_paths = [
     '../../../Backends/installed/rivet/'+gambit_backend_version+'/include',
@@ -55,6 +56,7 @@ load_classes = [
 ]
 
 load_functions = [
+    'Rivet::addAnalysisLibPath(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&)'
 ]
 
 ditch = [
