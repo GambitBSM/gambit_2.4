@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 // #define ANALYSISLOGLIKES_DEBUG
 
@@ -34,36 +35,45 @@ namespace Gambit {
     {
       // Signal region labels
       std::vector<std::string> sr_labels;  
-      // The "observed" log-likelihood
+
+      // The "observed" log-likelihood (per SR)
       std::vector<double> sr_loglikes;
-      // The *expected* log-likelihoods, under the assumption that data (n) 
-      // will equal background-only expectation (b). These are the log-likelihoods 
-      // used to pick the most sensitive SR when we're forced to only use a single SR.
-      std::vector<double> sr_expected_loglikes;  
+
+      // Map of vectors of alternative log-likelihoods (per SR)
+      std::map<std::string, std::vector<double>> alt_sr_loglikes;
 
       std::string combination_sr_label;
       int combination_sr_index;
       double combination_loglike;
-      double combination_expected_loglike;  // Might be interesting to include this in the future
+      std::map<std::string, double> alt_combination_loglikes;
 
       AnalysisLogLikes() :
         combination_sr_label("undefined"),
         combination_sr_index(-2),
-        combination_loglike(0.0),
-        combination_expected_loglike(0.0)
+        combination_loglike(0.0)
         { }
 
       // Get the number of SRs and the correponding SR labels from 
       // an AnalysisData instance. Use this to initialize.
-      void initialize(const AnalysisData& adata_in)
+      void initialize(const AnalysisData& adata_in, const std::vector<std::string>& alt_loglike_keys = {})
       {
-        for (size_t sr_index = 0; sr_index < adata_in.size(); ++sr_index)
+        const size_t n_sr = adata_in.size();
+
+        for (size_t sr_index = 0; sr_index < n_sr; ++sr_index)
         {
           const std::string& sr_label = adata_in.srdata[sr_index].sr_label;
           sr_labels.push_back(sr_label);
           sr_loglikes.push_back(0.0);
-          sr_expected_loglikes.push_back(0.0);
         }
+
+        // Initialize map of alternative SR loglikes, 
+        // and vector of alternative combined loglikes
+        for (const std::string& key : alt_loglike_keys)
+        {
+          alt_sr_loglikes[key] = std::vector<double>(n_sr, 0.0);
+          alt_combination_loglikes[key] = 0.0;
+        }
+
       }
 
       void set_no_signal_result_combination(std::string combination_sr_label_in, int combination_sr_index_in)
@@ -72,7 +82,10 @@ namespace Gambit {
         combination_sr_index = combination_sr_index_in;
         combination_sr_label = combination_sr_label_in;
         combination_loglike = 0.0;
-        combination_expected_loglike = 0.0;
+        for (auto& map_element : alt_combination_loglikes)
+        {
+          map_element.second = 0.0;
+        }
       }
 
       void set_no_signal_result_all_SRs(std::string combination_sr_label_in, int combination_sr_index_in)
@@ -82,7 +95,11 @@ namespace Gambit {
 
         // Fill the vectors of per-SR results
         std::fill(sr_loglikes.begin(), sr_loglikes.end(), 0);
-        std::fill(sr_expected_loglikes.begin(), sr_expected_loglikes.end(), 0);
+        for (auto& map_element : alt_sr_loglikes)
+        {
+          std::fill(map_element.second.begin(), map_element.second.end(), 0);
+        }
+
       }
 
     };
