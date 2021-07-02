@@ -314,6 +314,10 @@ KeyValues:
   dependency_resolution:
     prefer_model_specific_functions: true
 
+  rng:
+    generator: ranlux48
+    seed: -1
+
   # Choose a lower cutoff for the likelihood
 
   likelihood:
