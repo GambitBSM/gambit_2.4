@@ -14,7 +14,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 //#include "gambit/ColliderBit/lester_mt2_bisect.h"
 
-// #define CHECK_CUTFLOW
+#define CHECK_CUTFLOW
 
 using namespace std;
 
@@ -43,10 +43,25 @@ namespace Gambit {
         {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
         {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
       };
-
-      
+            
     public:
+      
+      #ifdef CHECK_CUTFLOW
+      string scenario = "WZ";
+      // Cut-flows
+      // Yields in SRs {4Q-WW, 4Q-WZ, 4Q-ZZ, 4Q-VV, 2B2Q-WZ, 2B2Q-Wh, 2B2Q-ZZ, 2B2Q-Zh, 2B2Q-VZ, 2B2Q-Vh}
+      vector<double> _yield_WZ = {3.5967, 6.3812, 4.1271, 6.7624, 2.0387, 0.3481, 1.8895, 0.2818, 2.3702, 0.3812};
+      vector<double> _yield_Wh = {0.3812, 0.6961, 0.4475, 0.7459, 1.1934, 5.2044, 0.8287, 3.6961, 1.2597, 5.5359};
+      vector<double> _yield_HG = {0.8122, 1.5746, 1.2597, 1.8398, 1.5083, 2.0552, 1.9558, 3.0000, 2.1878, 3.2818};
+      
+      vector<double> _meff_4QVV_WW = {0.15911, 1.1519, 2.1652, 2.3533, 2.302, 1.3157, 0.70599, 0.39097, 0.22347, 0.12507, 0.0, 0.0};
+      vector<double> _meff_4QVV_WZ = {0.0, 0.30543, 0.62458, 1.264, 1.4178, 1.493, 1.2082, 0.9881, 0.65451, 0.35119, 0.29642, 0.0};
+      vector<double> _meff_4QVV_HG = {0.0, 0.1461, 0.56213, 0.43614, 0.4357, 0.66339, 0.40393, 0.1648, 0.0, 0.0, 0.0, 0.0};
 
+      const vector<double> meff_bins = {700., 850., 1000., 1150., 1300., 1450., 1600., 1750., 1900., 2050., 2200., 2350., 2500,};
+      vector<double> _meff_4QVV = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      #endif
+      
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
@@ -54,7 +69,7 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_13TeV_2BoostedBosons_139invfb");
         set_luminosity(139.);
-
+        
       }
       
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
@@ -88,7 +103,7 @@ namespace Gambit {
 
         // Get the missing energy in the event
         double met = event->met();
-//        HEPUtils::P4 metVec = event->missingmom();
+        // HEPUtils::P4 metVec = event->missingmom();
         
         // Define vectors of baseline leptons
         // Baseline electrons
@@ -130,7 +145,7 @@ namespace Gambit {
         int njet = 0; int nfat = 0;
         for (const HEPUtils::Jet* jet : candJets) {
           njet++;
-//          cout << njet << " " << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
+          //  cout << njet << " " << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
           if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 40.){
             nfat++;
             fatJets.push_back(jet);
@@ -138,15 +153,14 @@ namespace Gambit {
           if (njet > 1) break;
         }
         
-        // TODO: Read off the mis-tag rates more accurately
         // TODO: This conservatively does not use jets that have been both W and Z tagged
         // Tag the large jets
         int nW = 0; int nZ = 0;
         const vector<double> bpT = {200., 300., 500., 700., 900., DBL_MAX}; // pT bin edges
-        const vector<double> pW = {0.470, 0.475, 0.480, 0.495, 0.520}; // W tag prob
-        const vector<double> pWmiss = {1/10., 1/20., 1/30., 1/30., 1/30.}; // W misstag prob
-        const vector<double> pZ = {0.470, 0.490, 0.510, 0.515, 0.525}; // Z tag prob
-        const vector<double> pZmiss = {1/10., 1/20., 1/30., 1/30., 1/30.}; // Z misstag prob
+        const vector<double> pW = {0.469, 0.475, 0.481, 0.496, 0.522}; // W tag prob
+        const vector<double> pWmiss = {1/10.2574, 1/20.2997, 1/33.4745, 1/36.0622, 1/29.1341}; // W misstag prob
+        const vector<double> pZ = {0.469, 0.488, 0.513, 0.516, 0.525}; // Z tag prob
+        const vector<double> pZmiss = {1/11.5847, 1/18.5291, 1/27.7596, 1/38.4142, 1/26.0997}; // Z misstag prob
         const HEPUtils::BinnedFn1D<double> _eff1dW(bpT, pW);
         const HEPUtils::BinnedFn1D<double> _eff1dWmiss(bpT, pWmiss);
         const HEPUtils::BinnedFn1D<double> _eff1dZ(bpT, pZ);
@@ -159,7 +173,7 @@ namespace Gambit {
           // Double taged
           if( jet->Ztag() && jet->Wtag() ){
             // Conservative choice not to tag jets that have been labeled both as Z and W
-//            cout << "DOUBLE TAG!!" << endl;
+            // cout << "DOUBLE TAG!!" << endl;
           }
           // Misstag as Z or W
           if( !jet->Wtag() && !jet->Ztag() ) {
@@ -168,7 +182,7 @@ namespace Gambit {
           }
         }
         int nV = nZ + nW;
-//        cout << "nZ " << nZ << " nW " << nW << " nV " << nV << endl;
+        // cout << "nZ " << nZ << " nW " << nW << " nV " << nV << endl;
         
   	    // b-jet tagging
         /* This is the largest difference wrt the actual analysis where sliding
@@ -218,6 +232,14 @@ namespace Gambit {
           // Discovery regions
           
         }
+        
+        #ifdef CHECK_CUTFLOW
+        if(nfat > 1 && nLeptons == 0 && nb == 0 && met > 300. && nV == 2){
+          int i = floor((meff-meff_bins[0])/150);
+          if(i < _meff_4QVV.size() ) _meff_4QVV[i]++;
+        }
+        #endif
+        
 
       } // End of analyze
 
@@ -246,6 +268,34 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("Disc-SR-2B2Q"), 3., {4.7, 1.0})); // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
         add_result(SignalRegionData(_counters.at("Disc-SR-Incl"), 6., {8.6, 1.3})); // Union of SR-4Q-VV and Disc-SR-2B2Q
 
+        #ifdef CHECK_CUTFLOW
+        double xsec = 4.42;
+        double lumi = luminosity();
+        double weight = xsec*lumi/10000;
+        
+        vector<double> _yield;
+        if(scenario == "WZ"){
+          _yield = _yield_WZ;
+        }
+        else if(scenario == "WW"){
+          _yield = _yield_WZ;
+        }
+        
+        for( auto const& value: _yield){
+          cout << value << " ";
+        }
+
+        for( auto const& value: _meff_4QVV_WZ ){
+          cout << value << " ";
+        }
+        cout << endl;
+        
+        for( auto const& value: _meff_4QVV ) {
+          cout << value*weight << " ";
+        }
+        cout << endl;
+        #endif
+        
       }
 
       void analysis_specific_reset() {
@@ -267,24 +317,16 @@ namespace Gambit {
 /* 4000
 
  WZ
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal: 5.9563702
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal_uncert: 0.4015784
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal: 0.05414882
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal_uncert: 0.038288998
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal: 5.8209982
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal_uncert: 0.39698878
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal: 0.08122323
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal_uncert: 0.046894254
-
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal: 7.70616
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal_uncert: 0.5195492
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal: 0.070056
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal_uncert: 0.049537073
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal: 7.53102
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal_uncert: 0.5136113
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal: 0.105084
+ 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal_uncert: 0.060670276
  
- Wh
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal: 1.5718671
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal_uncert: 0.20639627
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal: 1.1924509
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal_uncert: 0.17976874
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal: 0.37941621
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal_uncert: 0.10140325
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal: 0
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal_uncert: 0
-
+ 
+ HG
+ 
  */
