@@ -1872,10 +1872,16 @@ namespace Gambit
       using namespace Pipes::L3_Chargino_All_Channels_Conservative_LLike;
       using std::pow;
       using std::log;
+      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
+      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
+      const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
       const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
@@ -1909,6 +1915,12 @@ namespace Gambit
       totalBR += decays.at("~chi+_1").BF("~chi0_1", "e+", "nu_e");
       totalBR += decays.at("~chi+_1").BF("~chi0_1", "mu+", "nu_mu");
       totalBR += decays.at("~chi+_1").BF("~chi0_1", "tau+", "nu_tau");
+      totalBR += decays.at("~chi+_1").BF(snue, "e+")
+               * decays.at(snue).BF("~chi0_1", "nu_e");
+      totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
+               * decays.at(snumu).BF("~chi0_1", "nu_mu");
+      totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
+               * decays.at(snutau).BF("~chi0_1", "nu_tau");
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
@@ -1934,6 +1946,12 @@ namespace Gambit
       totalBR += decays.at("~chi+_2").BF("~chi0_1", "e+", "nu_e");
       totalBR += decays.at("~chi+_2").BF("~chi0_1", "mu+", "nu_mu");
       totalBR += decays.at("~chi+_2").BF("~chi0_1", "tau+", "nu_tau");
+      totalBR += decays.at("~chi+_2").BF(snue, "e+")
+               * decays.at(snue).BF("~chi0_1", "nu_e");
+      totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
+               * decays.at(snumu).BF("~chi0_1", "nu_mu");
+      totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
+               * decays.at(snutau).BF("~chi0_1", "nu_tau");
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
@@ -1954,10 +1972,16 @@ namespace Gambit
       using namespace Pipes::L3_Chargino_Leptonic_Conservative_LLike;
       using std::pow;
       using std::log;
+      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
+      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
+      const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
       const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
@@ -1994,6 +2018,14 @@ namespace Gambit
       totalBR += decays.at("~chi+_1").BF("~chi0_1", "e+", "nu_e");
       totalBR += decays.at("~chi+_1").BF("~chi0_1", "mu+", "nu_mu");
       totalBR += decays.at("~chi+_1").BF("~chi0_1", "tau+", "nu_tau");
+
+      totalBR += decays.at("~chi+_1").BF(snue, "e+")
+               * decays.at(snue).BF("~chi0_1", "nu_e");
+      totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
+               * decays.at(snumu).BF("~chi0_1", "nu_mu");
+      totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
+               * decays.at(snutau).BF("~chi0_1", "nu_tau");
+
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
@@ -2022,6 +2054,14 @@ namespace Gambit
       totalBR += decays.at("~chi+_2").BF("~chi0_1", "e+", "nu_e");
       totalBR += decays.at("~chi+_2").BF("~chi0_1", "mu+", "nu_mu");
       totalBR += decays.at("~chi+_2").BF("~chi0_1", "tau+", "nu_tau");
+
+      totalBR += decays.at("~chi+_2").BF(snue, "e+")
+               * decays.at(snue).BF("~chi0_1", "nu_e");
+      totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
+               * decays.at(snumu).BF("~chi0_1", "nu_mu");
+      totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
+               * decays.at(snutau).BF("~chi0_1", "nu_tau");
+
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
