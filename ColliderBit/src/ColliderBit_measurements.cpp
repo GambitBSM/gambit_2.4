@@ -74,6 +74,26 @@ namespace Gambit
               for (auto analysis : analyses)
                 ah->addAnalysis(analysis);
             }
+
+            //Write the utilised analyses to a file
+            //This will list only the analyses that RIVET has succesfully loaded.
+            //Only do this the first time.
+            # pragma omp critical
+            {
+              static bool analyses_written_to_file = false;
+              if (!analyses_written_to_file){
+                std::ofstream analyses_output_file;
+                //TODO please feel free to change name/put in more appropriate location.
+                analyses_output_file.open(GAMBIT_DIR+std::string("/GAMBIT_rivet_analyses.log"));
+                analyses_output_file << "analyses:";
+
+                for (std::string an_analysis_string : ah->analysisNames()) {
+                  analyses_output_file << "\n - " << an_analysis_string;
+                }
+                analyses_output_file.close();
+                analyses_written_to_file = true;
+              }
+            }
           }
           //If we're not in an init loop, seg faults will occur if the analysis handler is null.
           //This should never happen if the loops happen in the right order, but just in case:
