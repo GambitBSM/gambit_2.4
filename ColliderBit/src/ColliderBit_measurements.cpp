@@ -66,13 +66,30 @@ namespace Gambit
             if(not analyses.size())
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
             // TODO: Add somewhere a check to make sure we only do LHC analyses
-
-            // Rivet is reading from file here, so make it critical
-            # pragma omp critical
-            {
-              // Add the list to theAnalaysisHandler
-              for (auto analysis : analyses)
-                ah->addAnalysis(analysis);
+            else{
+              std::string beamEnergy;
+              //Case where user asks for all 13TeV analyses - probably most cases.
+              if (analyses.at(0) == "13TeV"){
+                analyses.clear();
+                beamEnergy = "13TeV";
+                BEreq::Contur_GetAnalyses(analyses, beamEnergy);
+              }
+              //Case where user asks for all 8TeV analyses - probably rare but here for completeness.
+              else if (analyses.at(0) == "8TeV") {
+                analyses.clear();
+                beamEnergy = "8TeV";
+                BEreq::Contur_GetAnalyses(analyses, beamEnergy);
+              }
+              //TODO: is it worth supporting all analyses by pool (e.g. ATLAS MET + leptons etc?)
+              
+              // Rivet is reading from file here, so make it critical
+              # pragma omp critical
+              {
+                // Add the list to theAnalaysisHandler
+                for (auto analysis : analyses)
+                  ah->addAnalysis(analysis);
+              }
+            
             }
 
             //Write the utilised analyses to a file

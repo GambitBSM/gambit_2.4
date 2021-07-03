@@ -109,6 +109,15 @@ BE_NAMESPACE
     return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
   }
 
+
+  void Contur_get_analyses_from_beam(std::vector<std::string> &analyses, std::string &beamString)
+  {
+    # pragma omp critical
+    {
+      analyses = Contur.attr("static_db").attr("getAnalyses")(pybind11::none(), beamString).cast<std::vector<std::string>>();
+    }
+  }
+
 }
 END_BE_NAMESPACE
 
