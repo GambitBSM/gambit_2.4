@@ -110,12 +110,19 @@ BE_NAMESPACE
   }
 
 
+  //Appends all analyses at given beamString (e.g. 13TeV) that contur knows about to the lit of analyses
+  //to study.
   void Contur_get_analyses_from_beam(std::vector<std::string> &analyses, std::string &beamString)
   {
+    std::vector<std::string> obtained_analyses;
     # pragma omp critical
     {
-      analyses = Contur.attr("static_db").attr("getAnalyses")(pybind11::none(), beamString).cast<std::vector<std::string>>();
+      obtained_analyses = Contur.attr("static_db").attr("getAnalyses")(pybind11::none(), beamString).cast<std::vector<std::string>>();
     }
+    for (std::string analysis : obtained_analyses){
+      analyses.push_back(analysis);
+    }
+
   }
 
 }

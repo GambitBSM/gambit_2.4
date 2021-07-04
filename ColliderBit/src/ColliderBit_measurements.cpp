@@ -67,29 +67,22 @@ namespace Gambit
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
             // TODO: Add somewhere a check to make sure we only do LHC analyses
             else{
-              std::string beamEnergy;
-              //Case where user asks for all 13TeV analyses - probably most cases.
-              if (analyses.at(0) == "13TeV"){
-                analyses.clear();
-                beamEnergy = "13TeV";
-                BEreq::Contur_GetAnalyses(analyses, beamEnergy);
+              for (size_t i = 0; i < analyses.size() ; ++i){
+                //If the analysis is a special code referring to multiple analyses,
+                //append these to the end of the vector, so they are dealt with
+                //later in the loop
+                if (analyses[i] == "13TeV" || analyses[i] == "8TeV"){
+                  BEreq::Contur_GetAnalyses(analyses, analyses[i]);
+                }
+                //If its a normal analyis just add it.
+                else {
+                  // Rivet is reading from file here, so make it critical
+                  # pragma omp critical
+                  {
+                    ah->addAnalysis(analyses[i]);
+                  }
+                }
               }
-              //Case where user asks for all 8TeV analyses - probably rare but here for completeness.
-              else if (analyses.at(0) == "8TeV") {
-                analyses.clear();
-                beamEnergy = "8TeV";
-                BEreq::Contur_GetAnalyses(analyses, beamEnergy);
-              }
-              //TODO: is it worth supporting all analyses by pool (e.g. ATLAS MET + leptons etc?)
-              
-              // Rivet is reading from file here, so make it critical
-              # pragma omp critical
-              {
-                // Add the list to theAnalaysisHandler
-                for (auto analysis : analyses)
-                  ah->addAnalysis(analysis);
-              }
-            
             }
 
             //Write the utilised analyses to a file
