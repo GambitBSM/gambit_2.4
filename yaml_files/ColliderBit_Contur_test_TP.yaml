@@ -208,8 +208,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 1000
-        max_nEvents: 1000
+        min_nEvents: 740
+        max_nEvents: 740
         events_between_convergence_checks: 500
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -285,10 +285,9 @@ Rules:
     options:
       drop_YODA_file: true
       analyses: 
-        - ATLAS_2019_I1720442
-        - ATLAS_2019_I1718132
-        - ATLAS_2019_I1759875
-        - CMS_2018_I1662081
+       - 13TeV
+      exclude_analyses:
+       - ATLAS_2016_I1469071
 
   - capability: LHC_measurements_LogLike
     function: Contur_LHC_measurements_LogLike_from_stream

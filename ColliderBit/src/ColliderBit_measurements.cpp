@@ -85,6 +85,15 @@ namespace Gambit
               }
             }
 
+            //If the yaml file wants to exclude analyses, remove them
+            //This feature was inspired by ATLAS_2016_I1469071, which is effectively
+            //invalid for most BSM cases and can cause crashes.
+            std::vector<str> excluded_analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
+            # pragma omp critical
+            {
+              ah->removeAnalyses(excluded_analyses);
+            }
+
             //Write the utilised analyses to a file
             //This will list only the analyses that RIVET has succesfully loaded.
             //Only do this the first time.
