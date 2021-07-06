@@ -47,7 +47,7 @@ namespace Gambit {
     public:
       
       #ifdef CHECK_CUTFLOW
-      string scenario = "WZ";
+      string scenario = "HG";
       // Cut-flows
       // Yields in SRs {4Q-WW, 4Q-WZ, 4Q-ZZ, 4Q-VV, 2B2Q-WZ, 2B2Q-Wh, 2B2Q-ZZ, 2B2Q-Zh, 2B2Q-VZ, 2B2Q-Vh}
       vector<double> _yield_WZ = {3.5967, 6.3812, 4.1271, 6.7624, 2.0387, 0.3481, 1.8895, 0.2818, 2.3702, 0.3812};
@@ -235,7 +235,7 @@ namespace Gambit {
         
         #ifdef CHECK_CUTFLOW
         if(nfat > 1 && nLeptons == 0 && nb == 0 && met > 300. && nV == 2){
-          int i = floor((meff-meff_bins[0])/150);
+          size_t i = floor((meff-meff_bins[0])/150);
           if(i < _meff_4QVV.size() ) _meff_4QVV[i]++;
         }
         #endif
@@ -269,31 +269,47 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("Disc-SR-Incl"), 6., {8.6, 1.3})); // Union of SR-4Q-VV and Disc-SR-2B2Q
 
         #ifdef CHECK_CUTFLOW
-        double xsec = 4.42;
-        double lumi = luminosity();
-        double weight = xsec*lumi/10000;
+        cout << "Cut-flow output" << endl;
         
-        vector<double> _yield;
+        double _xsec_model;
+        double lumi = luminosity();
+
+        vector<double> _yield_model(10);
+        vector<double> _meff_4QVV_model(12);
         if(scenario == "WZ"){
-          _yield = _yield_WZ;
+          _yield_model = _yield_WZ;
+          _meff_4QVV_model = _meff_4QVV_WZ;
+          _xsec_model = 2.52;
         }
         else if(scenario == "WW"){
-          _yield = _yield_WZ;
+          _meff_4QVV_model = _meff_4QVV_WW;
+          _xsec_model = 4.42;
         }
+        else if(scenario == "Wh"){
+          _yield_model = _yield_Wh;
+          _xsec_model = 2.52;
+        }
+        else if(scenario == "HG"){
+          _yield_model = _yield_HG;
+          _meff_4QVV_model = _meff_4QVV_HG;
+          _xsec_model = 2.34;
+        }
+        double weight = _xsec_model*lumi/10000;
         
-        for( auto const& value: _yield){
-          cout << value << " ";
+        // Compare final event yield per SR for model
+        cout << "SR\t\t" << "GAMBIT\t" << "ATLAS" << endl;
+        cout << "SR-4Q-WW\t" << _counters.at("SR-4Q-WW").sum()*weight << "\t" << _yield_model[0] << endl;
+        cout << "SR-4Q-WZ\t" << _counters.at("SR-4Q-WZ").sum()*weight << "\t" << _yield_model[1] << endl;
+        cout << "SR-4Q-ZZ\t" << _counters.at("SR-4Q-ZZ").sum()*weight << "\t" << _yield_model[2] << endl;
+        cout << "SR-4Q-VV\t" << _counters.at("SR-4Q-VV").sum()*weight << "\t" << _yield_model[3] << endl;
+        cout << endl;
+
+        // Compare meff spectrum
+        cout << "Meff SR-4Q-VV\t" << "GAMBIT\t" << "ATLAS " << endl;
+        for( size_t j = 0; j < _meff_4QVV.size(); j++){
+          cout << "[" << meff_bins[j] << ", " << meff_bins[j+1] << "]\t" << _meff_4QVV[j]*weight << "\t" << _meff_4QVV_model[j] << endl;
         }
 
-        for( auto const& value: _meff_4QVV_WZ ){
-          cout << value << " ";
-        }
-        cout << endl;
-        
-        for( auto const& value: _meff_4QVV ) {
-          cout << value*weight << " ";
-        }
-        cout << endl;
         #endif
         
       }
@@ -311,22 +327,3 @@ namespace Gambit {
 
   }
 }
-
-
-
-/* 4000
-
- WZ
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal: 7.70616
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-VV__i3__signal_uncert: 0.5195492
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal: 0.070056
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WW__i0__signal_uncert: 0.049537073
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal: 7.53102
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-WZ__i1__signal_uncert: 0.5136113
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal: 0.105084
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2BoostedBosons_139invfb__SR-4Q-ZZ__i2__signal_uncert: 0.060670276
- 
- 
- HG
- 
- */
