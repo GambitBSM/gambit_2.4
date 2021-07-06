@@ -48,8 +48,17 @@ namespace Gambit
     /// Identifier for jets false
     inline bool amIaJet(const HEPUtils::Particle *part) { (void)part; return false; }
 
-    /// Indentifier for b-jets true
+    /// Identifier for b-jets true
     inline bool amIaBJet(const HEPUtils::Particle *part) { (void)part; return true; }
+
+    /// Identifier for electrons
+    inline bool amIanElectron(const HEPUtils::Particle *part) { return part->abspid() == 11; }
+
+    /// Identifier for muons
+    inline bool amIaMuon(const HEPUtils::Particle *part) { return part->abspid() == 13; }
+
+    /// Identifier for taus
+    inline bool amIaTau(const HEPUtils::Particle *part) { return part->abspid() == 15; }
 
     //@}
 
