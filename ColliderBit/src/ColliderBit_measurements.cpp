@@ -33,7 +33,13 @@
   #include "YODA/IO.h"
 #endif
 
-//#define COLLIDERBIT_DEBUG
+
+void convert_yaml_options_for_contur(std::vector<std::string> &yaml_options)
+{
+  for (size_t i{0}; i <yaml_options.size(); ++i){
+    yaml_options[i] = ("--"+yaml_options[i]);
+  }
+}
 
 namespace Gambit
 {
@@ -94,7 +100,7 @@ namespace Gambit
               ah->removeAnalyses(excluded_analyses);
             }
 
-            //Write the utilised analyses to a file
+            //Write the utilised analyses to a file in yaml-like format
             //This will list only the analyses that RIVET has succesfully loaded.
             //Only do this the first time.
             # pragma omp critical
@@ -225,11 +231,9 @@ namespace Gambit
   
         std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
         
-        //Note the yaml options should be in the DEST form, not the commandline form, e.g.:
-        //"USESEARCHES", not "--usesearches" or "-s".
         std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
+        convert_yaml_options_for_contur(yaml_contur_options);
 
-        //TODO: Check on Rivet/Contur thread safety
         #pragma omp critical
         {
           ///Call contur
@@ -250,9 +254,8 @@ namespace Gambit
         if (YODA_filename == "" or not Utils::file_exists(YODA_filename))
           ColliderBit_error().raise(LOCAL_INFO, "YODA file "+YODA_filename+" not found.");
 
-        //Note the yaml options should be in the DEST form, not the commandline form, e.g.:
-        //"USESEARCHES", not "--usesearches" or "-s".
         std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
+        convert_yaml_options_for_contur(yaml_contur_options);
 
         #pragma omp critical
         {

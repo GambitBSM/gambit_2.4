@@ -284,7 +284,8 @@ Rules:
   - capability: Rivet_measurements
     options:
       drop_YODA_file: true
-      analyses: 
+      analyses:
+       #- ATLAS_2017_I1625109
        - 13TeV
       exclude_analyses:
        - ATLAS_2016_I1469071
@@ -294,7 +295,7 @@ Rules:
     options:
       #Adding a contur option is equivalent to running contur with the equivalent flag.
       contur_options:
-        - USESEARCHES
+       - use-searches
       #YODA_filename: "./runpoint_0017.yoda"
 
 # Set the names of key log files
