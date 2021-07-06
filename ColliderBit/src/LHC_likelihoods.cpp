@@ -945,9 +945,6 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC loglikes per analysis: ";
 
-      // _Anders: Need new implemention of this
-      // static const bool output_expected_loglike_SR_combination = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_SR_combination");
-
       for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair.first;
@@ -955,12 +952,16 @@ namespace Gambit
 
         result[analysis_name] = analysis_loglikes.combination_loglike;
 
-        // if (output_expected_loglike_SR_combination)
-        // {
-        //   result[analysis_name + "__expected_LogLike"] = analysis_loglikes.combination_expected_loglike;
-        // }
-
         summary_line << analysis_name << ":" << analysis_loglikes.combination_loglike << ", ";
+
+        // Any alternative combined likelihoods?
+        for (const auto& map_element : analysis_loglikes.alt_combination_loglikes)
+        {
+          const str& alt_loglike_key = map_element.first;
+          const double& alt_combination_loglike = map_element.second;
+          result[analysis_name + "__" + alt_loglike_key + "_LogLike"] = alt_combination_loglike;
+        }
+
       }
       logger() << LogTags::debug << summary_line.str() << EOM;
     }
