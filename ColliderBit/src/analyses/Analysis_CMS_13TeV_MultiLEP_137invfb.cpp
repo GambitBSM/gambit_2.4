@@ -40,40 +40,40 @@ namespace Gambit
         {
 
           // Fill counters map
-          // 2SSLep SRs
+          // 2SSLep (2lSS)
           for(size_t i=1; i<=20; ++i)
             _counters[SR("SS",i)] =  EventCounter(SR("SS",i));
-          // 3Lep, OSSF pair
+          // 3Lep, OSSF pair (3lA)
           for(size_t i=1; i<=64; ++i)
             _counters[SR("A",i)] = EventCounter(SR("A",i));
-          // 3Lep, no OSSF pair
+          // 3Lep, no OSSF pair (3lB)
           for(size_t i=1; i<=3; ++i)
             _counters[SR("B",i)] = EventCounter(SR("B",i));
-          // 3Lep, OSSF pair + tau
+          // 3Lep, OSSF pair + tau (3lC)
           for(size_t i=1; i<=9; ++i)
             _counters[SR("C",i)] = EventCounter(SR("C",i));
-          // 3Lep, no OSSF pair + tau
+          // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
           for(size_t i=1; i<=16; ++i)
             _counters[SR("D",i)] = EventCounter(SR("D",i));
-          // 3Lep, SS + tau
+          // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
           for(size_t i=1; i<=9; ++i)
             _counters[SR("E",i)] = EventCounter(SR("E",i));
-          // 3Lep, 2 tau
+          // 3Lep, 2 tau (3lF)
           for(size_t i=1; i<=12; ++i)
             _counters[SR("F",i)] = EventCounter(SR("F",i));
-          // 4Lep, 2 OSSF pairs
+          // 4Lep, 2 OSSF pairs (4lG)
           for(size_t i=1; i<=5; ++i)
             _counters[SR("G",i)] = EventCounter(SR("G",i));
-          // 4Lep, 1 or fewer OSSF pairs
+          // 4Lep, 1 or fewer OSSF pairs (4lH)
           for(size_t i=1; i<=3; ++i)
             _counters[SR("H",i)] = EventCounter(SR("H",i));
-          // 4Lep, tau + 3 light leptons
+          // 4Lep, tau + 3 light leptons (4lI)
           for(size_t i=1; i<=3; ++i)
             _counters[SR("I",i)] = EventCounter(SR("I",i));
-          // 4Lep, 2 tau + 2 light leptopns, 2 OSSF pairs
+          // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
           for(size_t i=1; i<=3; ++i)
             _counters[SR("J",i)] = EventCounter(SR("J",i));
-          // 4Lep, 2 tau + 2 light leptopns, 1 or fewer OSSF pairs
+          // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
           for(size_t i=1; i<=3; ++i)
             _counters[SR("K",i)] = EventCounter(SR("K",i));
 
@@ -514,7 +514,7 @@ namespace Gambit
             if(deltaRH < 0.8) _counters.at("I03").add_event(event);
           }
 
-          // 4Lep, 2 tau + 2 light leptopns, 2 OSSF pairs (4lJ)
+          // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
           if(nLeptons == 4 and nLightLeptons == 2 and nTaus == 2 and nOSSFpairs == 2)
           {
             // Z1 invariant mass
@@ -530,7 +530,7 @@ namespace Gambit
             if(deltaRH < 0.8) _counters.at("J03").add_event(event);
           }
 
-          // 4Lep, 2 tau + 2 light leptopns, 1 or fewer OSSF pairs (4LK)
+          // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
           if(nLeptons == 4 and nLightLeptons == 2 and nTaus == 2 and nOSSFpairs < 2)
           {
             // Z1 invariant mass
@@ -553,11 +553,189 @@ namespace Gambit
         void combine(const Analysis* other)
         {
           const Analysis_CMS_13TeV_MultiLEP_137invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_MultiLEP_137invfb*>(other);
-         for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
         }
 
         void collect_results()
         {
+
+          //Now fill a results object with the results for each SR
+          // TODO: This is just approximated from the plots, as there is no public data available
+
+          // 2SSLep (2lSS)
+          add_result(SignalRegionData(_counters.at("SS01"), 680., {680., 80.}));
+          add_result(SignalRegionData(_counters.at("SS02"), 400., {360., 80.}));
+          add_result(SignalRegionData(_counters.at("SS03"), 26., {23., 5.}));
+          add_result(SignalRegionData(_counters.at("SS04"), 19., {12., 5.}));
+          add_result(SignalRegionData(_counters.at("SS05"), 9.5., {6., 2.}));
+          add_result(SignalRegionData(_counters.at("SS06"), 1.9, {2., 1.75.}));
+          add_result(SignalRegionData(_counters.at("SS07"), 700., {650., 80.}));
+          add_result(SignalRegionData(_counters.at("SS08"), 600., {550., 80.}));
+          add_result(SignalRegionData(_counters.at("SS09"), 1.9., {1.7., 0.8}));
+          add_result(SignalRegionData(_counters.at("SS10"), 4100., {4300., 400.}));
+          add_result(SignalRegionData(_counters.at("SS11"), 97., {100., 11.}));
+          add_result(SignalRegionData(_counters.at("SS12"), 93., {80., 10.}));
+          add_result(SignalRegionData(_counters.at("SS13"), 63., {50., 7.5.}));
+          add_result(SignalRegionData(_counters.at("SS14"), 2.8., {2.3., 1.3}));
+          add_result(SignalRegionData(_counters.at("SS15"), 2.9, {0.7, 0.56}));
+          add_result(SignalRegionData(_counters.at("SS16"), 10., {13., 3.5}));
+          add_result(SignalRegionData(_counters.at("SS17"), 9.5., {3.9., 2.3}));
+          add_result(SignalRegionData(_counters.at("SS18"), 5.8, {4., 1.6.}));
+          add_result(SignalRegionData(_counters.at("SS19"), 5.8, {3.7., 1.2}));
+          add_result(SignalRegionData(_counters.at("SS20"), 5.8., {3.9., 1.6}));
+
+          // 3Lep, OSSF pair (3lA)
+          add_result(SignalRegionData(_counters.at("A01"), 242., {250., 25.}));
+          add_result(SignalRegionData(_counters.at("A02"), 250., {235., 35.}));
+          add_result(SignalRegionData(_counters.at("A03"), 280., {260., 35.}));
+          add_result(SignalRegionData(_counters.at("A04"), 215., {195., 35.}));
+          add_result(SignalRegionData(_counters.at("A05"), 35., {33., 5.5}));
+          add_result(SignalRegionData(_counters.at("A06"), 960., {900., 100.}));
+          add_result(SignalRegionData(_counters.at("A07"), 390., {360., 55.}));
+          add_result(SignalRegionData(_counters.at("A08"), 7., {5.8, 1.6}));
+          add_result(SignalRegionData(_counters.at("A09"), 207., {215., 40.}));
+          add_result(SignalRegionData(_counters.at("A10"), 27., {20., 4.}));
+          add_result(SignalRegionData(_counters.at("A11"), 37., {27., 6.}));
+          add_result(SignalRegionData(_counters.at("A12"), 1., {3., 1.}));
+          add_result(SignalRegionData(_counters.at("A13"), 620., {580., 80.}));
+          add_result(SignalRegionData(_counters.at("A14"), 9., {13., 3.}));
+          add_result(SignalRegionData(_counters.at("A15"), 160., {150., 20.}));
+          add_result(SignalRegionData(_counters.at("A16"), 27., {24., 5.}));
+          add_result(SignalRegionData(_counters.at("A17"), 29., {33., 5.5}));
+          add_result(SignalRegionData(_counters.at("A18"), 1., {4.8, 1.2}));
+          add_result(SignalRegionData(_counters.at("A19"), 60., {53., 9.}));
+          add_result(SignalRegionData(_counters.at("A20"), 2.9, {2.9., 0.9}));
+          add_result(SignalRegionData(_counters.at("A21"), 27., {18., 4.}));
+          add_result(SignalRegionData(_counters.at("A22"), 9., {6.5., 1.5}));
+          add_result(SignalRegionData(_counters.at("A23"), 7300., {7000., 1200.}));
+          add_result(SignalRegionData(_counters.at("A24"), 1000., {1000., 200.}));
+          add_result(SignalRegionData(_counters.at("A25"), 200., {200., 40.}));
+          add_result(SignalRegionData(_counters.at("A26"), 62., {63., 11.}));
+          add_result(SignalRegionData(_counters.at("A27"), 35., {43., 9.}));
+          add_result(SignalRegionData(_counters.at("A28"), 1250., {1210., 200.}));
+          add_result(SignalRegionData(_counters.at("A29"), 270., {230., 50.}));
+          add_result(SignalRegionData(_counters.at("A30"), 25., {20.5., 4.5.}));
+          add_result(SignalRegionData(_counters.at("A31"), 6., {5.4, 1.7}));
+          add_result(SignalRegionData(_counters.at("A32"), 112., {77., 16.}));
+          add_result(SignalRegionData(_counters.at("A33"), 49., {56, 12.}));
+          add_result(SignalRegionData(_counters.at("A34"), 18., {15.5., 3.5}));
+          add_result(SignalRegionData(_counters.at("A35"), 15., {12., 2.5.}));
+          add_result(SignalRegionData(_counters.at("A36"), 1150., {1150., 200.}));
+          add_result(SignalRegionData(_counters.at("A37"), 350., {350., 60.}));
+          add_result(SignalRegionData(_counters.at("A38"), 100., {98., 17.}));
+          add_result(SignalRegionData(_counters.at("A39"), 29., {30., 6.}));
+          add_result(SignalRegionData(_counters.at("A40"), 15., {21., 4.}));
+          add_result(SignalRegionData(_counters.at("A41"), 230., {215., 40.}));
+          add_result(SignalRegionData(_counters.at("A42"), 70., {54., 13.}));
+          add_result(SignalRegionData(_counters.at("A43"), 12., {11., 2.}));
+          add_result(SignalRegionData(_counters.at("A44"), 4., {2.7, 1.1}));
+          add_result(SignalRegionData(_counters.at("A45"), 35., {32., 7.}));
+          add_result(SignalRegionData(_counters.at("A46"), 9., {10.5, 4.}));
+          add_result(SignalRegionData(_counters.at("A47"), 4., {5.8, 1.6}));
+          add_result(SignalRegionData(_counters.at("A48"), 10., {3.4, 0.9}));
+          add_result(SignalRegionData(_counters.at("A49"), 1250., {1130., 170.}));
+          add_result(SignalRegionData(_counters.at("A50"), 300., {290., 50.}));
+          add_result(SignalRegionData(_counters.at("A51"), 76., {82.5., 17.5}));
+          add_result(SignalRegionData(_counters.at("A52"), 36., {43., 9.}));
+          add_result(SignalRegionData(_counters.at("A53"), 199., {155., 30.}));
+          add_result(SignalRegionData(_counters.at("A54"), 63., {55., 11.}));
+          add_result(SignalRegionData(_counters.at("A55"), 26., {18., 3.}));
+          add_result(SignalRegionData(_counters.at("A56"), 12., {8., 2.2}));
+          add_result(SignalRegionData(_counters.at("A57"), 1., {2.5., 1.}));
+          add_result(SignalRegionData(_counters.at("A58"), 3., {4.2, 1.4}));
+          add_result(SignalRegionData(_counters.at("A59"), 52., {38., 7.}));
+          add_result(SignalRegionData(_counters.at("A60"), 20, {16.5, 4.}));
+          add_result(SignalRegionData(_counters.at("A61"), 7., {7., 1.5}));
+          add_result(SignalRegionData(_counters.at("A62"), 2., {4.1, 1.3}));
+          add_result(SignalRegionData(_counters.at("A63"), 2., {1.7, 0.45}));
+          add_result(SignalRegionData(_counters.at("A64"), 3., {5.5, 1.8}));
+
+          // 3Lep, no OSSF pair (3lB)
+          add_result(SignalRegionData(_counters.at("B01"), 14., {8.2, 1.6}));
+          add_result(SignalRegionData(_counters.at("B02"), 110., {110., 25.}));
+          add_result(SignalRegionData(_counters.at("B03"), 327, {322., 83.}));
+
+          // 3Lep, OSSF pair + tau (3lC)
+          add_result(SignalRegionData(_counters.at("C01"), 3850., {4180., 1640.}));
+          add_result(SignalRegionData(_counters.at("C02"), 167., {190., 70.}));
+          add_result(SignalRegionData(_counters.at("C03"), 20., {23., 6.}));
+          add_result(SignalRegionData(_counters.at("C04"), 42., {34., 13.}));
+          add_result(SignalRegionData(_counters.at("C05"), 3., {4.4, 1.7}));
+          add_result(SignalRegionData(_counters.at("C06"), 5., {5.3, 1.4}));
+          add_result(SignalRegionData(_counters.at("C07"), 7., {9., 3.5}));
+          add_result(SignalRegionData(_counters.at("C08"), 1., {2.1, 1.}));
+          add_result(SignalRegionData(_counters.at("C09"), 4., {3.4, 1.1}));
+
+          // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
+          add_result(SignalRegionData(_counters.at("D01"), 680., {666., 254.}));
+          add_result(SignalRegionData(_counters.at("D02"), 280., {230., 90.}));
+          add_result(SignalRegionData(_counters.at("D03"), 72., {49., 19.}));
+          add_result(SignalRegionData(_counters.at("D04"), 13., {17., 6.}));
+          add_result(SignalRegionData(_counters.at("D05"), 11., {13., 5.}));
+          add_result(SignalRegionData(_counters.at("D06"), 600., {570., 230.}));
+          add_result(SignalRegionData(_counters.at("D07"), 225., {200., 90.}));
+          add_result(SignalRegionData(_counters.at("D08"), 47., {55., 21.}));
+          add_result(SignalRegionData(_counters.at("D09"), 8., {13., 5.}));
+          add_result(SignalRegionData(_counters.at("D10"), 6., {6.8, 2.5}));
+          add_result(SignalRegionData(_counters.at("D11"), 200., {190., 70.}));
+          add_result(SignalRegionData(_counters.at("D12"), 63., {70., 28.}));
+          add_result(SignalRegionData(_counters.at("D13"), 20., {24., 9.}));
+          add_result(SignalRegionData(_counters.at("D14"), 7., {13., 4.}));
+          add_result(SignalRegionData(_counters.at("D15"), 20., {17., 6.}));
+          add_result(SignalRegionData(_counters.at("D16"), 1., {1.13, 0.47.}));
+
+          // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
+          add_result(SignalRegionData(_counters.at("E01"), 60., {70., 17.}));
+          add_result(SignalRegionData(_counters.at("E02"), 28., {22., 3.}));
+          add_result(SignalRegionData(_counters.at("E03"), 1., {2.2, 0.8}));
+          add_result(SignalRegionData(_counters.at("E04"), 362., {345., 75.}));
+          add_result(SignalRegionData(_counters.at("E05"), 108., {95., 18.}));
+          add_result(SignalRegionData(_counters.at("E06"), 25., {19., 4.}));
+          add_result(SignalRegionData(_counters.at("E07"), 5., {6., 1.6.}));
+          add_result(SignalRegionData(_counters.at("E08"), 15., {14., 4.}));
+          add_result(SignalRegionData(_counters.at("E09"), 1., {1., 0.5.}));
+
+          // 3Lep, 2 tau (3lF)
+          add_result(SignalRegionData(_counters.at("F01"), 1060., {1170., 400.}));
+          add_result(SignalRegionData(_counters.at("F02"), 177., {190., 70.}));
+          add_result(SignalRegionData(_counters.at("F03"), 40., {36., 13.}));
+          add_result(SignalRegionData(_counters.at("F04"), 9., {9.5, 3.5}));
+          add_result(SignalRegionData(_counters.at("F05"), 3., {2., 1.}));
+          add_result(SignalRegionData(_counters.at("F06"), 4., {2.6, 1.2}));
+          add_result(SignalRegionData(_counters.at("F07"), 585., {600., 200.}));
+          add_result(SignalRegionData(_counters.at("F08"), 125., {130., 58.}));
+          add_result(SignalRegionData(_counters.at("F09"), 33., {37., 14.}));
+          add_result(SignalRegionData(_counters.at("F10"), 19., {17., 6.}));
+          add_result(SignalRegionData(_counters.at("F11"), 18., {23., 6.}));
+          add_result(SignalRegionData(_counters.at("F12"), 2., {3.5, 1.4}));
+
+          // 4Lep, 2 OSSF pairs (4lG)
+          add_result(SignalRegionData(_counters.at("G01"), 370., {365., 30.}));
+          add_result(SignalRegionData(_counters.at("G02"), 15., {18.5, 2.}));
+          add_result(SignalRegionData(_counters.at("G03"), 6., {6.7, 1.2}));
+          add_result(SignalRegionData(_counters.at("G04"), 0., {1.7, 0.8}));
+          add_result(SignalRegionData(_counters.at("G05"), 0., {0., 0.}));
+
+          // 4Lep, 1 or fewer OSSF pairs (4lH)
+          add_result(SignalRegionData(_counters.at("H01"), 49., {41.7, 5.}));
+          add_result(SignalRegionData(_counters.at("H02"), 4., {3., 1.}));
+          add_result(SignalRegionData(_counters.at("H03"), 3., {4.3, 0.9}));
+
+          // 4Lep, tau + 3 light leptons (4lI)
+          add_result(SignalRegionData(_counters.at("I01"), 92., {96., 17.}));
+          add_result(SignalRegionData(_counters.at("I02"), 14., {10., 3.}));
+          add_result(SignalRegionData(_counters.at("I03"), 7., {9.4., 1.6}));
+
+          // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
+          add_result(SignalRegionData(_counters.at("J01"), 34., {35.5, 8.5}));
+          add_result(SignalRegionData(_counters.at("J02"), 6., {10.7, 4.3}));
+          add_result(SignalRegionData(_counters.at("J03"), 4., {4.3, 1.2}));
+
+          // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
+          add_result(SignalRegionData(_counters.at("K01"), 8., {16., 6.5}));
+          add_result(SignalRegionData(_counters.at("K02"), 5., {5.2, 2.45}));
+          add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
+
         }
 
       protected:
