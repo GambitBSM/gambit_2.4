@@ -319,7 +319,7 @@ namespace Gambit
         }
         
         // Find candidates for hadronically decaying vector bosons
-        if (apid == 23 || apid == 24)
+        if (apid == MCUtils::PID::Z0 || apid == MCUtils::PID::WPLUS)
         {
           bool isGoodBoson = true;
           std::vector<int> childIDs;
@@ -329,15 +329,25 @@ namespace Gambit
           {
             // Veto leptonically decaying bosons
             abschildID = abs(childID);
-            if (abschildID == 23 || abschildID == 24 || abschildID == MCUtils::PID::ELECTRON || abschildID == MCUtils::PID::MUON || abschildID == MCUtils::PID::TAU)
+            if (abschildID == MCUtils::PID::Z0 || abschildID == MCUtils::PID::WPLUS || abschildID == MCUtils::PID::ELECTRON || abschildID == MCUtils::PID::MUON || abschildID == MCUtils::PID::TAU || abschildID == MCUtils::PID::NU_E || abschildID == MCUtils::PID::NU_MU || abschildID == MCUtils::PID::NU_TAU)
             {
               isGoodBoson = false;
             }
+            // Check for reasonable on-shellness (only low masses discarded on purpose)
+            if(apid == MCUtils::PID::Z0 && (91.-p4.m() > 20.))
+            {
+              isGoodBoson = false;
+            }
+            if(apid == MCUtils::PID::WPLUS && (80.-p4.m() > 20.))
+            {
+              isGoodBoson = false;
+            }
+
           }
           if (isGoodBoson)
           {
-            if(apid == 23) ZCandidates.push_back(HEPUtils::Particle(p4,pid));
-            if(apid == 24) WCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if(apid == MCUtils::PID::Z0) ZCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if(apid == MCUtils::PID::WPLUS) WCandidates.push_back(HEPUtils::Particle(p4,pid));
           }
         }
 

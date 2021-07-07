@@ -1,8 +1,28 @@
 ///
 ///  \author Are Raklev
-///  \date 2021 June
+///  \date 2021 July
 ///
-///  Based on the search presented in ATLAS-CONF-2021-022
+/// TODO: Fix Higgsino decays in test point?
+///
+///  Based on the search presented in ATLAS-CONF-2021-022.
+///
+///  WARNING: This implementation only predicts the non-b-jet signal regions due to problems reproducing
+///  the b-tagging used based on small radius track jets. With no real cut-flows available the implementation
+///  has been checked solely as performing satisfactorily agains the digitized content of Figs. 10 and 11 a) in
+///  the conference note. Some further limitations are:
+///
+///  * Due to mis-tagging probabilities for W- and Z-jets lacking from the note, events will be missing from
+///  signal regions not directly corresponding to the produced bosons, e.g. in chargino--neutralino
+///  production with decays into W and Z, events would otherwise also be expected in the ZZ signal region
+///  due to misidentification of jets, but this will bot be the case with this inplementation. As a result the
+///  most reliable and most constraining signal region will typically be the VV signal region.
+///
+///  * For b-tagging we take the conservative approach of allowing no events with b-labeled jets and use
+///  the mis-tagging probabilities for the small radius track jets for non-b-labeled jets.
+///
+///  * The separation of E_T^miss and jets in the analysis is done using small radius jets. Here we use the
+///  large radius jets since they are the only ones available.
+///
 ///  *********************************************
 
 #include <vector>
@@ -58,7 +78,7 @@ namespace Gambit {
       vector<double> _meff_4QVV_WZ = {0.0, 0.30543, 0.62458, 1.264, 1.4178, 1.493, 1.2082, 0.9881, 0.65451, 0.35119, 0.29642, 0.0};
       vector<double> _meff_4QVV_HG = {0.0, 0.1461, 0.56213, 0.43614, 0.4357, 0.66339, 0.40393, 0.1648, 0.0, 0.0, 0.0, 0.0};
 
-      const vector<double> meff_bins = {700., 850., 1000., 1150., 1300., 1450., 1600., 1750., 1900., 2050., 2200., 2350., 2500,};
+      const vector<double> _meff_bins = {700., 850., 1000., 1150., 1300., 1450., 1600., 1750., 1900., 2050., 2200., 2350., 2500,};
       vector<double> _meff_4QVV = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       #endif
       
@@ -103,7 +123,7 @@ namespace Gambit {
 
         // Get the missing energy in the event
         double met = event->met();
-        // HEPUtils::P4 metVec = event->missingmom();
+        HEPUtils::P4 metVec = event->missingmom();
         
         // Define vectors of baseline leptons
         // Baseline electrons
@@ -113,9 +133,8 @@ namespace Gambit {
               && fabs(electron->eta()) < 2.47)
             electrons.push_back(electron);
         }
-        // TODO: Check this
-        // Apply electron efficiency
-        ATLAS::applyElectronEff(electrons);
+        // Apply electron efficiency from "Loose" criteria in 1902.04655
+        ATLAS::applyElectronIDEfficiency2019(electrons, "Loose");
         // Baseline muons
         vector<const HEPUtils::Particle*> muons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -123,39 +142,28 @@ namespace Gambit {
               && fabs(muon->eta()) < 2.7)
             muons.push_back(muon);
         }
-        // TODO: Check this
         // Apply muon efficiency
-        ATLAS::applyMuonEff(muons);
+        ATLAS::applyMuonEffR2(muons);
         
         // Number of leptons
         size_t nMuons = muons.size();
         size_t nElectrons = electrons.size();
         size_t nLeptons = nElectrons+nMuons;
 
-        // Overlap removal (remove fat jets within DR=1)
-        vector<const HEPUtils::Jet*> candJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
-          if (jet->pT() > 20. && fabs(jet->eta()) < 2.0)
-            candJets.push_back(jet);
-        }
-        JetLeptonOverlapRemoval(candJets, electrons, 1.0);
-        
-        // Look at two hardest jets to see if they fullfil criteria for fat jets
+        // Look at jets to see if they fulfil criteria for fat jets
         vector<const HEPUtils::Jet*> fatJets;
-        int njet = 0; int nfat = 0;
-        for (const HEPUtils::Jet* jet : candJets) {
-          njet++;
-          //  cout << njet << " " << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
+        for (const HEPUtils::Jet* jet : event->jets()) {
+          //  cout  << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
           if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 40.){
-            nfat++;
             fatJets.push_back(jet);
           }
-          if (njet > 1) break;
         }
+        // Overlap removal (remove fat jets within DR=1 of electrons)
+        JetLeptonOverlapRemoval(fatJets, electrons, 1.0);
+        size_t nfat = fatJets.size();
         
-        // TODO: This conservatively does not use jets that have been both W and Z tagged
-        // Tag the large jets
-        int nW = 0; int nZ = 0;
+        // Tag the large jets (only look at two hardest jets)
+        int nW = 0; int nZ = 0; int ntest = 0;
         const vector<double> bpT = {200., 300., 500., 700., 900., DBL_MAX}; // pT bin edges
         const vector<double> pW = {0.469, 0.475, 0.481, 0.496, 0.522}; // W tag prob
         const vector<double> pWmiss = {1/10.2574, 1/20.2997, 1/33.4745, 1/36.0622, 1/29.1341}; // W misstag prob
@@ -167,39 +175,44 @@ namespace Gambit {
         const HEPUtils::BinnedFn1D<double> _eff1dZmiss(bpT, pZmiss);
         for (const HEPUtils::Jet* jet : fatJets) {
           // Tag W
-          if( jet->Wtag() && !jet->Ztag() && random_bool( _eff1dW.get_at( jet->pT() ) ) ) nW++;
+          if( jet->Wtag() && random_bool( _eff1dW.get_at( jet->pT() ) ) ) nW++;
           // Tag Z
-          if( jet->Ztag() && !jet->Wtag() && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
-          // Double taged
-          if( jet->Ztag() && jet->Wtag() ){
-            // Conservative choice not to tag jets that have been labeled both as Z and W
-            // cout << "DOUBLE TAG!!" << endl;
-          }
+          if( jet->Ztag()  && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
           // Misstag as Z or W
           if( !jet->Wtag() && !jet->Ztag() ) {
             if( random_bool( _eff1dZmiss.get_at( jet->pT() ) )  ) nZ++;
             if( random_bool( _eff1dWmiss.get_at( jet->pT() ) )  ) nW++;
           }
+          ntest++;
+          if(ntest > 1) break;
         }
         int nV = nZ + nW;
         // cout << "nZ " << nZ << " nW " << nW << " nV " << nV << endl;
         
   	    // b-jet tagging
-        /* This is the largest difference wrt the actual analysis where sliding
-         radius track jets are used and the number of such b-jets are counted.
-         This means that the rejection for b-jets in the 4Q SRs has to be
-         changed. We use the tagging probability for a *single* track jet and
-         reject on a single b-jet as a conservative choice.
+        /* There is a difference here wrt the actual analysis where small
+         sliding radius track jets are used, and the number of such b-jets are
+         counted. This means that the rejection for b-jets in the 4Q SRs has to
+         be changed. We use the conservative choice of rejecting all events with
+         a b-labeled large radius jet and mis-tagging large radius non-b-jets
+         according to the mis-tag probabilities of the small radius track jets.
         */
         double btag = 0.83; double cmisstag = 1/3.; double misstag = 1./33.;
         int nb = 0;
-        for (const HEPUtils::Jet* jet : fatJets) {
+        for ( const HEPUtils::Jet* jet : event->jets() ) {
           // Tag b-jet
-          if( jet->btag() && random_bool(btag) ) nb++;
+          if( jet->btag() ) nb++;
           // Misstag c-jet
-          else if( jet->ctag() && random_bool(cmisstag) ) nb++;
+          else if( !jet->btag() && jet->ctag() && random_bool(cmisstag) ) nb++;
           // Misstag light jet
-          else if( random_bool(misstag) ) nb++;
+          else if( !jet->btag() && !jet->ctag() && random_bool(misstag) ) nb++;
+        }
+        
+        // Check separation of jets and ETmiss
+        bool delphi = true;
+        for ( const HEPUtils::Jet* jet : fatJets ) {
+          double phi = jet->mom().deltaPhi(metVec);
+          if (phi < 1.0) delphi = false;
         }
 
         // Effective mass (missing energy plus two leading fatjet pTs)
@@ -207,21 +220,15 @@ namespace Gambit {
         if(fatJets.size() > 0) meff += fatJets[0]->pT();
         if(fatJets.size() > 1) meff += fatJets[1]->pT();
 
-//        TODO: Implement stransverse mass for the b-jet SRs
-        // Stransverse mass (two leading fat jets as legs, assumes 100 GeV invisible mass)
-//        double MT2 =  asymm_mt2_lester_bisect::get_mT2(
-//fatJets[0]->mom()
-//        fatJets[0]->mass(), fatJets[0]->px(), fatJets[0]->py(),
-//        fatJets[1]->mass(), fatJets[1]->px(), fatJets[1]->py(),
-//        metVec.px(), metVec.py(),
-//        100., 100., 0);
-
-
-        // Now increment signal region variables
+        
+        //
+        // Count signal region events
+        //
+        
         // Preselection conditions
         if(nfat > 1 && nLeptons == 0){
           // First exclusion regions
-          if(nb == 0){
+          if(nb == 0 && delphi){
             if(met > 300. && meff > 1300. && nV == 2 && nW == 2) _counters.at("SR-4Q-WW").add_event(event);
             if(met > 300. && meff > 1300. && nV == 2 && nW > 0 && nZ > 0) _counters.at("SR-4Q-WZ").add_event(event);
             if(met > 300. && meff > 1300. && nV == 2 && nZ ==2) _counters.at("SR-4Q-ZZ").add_event(event);
@@ -229,13 +236,13 @@ namespace Gambit {
           }
           if(nb == 1){
           }
-          // Discovery regions
+          // Then discovery regions
           
         }
         
         #ifdef CHECK_CUTFLOW
-        if(nfat > 1 && nLeptons == 0 && nb == 0 && met > 300. && nV == 2){
-          size_t i = floor((meff-meff_bins[0])/150);
+        if(nfat > 1 && nLeptons == 0 && nb == 0 && delphi && met > 300. && nV == 2){
+          size_t i = floor((meff-_meff_bins[0])/150);
           if(i < _meff_4QVV.size() ) _meff_4QVV[i]++;
         }
         #endif
@@ -294,7 +301,7 @@ namespace Gambit {
           _meff_4QVV_model = _meff_4QVV_HG;
           _xsec_model = 2.34;
         }
-        double weight = _xsec_model*lumi/10000;
+        double weight = _xsec_model*lumi/50000; // Weights of less than 0.01
         
         // Compare final event yield per SR for model
         cout << "SR\t\t" << "GAMBIT\t" << "ATLAS" << endl;
@@ -307,7 +314,7 @@ namespace Gambit {
         // Compare meff spectrum
         cout << "Meff SR-4Q-VV\t" << "GAMBIT\t" << "ATLAS " << endl;
         for( size_t j = 0; j < _meff_4QVV.size(); j++){
-          cout << "[" << meff_bins[j] << ", " << meff_bins[j+1] << "]\t" << _meff_4QVV[j]*weight << "\t" << _meff_4QVV_model[j] << endl;
+          cout << "[" << _meff_bins[j] << ", " << _meff_bins[j+1] << "]\t" << _meff_4QVV[j]*weight << "\t" << _meff_4QVV_model[j] << endl;
         }
 
         #endif
@@ -327,3 +334,90 @@ namespace Gambit {
 
   }
 }
+
+
+/*
+ 
+ 
+ ****
+ WW (WW final states)
+
+ SR        GAMBIT  ATLAS
+ SR-4Q-VV  5.332    5.065
+  
+ Meff SR-4Q-VV  GAMBIT  ATLAS
+ [700, 850]  0.233  0.159
+ [850, 1e+03]  1.14  1.15
+ [1e+03, 1.15e+03]  1.71  2.17
+ [1.15e+03, 1.3e+03]  2.58  2.35
+ [1.3e+03, 1.45e+03]  2.22  2.3
+ [1.45e+03, 1.6e+03]  1.13  1.32
+ [1.6e+03, 1.75e+03]  0.872  0.706
+ [1.75e+03, 1.9e+03]  0.553  0.391
+ [1.9e+03, 2.05e+03]  0.258  0.223
+ [2.05e+03, 2.2e+03]  0.147  0.125
+ [2.2e+03, 2.35e+03]  0.0492  0
+ [2.35e+03, 2.5e+03]  0.0246  0
+
+
+ ****
+ HG (ZZ final states)
+
+ Cut-flow output
+ SR    GAMBIT  ATLAS
+ SR-4Q-WW  0.039  0.812
+ SR-4Q-WZ  0.325  1.57
+ SR-4Q-ZZ  0.943  1.26
+ SR-4Q-VV  1.31  1.84
+
+ Meff SR-4Q-VV  GAMBIT  ATLAS
+ [700, 850]  0.013  0
+ [850, 1e+03]  0.124  0.146
+ [1e+03, 1.15e+03]  0.234  0.562
+ [1.15e+03, 1.3e+03]  0.377  0.436
+ [1.3e+03, 1.45e+03]  0.358  0.436
+ [1.45e+03, 1.6e+03]  0.293  0.663
+ [1.6e+03, 1.75e+03]  0.202  0.404
+ [1.75e+03, 1.9e+03]  0.215  0.165
+ [1.9e+03, 2.05e+03]  0.111  0
+ [2.05e+03, 2.2e+03]  0.0325  0
+ [2.2e+03, 2.35e+03]  0.0325  0
+ [2.35e+03, 2.5e+03]  0.026  0
+
+
+ ****
+ WZ (WZ final states)
+ 
+ Cut-flow output
+ SR    GAMBIT  ATLAS
+ SR-4Q-WW  0.049  3.6
+ SR-4Q-WZ  6.47  6.38
+ SR-4Q-ZZ  0.056  4.13
+ SR-4Q-VV  6.57  6.76
+
+ Meff SR-4Q-VV  GAMBIT  ATLAS
+ [700, 850]  0.00701  0
+ [850, 1e+03]  0.231  0.305
+ [1e+03, 1.15e+03]  0.673  0.625
+ [1.15e+03, 1.3e+03]  0.911  1.26
+ [1.3e+03, 1.45e+03]  1.43  1.42
+ [1.45e+03, 1.6e+03]  1.36  1.49
+ [1.6e+03, 1.75e+03]  1.11  1.21
+ [1.75e+03, 1.9e+03]  0.974  0.988
+ [1.9e+03, 2.05e+03]  0.595  0.655
+ [2.05e+03, 2.2e+03]  0.364  0.351
+ [2.2e+03, 2.35e+03]  0.273  0.296
+ [2.35e+03, 2.5e+03]  0.182  0
+
+
+ ***
+ Wh (Wbb, WWW^*, WZZ^* final states)
+
+ Cut-flow output
+ SR    GAMBIT  ATLAS
+ SR-4Q-WW  1.1  0.381
+ SR-4Q-WZ  0.252  0.696
+ SR-4Q-ZZ  0  0.448
+ SR-4Q-VV  1.35  0.746
+
+ */
