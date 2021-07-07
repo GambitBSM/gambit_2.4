@@ -701,6 +701,7 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
+
   #undef CAPABILITY
 
   #define CAPABILITY decay_rates

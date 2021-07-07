@@ -3051,6 +3051,7 @@ namespace Gambit
       decays("rho+") = *Dep::rho_plus_decay_rates;  // Add the rho+ decays.
       decays("rho-") = *Dep::rho_minus_decay_rates; // Add the rho- decays.
       decays("omega") = *Dep::omega_decay_rates;    // Add the omega meson decays.
+      
 
       // MSSM-specific
       if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))

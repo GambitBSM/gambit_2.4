@@ -43,9 +43,13 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp" 
 
+#include "multimin/multimin.hpp"
+
+#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Eigenvalues"
+#include "gambit/Utils/end_ignore_warnings.hpp"
+
 #include <gsl/gsl_sf_gamma.h>
-#include "gambit/ColliderBit/multimin.h"
 
 // #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
@@ -249,7 +253,7 @@ namespace Gambit
       static const double SIMPLEX_SIZE = runOptions->getValueOrDef<double>(1e-5, "nuisance_prof_simplexsize");
       static const unsigned METHOD = runOptions->getValueOrDef<unsigned>(6, "nuisance_prof_method");
       static const unsigned VERBOSITY = runOptions->getValueOrDef<unsigned>(0, "nuisance_prof_verbosity");
-      static const struct multimin_params oparams = {INITIAL_STEP, CONV_TOL, MAXSTEPS, CONV_ACC, SIMPLEX_SIZE, METHOD, VERBOSITY};
+      static const struct multimin::multimin_params oparams = {INITIAL_STEP, CONV_TOL, MAXSTEPS, CONV_ACC, SIMPLEX_SIZE, METHOD, VERBOSITY};
 
       // Convert the linearised array of doubles into "Eigen views" of the fixed params
       std::vector<double> fixeds = _gsl_mkpackedarray(n_preds, n_obss, sqrtevals, evecs);
@@ -257,7 +261,7 @@ namespace Gambit
       // Pass to the minimiser
       double minusbestll = 999;
       // _gsl_calc_Analysis_MinusLogLike(nSR, &nuisances[0], &fixeds[0], &minusbestll);
-      multimin(nSR, &nuisances[0], &minusbestll,
+      multimin::multimin(nSR, &nuisances[0], &minusbestll,
                nullptr, nullptr, nullptr,
                _gsl_calc_Analysis_MinusLogLike,
                _gsl_calc_Analysis_MinusLogLikeGrad,
@@ -280,7 +284,8 @@ namespace Gambit
       auto marginaliser = (*BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error")
         ? BEreq::lnlike_marg_poisson_lognormal_error : BEreq::lnlike_marg_poisson_gaussian_error;
 
-      const double sr_margll = marginaliser((int) n_obss(0), 0.0, n_preds(0), sqrtevals(0)/n_preds(0));
+      // Setting bkg above zero to avoid nulike special cases
+      const double sr_margll = marginaliser((int) n_obss(0), 0.001, n_preds(0), sqrtevals(0)/n_preds(0));
       return sr_margll;
     }
 
@@ -1182,91 +1187,6 @@ namespace Gambit
         logger() << summary_line_skipped_analyses.str() << EOM;
       }  
     }
-
-
-
-    //   // ------------------
-
-    //   // Loop over analyses and calculate the total observed dLL
-    //   for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis)
-    //   {
-    //     const str& analysis_name = analysis_loglike_pair.first;
-    //     const double& analysis_loglike = analysis_loglike_pair.second;
-
-    //     // If this is an "expected loglike" (from the assumption n=b), don't include it in the scan loglike
-    //     // @todo This is a temporary fix. Once this function depends on a AnalysisLogLikes instance instead of a map_str_dbl we can avoid this silly string parsing.
-    //     if (analysis_name.find("__expected_LogLike") != std::string::npos)
-    //     {
-    //       #ifdef COLLIDERBIT_DEBUG
-    //         cout.precision(5);
-    //         cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out expected loglike " << analysis_name << " with LogL = " << analysis_loglike << endl;
-    //       #endif
-
-    //       continue;
-    //     }
-
-    //     // If the analysis name is in skip_analyses, don't add its loglike to the total loglike.
-    //     if (std::find(skip_analyses.begin(), skip_analyses.end(), analysis_name) != skip_analyses.end())
-    //     {
-    //       #ifdef COLLIDERBIT_DEBUG
-    //         cout.precision(5);
-    //         cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
-    //       #endif
-
-    //       // Add to log summary
-    //       if(write_summary_to_log)
-    //       {
-    //         summary_line_skipped_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
-    //       }
-
-    //       continue;
-    //     }
-
-    //     // Add analysis loglike.
-    //     // If using capped likelihood for each individual analysis, set analysis_loglike = min(analysis_loglike,0)
-    //     static const bool use_cap_loglike_individual = runOptions->getValueOrDef<bool>(false, "cap_loglike_individual_analyses");
-    //     if (use_cap_loglike_individual)
-    //     {
-    //       result += std::min(analysis_loglike, 0.0);
-    //     }
-    //     else
-    //     {
-    //       result += analysis_loglike;
-    //     }
-
-    //     // Add to log summary
-    //     if(write_summary_to_log)
-    //     {
-    //       summary_line_included_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
-    //     }
-
-    //     #ifdef COLLIDERBIT_DEBUG
-    //       cout.precision(5);
-    //       cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
-    //     #endif
-    //   }
-
-    //   #ifdef COLLIDERBIT_DEBUG
-    //     cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: LHC_Combined_LogLike = " << result << endl;
-    //   #endif
-
-    //   // If using a "global" capped likelihood, set result = min(result,0)
-    //   static const bool use_cap_loglike = runOptions->getValueOrDef<bool>(false, "cap_loglike");
-    //   if (use_cap_loglike)
-    //   {
-    //     result = std::min(result, 0.0);
-    //   }
-
-    //   // Write log summary
-    //   if(write_summary_to_log)
-    //   {
-    //     summary_line_combined_loglike << result;
-
-    //     logger() << summary_line_combined_loglike.str() << EOM;
-    //     logger() << summary_line_included_analyses.str() << EOM;
-    //     logger() << summary_line_skipped_analyses.str() << EOM;
-    //   }  
-    // }
 
 
     /// A dummy log-likelihood that helps the scanner track a given 
