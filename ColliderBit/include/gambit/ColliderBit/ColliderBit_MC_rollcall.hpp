@@ -308,54 +308,6 @@
   #undef CAPABILITY
 
 
-
-  // ============= Temporary hacks for the MSSMEW_gravitino scans! ================
-
-  /// Calculate the log likelihood for each SR in each analysis using the analysis numbers
-  #define CAPABILITY LHC_LogLikes_scaledsignals
-  START_CAPABILITY
-    #define FUNCTION calc_LHC_LogLikes_scaledsignals
-    START_FUNCTION(map_str_AnalysisLogLikes)
-    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
-    DEPENDENCY(RunMC, MCLoopInfo)
-    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
-    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
-    BACKEND_GROUP(lnlike_marg_poisson)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  /// Extract the log likelihood for each SR to a simple map_str_dbl
-  #define CAPABILITY LHC_LogLike_per_SR_scaledsignals
-  START_CAPABILITY
-    #define FUNCTION get_LHC_LogLike_per_SR_scaledsignals
-    START_FUNCTION(map_str_dbl)
-    DEPENDENCY(LHC_LogLikes_scaledsignals, map_str_AnalysisLogLikes)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  /// Extract the combined log likelihood for each analysis to a simple map_str_dbl
-  #define CAPABILITY LHC_LogLike_per_analysis_scaledsignals
-  START_CAPABILITY
-    #define FUNCTION get_LHC_LogLike_per_analysis_scaledsignals
-    START_FUNCTION(map_str_dbl)
-    DEPENDENCY(LHC_LogLikes_scaledsignals, map_str_AnalysisLogLikes)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  /// Calculate the total LHC log likelihood
-  #define CAPABILITY LHC_Combined_LogLike_scaledsignals
-  START_CAPABILITY
-    #define FUNCTION calc_combined_LHC_LogLike_scaledsignals
-    START_FUNCTION(double)
-    DEPENDENCY(LHC_LogLike_per_analysis_scaledsignals, map_str_dbl)
-    DEPENDENCY(RunMC, MCLoopInfo)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  // =============================
-
-
-
   /// Extract the labels for the SRs used in the analysis loglikes
   #define CAPABILITY LHC_LogLike_SR_labels
   START_CAPABILITY
@@ -379,7 +331,7 @@
   START_CAPABILITY
     #define FUNCTION calc_combined_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(LHC_LogLike_per_analysis, map_str_dbl)
+    DEPENDENCY(LHC_LogLikes, map_str_AnalysisLogLikes)
     DEPENDENCY(RunMC, MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
