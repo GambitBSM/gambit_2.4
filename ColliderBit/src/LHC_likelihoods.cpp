@@ -72,16 +72,16 @@ namespace Gambit
       for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
       {
         // AnalysisData for this analysis
-        const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
+        const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
 
-        summary_line << adata.analysis_name << ": ";
+        summary_line << ana_data.analysis_name << ": ";
 
         // Loop over the signal regions inside the analysis, and save the predicted number of events for each.
-        for (size_t SR = 0; SR < adata.size(); ++SR)
+        for (size_t SR = 0; SR < ana_data.size(); ++SR)
         {
           // Save SR numbers and absolute uncertainties
-          const SignalRegionData srData = adata[SR];
-          const str key = adata.analysis_name + "__" + srData.sr_label + "__i" + std::to_string(SR) + "__signal";
+          const SignalRegionData srData = ana_data[SR];
+          const str key = ana_data.analysis_name + "__" + srData.sr_label + "__i" + std::to_string(SR) + "__signal";
           result[key] = srData.n_sig_scaled;
           const double n_sig_scaled_err = srData.calc_n_sig_scaled_err();
           result[key + "_uncert"] = n_sig_scaled_err;
@@ -270,7 +270,8 @@ namespace Gambit
 
     double marg_loglike_nulike1sr(const Eigen::ArrayXd& n_preds,
                                   const Eigen::ArrayXd& n_obss,
-                                  const Eigen::ArrayXd& sqrtevals) {
+                                  const Eigen::ArrayXd& sqrtevals)
+    {
       assert(n_preds.size() == 1);
       assert(n_obss.size() == 1);
       assert(sqrtevals.size() == 1);
@@ -287,7 +288,8 @@ namespace Gambit
     double marg_loglike_cov(const Eigen::ArrayXd& n_preds,
                             const Eigen::ArrayXd& n_obss,
                             const Eigen::ArrayXd& sqrtevals,
-                            const Eigen::MatrixXd& evecs) {
+                            const Eigen::MatrixXd& evecs) 
+    {
 
       // Number of signal regions
       const size_t nSR = n_obss.size();
@@ -408,23 +410,373 @@ namespace Gambit
     }
 
 
+    /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
+    void fill_analysis_loglikes(const AnalysisData& ana_data, 
+                                AnalysisLogLikes& ana_loglikes,
+                                bool use_marg,
+                                bool use_covar,
+                                bool combine_nocovar_SRs,
+                                const std::string alt_loglike_key = "")
+    {
+      // Are we filling the standard loglike or an alternative one?
+      bool fill_alt_loglike = false;
+      if (!alt_loglike_key.empty()) fill_alt_loglike = true;
+
+      // Choose the profiling/marginalising function according to the option
+      auto marg_prof_fn = use_marg ? marg_loglike_cov : profile_loglike_cov;
+
+      // Get number of signal regions
+      const size_t nSR = ana_data.size();
+
+      // Get the analysis name
+      const std::string ana_name = ana_data.analysis_name;
+
+      // Delta log-likelihood variable
+      double dll = NAN;
+
+      // Work out the total (delta) log likelihood for this analysis, with correlations as available/instructed
+      if (use_covar)
+      {
+
+        // Check that we are indeed using the right function to compute the loglikes
+        assert (ana_data.srcov.rows() > 0);
+
+        // Construct vectors of SR numbers
+        /// @todo Unify this for both cov and no-cov, feeding in one-element Eigen blocks as Ref<>s for the latter?
+        Eigen::ArrayXd n_obs(nSR); // logfact_n_obs(nSR);
+        Eigen::ArrayXd n_pred_b(nSR);
+        Eigen::ArrayXd n_pred_sb(nSR);
+        Eigen::ArrayXd abs_unc_s(nSR);
+        for (size_t SR = 0; SR < nSR; ++SR)
+        {
+          const SignalRegionData& srData = ana_data[SR];
+
+          // Actual observed number of events
+          n_obs(SR) = srData.n_obs;
+
+          // Log factorial of observed number of events.
+          // Currently use the ln(Gamma(x)) function gsl_sf_lngamma from GSL. (Need continuous function.)
+          // We may want to switch to using Stirling's approximation: ln(n!) ~ n*ln(n) - n
+          //logfact_n_obs(SR) = gsl_sf_lngamma(n_obs(SR) + 1.);
+
+          // A contribution to the predicted number of events that is not known exactly
+          n_pred_b(SR) = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
+          n_pred_sb(SR) = srData.n_sig_scaled + srData.n_bkg;
+
+          // Absolute errors for n_predicted_uncertain_*
+          abs_unc_s(SR) = srData.calc_n_sig_scaled_err();
+        }
+
+        // Diagonalise the background-only covariance matrix, extracting the correlation and rotation matrices
+        /// @todo Compute the background-only covariance decomposition and likelihood only once
+        const Eigen::MatrixXd& srcov_b = ana_data.srcov;
+        Eigen::MatrixXd srcorr_b = srcov_b; // start with cov, then make corr
+        for (size_t SR = 0; SR < nSR; ++SR)
+        {
+          const double diagsd = sqrt(srcov_b(SR,SR));
+          srcorr_b.row(SR) /= diagsd;
+          srcorr_b.col(SR) /= diagsd;
+        }
+        const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_b(ana_data.srcov);
+        const Eigen::ArrayXd Eb = eig_b.eigenvalues();
+        const Eigen::ArrayXd sqrtEb = Eb.sqrt();
+        const Eigen::MatrixXd Vb = eig_b.eigenvectors();
+
+        // Construct and diagonalise the s+b covariance matrix, adding the diagonal signal uncertainties in quadrature
+        const Eigen::MatrixXd srcov_s = abs_unc_s.array().square().matrix().asDiagonal();
+        const Eigen::MatrixXd srcov_sb = srcov_b + srcov_s;
+        Eigen::MatrixXd srcorr_sb = srcov_sb;
+        for (size_t SR = 0; SR < nSR; ++SR)
+        {
+          const double diagsd = sqrt(srcov_sb(SR,SR));
+          srcorr_sb.row(SR) /= diagsd;
+          srcorr_sb.col(SR) /= diagsd;
+        }
+        const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_sb(srcov_sb);
+        const Eigen::ArrayXd Esb = eig_sb.eigenvalues();
+        const Eigen::ArrayXd sqrtEsb = Esb.sqrt();
+        const Eigen::MatrixXd Vsb = eig_sb.eigenvectors();
+
+        // cout << "B: " << srcorr_b << " " << srcov_b << endl;
+        // cout << "SB: " << srcorr_sb << " " << srcov_sb << endl;
+
+        // Compute the single, correlated analysis-level DLL as the difference of s+b and b (partial) LLs
+        /// @todo Only compute this once per run
+        const double ll_b = marg_prof_fn(n_pred_b, n_obs, sqrtEb, Vb);
+        const double ll_sb = marg_prof_fn(n_pred_sb, n_obs, sqrtEsb, Vsb);
+        dll = ll_sb - ll_b;
+
+        // Write result to the ana_loglikes reference
+        ana_loglikes.combination_sr_label = "all";
+        ana_loglikes.combination_sr_index = -1;
+        if (fill_alt_loglike)
+        {
+          ana_loglikes.alt_combination_loglikes.at(alt_loglike_key) = dll;
+        }
+        else
+        {
+          ana_loglikes.combination_loglike = dll;
+        }
+      }
+      else // NO SR-CORRELATION INFO, OR USER CHOSE NOT TO USE IT:
+      { 
+
+        // We either take the result from the SR *expected* to be most
+        // constraining under the s=0 assumption (default), or naively combine
+        // the loglikes for all SRs (if combine_SRs_without_covariances=true).
+        #ifdef COLLIDERBIT_DEBUG
+          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
+        #endif
+
+        double bestexp_dll_exp = 0, bestexp_dll_obs = NAN;
+        str bestexp_sr_label;
+        int bestexp_sr_index;
+        double nocovar_srsum_dll_obs = 0;
+
+        for (size_t SR = 0; SR < nSR; ++SR)
+        {
+          const SignalRegionData& srData = ana_data[SR];
+
+          // Shortcut: If n_sig_MC == 0, we know the delta log-likelihood is 0.
+          if(srData.n_sig_MC == 0)
+          {
+            // Store (obs) dll for this SR
+            if (fill_alt_loglike)
+            {
+              ana_loglikes.alt_sr_loglikes.at(alt_loglike_key).at(SR) = 0.0;
+            }
+            else
+            {
+              ana_loglikes.sr_loglikes.at(SR) = 0.0;
+            }
+
+            // Update the running best-expected-exclusion detail
+            if (0.0 < bestexp_dll_exp || SR == 0)
+            {
+              bestexp_dll_exp = 0.0;
+              bestexp_dll_obs = 0.0;
+              bestexp_sr_label = srData.sr_label;
+              bestexp_sr_index = SR;
+            }
+
+            // Skip to next SR
+            continue;
+          }
+
+          // A contribution to the predicted number of events that is not known exactly
+          const double n_pred_b = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
+          const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
+
+          // Actual observed number of events and predicted background, as integers cf. Poisson stats
+          const double n_obs = round(srData.n_obs);
+          const double n_pred_b_int = round(n_pred_b);
+
+          // Absolute errors for n_predicted_uncertain_*
+          const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001); // <-- Avoid trouble with b_err==0
+          const double abs_uncertainty_sb = std::max(srData.calc_n_sigbkg_err(), 0.001); // <-- Avoid trouble with sb_err==0
+
+          // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
+          /// @todo Use newer (?) one-step Eigen constructors for (const) single-element arrays
+          Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
+          Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
+          Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
+          Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
+          Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
+          Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
+          Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
+
+          // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
+          /// @todo Only compute this once per run
+          const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
+          /// @todo Only compute this once per run
+          const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
+          const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
+          const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
+          const double dll_exp = ll_sb_exp - ll_b_exp;
+          const double dll_obs = ll_sb_obs - ll_b_obs;
+
+          // Check for problems
+          if (Utils::isnan(ll_b_exp))
+          {
+            std::stringstream msg;
+            msg << "Computation of ll_b_exp for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+            invalid_point().raise(msg.str());
+          }
+          if (Utils::isnan(ll_b_obs))
+          {
+            std::stringstream msg;
+            msg << "Computation of ll_b_obs for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+            invalid_point().raise(msg.str());
+          }
+          if (Utils::isnan(ll_sb_exp))
+          {
+            std::stringstream msg;
+            msg << "Computation of ll_sb_exp for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+            invalid_point().raise(msg.str());
+          }
+          if (Utils::isnan(ll_sb_obs))
+          {
+            std::stringstream msg;
+            msg << "Computation of ll_sb_obs for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+            invalid_point().raise(msg.str());
+          }
+
+          // Update the running best-expected-exclusion detail
+          if (dll_exp < bestexp_dll_exp || SR == 0)
+          {
+            bestexp_dll_exp = dll_exp;
+            bestexp_dll_obs = dll_obs;
+            bestexp_sr_label = srData.sr_label;
+            bestexp_sr_index = SR;
+            #ifdef COLLIDERBIT_DEBUG
+              cout << DEBUG_PREFIX << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", bestexp_dll_exp = " << bestexp_dll_exp << ", bestexp_dll_obs = " << bestexp_dll_obs << endl;
+            #endif
+          }
+
+          // Store (obs) dll for this SR
+          if (fill_alt_loglike)
+          {
+            ana_loglikes.alt_sr_loglikes.at(alt_loglike_key).at(SR) = dll_obs;
+          }
+          else
+          {
+            ana_loglikes.sr_loglikes.at(SR) = dll_obs;
+          }
+
+          // Also add the obs loglike to the no-correlations sum over SRs
+          nocovar_srsum_dll_obs += dll_obs;
+
+          #ifdef COLLIDERBIT_DEBUG
+            cout << DEBUG_PREFIX << ana_name << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
+          #endif
+
+        }
+
+        // Set this analysis' total obs DLL to that from the best-expected SR
+        dll = bestexp_dll_obs;
+        // Or should we use the naive sum of SR loglikes (without correlations) instead?
+        if (combine_nocovar_SRs)
+        {
+          dll = nocovar_srsum_dll_obs;
+        }
+
+        // Write combined loglike to the ana_loglikes reference
+        if (fill_alt_loglike)
+        {
+          ana_loglikes.alt_combination_loglikes.at(alt_loglike_key) = dll;
+        }
+        else
+        {
+          ana_loglikes.combination_loglike = dll;
+          ana_loglikes.combination_sr_label = bestexp_sr_label;
+          ana_loglikes.combination_sr_index = bestexp_sr_index;
+          #ifdef COLLIDERBIT_DEBUG
+            cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ana_name << "_" << bestexp_sr_label << "_LogLike : " << dll << endl;
+          #endif
+        }
+
+      } // end large cov/no-cov if-else block
+
+
+      // Check for problems with the result
+      bool check_failed = false;  
+      std::string failed_at_label = "";
+
+      // - First check combined loglike
+      double check_loglike = 0;
+      if (fill_alt_loglike)
+      {
+        check_loglike = ana_loglikes.alt_combination_loglikes.at(alt_loglike_key);
+      }
+      else
+      {
+        check_loglike = ana_loglikes.combination_loglike;
+      } 
+      if (Utils::isnan(check_loglike))
+      {
+        check_failed = true;
+        failed_at_label = "combined";
+      }
+
+      // Then check individual SR loglikes
+      if (!check_failed)
+      {
+        for (size_t SR = 0; SR < nSR; ++SR)
+        {
+          if (fill_alt_loglike)
+          {
+            check_loglike = ana_loglikes.alt_sr_loglikes.at(alt_loglike_key).at(SR);
+          }
+          else
+          {
+            check_loglike = ana_loglikes.sr_loglikes.at(SR);
+          } 
+          if (Utils::isnan(check_loglike))
+          {
+            check_failed = true;
+            failed_at_label = ana_loglikes.sr_labels.at(SR);
+            break;
+          }
+        }
+      }
+
+      if (check_failed)
+      {
+        std::stringstream msg;
+        msg << "Computation of ";
+        if (fill_alt_loglike) msg << alt_loglike_key << " ";
+        msg << "loglike for signal region '" << failed_at_label << "' in analysis " << ana_name << " returned NaN." << endl;
+        msg << "Will now print some signal region data for this analysis:" << endl;
+        for (size_t i = 0; i < nSR; ++i)
+        {
+          const SignalRegionData& srData = ana_data[i];
+          msg << srData.sr_label
+              << ",  n_bkg = " << srData.n_bkg
+              << ",  n_bkg_err = " << srData.n_bkg_err
+              << ",  n_obs = " << srData.n_obs
+              << ",  n_sig_scaled = " << srData.n_sig_scaled
+              << ",  n_sig_MC = " << srData.n_sig_MC
+              << ",  n_sig_MC_sys = " << srData.n_sig_MC_sys
+              << endl;
+        }
+        invalid_point().raise(msg.str());
+      }
+    }
+
+
     /// Loop over all analyses and fill a map of AnalysisLogLikes objects
     void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
     {
+      static bool first = true;
+
       // Read options
       using namespace Pipes::calc_LHC_LogLikes;
       // Use covariance matrices if available?
-      static const bool USE_COVAR = runOptions->getValueOrDef<bool>(true, "use_covariances");
+      static const bool use_covar = runOptions->getValueOrDef<bool>(true, "use_covariances");
+      // Use the naive sum of SR loglikes when not using covariances?
+      static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
       // Use marginalisation rather than profiling (probably less stable)?
-      static const bool USE_MARG = runOptions->getValueOrDef<bool>(false, "use_marginalising");
+      static const bool use_marg = runOptions->getValueOrDef<bool>(false, "use_marginalising");
+      // Calculate various alternative loglikes?
+      static const bool calc_noerr_loglikes = runOptions->getValueOrDef<bool>(false, "calc_noerr_loglikes");
+      static const bool calc_expected_loglikes = runOptions->getValueOrDef<bool>(false, "calc_expected_loglikes");
+      static const bool calc_expected_noerr_loglikes = runOptions->getValueOrDef<bool>(false, "calc_expected_noerr_loglikes");
+      static const bool calc_scaledsignal_loglikes = runOptions->getValueOrDef<bool>(false, "calc_scaledsignal_loglikes");
+      static const double signal_scalefactor = runOptions->getValueOrDef<double>(1.0, "signal_scalefactor");
 
-      // Calculate the expected loglike for analyses with covariance info
-      // (Will need to repeat profiling/marginalisation over nuisances...)
-      static const bool calc_combination_expected_loglike = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_SR_combination");
+      // Create a list of keys for the alterative loglikes that are activated
+      static std::vector<std::string> alt_loglike_keys;
+      if (first)
+      {
+        if (calc_noerr_loglikes) alt_loglike_keys.push_back("noerr");
+        if (calc_expected_loglikes) alt_loglike_keys.push_back("expected");
+        if (calc_expected_noerr_loglikes) alt_loglike_keys.push_back("expected_noerr");
+        if (calc_scaledsignal_loglikes) alt_loglike_keys.push_back("scaledsignal");
+        first = false;
+      }
 
-      // Fix the profiling/marginalising function according to the option
-      auto marg_prof_fn = USE_MARG ? marg_loglike_cov : profile_loglike_cov;
-
+      // // Fix the profiling/marginalising function according to the option
+      // auto marg_prof_fn = use_marg ? marg_loglike_cov : profile_loglike_cov;
 
       // Clear the result map
       result.clear();
@@ -432,26 +784,27 @@ namespace Gambit
       // Main loop over all analyses to compute DLL = LL_sb - LL_b
       for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
       {
-
-
         // AnalysisData for this analysis
-        const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
-        const std::string ananame = adata.analysis_name;
-        const size_t nSR = adata.size();
-        const bool has_covar = adata.srcov.rows() > 0;
+        const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
+        const std::string ana_name = ana_data.analysis_name;
+        const size_t nSR = ana_data.size();
+        const bool has_covar = ana_data.srcov.rows() > 0;
 
         // Initialize the AnalysisLogLikes instance in the result map
-        result[ananame].initialize(adata);
+        result[ana_name].initialize(ana_data, alt_loglike_keys);
+
+        // We will access this AnalysisLogLikes instance via a shorthand reference 'ana_loglikes'
+        AnalysisLogLikes& ana_loglikes = result[ana_name];
 
         #ifdef COLLIDERBIT_DEBUG
           std::streamsize stream_precision = cout.precision();  // get current precision
           cout.precision(2);  // set precision
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << "Will print content of " << ananame << " signal regions:" << endl;
-          for (size_t SR = 0; SR < adata.size(); ++SR)
+          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << "Will print content of " << ana_name << " signal regions:" << endl;
+          for (size_t SR = 0; SR < ana_data.size(); ++SR)
           {
-            const SignalRegionData& srData = adata[SR];
+            const SignalRegionData& srData = ana_data[SR];
             cout << std::fixed << DEBUG_PREFIX
-                                   << "calc_LHC_LogLikes: " << ananame
+                                   << "calc_LHC_LogLikes: " << ana_name
                                    << ", " << srData.sr_label
                                    << ",  n_b = " << srData.n_bkg << " +/- " << srData.n_bkg_err
                                    << ",  n_obs = " << srData.n_obs
@@ -475,19 +828,19 @@ namespace Gambit
         if (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents)
         {
           // If this is an analysis with covariance info, only add a single 0-entry in the map
-          if (USE_COVAR && has_covar)
+          if (use_covar && has_covar)
           {
-            result[ananame].set_no_signal_result_combination("none", -1);
+            ana_loglikes.set_no_signal_result_combination("none", -1);
           }
           // If this is an analysis without covariance info, add 0-entries for all SRs plus
           // one for the combined LogLike
           else
           {
-            result[ananame].set_no_signal_result_all_SRs("none", -1);
+            ana_loglikes.set_no_signal_result_all_SRs("none", -1);
           }
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ananame << "_LogLike : " << 0.0 << " (No events predicted / successfully generated. Skipped full calculation.)" << endl;
+          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ana_name << "_LogLike : " << 0.0 << " (No events predicted / successfully generated. Skipped full calculation.)" << endl;
           #endif
 
           // Continue to next analysis
@@ -501,7 +854,7 @@ namespace Gambit
         bool all_zero_signal = true;
         for (size_t SR = 0; SR < nSR; ++SR)
         {
-          if (adata[SR].n_sig_MC != 0)
+          if (ana_data[SR].n_sig_MC != 0)
           {
             all_zero_signal = false;
             break;
@@ -510,305 +863,74 @@ namespace Gambit
         if (all_zero_signal)
         {
           // Store result
-          if (USE_COVAR && has_covar)
+          if (use_covar && has_covar)
           {
-            result[ananame].set_no_signal_result_combination("all", -1);
+            ana_loglikes.set_no_signal_result_combination("all", -1);
           }
           else
           {
-            result[ananame].set_no_signal_result_all_SRs("all", -1);
+            ana_loglikes.set_no_signal_result_all_SRs("all", -1);
           }
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ananame << "_LogLike : " << 0.0 << " (No signal predicted. Skipped full calculation.)" << endl;
+          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ana_name << "_LogLike : " << 0.0 << " (No signal predicted. Skipped full calculation.)" << endl;
           #endif
 
           // Continue to next analysis
           continue;
         }
 
+        // Now perform the actual loglikes compuations for this analysis
+        // 
+        // First do standard loglike calculation
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs);
 
-        // Work out the total (delta) log likelihood for this analysis, with correlations as available/instructed
-        double ana_dll = NAN;
-        if (USE_COVAR && has_covar)
+        // Then do alternative loglike calculations:
+        if (calc_noerr_loglikes)
         {
-
-
-          /// If (simplified) SR-correlation info is available, so use the
-          /// covariance matrix to construct composite marginalised likelihood
-          /// Despite initial thoughts, we can't just do independent LL
-          /// calculations in a rotated basis, but have to sample from the
-          /// covariance matrix.
-          ///
-          /// @note This means we can't use the nulike LL functions, which
-          /// operate in 1D only.  Also, log-normal sampling in the diagonal
-          /// basis is not helpful, since the rotation will re-generate negative
-          /// rates.
-          ///
-          /// @todo Support NSL, i.e. skewness correction
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: Analysis " << analysis << " has a covariance matrix: computing composite loglike." << endl;
-          #endif
-
-
-          // Construct vectors of SR numbers
-          /// @todo Unify this for both cov and no-cov, feeding in one-element Eigen blocks as Ref<>s for the latter?
-          Eigen::ArrayXd n_obs(nSR); // logfact_n_obs(nSR);
-          Eigen::ArrayXd n_pred_b(nSR), n_pred_sb(nSR), abs_unc_s(nSR);
+          // Get a copy of the analysis data that we can modify
+          AnalysisData ana_data_mod(ana_data);
+          // Set the signal MC error to 0 for all signal regions
           for (size_t SR = 0; SR < nSR; ++SR)
           {
-            const SignalRegionData& srData = adata[SR];
-
-            // Actual observed number of events
-            n_obs(SR) = srData.n_obs;
-
-            // Log factorial of observed number of events.
-            // Currently use the ln(Gamma(x)) function gsl_sf_lngamma from GSL. (Need continuous function.)
-            // We may want to switch to using Stirling's approximation: ln(n!) ~ n*ln(n) - n
-            //logfact_n_obs(SR) = gsl_sf_lngamma(n_obs(SR) + 1.);
-
-            // A contribution to the predicted number of events that is not known exactly
-            n_pred_b(SR) = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
-            n_pred_sb(SR) = srData.n_sig_scaled + srData.n_bkg;
-
-            // Absolute errors for n_predicted_uncertain_*
-            abs_unc_s(SR) = srData.calc_n_sig_scaled_err();
+            ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-
-          // Diagonalise the background-only covariance matrix, extracting the correlation and rotation matrices
-          /// @todo Compute the background-only covariance decomposition and likelihood only once
-          const Eigen::MatrixXd& srcov_b = adata.srcov;
-          Eigen::MatrixXd srcorr_b = srcov_b; // start with cov, then make corr
-          for (size_t SR = 0; SR < nSR; ++SR)
-          {
-            const double diagsd = sqrt(srcov_b(SR,SR));
-            srcorr_b.row(SR) /= diagsd;
-            srcorr_b.col(SR) /= diagsd;
-          }
-          const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_b(adata.srcov);
-          const Eigen::ArrayXd Eb = eig_b.eigenvalues();
-          const Eigen::ArrayXd sqrtEb = Eb.sqrt();
-          const Eigen::MatrixXd Vb = eig_b.eigenvectors();
-
-          // Construct and diagonalise the s+b covariance matrix, adding the diagonal signal uncertainties in quadrature
-          const Eigen::MatrixXd srcov_s = abs_unc_s.array().square().matrix().asDiagonal();
-          const Eigen::MatrixXd srcov_sb = srcov_b + srcov_s;
-          Eigen::MatrixXd srcorr_sb = srcov_sb;
-          for (size_t SR = 0; SR < nSR; ++SR)
-          {
-            const double diagsd = sqrt(srcov_sb(SR,SR));
-            srcorr_sb.row(SR) /= diagsd;
-            srcorr_sb.col(SR) /= diagsd;
-          }
-          const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_sb(srcov_sb);
-          const Eigen::ArrayXd Esb = eig_sb.eigenvalues();
-          const Eigen::ArrayXd sqrtEsb = Esb.sqrt();
-          const Eigen::MatrixXd Vsb = eig_sb.eigenvectors();
-
-          // cout << "B: " << srcorr_b << " " << srcov_b << endl;
-          // cout << "SB: " << srcorr_sb << " " << srcov_sb << endl;
-
-          // Compute the single, correlated analysis-level DLL as the difference of s+b and b (partial) LLs
-          /// @todo Only compute this once per run
-          const double ll_b = marg_prof_fn(n_pred_b, n_obs, sqrtEb, Vb);
-          const double ll_sb = marg_prof_fn(n_pred_sb, n_obs, sqrtEsb, Vsb);
-          const double dll = ll_sb - ll_b;
-
-          // Calculate the *expected* (assuming n=b) DLL?
-          double expected_ll_b = 0.0;
-          double expected_ll_sb = 0.0;
-          double expected_dll = 0.0;
-          if (calc_combination_expected_loglike) 
-          {
-            expected_ll_b = marg_prof_fn(n_pred_b, n_pred_b, sqrtEb, Vb);
-            expected_ll_sb = marg_prof_fn(n_pred_sb, n_pred_b, sqrtEsb, Vsb);
-            expected_dll = expected_ll_sb - expected_ll_b;
-          }
-
-          // Store result
-          ana_dll = dll;
-          result[ananame].combination_sr_label = "all";
-          result[ananame].combination_sr_index = -1;
-          result[ananame].combination_loglike = ana_dll;
-          result[ananame].combination_expected_loglike = expected_dll;
-
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ananame << "_LogLike : " << ana_dll << endl;
-          #endif
-
-
-        } else { // NO SR-CORRELATION INFO, OR USER CHOSE NOT TO USE IT:
-
-
-          // We either take the result from the SR *expected* to be most
-          // constraining under the s=0 assumption (default), or naively combine
-          // the loglikes for all SRs (if combine_SRs_without_covariances=true).
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
-          #endif
-
-          double bestexp_dll_exp = 0, bestexp_dll_obs = NAN;
-          str bestexp_sr_label;
-          int bestexp_sr_index;
-          double nocovar_srsum_dll_obs = 0;
-
-          for (size_t SR = 0; SR < nSR; ++SR)
-          {
-            const SignalRegionData& srData = adata[SR];
-
-            // Shortcut: If n_sig_MC == 0, we know the delta log-likelihood is 0.
-            if(srData.n_sig_MC == 0)
-            {
-              // Store (obs) result for this SR
-              result[ananame].sr_loglikes.at(SR) = 0.0;
-              result[ananame].sr_expected_loglikes.at(SR) = 0.0;
-
-              // Update the running best-expected-exclusion detail
-              if (0.0 < bestexp_dll_exp || SR == 0)
-              {
-                bestexp_dll_exp = 0.0;
-                bestexp_dll_obs = 0.0;
-                bestexp_sr_label = srData.sr_label;
-                bestexp_sr_index = SR;
-              }
-
-              // Skip to next SR
-              continue;
-            }
-
-            // A contribution to the predicted number of events that is not known exactly
-            const double n_pred_b = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
-            const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
-
-            // Actual observed number of events and predicted background, as integers cf. Poisson stats
-            const double n_obs = round(srData.n_obs);
-            const double n_pred_b_int = round(n_pred_b);
-
-            // Absolute errors for n_predicted_uncertain_*
-            const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001); // <-- Avoid trouble with b_err==0
-            const double abs_uncertainty_sb = std::max(srData.calc_n_sigbkg_err(), 0.001); // <-- Avoid trouble with sb_err==0
-
-
-            // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
-            /// @todo Use newer (?) one-step Eigen constructors for (const) single-element arrays
-            Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
-            Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
-            Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
-            Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
-            Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
-            Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
-            Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
-
-
-            // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
-            /// @todo Or compute all the exp DLLs first, then only the best-expected SR's obs DLL?
-            /// @todo Only compute this once per run
-            const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
-            /// @todo Only compute this once per run
-            const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
-            const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
-            const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
-            const double dll_exp = ll_sb_exp - ll_b_exp;
-            const double dll_obs = ll_sb_obs - ll_b_obs;
-
-            // Check for problems
-            if (Utils::isnan(ll_b_exp))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_b_exp for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-            if (Utils::isnan(ll_b_obs))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_b_obs for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-            if (Utils::isnan(ll_sb_exp))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_sb_exp for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-            if (Utils::isnan(ll_sb_obs))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_sb_obs for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-
-            // Update the running best-expected-exclusion detail
-            if (dll_exp < bestexp_dll_exp || SR == 0)
-            {
-              bestexp_dll_exp = dll_exp;
-              bestexp_dll_obs = dll_obs;
-              bestexp_sr_label = srData.sr_label;
-              bestexp_sr_index = SR;
-              // #ifdef COLLIDERBIT_DEBUG
-              // cout << DEBUG_PREFIX << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", LogL_exp = " << bestexp_dll_exp << ", LogL_obs = " << bestexp_dll_obs << endl;
-              // #endif
-            }
-
-            // Store (obs) result for this SR
-            result[ananame].sr_loglikes.at(SR) = dll_obs;
-            result[ananame].sr_expected_loglikes.at(SR) = dll_exp;
-
-            // Also add the obs loglike to the no-correlations sum over SRs
-            nocovar_srsum_dll_obs += dll_obs;
-
-            #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << ananame << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
-            #endif
-
-          }
-
-          // Set this analysis' total obs DLL to that from the best-expected SR
-          ana_dll = bestexp_dll_obs;
-          result[ananame].combination_sr_label = bestexp_sr_label;
-          result[ananame].combination_sr_index = bestexp_sr_index;
-          result[ananame].combination_loglike = ana_dll;
-          result[ananame].combination_expected_loglike = bestexp_dll_exp;
-
-          // Or should we use the naive sum of SR loglikes (without correlations) instead?
-          static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
-          if (combine_nocovar_SRs)
-          {
-            result[ananame].combination_loglike = nocovar_srsum_dll_obs;
-          }
-
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ananame << "_" << bestexp_sr_label << "_LogLike : " << ana_dll << endl;
-          #endif
-
-        } // end cov/no-cov
-
-
-        // Check for problems with the result
-        for (size_t SR = 0; SR < nSR; ++SR)
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "noerr");
+        }
+        if (calc_expected_loglikes)
         {
-          double sr_loglike = result[ananame].sr_loglikes.at(SR);
-
-          if (Utils::isnan(sr_loglike))
+          // Get a copy of the analysis data that we can modify
+          AnalysisData ana_data_mod(ana_data);
+          // Set the observed count = expected background count
+          for (size_t SR = 0; SR < nSR; ++SR)
           {
-            const std::string& sr_label = result[ananame].sr_labels.at(SR);
-  
-            std::stringstream msg;
-            msg << "Computation of loglike for signal region " << sr_label << " in analysis " << ananame << " returned NaN" << endl;
-            msg << "Will now print all signal region data for this analysis:" << endl;
-            for (size_t i = 0; i < nSR; ++i)
-            {
-              const SignalRegionData& srData = adata[i];
-              msg << srData.sr_label
-                  << ",  n_bkg = " << srData.n_bkg
-                  << ",  n_bkg_err = " << srData.n_bkg_err
-                  << ",  n_obs = " << srData.n_obs
-                  << ",  n_sig_scaled = " << srData.n_sig_scaled
-                  << ",  n_sig_MC = " << srData.n_sig_MC
-                  << ",  n_sig_MC_sys = " << srData.n_sig_MC_sys
-                  << endl;
-            }
-            invalid_point().raise(msg.str());
+            ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "expected");
+        }
+        if (calc_expected_noerr_loglikes)
+        {
+          // Get a copy of the analysis data that we can modify
+          AnalysisData ana_data_mod(ana_data);
+          // Set the observed count = expected background count, 
+          // and set the signal MC error to 0 for all signal regions
+          for (size_t SR = 0; SR < nSR; ++SR)
+          {
+            ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
+            ana_data_mod[SR].n_sig_MC_stat = 0.;
+          }
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "expected_noerr");
+        }
+        if (calc_scaledsignal_loglikes)
+        {
+          // Get a copy of the analysis data that we can modify
+          AnalysisData ana_data_mod(ana_data);
+          // Scale the signal all signal regions
+          for (size_t SR = 0; SR < nSR; ++SR)
+          {
+            ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
+          }
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "scaledsignal");
         }
 
       } // end analysis loop
@@ -823,8 +945,6 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC loglikes per analysis: ";
 
-      static const bool output_expected_loglike_SR_combination = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_SR_combination");
-
       for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair.first;
@@ -832,12 +952,16 @@ namespace Gambit
 
         result[analysis_name] = analysis_loglikes.combination_loglike;
 
-        if (output_expected_loglike_SR_combination)
+        summary_line << analysis_name << ":" << analysis_loglikes.combination_loglike << ", ";
+
+        // Any alternative combined likelihoods?
+        for (const auto& map_element : analysis_loglikes.alt_combination_loglikes)
         {
-          result[analysis_name + "__expected_LogLike"] = analysis_loglikes.combination_expected_loglike;
+          const str& alt_loglike_key = map_element.first;
+          const double& alt_combination_loglike = map_element.second;
+          result[analysis_name + "__" + alt_loglike_key + "_LogLike"] = alt_combination_loglike;
         }
 
-        summary_line << analysis_name << ":" << analysis_loglikes.combination_loglike << ", ";
       }
       logger() << LogTags::debug << summary_line.str() << EOM;
     }
@@ -851,9 +975,6 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC loglikes per SR: ";
 
-      static const bool output_expected_loglike_single_SRs = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_single_SRs");
-      static const bool output_expected_loglike_SR_combination = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_SR_combination");
-
       for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair_i.first;
@@ -866,31 +987,28 @@ namespace Gambit
           const str& sr_label = analysis_loglikes.sr_labels.at(sr_index);
           const double& sr_loglike = analysis_loglikes.sr_loglikes.at(sr_index);
 
-          // const str key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
           str base_key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index); // + "__LogLike";
           result[base_key + "__LogLike"] = sr_loglike;
 
-          summary_line << sr_label + "__i" + std::to_string(sr_index) << ":(" << sr_loglike << ",";
+          summary_line << sr_label + "__i" + std::to_string(sr_index) << ":" << sr_loglike << ", ";
 
-          if (output_expected_loglike_single_SRs)
+          // Any alternative likelihoods?
+          for (const auto& map_element : analysis_loglikes.alt_sr_loglikes)
           {
-            // Also add the *expected* log likelihood (from the assumption n = b)
-            const double& sr_expected_loglike = analysis_loglikes.sr_expected_loglikes.at(sr_index);
-            result[base_key + "__expected_LogLike"] = sr_expected_loglike;          
-            
-            summary_line << sr_expected_loglike << "), ";
-          }
-          else
-          {
-            summary_line << "-), "; 
+            const str& alt_loglike_key = map_element.first;
+            const double& alt_sr_loglike = map_element.second.at(sr_index);
+            result[base_key + "__" + alt_loglike_key + "_LogLike"] = alt_sr_loglike;
           }
         }
 
         result[analysis_name + "__combined_LogLike"] = analysis_loglikes.combination_loglike;
 
-        if (output_expected_loglike_SR_combination)
+        // Any alternative combined likelihoods?
+        for (const auto& map_element : analysis_loglikes.alt_combination_loglikes)
         {
-          result[analysis_name + "__expected_combined_LogLike"] = analysis_loglikes.combination_expected_loglike;
+          const str& alt_loglike_key = map_element.first;
+          const double& alt_combination_loglike = map_element.second;
+          result[analysis_name + "__combined_" + alt_loglike_key + "_LogLike"] = alt_combination_loglike;
         }
 
         summary_line << "combined_LogLike:" << analysis_loglikes.combination_loglike << ", ";
@@ -942,7 +1060,10 @@ namespace Gambit
       using namespace Pipes::calc_combined_LHC_LogLike;
       result = 0.0;
 
+      static bool first = true;
       static const bool write_summary_to_log = runOptions->getValueOrDef<bool>(false, "write_summary_to_log");
+      static const str alt_loglike_key = runOptions->getValueOrDef<str>("", "alt_loglike");
+      static bool use_alt_loglike = !alt_loglike_key.empty();
 
       std::stringstream summary_line_combined_loglike; 
       summary_line_combined_loglike << "calc_combined_LHC_LogLike: combined LogLike: ";
@@ -965,21 +1086,36 @@ namespace Gambit
       }
 
       // Loop over analyses and calculate the total observed dLL
-      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis)
+      for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
-        const str& analysis_name = analysis_loglike_pair.first;
-        const double& analysis_loglike = analysis_loglike_pair.second;
+        const str& analysis_name = pair.first;
+        const AnalysisLogLikes& analysis_loglikes = pair.second;
 
-        // If this is an "expected loglike" (from the assumption n=b), don't include it in the scan loglike
-        // @todo This is a temporary fix. Once this function depends on a AnalysisLogLikes instance instead of a map_str_dbl we can avoid this silly string parsing.
-        if (analysis_name.find("__expected_LogLike") != std::string::npos)
+        // On the first iteration we check that if the alt_loglike option is specified, the input 
+        // string must exist as a key in the AnalysisLogLikes::alt_combination_loglikes map
+        if (first)
         {
-          #ifdef COLLIDERBIT_DEBUG
-            cout.precision(5);
-            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out expected loglike " << analysis_name << " with LogL = " << analysis_loglike << endl;
-          #endif
+          if (use_alt_loglike)
+          {
+            if (analysis_loglikes.alt_combination_loglikes.count(alt_loglike_key) == 0)
+            {
+              ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+              ColliderBit_error().raise(LOCAL_INFO, "The provided 'alt_loglike' key '" + alt_loglike_key + "' is unknown. Please check your YAML file.");
+            }
+          }
+          first = false;
+        }
 
-          continue;
+        // Get the loglike value.
+        // Use the regular loglike or an alternative one?
+        double use_analysis_loglike = 0.0;
+        if (use_alt_loglike) 
+        {
+          use_analysis_loglike = analysis_loglikes.alt_combination_loglikes.at(alt_loglike_key);
+        }
+        else
+        {
+          use_analysis_loglike = analysis_loglikes.combination_loglike;
         }
 
         // If the analysis name is in skip_analyses, don't add its loglike to the total loglike.
@@ -987,41 +1123,43 @@ namespace Gambit
         {
           #ifdef COLLIDERBIT_DEBUG
             cout.precision(5);
-            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
+            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << use_analysis_loglike << endl;
           #endif
 
           // Add to log summary
           if(write_summary_to_log)
           {
-            summary_line_skipped_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+            summary_line_skipped_analyses << analysis_name << "__LogLike:" << use_analysis_loglike << ", ";
           }
 
           continue;
         }
 
-        // Add analysis loglike.
-        // If using capped likelihood for each individual analysis, set analysis_loglike = min(analysis_loglike,0)
+        // OK, analysis is not in the skip_analysis list, so we proceed to add the analysis loglike
+
+        // If using capped likelihood for each individual analysis, set use_analysis_loglike = min(use_analysis_loglike, 0)
         static const bool use_cap_loglike_individual = runOptions->getValueOrDef<bool>(false, "cap_loglike_individual_analyses");
         if (use_cap_loglike_individual)
         {
-          result += std::min(analysis_loglike, 0.0);
+          result += std::min(use_analysis_loglike, 0.0);
         }
         else
         {
-          result += analysis_loglike;
+          result += use_analysis_loglike;
         }
 
         // Add to log summary
         if(write_summary_to_log)
         {
-          summary_line_included_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+          summary_line_included_analyses << analysis_name << "__LogLike:" << use_analysis_loglike << ", ";
         }
 
         #ifdef COLLIDERBIT_DEBUG
           cout.precision(5);
-          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
+          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << use_analysis_loglike << endl;
         #endif
       }
+
 
       #ifdef COLLIDERBIT_DEBUG
         cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: LHC_Combined_LogLike = " << result << endl;
@@ -1071,615 +1209,6 @@ namespace Gambit
         logger() << summary_line.str() << EOM;
       }  
     }
-
-
-
-    // ============== Temporary hacks for the MSSMEW_gravitino scans! ================
-
-    // Duplicated functions to get additional loglikes after a global scaling of all signals.
-
-
-    /// Loop over all analyses and fill a map of AnalysisLogLikes objects
-    void calc_LHC_LogLikes_scaledsignals(map_str_AnalysisLogLikes& result)
-    {
-      // *** gravitino scan hack ***
-      static const double global_ewino_xsec_scalefactor = 1.2;
-
-      // Read options
-      using namespace Pipes::calc_LHC_LogLikes;
-      // Use covariance matrices if available?
-      static const bool USE_COVAR = runOptions->getValueOrDef<bool>(true, "use_covariances");
-      // Use marginalisation rather than profiling (probably less stable)?
-      static const bool USE_MARG = runOptions->getValueOrDef<bool>(false, "use_marginalising");
-
-      // Calculate the expected loglike for analyses with covariance info
-      // (Will need to repeat profiling/marginalisation over nuisances...)
-      static const bool calc_combination_expected_loglike = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_SR_combination");
-
-      // Fix the profiling/marginalising function according to the option
-      auto marg_prof_fn = USE_MARG ? marg_loglike_cov : profile_loglike_cov;
-
-
-      // Clear the result map
-      result.clear();
-
-      // Main loop over all analyses to compute DLL = LL_sb - LL_b
-      for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
-      {
-
-        // AnalysisData for this analysis
-        // *** gravitino scan hack ***
-        // const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
-        AnalysisData adata( *(Dep::AllAnalysisNumbers->at(analysis)) );
-        for (size_t SR = 0; SR < adata.size(); ++SR)
-        {
-          adata[SR].n_sig_scaled *= global_ewino_xsec_scalefactor;
-        }
-
-        const std::string ananame = adata.analysis_name;
-        const size_t nSR = adata.size();
-        const bool has_covar = adata.srcov.rows() > 0;
-
-        // Initialize the AnalysisLogLikes instance in the result map
-        result[ananame].initialize(adata);
-
-        #ifdef COLLIDERBIT_DEBUG
-          std::streamsize stream_precision = cout.precision();  // get current precision
-          cout.precision(2);  // set precision
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes_scaledsignals: " << "Will print content of " << ananame << " signal regions:" << endl;
-          for (size_t SR = 0; SR < adata.size(); ++SR)
-          {
-            const SignalRegionData& srData = adata[SR];
-
-            cout << std::fixed << DEBUG_PREFIX
-                                   << "calc_LHC_LogLikes_scaledsignals: " << ananame
-                                   << ", " << srData.sr_label
-                                   << ",  n_b = " << srData.n_bkg << " +/- " << srData.n_bkg_err
-                                   << ",  n_obs = " << srData.n_obs
-                                   << ",  excess = " << srData.n_obs - srData.n_bkg << " +/- " << srData.n_bkg_err
-                                   << ",  n_s = " << srData.n_sig_scaled
-                                   << ",  (excess-n_s) = " << (srData.n_obs-srData.n_bkg) - srData.n_sig_scaled << " +/- " << srData.n_bkg_err
-                                   << ",  n_s_MC = " << srData.n_sig_MC
-                                   << endl;
-          }
-          cout.precision(stream_precision); // restore previous precision
-        #endif
-
-
-        // Shortcut #1
-        //
-        // If no events have been generated (xsec veto) or too many events have
-        // failed, short-circut the loop and return delta log-likelihood = 0 for
-        // every SR in each analysis.
-        //
-        /// @todo Needs more sophistication once we add analyses that don't use event generation.
-        if (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents)
-        {
-          // If this is an analysis with covariance info, only add a single 0-entry in the map
-          if (USE_COVAR && has_covar)
-          {
-            result[ananame].set_no_signal_result_combination("none", -1);
-          }
-          // If this is an analysis without covariance info, add 0-entries for all SRs plus
-          // one for the combined LogLike
-          else
-          {
-            result[ananame].set_no_signal_result_all_SRs("none", -1);
-          }
-
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes_scaledsignals: " << ananame << "_LogLike : " << 0.0 << " (No events predicted / successfully generated. Skipped full calculation.)" << endl;
-          #endif
-
-          // Continue to next analysis
-          continue;
-        }
-
-
-        // Shortcut #2
-        //
-        // If all SRs have 0 signal prediction, we know the delta log-likelihood is 0.
-        bool all_zero_signal = true;
-        for (size_t SR = 0; SR < nSR; ++SR)
-        {
-          if (adata[SR].n_sig_MC != 0)
-          {
-            all_zero_signal = false;
-            break;
-          }
-        }
-        if (all_zero_signal)
-        {
-          // Store result
-          if (USE_COVAR && has_covar)
-          {
-            result[ananame].set_no_signal_result_combination("all", -1);
-          }
-          else
-          {
-            result[ananame].set_no_signal_result_all_SRs("all", -1);
-          }
-
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes_scaledsignals: " << ananame << "_LogLike : " << 0.0 << " (No signal predicted. Skipped full calculation.)" << endl;
-          #endif
-
-          // Continue to next analysis
-          continue;
-        }
-
-
-        // Work out the total (delta) log likelihood for this analysis, with correlations as available/instructed
-        double ana_dll = NAN;
-        if (USE_COVAR && has_covar)
-        {
-
-
-          /// If (simplified) SR-correlation info is available, so use the
-          /// covariance matrix to construct composite marginalised likelihood
-          /// Despite initial thoughts, we can't just do independent LL
-          /// calculations in a rotated basis, but have to sample from the
-          /// covariance matrix.
-          ///
-          /// @note This means we can't use the nulike LL functions, which
-          /// operate in 1D only.  Also, log-normal sampling in the diagonal
-          /// basis is not helpful, since the rotation will re-generate negative
-          /// rates.
-          ///
-          /// @todo Support NSL, i.e. skewness correction
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes_scaledsignals: Analysis " << analysis << " has a covariance matrix: computing composite loglike." << endl;
-          #endif
-
-
-          // Construct vectors of SR numbers
-          /// @todo Unify this for both cov and no-cov, feeding in one-element Eigen blocks as Ref<>s for the latter?
-          Eigen::ArrayXd n_obs(nSR); // logfact_n_obs(nSR);
-          Eigen::ArrayXd n_pred_b(nSR), n_pred_sb(nSR), abs_unc_s(nSR);
-          for (size_t SR = 0; SR < nSR; ++SR)
-          {
-            const SignalRegionData& srData = adata[SR];
-
-            // Actual observed number of events
-            n_obs(SR) = srData.n_obs;
-
-            // Log factorial of observed number of events.
-            // Currently use the ln(Gamma(x)) function gsl_sf_lngamma from GSL. (Need continuous function.)
-            // We may want to switch to using Stirling's approximation: ln(n!) ~ n*ln(n) - n
-            //logfact_n_obs(SR) = gsl_sf_lngamma(n_obs(SR) + 1.);
-
-            // A contribution to the predicted number of events that is not known exactly
-            n_pred_b(SR) = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
-            n_pred_sb(SR) = srData.n_sig_scaled + srData.n_bkg;
-
-            // Absolute errors for n_predicted_uncertain_*
-            abs_unc_s(SR) = srData.calc_n_sig_scaled_err();
-          }
-
-          // Diagonalise the background-only covariance matrix, extracting the correlation and rotation matrices
-          /// @todo Compute the background-only covariance decomposition and likelihood only once
-          const Eigen::MatrixXd& srcov_b = adata.srcov;
-          Eigen::MatrixXd srcorr_b = srcov_b; // start with cov, then make corr
-          for (size_t SR = 0; SR < nSR; ++SR)
-          {
-            const double diagsd = sqrt(srcov_b(SR,SR));
-            srcorr_b.row(SR) /= diagsd;
-            srcorr_b.col(SR) /= diagsd;
-          }
-          const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_b(adata.srcov);
-          const Eigen::ArrayXd Eb = eig_b.eigenvalues();
-          const Eigen::ArrayXd sqrtEb = Eb.sqrt();
-          const Eigen::MatrixXd Vb = eig_b.eigenvectors();
-
-          // Construct and diagonalise the s+b covariance matrix, adding the diagonal signal uncertainties in quadrature
-          const Eigen::MatrixXd srcov_s = abs_unc_s.array().square().matrix().asDiagonal();
-          const Eigen::MatrixXd srcov_sb = srcov_b + srcov_s;
-          Eigen::MatrixXd srcorr_sb = srcov_sb;
-          for (size_t SR = 0; SR < nSR; ++SR)
-          {
-            const double diagsd = sqrt(srcov_sb(SR,SR));
-            srcorr_sb.row(SR) /= diagsd;
-            srcorr_sb.col(SR) /= diagsd;
-          }
-          const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_sb(srcov_sb);
-          const Eigen::ArrayXd Esb = eig_sb.eigenvalues();
-          const Eigen::ArrayXd sqrtEsb = Esb.sqrt();
-          const Eigen::MatrixXd Vsb = eig_sb.eigenvectors();
-
-          // cout << "B: " << srcorr_b << " " << srcov_b << endl;
-          // cout << "SB: " << srcorr_sb << " " << srcov_sb << endl;
-
-          // Compute the single, correlated analysis-level DLL as the difference of s+b and b (partial) LLs
-          /// @todo Only compute this once per run
-          const double ll_b = marg_prof_fn(n_pred_b, n_obs, sqrtEb, Vb);
-          const double ll_sb = marg_prof_fn(n_pred_sb, n_obs, sqrtEsb, Vsb);
-          const double dll = ll_sb - ll_b;
-
-          // Calculate the *expected* (assuming n=b) DLL?
-          double expected_ll_b = 0.0;
-          double expected_ll_sb = 0.0;
-          double expected_dll = 0.0;
-          if (calc_combination_expected_loglike) 
-          {
-            expected_ll_b = marg_prof_fn(n_pred_b, n_pred_b, sqrtEb, Vb);
-            expected_ll_sb = marg_prof_fn(n_pred_sb, n_pred_b, sqrtEsb, Vsb);
-            expected_dll = expected_ll_sb - expected_ll_b;
-          }
-
-          // Store result
-          ana_dll = dll;
-          result[ananame].combination_sr_label = "all";
-          result[ananame].combination_sr_index = -1;
-          result[ananame].combination_loglike = ana_dll;
-          result[ananame].combination_expected_loglike = expected_dll;
-
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes_scaledsignals: " << ananame << "_LogLike : " << ana_dll << endl;
-          #endif
-
-
-        } else { // NO SR-CORRELATION INFO, OR USER CHOSE NOT TO USE IT:
-
-
-          // We either take the result from the SR *expected* to be most
-          // constraining under the s=0 assumption (default), or naively combine
-          // the loglikes for all SRs (if combine_SRs_without_covariances=true).
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes_scaledsignals: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
-          #endif
-
-          double bestexp_dll_exp = 0, bestexp_dll_obs = NAN;
-          str bestexp_sr_label;
-          int bestexp_sr_index;
-          double nocovar_srsum_dll_obs = 0;
-
-          for (size_t SR = 0; SR < nSR; ++SR)
-          {
-            const SignalRegionData& srData = adata[SR];
-
-            // Shortcut: If n_sig_MC == 0, we know the delta log-likelihood is 0.
-            if(srData.n_sig_MC == 0)
-            {
-              // Store (obs) result for this SR
-              result[ananame].sr_loglikes.at(SR) = 0.0;
-              result[ananame].sr_expected_loglikes.at(SR) = 0.0;
-
-              // Update the running best-expected-exclusion detail
-              if (0.0 < bestexp_dll_exp || SR == 0)
-              {
-                bestexp_dll_exp = 0.0;
-                bestexp_dll_obs = 0.0;
-                bestexp_sr_label = srData.sr_label;
-                bestexp_sr_index = SR;
-              }
-
-              // Skip to next SR
-              continue;
-            }
-
-            // A contribution to the predicted number of events that is not known exactly
-            const double n_pred_b = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
-            const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
-
-            // Actual observed number of events and predicted background, as integers cf. Poisson stats
-            const double n_obs = round(srData.n_obs);
-            const double n_pred_b_int = round(n_pred_b);
-
-            // Absolute errors for n_predicted_uncertain_*
-            const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001); // <-- Avoid trouble with b_err==0
-            const double abs_uncertainty_sb = std::max(srData.calc_n_sigbkg_err(), 0.001); // <-- Avoid trouble with sb_err==0
-
-
-            // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
-            /// @todo Use newer (?) one-step Eigen constructors for (const) single-element arrays
-            Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
-            Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
-            Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
-            Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
-            Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
-            Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
-            Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
-
-
-            // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
-            /// @todo Or compute all the exp DLLs first, then only the best-expected SR's obs DLL?
-            /// @todo Only compute this once per run
-            const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
-            /// @todo Only compute this once per run
-            const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
-            const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
-            const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
-            const double dll_exp = ll_sb_exp - ll_b_exp;
-            const double dll_obs = ll_sb_obs - ll_b_obs;
-
-            // Check for problems
-            if (Utils::isnan(ll_b_exp))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_b_exp for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-            if (Utils::isnan(ll_b_obs))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_b_obs for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-            if (Utils::isnan(ll_sb_exp))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_sb_exp for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-            if (Utils::isnan(ll_sb_obs))
-            {
-              std::stringstream msg;
-              msg << "Computation of ll_sb_obs for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-              invalid_point().raise(msg.str());
-            }
-
-            // Update the running best-expected-exclusion detail
-            if (dll_exp < bestexp_dll_exp || SR == 0)
-            {
-              bestexp_dll_exp = dll_exp;
-              bestexp_dll_obs = dll_obs;
-              bestexp_sr_label = srData.sr_label;
-              bestexp_sr_index = SR;
-              // #ifdef COLLIDERBIT_DEBUG
-              // cout << DEBUG_PREFIX << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", LogL_exp = " << bestexp_dll_exp << ", LogL_obs = " << bestexp_dll_obs << endl;
-              // #endif
-            }
-
-            // Store (obs) result for this SR
-            result[ananame].sr_loglikes.at(SR) = dll_obs;
-            result[ananame].sr_expected_loglikes.at(SR) = dll_exp;
-
-            // Also add the obs loglike to the no-correlations sum over SRs
-            nocovar_srsum_dll_obs += dll_obs;
-
-            #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << ananame << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
-            #endif
-
-          }
-
-          // Set this analysis' total obs DLL to that from the best-expected SR
-          ana_dll = bestexp_dll_obs;
-          result[ananame].combination_sr_label = bestexp_sr_label;
-          result[ananame].combination_sr_index = bestexp_sr_index;
-          result[ananame].combination_loglike = ana_dll;
-          result[ananame].combination_expected_loglike = bestexp_dll_exp;
-
-          // Or should we use the naive sum of SR loglikes (without correlations) instead?
-          static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
-          if (combine_nocovar_SRs)
-          {
-            result[ananame].combination_loglike = nocovar_srsum_dll_obs;
-          }
-
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes_scaledsignals: " << ananame << "_" << bestexp_sr_label << "_LogLike : " << ana_dll << endl;
-          #endif
-
-        } // end cov/no-cov
-
-
-        // Check for problems with the result
-        for (size_t SR = 0; SR < nSR; ++SR)
-        {
-          double sr_loglike = result[ananame].sr_loglikes.at(SR);
-
-          if (Utils::isnan(sr_loglike))
-          {
-            const std::string& sr_label = result[ananame].sr_labels.at(SR);
-  
-            std::stringstream msg;
-            msg << "Computation of loglike for signal region " << sr_label << " in analysis " << ananame << " returned NaN" << endl;
-            msg << "Will now print all signal region data for this analysis:" << endl;
-            for (size_t i = 0; i < nSR; ++i)
-            {
-              const SignalRegionData& srData = adata[i];
-              msg << srData.sr_label
-                  << ",  n_bkg = " << srData.n_bkg
-                  << ",  n_bkg_err = " << srData.n_bkg_err
-                  << ",  n_obs = " << srData.n_obs
-                  << ",  n_sig_scaled = " << srData.n_sig_scaled
-                  << ",  n_sig_MC = " << srData.n_sig_MC
-                  << ",  n_sig_MC_sys = " << srData.n_sig_MC_sys
-                  << endl;
-            }
-            invalid_point().raise(msg.str());
-          }
-        }
-
-      } // end analysis loop
-    }
-
-
-    /// Extract the combined log likelihood for each analysis
-    void get_LHC_LogLike_per_analysis_scaledsignals(map_str_dbl& result)
-    {
-      using namespace Pipes::get_LHC_LogLike_per_analysis_scaledsignals;
-
-      std::stringstream summary_line;
-      summary_line << "LHC loglikes per analysis (scaledsignals): ";
-
-      static const bool output_expected_loglike_SR_combination = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_SR_combination");
-
-      for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes_scaledsignals)
-      {
-        const str& analysis_name = pair.first;
-        const AnalysisLogLikes& analysis_loglikes = pair.second;
-
-        result[analysis_name] = analysis_loglikes.combination_loglike;
-
-        if (output_expected_loglike_SR_combination)
-        {
-          result[analysis_name + "__expected_LogLike"] = analysis_loglikes.combination_expected_loglike;
-        }
-
-        summary_line << analysis_name << ":" << analysis_loglikes.combination_loglike << ", ";
-      }
-      logger() << LogTags::debug << summary_line.str() << EOM;
-    }
-
-
-    /// Extract the log likelihood for each SR
-    void get_LHC_LogLike_per_SR_scaledsignals(map_str_dbl& result)
-    {
-      using namespace Pipes::get_LHC_LogLike_per_SR_scaledsignals;
-
-      std::stringstream summary_line;
-      summary_line << "LHC loglikes per SR (scaledsignals): ";
-
-      static const bool output_expected_loglike_single_SRs = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_single_SRs");
-      static const bool output_expected_loglike_SR_combination = runOptions->getValueOrDef<bool>(false, "output_expected_loglike_SR_combination");
-
-      for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes_scaledsignals)
-      {
-        const str& analysis_name = pair_i.first;
-        const AnalysisLogLikes& analysis_loglikes = pair_i.second;
-
-        summary_line << analysis_name << ": ";
-
-        for (size_t sr_index = 0; sr_index < analysis_loglikes.sr_loglikes.size(); ++sr_index)
-        {
-          const str& sr_label = analysis_loglikes.sr_labels.at(sr_index);
-          const double& sr_loglike = analysis_loglikes.sr_loglikes.at(sr_index);
-
-          // const str key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
-          str base_key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index); // + "__LogLike";
-          result[base_key + "__LogLike"] = sr_loglike;
-
-          summary_line << sr_label + "__i" + std::to_string(sr_index) << ":(" << sr_loglike << ",";
-
-          if (output_expected_loglike_single_SRs)
-          {
-            // Also add the *expected* log likelihood (from the assumption n = b)
-            const double& sr_expected_loglike = analysis_loglikes.sr_expected_loglikes.at(sr_index);
-            result[base_key + "__expected_LogLike"] = sr_expected_loglike;          
-            
-            summary_line << sr_expected_loglike << "), ";
-          }
-          else
-          {
-            summary_line << "-), "; 
-          }
-        }
-
-        result[analysis_name + "__combined_LogLike"] = analysis_loglikes.combination_loglike;
-
-        if (output_expected_loglike_SR_combination)
-        {
-          result[analysis_name + "__expected_combined_LogLike"] = analysis_loglikes.combination_expected_loglike;
-        }
-
-        summary_line << "combined_LogLike:" << analysis_loglikes.combination_loglike << ", ";
-      }
-      logger() << LogTags::debug << summary_line.str() << EOM;
-    }
-
-
-
-
-    /// Compute the total likelihood combining all analyses
-    void calc_combined_LHC_LogLike_scaledsignals(double& result)
-    {
-      using namespace Pipes::calc_combined_LHC_LogLike_scaledsignals;
-      result = 0.0;
-
-      static const bool write_summary_to_log = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<bool>(false, "write_summary_to_log");
-
-      std::stringstream summary_line_combined_loglike; 
-      summary_line_combined_loglike << "calc_combined_LHC_LogLike_scaledsignals: combined LogLike: ";
-      std::stringstream summary_line_skipped_analyses;
-      summary_line_skipped_analyses << "calc_combined_LHC_LogLike_scaledsignals: skipped analyses: ";
-      std::stringstream summary_line_included_analyses;
-      summary_line_included_analyses << "calc_combined_LHC_LogLike_scaledsignals: included analyses: ";
-
-      // Read analysis names from the yaml file
-      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
-      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
-
-      // If too many events have failed, do the conservative thing and return delta log-likelihood = 0
-      if (Dep::RunMC->exceeded_maxFailedEvents)
-      {
-        #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: Too many failed events. Will be conservative and return a delta log-likelihood of 0." << endl;
-        #endif
-        return;
-      }
-
-      // Loop over analyses and calculate the total observed dLL
-      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis_scaledsignals)
-      {
-        const str& analysis_name = analysis_loglike_pair.first;
-        const double& analysis_loglike = analysis_loglike_pair.second;
-
-        // If the analysis name is in skip_analyses, don't add its loglike to the total loglike.
-        if (std::find(skip_analyses.begin(), skip_analyses.end(), analysis_name) != skip_analyses.end())
-        {
-          #ifdef COLLIDERBIT_DEBUG
-            cout.precision(5);
-            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
-          #endif
-
-          // Add to log summary
-          if(write_summary_to_log)
-          {
-            summary_line_skipped_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
-          }
-
-          continue;
-        }
-
-        // Add analysis loglike.
-        // If using capped likelihood for each individual analysis, set analysis_loglike = min(analysis_loglike,0)
-        static const bool use_cap_loglike_individual = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<bool>(false, "cap_loglike_individual_analyses");
-        if (use_cap_loglike_individual)
-        {
-          result += std::min(analysis_loglike, 0.0);
-        }
-        else
-        {
-          result += analysis_loglike;
-        }
-
-        // Add to log summary
-        if(write_summary_to_log)
-        {
-          summary_line_included_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
-        }
-
-        #ifdef COLLIDERBIT_DEBUG
-          cout.precision(5);
-          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
-        #endif
-      }
-
-      #ifdef COLLIDERBIT_DEBUG
-        cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike_scaledsignals: LHC_Combined_LogLike = " << result << endl;
-      #endif
-
-      // If using a "global" capped likelihood, set result = min(result,0)
-      static const bool use_cap_loglike = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<bool>(false, "cap_loglike");
-      if (use_cap_loglike)
-      {
-        result = std::min(result, 0.0);
-      }
-
-      // Write log summary
-      if(write_summary_to_log)
-      {
-        summary_line_combined_loglike << result;
-
-        logger() << summary_line_combined_loglike.str() << EOM;
-        logger() << summary_line_included_analyses.str() << EOM;
-        logger() << summary_line_skipped_analyses.str() << EOM;
-      }  
-    }
-
-
 
   }
 }
