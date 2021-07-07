@@ -1060,7 +1060,10 @@ namespace Gambit
       using namespace Pipes::calc_combined_LHC_LogLike;
       result = 0.0;
 
+      static bool first = true;
       static const bool write_summary_to_log = runOptions->getValueOrDef<bool>(false, "write_summary_to_log");
+      static const str alt_loglike_key = runOptions->getValueOrDef<str>("", "alt_loglike");
+      static bool use_alt_loglike = !alt_loglike_key.empty();
 
       std::stringstream summary_line_combined_loglike; 
       summary_line_combined_loglike << "calc_combined_LHC_LogLike: combined LogLike: ";
@@ -1083,21 +1086,36 @@ namespace Gambit
       }
 
       // Loop over analyses and calculate the total observed dLL
-      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis)
+      for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
-        const str& analysis_name = analysis_loglike_pair.first;
-        const double& analysis_loglike = analysis_loglike_pair.second;
+        const str& analysis_name = pair.first;
+        const AnalysisLogLikes& analysis_loglikes = pair.second;
 
-        // If this is an "expected loglike" (from the assumption n=b), don't include it in the scan loglike
-        // @todo This is a temporary fix. Once this function depends on a AnalysisLogLikes instance instead of a map_str_dbl we can avoid this silly string parsing.
-        if (analysis_name.find("__expected_LogLike") != std::string::npos)
+        // On the first iteration we check that if the alt_loglike option is specified, the input 
+        // string must exist as a key in the AnalysisLogLikes::alt_combination_loglikes map
+        if (first)
         {
-          #ifdef COLLIDERBIT_DEBUG
-            cout.precision(5);
-            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out expected loglike " << analysis_name << " with LogL = " << analysis_loglike << endl;
-          #endif
+          if (use_alt_loglike)
+          {
+            if (analysis_loglikes.alt_combination_loglikes.count(alt_loglike_key) == 0)
+            {
+              ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+              ColliderBit_error().raise(LOCAL_INFO, "The provided 'alt_loglike' key '" + alt_loglike_key + "' is unknown. Please check your YAML file.");
+            }
+          }
+          first = false;
+        }
 
-          continue;
+        // Get the loglike value.
+        // Use the regular loglike or an alternative one?
+        double use_analysis_loglike = 0.0;
+        if (use_alt_loglike) 
+        {
+          use_analysis_loglike = analysis_loglikes.alt_combination_loglikes.at(alt_loglike_key);
+        }
+        else
+        {
+          use_analysis_loglike = analysis_loglikes.combination_loglike;
         }
 
         // If the analysis name is in skip_analyses, don't add its loglike to the total loglike.
@@ -1105,41 +1123,43 @@ namespace Gambit
         {
           #ifdef COLLIDERBIT_DEBUG
             cout.precision(5);
-            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
+            cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << use_analysis_loglike << endl;
           #endif
 
           // Add to log summary
           if(write_summary_to_log)
           {
-            summary_line_skipped_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+            summary_line_skipped_analyses << analysis_name << "__LogLike:" << use_analysis_loglike << ", ";
           }
 
           continue;
         }
 
-        // Add analysis loglike.
-        // If using capped likelihood for each individual analysis, set analysis_loglike = min(analysis_loglike,0)
+        // OK, analysis is not in the skip_analysis list, so we proceed to add the analysis loglike
+
+        // If using capped likelihood for each individual analysis, set use_analysis_loglike = min(use_analysis_loglike, 0)
         static const bool use_cap_loglike_individual = runOptions->getValueOrDef<bool>(false, "cap_loglike_individual_analyses");
         if (use_cap_loglike_individual)
         {
-          result += std::min(analysis_loglike, 0.0);
+          result += std::min(use_analysis_loglike, 0.0);
         }
         else
         {
-          result += analysis_loglike;
+          result += use_analysis_loglike;
         }
 
         // Add to log summary
         if(write_summary_to_log)
         {
-          summary_line_included_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+          summary_line_included_analyses << analysis_name << "__LogLike:" << use_analysis_loglike << ", ";
         }
 
         #ifdef COLLIDERBIT_DEBUG
           cout.precision(5);
-          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
+          cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << use_analysis_loglike << endl;
         #endif
       }
+
 
       #ifdef COLLIDERBIT_DEBUG
         cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: LHC_Combined_LogLike = " << result << endl;
@@ -1162,6 +1182,91 @@ namespace Gambit
         logger() << summary_line_skipped_analyses.str() << EOM;
       }  
     }
+
+
+
+    //   // ------------------
+
+    //   // Loop over analyses and calculate the total observed dLL
+    //   for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis)
+    //   {
+    //     const str& analysis_name = analysis_loglike_pair.first;
+    //     const double& analysis_loglike = analysis_loglike_pair.second;
+
+    //     // If this is an "expected loglike" (from the assumption n=b), don't include it in the scan loglike
+    //     // @todo This is a temporary fix. Once this function depends on a AnalysisLogLikes instance instead of a map_str_dbl we can avoid this silly string parsing.
+    //     if (analysis_name.find("__expected_LogLike") != std::string::npos)
+    //     {
+    //       #ifdef COLLIDERBIT_DEBUG
+    //         cout.precision(5);
+    //         cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out expected loglike " << analysis_name << " with LogL = " << analysis_loglike << endl;
+    //       #endif
+
+    //       continue;
+    //     }
+
+    //     // If the analysis name is in skip_analyses, don't add its loglike to the total loglike.
+    //     if (std::find(skip_analyses.begin(), skip_analyses.end(), analysis_name) != skip_analyses.end())
+    //     {
+    //       #ifdef COLLIDERBIT_DEBUG
+    //         cout.precision(5);
+    //         cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
+    //       #endif
+
+    //       // Add to log summary
+    //       if(write_summary_to_log)
+    //       {
+    //         summary_line_skipped_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+    //       }
+
+    //       continue;
+    //     }
+
+    //     // Add analysis loglike.
+    //     // If using capped likelihood for each individual analysis, set analysis_loglike = min(analysis_loglike,0)
+    //     static const bool use_cap_loglike_individual = runOptions->getValueOrDef<bool>(false, "cap_loglike_individual_analyses");
+    //     if (use_cap_loglike_individual)
+    //     {
+    //       result += std::min(analysis_loglike, 0.0);
+    //     }
+    //     else
+    //     {
+    //       result += analysis_loglike;
+    //     }
+
+    //     // Add to log summary
+    //     if(write_summary_to_log)
+    //     {
+    //       summary_line_included_analyses << analysis_name << "__LogLike:" << analysis_loglike << ", ";
+    //     }
+
+    //     #ifdef COLLIDERBIT_DEBUG
+    //       cout.precision(5);
+    //       cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
+    //     #endif
+    //   }
+
+    //   #ifdef COLLIDERBIT_DEBUG
+    //     cout << DEBUG_PREFIX << "calc_combined_LHC_LogLike: LHC_Combined_LogLike = " << result << endl;
+    //   #endif
+
+    //   // If using a "global" capped likelihood, set result = min(result,0)
+    //   static const bool use_cap_loglike = runOptions->getValueOrDef<bool>(false, "cap_loglike");
+    //   if (use_cap_loglike)
+    //   {
+    //     result = std::min(result, 0.0);
+    //   }
+
+    //   // Write log summary
+    //   if(write_summary_to_log)
+    //   {
+    //     summary_line_combined_loglike << result;
+
+    //     logger() << summary_line_combined_loglike.str() << EOM;
+    //     logger() << summary_line_included_analyses.str() << EOM;
+    //     logger() << summary_line_skipped_analyses.str() << EOM;
+    //   }  
+    // }
 
 
     /// A dummy log-likelihood that helps the scanner track a given 

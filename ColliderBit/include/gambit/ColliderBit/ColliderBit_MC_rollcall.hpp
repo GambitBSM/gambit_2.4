@@ -330,7 +330,7 @@
   START_CAPABILITY
     #define FUNCTION calc_combined_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(LHC_LogLike_per_analysis, map_str_dbl)
+    DEPENDENCY(LHC_LogLikes, map_str_AnalysisLogLikes)
     DEPENDENCY(RunMC, MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
