@@ -43,12 +43,9 @@ BE_NAMESPACE
     pybind11::object yoda_string_IO = Contur.attr("StringIO")(InputString);
     yoda_string_IO.attr("seek")(pybind11::int_(pybind11::cast(0)));
 
-    pybind11::print(pybind11::cast(contur_yaml_args));
-
     //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
     pybind11::dict args_dict = 
       ((Contur.attr("run_analysis").attr("get_argparser")()).attr("parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
-    pybind11::print(args_dict);
     args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
     args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
