@@ -1,11 +1,39 @@
+//   GAMBIT: Global and Modular BSM Inference Tool
+//  *********************************************
+///
+///  \file
+///  Utils functions for ColliderBit analysis
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Andy Buckley
+///
+///  \author Abram Krislock
+///
+///  \author Anders Kvellestad
+///
+///  \author Pat Scott
+///
+///  \author Tomas Gonzalo
+///          (gonzalo@physk.rwth-aachen.de)
+///  \date 2021 Jul
+///
+///  ********************************
+
 #pragma once
+
+#include <functional>
+#include <memory>
+#include <cfloat>
+
 #include "HEPUtils/MathUtils.h"
 #include "HEPUtils/BinnedFn.h"
 #include "HEPUtils/Event.h"
 #include "HEPUtils/FastJet.h"
-#include <functional>
-#include <memory>
-#include <cfloat>
+
+#include "gambit/ColliderBit/mt2_bisect.h"
 
 namespace Gambit
 {
@@ -446,6 +474,27 @@ namespace Gambit
     
     //@}
 
+    /// @name Transverse masses
+    //@{
+
+    /// Faster way to compute stransverse mass
+    double get_mT2(const Particle *part1, const Particle *part2, P4 pTmiss, double mass)
+    {
+
+      double p1[3] = {part1->mass(), part1->mom().px(), part1->mom().py()};
+      double p2[3] = {part2->mass(), part2->mom().px(), part2->mom().py()};
+      double pMiss[3] = {0., pTmiss.px(), pTmiss.py() };
+      double mn = mass;
+
+      mt2_bisect::mt2 mt2_calc;
+      mt2_calc.set_momenta(p1,p2,pMiss);
+      mt2_calc.set_mn(mn);
+
+      return  mt2_calc.get_mt2();
+
+    }
+
+    //@}
   }
 
 }

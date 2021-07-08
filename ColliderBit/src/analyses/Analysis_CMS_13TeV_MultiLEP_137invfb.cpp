@@ -8,7 +8,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 //#include "gambit/ColliderBit/CMSEfficiencies.hpp"
-//#include "gambit/ColliderBit/mt2_bisect.h"
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-19-012/index.html
 
@@ -86,8 +85,12 @@ namespace Gambit
         void run(const HEPUtils::Event* event)
         {
 
-          // Missing ET
+          // Useful constants
+          double mZ = 91.1876;
+
+          // Missing ET and momentum
           double met = event->met();
+          P4 mmom = event->missingmom();
 
           // Baseline electrons
           std::vector<const HEPUtils::Particle*> baselineElectrons;
@@ -163,7 +166,7 @@ namespace Gambit
             if(j->btag()) signalBJets.push_back(j);
           
 
-          ////////////////////////
+          ///////////////////////////////
           // Common variables and cuts //
           const size_t nLeptons = signalLeptons.size();
           const size_t nLightLeptons = signalLightLeptons.size();
@@ -213,58 +216,65 @@ namespace Gambit
           {
 
             // Stransverse mass
-            // TODO: missing
-            double mt2 = 0.;
+            double mT2 = get_mT2(signalLeptons.at(0), signalLeptons.at(1), mmom, 0);
 
             // pT of dilepton system for SS leptons
-            double pTll = 0.;
-            if(nLeptons > 1)
-              pTll = ( signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() ).pT();
+            double pTll = ( signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() ).pT();
 
             // Sign of final states
             bool positive = signalLeptons.at(0)->pid() * signalLeptons.at(1)->pid() > 0;
             bool negative = not positive;
 
-            if(mt2 == 0. and pTll <  70.) _counters.at("SS01").add_event(event);
-            if(mt2 == 0. and pTll >= 70. and met <  100.) _counters.at("SS02").add_event(event);
-            if(mt2 == 0. and pTll >= 70. and met >= 100. and met < 200. and positive) _counters.at("SS03").add_event(event);
-            if(mt2 == 0. and pTll >= 70. and met >= 100. and met < 200. and negative) _counters.at("SS04").add_event(event);
-            if(mt2 == 0. and pTll >= 70. and met >= 200. and positive) _counters.at("SS05").add_event(event);
-            if(mt2 == 0. and pTll >= 70. and met >= 200. and negative) _counters.at("SS06").add_event(event);
-            if(mt2 >  0. and mt2 <= 80. and pTll <  30. and met <  200. and positive) _counters.at("SS07").add_event(event);
-            if(mt2 >  0. and mt2 <= 80. and pTll <  30. and met <  200. and negative) _counters.at("SS08").add_event(event);
-            if(mt2 >  0. and mt2 <= 80. and pTll <  30. and met >= 200.) _counters.at("SS09").add_event(event);
-            if(mt2 >  0. and mt2 <= 80. and pTll >= 30.) _counters.at("SS10").add_event(event);
-            if(mt2 > 80. and pTll <  200. and met <  100.) _counters.at("SS11").add_event(event);
-            if(mt2 > 80. and pTll <  200. and met >= 100. and met < 200. and positive) _counters.at("SS12").add_event(event);
-            if(mt2 > 80. and pTll <  200. and met >= 100. and met < 200. and negative) _counters.at("SS13").add_event(event);
-            if(mt2 > 80. and pTll <  200. and met >= 200. and positive) _counters.at("SS14").add_event(event);
-            if(mt2 > 80. and pTll <  200. and met >= 200. and negative) _counters.at("SS15").add_event(event);
-            if(mt2 > 80. and pTll >= 200. and met <  100.) _counters.at("SS16").add_event(event);
-            if(mt2 > 80. and pTll >= 200. and met >= 100. and met < 200. and positive) _counters.at("SS17").add_event(event);
-            if(mt2 > 80. and pTll >= 200. and met >= 100. and met < 200. and negative) _counters.at("SS18").add_event(event);
-            if(mt2 > 80. and pTll >= 200. and met >= 200. and positive) _counters.at("SS19").add_event(event);
-            if(mt2 > 80. and pTll >= 200. and met >= 200. and negative) _counters.at("SS20").add_event(event);
+            if(mT2 == 0. and pTll <  70.) _counters.at("SS01").add_event(event);
+            if(mT2 == 0. and pTll >= 70. and met <  100.) _counters.at("SS02").add_event(event);
+            if(mT2 == 0. and pTll >= 70. and met >= 100. and met < 200. and positive) _counters.at("SS03").add_event(event);
+            if(mT2 == 0. and pTll >= 70. and met >= 100. and met < 200. and negative) _counters.at("SS04").add_event(event);
+            if(mT2 == 0. and pTll >= 70. and met >= 200. and positive) _counters.at("SS05").add_event(event);
+            if(mT2 == 0. and pTll >= 70. and met >= 200. and negative) _counters.at("SS06").add_event(event);
+            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met <  200. and positive) _counters.at("SS07").add_event(event);
+            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met <  200. and negative) _counters.at("SS08").add_event(event);
+            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met >= 200.) _counters.at("SS09").add_event(event);
+            if(mT2 >  0. and mT2 <= 80. and pTll >= 30.) _counters.at("SS10").add_event(event);
+            if(mT2 > 80. and pTll <  200. and met <  100.) _counters.at("SS11").add_event(event);
+            if(mT2 > 80. and pTll <  200. and met >= 100. and met < 200. and positive) _counters.at("SS12").add_event(event);
+            if(mT2 > 80. and pTll <  200. and met >= 100. and met < 200. and negative) _counters.at("SS13").add_event(event);
+            if(mT2 > 80. and pTll <  200. and met >= 200. and positive) _counters.at("SS14").add_event(event);
+            if(mT2 > 80. and pTll <  200. and met >= 200. and negative) _counters.at("SS15").add_event(event);
+            if(mT2 > 80. and pTll >= 200. and met <  100.) _counters.at("SS16").add_event(event);
+            if(mT2 > 80. and pTll >= 200. and met >= 100. and met < 200. and positive) _counters.at("SS17").add_event(event);
+            if(mT2 > 80. and pTll >= 200. and met >= 100. and met < 200. and negative) _counters.at("SS18").add_event(event);
+            if(mT2 > 80. and pTll >= 200. and met >= 200. and positive) _counters.at("SS19").add_event(event);
+            if(mT2 > 80. and pTll >= 200. and met >= 200. and negative) _counters.at("SS20").add_event(event);
           }
 
           // 3Lep, OSSF pair (3lA)
           if(nLightLeptons == 3 and nLeptons == 3 and nOSSFpairs > 0)
           {
             // Mll variable
-            // TODO: Missing
             double mll = 0.;
+            std::vector<const Particle *> closest_pair;
+            for(auto pair: OSSFpairs)
+            {
+              double mll_temp = (pair.at(0)->mom() + pair.at(1)->mom()).m();
+              if(abs(mll_temp - mZ) < abs(mll - mZ))
+              {
+                mll = mll_temp;
+                closest_pair = pair;
+              }
+            }  
 
             // MT variable
-            // TODO: Missing
             double mT = 0.;
+            for(auto lepton : signalLeptons)
+              if(lepton != closest_pair.at(0) and lepton != closest_pair.at(1))
+                mT = sqrt( 2*mmom.pT()*lepton->pT()*(1 - cos(lepton->phi() - mmom.phi())) );
 
             //MT3l variable
-            // TODO: Missing
-            double mT3l = 0.;
+            P4 p3l = signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() + signalLeptons.at(2)->mom();
+            double mT3l = sqrt( 2*mmom.pT() * p3l.pT() * (1 - cos(p3l.phi() - mmom.phi())) );
 
             // HT variable
-            // TODO: Missing
-            double HT = 0.;
+            double HT = scalarSumPt(signalJets);
 
             // Signal regions
             if(mll < 50. and mT >= 0.   and mT < 100. and mT3l >=  0. and mT3l <  50.) _counters.at("A01").add_event(event);
@@ -354,7 +364,6 @@ namespace Gambit
           // 3Lep, OSSF pair + tau (3lC)
           if(nLeptons == 3 and nTaus == 1 and nOSSFpairs > 0)
           {
-            double mZ = 91.1876;
 
             // mT2 variable
             // TODO: Missing
@@ -567,22 +576,22 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SS02"), 400., {360., 80.}));
           add_result(SignalRegionData(_counters.at("SS03"), 26., {23., 5.}));
           add_result(SignalRegionData(_counters.at("SS04"), 19., {12., 5.}));
-          add_result(SignalRegionData(_counters.at("SS05"), 9.5., {6., 2.}));
-          add_result(SignalRegionData(_counters.at("SS06"), 1.9, {2., 1.75.}));
+          add_result(SignalRegionData(_counters.at("SS05"), 9.5, {6., 2.}));
+          add_result(SignalRegionData(_counters.at("SS06"), 1.9, {2., 1.75}));
           add_result(SignalRegionData(_counters.at("SS07"), 700., {650., 80.}));
           add_result(SignalRegionData(_counters.at("SS08"), 600., {550., 80.}));
-          add_result(SignalRegionData(_counters.at("SS09"), 1.9., {1.7., 0.8}));
+          add_result(SignalRegionData(_counters.at("SS09"), 1.9, {1.7, 0.8}));
           add_result(SignalRegionData(_counters.at("SS10"), 4100., {4300., 400.}));
           add_result(SignalRegionData(_counters.at("SS11"), 97., {100., 11.}));
           add_result(SignalRegionData(_counters.at("SS12"), 93., {80., 10.}));
-          add_result(SignalRegionData(_counters.at("SS13"), 63., {50., 7.5.}));
-          add_result(SignalRegionData(_counters.at("SS14"), 2.8., {2.3., 1.3}));
+          add_result(SignalRegionData(_counters.at("SS13"), 63., {50., 7.5}));
+          add_result(SignalRegionData(_counters.at("SS14"), 2.8, {2.3, 1.3}));
           add_result(SignalRegionData(_counters.at("SS15"), 2.9, {0.7, 0.56}));
           add_result(SignalRegionData(_counters.at("SS16"), 10., {13., 3.5}));
-          add_result(SignalRegionData(_counters.at("SS17"), 9.5., {3.9., 2.3}));
-          add_result(SignalRegionData(_counters.at("SS18"), 5.8, {4., 1.6.}));
-          add_result(SignalRegionData(_counters.at("SS19"), 5.8, {3.7., 1.2}));
-          add_result(SignalRegionData(_counters.at("SS20"), 5.8., {3.9., 1.6}));
+          add_result(SignalRegionData(_counters.at("SS17"), 9.5, {3.9, 2.3}));
+          add_result(SignalRegionData(_counters.at("SS18"), 5.8, {4., 1.6}));
+          add_result(SignalRegionData(_counters.at("SS19"), 5.8, {3.7, 1.2}));
+          add_result(SignalRegionData(_counters.at("SS20"), 5.8, {3.9, 1.6}));
 
           // 3Lep, OSSF pair (3lA)
           add_result(SignalRegionData(_counters.at("A01"), 242., {250., 25.}));
@@ -604,9 +613,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("A17"), 29., {33., 5.5}));
           add_result(SignalRegionData(_counters.at("A18"), 1., {4.8, 1.2}));
           add_result(SignalRegionData(_counters.at("A19"), 60., {53., 9.}));
-          add_result(SignalRegionData(_counters.at("A20"), 2.9, {2.9., 0.9}));
+          add_result(SignalRegionData(_counters.at("A20"), 2.9, {2.9, 0.9}));
           add_result(SignalRegionData(_counters.at("A21"), 27., {18., 4.}));
-          add_result(SignalRegionData(_counters.at("A22"), 9., {6.5., 1.5}));
+          add_result(SignalRegionData(_counters.at("A22"), 9., {6.5, 1.5}));
           add_result(SignalRegionData(_counters.at("A23"), 7300., {7000., 1200.}));
           add_result(SignalRegionData(_counters.at("A24"), 1000., {1000., 200.}));
           add_result(SignalRegionData(_counters.at("A25"), 200., {200., 40.}));
@@ -614,12 +623,12 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("A27"), 35., {43., 9.}));
           add_result(SignalRegionData(_counters.at("A28"), 1250., {1210., 200.}));
           add_result(SignalRegionData(_counters.at("A29"), 270., {230., 50.}));
-          add_result(SignalRegionData(_counters.at("A30"), 25., {20.5., 4.5.}));
+          add_result(SignalRegionData(_counters.at("A30"), 25., {20.5, 4.5}));
           add_result(SignalRegionData(_counters.at("A31"), 6., {5.4, 1.7}));
           add_result(SignalRegionData(_counters.at("A32"), 112., {77., 16.}));
           add_result(SignalRegionData(_counters.at("A33"), 49., {56, 12.}));
-          add_result(SignalRegionData(_counters.at("A34"), 18., {15.5., 3.5}));
-          add_result(SignalRegionData(_counters.at("A35"), 15., {12., 2.5.}));
+          add_result(SignalRegionData(_counters.at("A34"), 18., {15.5, 3.5}));
+          add_result(SignalRegionData(_counters.at("A35"), 15., {12., 2.5}));
           add_result(SignalRegionData(_counters.at("A36"), 1150., {1150., 200.}));
           add_result(SignalRegionData(_counters.at("A37"), 350., {350., 60.}));
           add_result(SignalRegionData(_counters.at("A38"), 100., {98., 17.}));
@@ -635,13 +644,13 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("A48"), 10., {3.4, 0.9}));
           add_result(SignalRegionData(_counters.at("A49"), 1250., {1130., 170.}));
           add_result(SignalRegionData(_counters.at("A50"), 300., {290., 50.}));
-          add_result(SignalRegionData(_counters.at("A51"), 76., {82.5., 17.5}));
+          add_result(SignalRegionData(_counters.at("A51"), 76., {82.5, 17.5}));
           add_result(SignalRegionData(_counters.at("A52"), 36., {43., 9.}));
           add_result(SignalRegionData(_counters.at("A53"), 199., {155., 30.}));
           add_result(SignalRegionData(_counters.at("A54"), 63., {55., 11.}));
           add_result(SignalRegionData(_counters.at("A55"), 26., {18., 3.}));
           add_result(SignalRegionData(_counters.at("A56"), 12., {8., 2.2}));
-          add_result(SignalRegionData(_counters.at("A57"), 1., {2.5., 1.}));
+          add_result(SignalRegionData(_counters.at("A57"), 1., {2.5, 1.}));
           add_result(SignalRegionData(_counters.at("A58"), 3., {4.2, 1.4}));
           add_result(SignalRegionData(_counters.at("A59"), 52., {38., 7.}));
           add_result(SignalRegionData(_counters.at("A60"), 20, {16.5, 4.}));
@@ -682,7 +691,7 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("D13"), 20., {24., 9.}));
           add_result(SignalRegionData(_counters.at("D14"), 7., {13., 4.}));
           add_result(SignalRegionData(_counters.at("D15"), 20., {17., 6.}));
-          add_result(SignalRegionData(_counters.at("D16"), 1., {1.13, 0.47.}));
+          add_result(SignalRegionData(_counters.at("D16"), 1., {1.13, 0.47}));
 
           // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
           add_result(SignalRegionData(_counters.at("E01"), 60., {70., 17.}));
@@ -691,9 +700,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("E04"), 362., {345., 75.}));
           add_result(SignalRegionData(_counters.at("E05"), 108., {95., 18.}));
           add_result(SignalRegionData(_counters.at("E06"), 25., {19., 4.}));
-          add_result(SignalRegionData(_counters.at("E07"), 5., {6., 1.6.}));
+          add_result(SignalRegionData(_counters.at("E07"), 5., {6., 1.6}));
           add_result(SignalRegionData(_counters.at("E08"), 15., {14., 4.}));
-          add_result(SignalRegionData(_counters.at("E09"), 1., {1., 0.5.}));
+          add_result(SignalRegionData(_counters.at("E09"), 1., {1., 0.5}));
 
           // 3Lep, 2 tau (3lF)
           add_result(SignalRegionData(_counters.at("F01"), 1060., {1170., 400.}));
@@ -724,7 +733,7 @@ namespace Gambit
           // 4Lep, tau + 3 light leptons (4lI)
           add_result(SignalRegionData(_counters.at("I01"), 92., {96., 17.}));
           add_result(SignalRegionData(_counters.at("I02"), 14., {10., 3.}));
-          add_result(SignalRegionData(_counters.at("I03"), 7., {9.4., 1.6}));
+          add_result(SignalRegionData(_counters.at("I03"), 7., {9.4, 1.6}));
 
           // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
           add_result(SignalRegionData(_counters.at("J01"), 34., {35.5, 8.5}));
