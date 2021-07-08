@@ -2,7 +2,6 @@
 ///  \author Are Raklev
 ///  \date 2021 July
 ///
-/// TODO: Fix Higgsino decays in test point?
 ///
 ///  Based on the search presented in ATLAS-CONF-2021-022.
 ///
@@ -34,7 +33,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 //#include "gambit/ColliderBit/lester_mt2_bisect.h"
 
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 using namespace std;
 
@@ -362,27 +361,28 @@ namespace Gambit {
 
  ****
  HG (ZZ final states)
-
+ 
  Cut-flow output
  SR    GAMBIT  ATLAS
- SR-4Q-WW  0.039  0.812
- SR-4Q-WZ  0.325  1.57
- SR-4Q-ZZ  0.943  1.26
- SR-4Q-VV  1.31  1.84
+ SR-4Q-WW  0  0.812
+ SR-4Q-WZ  0.143  1.57
+ SR-4Q-ZZ  0.976  1.26
+ SR-4Q-VV  1.12  1.84
 
  Meff SR-4Q-VV  GAMBIT  ATLAS
  [700, 850]  0.013  0
- [850, 1e+03]  0.124  0.146
- [1e+03, 1.15e+03]  0.234  0.562
- [1.15e+03, 1.3e+03]  0.377  0.436
- [1.3e+03, 1.45e+03]  0.358  0.436
+ [850, 1e+03]  0.0585  0.146
+ [1e+03, 1.15e+03]  0.215  0.562
+ [1.15e+03, 1.3e+03]  0.254  0.436
+ [1.3e+03, 1.45e+03]  0.319  0.436
  [1.45e+03, 1.6e+03]  0.293  0.663
- [1.6e+03, 1.75e+03]  0.202  0.404
- [1.75e+03, 1.9e+03]  0.215  0.165
- [1.9e+03, 2.05e+03]  0.111  0
- [2.05e+03, 2.2e+03]  0.0325  0
- [2.2e+03, 2.35e+03]  0.0325  0
- [2.35e+03, 2.5e+03]  0.026  0
+ [1.6e+03, 1.75e+03]  0.182  0.404
+ [1.75e+03, 1.9e+03]  0.137  0.165
+ [1.9e+03, 2.05e+03]  0.0585  0
+ [2.05e+03, 2.2e+03]  0.052  0
+ [2.2e+03, 2.35e+03]  0.026  0
+ [2.35e+03, 2.5e+03]  0  0
+
 
 
  ****
@@ -415,9 +415,10 @@ namespace Gambit {
 
  Cut-flow output
  SR    GAMBIT  ATLAS
- SR-4Q-WW  1.1  0.381
+ SR-4Q-WW  0.294  0.381
  SR-4Q-WZ  0.252  0.696
  SR-4Q-ZZ  0  0.448
- SR-4Q-VV  1.35  0.746
+ SR-4Q-VV  0.546  0.746
+
 
  */

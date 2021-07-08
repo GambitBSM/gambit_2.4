@@ -23,7 +23,7 @@ namespace HEPUtils {
     /// Momentum vector
     P4 _p4;
     /// Tags
-    bool _isB, _isC, _isW, _isZ;
+    bool _isB, _isC, _isW, _isZ, _ish;
     //@}
 
 
@@ -37,8 +37,8 @@ namespace HEPUtils {
 //      : _p4(mom), _isB(isB), _isC(isC) {  }
 
     /// Constructor for jet with tags
-    Jet(const P4& mom, bool isB=false, bool isC=false, bool isW=false, bool isZ=false)
-      : _p4(mom), _isB(isB), _isC(isC), _isW(isW), _isZ(isZ) {  }
+    Jet(const P4& mom, bool isB=false, bool isC=false, bool isW=false, bool isZ=false, bool ish=false)
+      : _p4(mom), _isB(isB), _isC(isC), _isW(isW), _isZ(isZ), _ish(ish) {  }
 
     /// "Cartesian" constructor
     Jet(double px, double py, double pz, double E, bool isB=false, bool isC=false)
@@ -118,7 +118,10 @@ namespace HEPUtils {
     
     /// Is this particle tagged as a Z?
     bool Ztag()  const { return _isZ; }
-    
+
+    /// Is this particle tagged as a SM Higgs?
+    bool htag()  const { return _ish; }
+
     /// @todo Generalize for charm tags, tau tags, multiple tags of a single type?
 
     //@}
