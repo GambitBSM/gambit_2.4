@@ -478,7 +478,7 @@ namespace Gambit
     //@{
 
     /// Faster way to compute stransverse mass
-    double get_mT2(const Particle *part1, const Particle *part2, P4 pTmiss, double mass)
+    inline double get_mT2(const Particle *part1, const Particle *part2, P4 pTmiss, double mass)
     {
 
       double p1[3] = {part1->mass(), part1->mom().px(), part1->mom().py()};

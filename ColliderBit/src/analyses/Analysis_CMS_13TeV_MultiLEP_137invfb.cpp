@@ -247,6 +247,11 @@ namespace Gambit
             if(mT2 > 80. and pTll >= 200. and met >= 200. and negative) _counters.at("SS20").add_event(event);
           }
 
+          // Selection conditon for 3 lepton events
+          //bool 3lep = nLeptons == 3 and 
+          //            nLightLeptons > 0 and 
+          //            (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25 and
+
           // 3Lep, OSSF pair (3lA)
           if(nLightLeptons == 3 and nLeptons == 3 and nOSSFpairs > 0)
           {
@@ -353,8 +358,11 @@ namespace Gambit
           if(nLeptons == 3 and nLightLeptons == 3 and nOSSFpairs == 0)
           {
             // Min DeltaR variable
-            // TODO: Missing
             double minDeltaR = 0.;
+            for(auto lep1 : signalLeptons)
+              for(auto lep2 : signalLeptons)
+                if(lep1 != lep2 and (minDeltaR > deltaR_eta(lep1->mom(),lep2->mom()) or minDeltaR == 0.) )
+                  minDeltaR = deltaR_eta(lep1->mom(),lep2->mom());
 
             if(minDeltaR <  0.4) _counters.at("B01").add_event(event);
             if(minDeltaR >= 0.4 and minDeltaR < 1.0) _counters.at("B02").add_event(event);
@@ -370,8 +378,7 @@ namespace Gambit
             double mT2 = 0.;
 
             // mll variable
-            // TODO: Missing
-            double mll = 0.;
+            double mll = (signalLightLeptons.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
 
             // mT2l variable
             // TODO: Missing
