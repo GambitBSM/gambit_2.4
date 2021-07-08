@@ -147,17 +147,23 @@ namespace Gambit
           std::vector<const HEPUtils::Particle*> signalElectrons=baselineElectrons;
           std::vector<const HEPUtils::Particle*> signalMuons=baselineMuons;
           std::vector<const HEPUtils::Particle*> signalTaus=baselineTaus;
+          sortByPt(signalTaus);
 
           std::vector<const HEPUtils::Particle*> signalLightLeptons=signalElectrons;
           signalLightLeptons.insert(signalLightLeptons.end(), signalMuons.begin(), signalMuons.end());
           sortByPt(signalLightLeptons);
 
+          std::vector<std::vector<const HEPUtils::Particle*> > SSpairs = getSSpairs(signalLightLeptons);
+          std::vector<std::vector<const HEPUtils::Particle*> > OSSFpairs = getSFOSpairs(signalLightLeptons);
+          sortByParentMass(OSSFpairs, mZ);
+
+
           std::vector<const HEPUtils::Particle*> signalLeptons=signalTaus;
           signalLeptons.insert(signalLeptons.end(), signalLightLeptons.begin(), signalLightLeptons.end());
           sortByPt(signalLeptons);
 
-          std::vector<std::vector<const HEPUtils::Particle*> > SSpairs = getSSpairs(signalLightLeptons);
-          std::vector<std::vector<const HEPUtils::Particle*> > OSSFpairs = getSFOSpairs(signalLightLeptons);
+          std::vector<std::vector<const HEPUtils::Particle*> > OSpairs = getOSpairs(signalLeptons);
+          sortByParentMass(OSpairs, mZ);         
 
           std::vector<const HEPUtils::Jet*> signalJets = baselineJets;
           sortByPt(signalJets);
@@ -248,35 +254,29 @@ namespace Gambit
           }
 
           // Selection conditon for 3 lepton events
-          //bool 3lep = nLeptons == 3 and 
-          //            nLightLeptons > 0 and 
-          //            (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25 and
+          bool _3Lep = nLeptons == 3 and 
+                      nLightLeptons > 0 and 
+                      ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or 
+                        (amIaMuon(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 20.) ) and
+                      ( nLightLeptons < 2 or 
+                        (amIanElectron(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 15.) or 
+                        (amIaMuon(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 10.) ) and
+                      met > 50;
 
           // 3Lep, OSSF pair (3lA)
-          if(nLightLeptons == 3 and nLeptons == 3 and nOSSFpairs > 0)
+          if(_3Lep and nLightLeptons == 3 and nOSSFpairs > 0)
           {
-            // Mll variable
-            double mll = 0.;
-            std::vector<const Particle *> closest_pair;
-            for(auto pair: OSSFpairs)
-            {
-              double mll_temp = (pair.at(0)->mom() + pair.at(1)->mom()).m();
-              if(abs(mll_temp - mZ) < abs(mll - mZ))
-              {
-                mll = mll_temp;
-                closest_pair = pair;
-              }
-            }  
+            // Mll variable, OSSF pairs are already ordered by how close they are to mZ
+            double mll = (OSSFpairs.at(0).at(0)->mom() + OSSFpairs.at(0).at(1)->mom()).m();
 
             // MT variable
             double mT = 0.;
             for(auto lepton : signalLeptons)
-              if(lepton != closest_pair.at(0) and lepton != closest_pair.at(1))
+              if(lepton != OSSFpairs.at(0).at(0) and lepton != OSSFpairs.at(0).at(1))
                 mT = sqrt( 2*mmom.pT()*lepton->pT()*(1 - cos(lepton->phi() - mmom.phi())) );
 
             //MT3l variable
-            P4 p3l = signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() + signalLeptons.at(2)->mom();
-            double mT3l = sqrt( 2*mmom.pT() * p3l.pT() * (1 - cos(p3l.phi() - mmom.phi())) );
+            double mT3l = get_mT(signalLeptons.at(0), signalLeptons.at(1), signalLeptons.at(2), mmom);
 
             // HT variable
             double HT = scalarSumPt(signalJets);
@@ -355,7 +355,7 @@ namespace Gambit
           }
 
           // 3Lep, no OSSF pair (3lB)
-          if(nLeptons == 3 and nLightLeptons == 3 and nOSSFpairs == 0)
+          if(_3Lep and nLightLeptons == 3 and nOSSFpairs == 0)
           {
             // Min DeltaR variable
             double minDeltaR = 0.;
@@ -370,19 +370,19 @@ namespace Gambit
           }
 
           // 3Lep, OSSF pair + tau (3lC)
-          if(nLeptons == 3 and nTaus == 1 and nOSSFpairs > 0)
+          if(_3Lep and nTaus == 1 and nOSSFpairs > 0)
           {
 
             // mT2 variable
-            // TODO: Missing
-            double mT2 = 0.;
+            // TODO: Is this the ll MT2?
+            // TODO: Use Lester's
+            double mT2 = get_mT2(signalLightLeptons.at(0), signalLightLeptons.at(1), mmom, 0);
 
             // mll variable
             double mll = (signalLightLeptons.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
 
             // mT2l variable
-            // TODO: Missing
-            double mT2l = 0.;
+            double mT2l = get_mT(signalLightLeptons.at(0), signalLightLeptons.at(1), mmom);
 
             if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 <   80.) _counters.at("C01").add_event(event);
             if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 >=  80. and mT2 < 120.) _counters.at("C02").add_event(event);
@@ -396,15 +396,14 @@ namespace Gambit
           }
 
           // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
-          if(nLeptons == 3 and nTaus == 1 and nOSSFpairs == 0 and signalLightLeptons.at(0)->pid()*signalLightLeptons.at(1)->pid() < 0)
+          if(_3Lep and nTaus == 1 and nOSSFpairs == 0 and oppositeSign(signalLightLeptons.at(0), signalLightLeptons.at(1)))
           {
-            // mll variable
-            // TODO: Missing
-            double mll = 0.;
+            // mll variable, OSpairs are alread ordered by how close they are to mZ
+            double mll = (OSpairs.at(0).at(0)->mom() + OSpairs.at(0).at(1)->mom()).m();
 
             // mT2 variable
-            // TODO: Missing
-            double mT2 = 0.;
+            // TODO: Lester's?
+            double mT2 = get_mT2(signalLightLeptons.at(0), signalLightLeptons.at(1), mmom, 0.);
 
             if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >=  50. and met < 100.) _counters.at("D01").add_event(event);
             if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 100. and met < 150.) _counters.at("D02").add_event(event);
@@ -429,17 +428,19 @@ namespace Gambit
           }
 
           // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
-          if(nLeptons == 3 and nTaus == 1 and nOSSFpairs == 0 and signalLightLeptons.at(0)->pid()*signalLightLeptons.at(1)->pid() > 0)
+          if(_3Lep and nTaus == 1 and nOSSFpairs == 0 and sameSign(signalLightLeptons.at(0), signalLightLeptons.at(1)))
           {
             // mlth variable
-            // TODO: Missing
-            double mlth = 0.;
+            double mlth1 = (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m();
+            double mlth2 = (signalTaus.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
+            double mlth = abs(mlth1 - mZ) < abs(mlth2 -mZ) ? mlth1 : mlth2;
+
+            // Set mlth to zero is the tau has the same sign as the pair of light leptons
+            if(sameSign(signalTaus.at(0), signalLightLeptons.at(0))) mlth = 0.;
 
             // mT2 varaible
-            // TODO: Missing
-            double mT2 = 0.;
-
-            // TODO: Do I need to remove events that have all the same sign for tau?
+            // TODO:  Lester's
+            double mT2 = get_mT2(signalLightLeptons.at(0), signalTaus.at(0), mmom, 0.);
 
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >=  50. and met < 100.) _counters.at("E01").add_event(event);
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 100. and met < 250.) _counters.at("E02").add_event(event);
@@ -454,15 +455,14 @@ namespace Gambit
           }
 
           // 3Lep, 2 tau (3lF)
-          if(nLeptons == 3 and nTaus == 2)
+          if(_3Lep and nTaus == 2)
           {
             // mlth variable
-            // TODO: Missing
-            double mlth = 0.;
+            double mlth = (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m();
 
             // mT2 variable
-            // TODO: Missing
-            double mT2 = 0.;
+            // TODO: Lester's
+            double mT2 = get_mT2(signalTaus.at(0), signalLightLeptons.at(0), mmom, 0);
 
             if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >=  50. and met < 100.) _counters.at("F01").add_event(event);
             if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 100. and met < 150.) _counters.at("F02").add_event(event);
@@ -483,13 +483,12 @@ namespace Gambit
           // 4Lep, 2 OSSF pairs (4lG)
           if(nLeptons == 4 and nLightLeptons == 4 and nOSSFpairs > 1)
           {
-            // mT2 variable
-            // TODO: Missing
-            double mT2 = 0.;
+            // mT2 variable, using Z1 and Z2
+            // TODO: Lester's
+            double mT2 = get_mT2(OSSFpairs.at(0).at(0)->mom() + OSSFpairs.at(0).at(1)->mom(), OSSFpairs.at(1).at(0)->mom() + OSSFpairs.at(1).at(1)->mom(), mmom, 0.);
 
             // Z2 invariant mass
-            // TODO: Missing
-            double mZ2 = 0.;
+            double mZ2 = (OSSFpairs.at(1).at(0)->mom() + OSSFpairs.at(1).at(1)->mom()).m();
 
             if(mT2 >=   0. and mT2 < 150.) _counters.at("G01").add_event(event);
             if(mT2 >= 150. and mT2 < 250. and mZ2 >= 60.) _counters.at("G02").add_event(event);
@@ -498,70 +497,66 @@ namespace Gambit
             if(mT2 >= 400) _counters.at("G05").add_event(event);
           }
 
-          // 4Lep, 1 or fewer OSSF pairs (4lH)
-          if(nLeptons == 4 and nLightLeptons == 4 and nOSSFpairs < 2)
+          // These variables are common to all remaining SRs
+          if(nLeptons == 4)
           {
             // Z1 invariant mass
-            // TODO: Missing
             double mZ1 = 0.;
+            if(nOSSFpairs > 0)
+              mZ1 = (OSSFpairs.at(0).at(0)->mom() + OSSFpairs.at(0).at(1)->mom()).m();
+            else
+              mZ1 = (OSpairs.at(0).at(0)->mom() + OSpairs.at(0).at(1)->mom()).m();
 
             // deltaRH variable
-            // TODO: Missing
             double deltaRH = 0.;
+            for(auto lep1: signalLeptons)
+            {
+              if( (nOSSFpairs >  0 and lep1 != OSSFpairs.at(0).at(0) and lep1 != OSSFpairs.at(0).at(1)) or 
+                  (nOSSFpairs == 0 and lep1 != OSpairs.at(0).at(0)   and lep1 != OSpairs.at(0).at(1)) )
+              {
+                for(auto lep2: signalLeptons)
+                {
+                  if( (nOSSFpairs >  0 and lep2 != OSSFpairs.at(0).at(0) and lep2 != OSSFpairs.at(0).at(1)) or 
+                      (nOSSFpairs == 0 and lep2 != OSpairs.at(0).at(0)   and lep2 != OSpairs.at(0).at(1)) )
+                  {
+                    deltaRH = deltaR_eta(lep1->mom(),lep2->mom());
+                  }
+                }
+              }
+            }
 
-            if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("H01").add_event(event);
-            if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("H02").add_event(event);
-            if(deltaRH < 0.8) _counters.at("H03").add_event(event);
+            // 4Lep, 1 or fewer OSSF pairs (4lH)
+            if(nLightLeptons == 4 and nOSSFpairs < 2)
+            {
+              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("H01").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("H02").add_event(event);
+              if(deltaRH < 0.8) _counters.at("H03").add_event(event);
+            }
+
+            // 4Lep, tau + 3 light leptons (4lI)
+            if(nLightLeptons == 3 and nTaus == 1)
+            {
+              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("I01").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("I02").add_event(event);
+              if(deltaRH < 0.8) _counters.at("I03").add_event(event);
+            }
+
+            // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
+            if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairs == 2)
+            {
+              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("J01").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("J02").add_event(event);
+              if(deltaRH < 0.8) _counters.at("J03").add_event(event);
+            }
+
+            // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
+            if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairs < 2)
+            {
+              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("K01").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("K02").add_event(event);
+              if(deltaRH < 0.8) _counters.at("K03").add_event(event);
+            }
           }
-
-          // 4Lep, tau + 3 light leptons (4lI)
-          if(nLeptons == 4 and nLightLeptons == 3 and nTaus == 1)
-          {
-            // Z1 invariant mass
-            // TODO: Missing
-            double mZ1 = 0.;
-
-            // deltaRH variable
-            // TODO: Missing
-            double deltaRH = 0.;
-
-            if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("I01").add_event(event);
-            if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("I02").add_event(event);
-            if(deltaRH < 0.8) _counters.at("I03").add_event(event);
-          }
-
-          // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
-          if(nLeptons == 4 and nLightLeptons == 2 and nTaus == 2 and nOSSFpairs == 2)
-          {
-            // Z1 invariant mass
-            // TODO: Missing
-            double mZ1 = 0.;
-
-            // deltaRH variable
-            // TODO: Missing
-            double deltaRH = 0.;
-
-            if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("J01").add_event(event);
-            if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("J02").add_event(event);
-            if(deltaRH < 0.8) _counters.at("J03").add_event(event);
-          }
-
-          // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
-          if(nLeptons == 4 and nLightLeptons == 2 and nTaus == 2 and nOSSFpairs < 2)
-          {
-            // Z1 invariant mass
-            // TODO: Missing
-            double mZ1 = 0.;
-
-            // deltaRH variable
-            // TODO: Missing
-            double deltaRH = 0.;
-
-            if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("K01").add_event(event);
-            if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("K02").add_event(event);
-            if(deltaRH < 0.8) _counters.at("K03").add_event(event);
-          }
-    
 
         }
 

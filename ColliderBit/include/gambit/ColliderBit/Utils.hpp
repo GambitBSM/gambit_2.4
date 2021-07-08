@@ -416,6 +416,17 @@ namespace Gambit
 
     // Sort a jets list by decreasing pT
     inline void sortByPt(JetPtrs& jets) { sortBy(jets, cmpJetsByPt); }
+
+    // Sort a list of pairs by how close their invariant mass is to their parent mass
+    inline void sortByParentMass(std::vector<std::vector<const Particle *> > pairs, double mP)
+    {
+      auto compfn = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
+      {
+        return abs((pair1.at(0)->mom() + pair1.at(1)->mom()).m() - mP) < abs((pair2.at(0)->mom() + pair2.at(1)->mom()).m() - mP);
+      };
+      std::sort(pairs.begin(), pairs.end(), compfn);
+    }
+
     //@}
 
 
@@ -492,6 +503,66 @@ namespace Gambit
 
       return  mt2_calc.get_mt2();
 
+    }
+
+    /// Faster way to compute stransverse mass, from the momenta
+    inline double get_mT2(P4 mom1, P4 mom2, P4 pTmiss, double mass)
+    {
+
+      double p1[3] = {mom1.m(), mom1.px(), mom1.py()};
+      double p2[3] = {mom2.m(), mom2.px(), mom2.py()};
+      double pMiss[3] = {0., pTmiss.px(), pTmiss.py() };
+      double mn = mass;
+
+      mt2_bisect::mt2 mt2_calc;
+      mt2_calc.set_momenta(p1,p2,pMiss);
+      mt2_calc.set_mn(mn);
+
+      return  mt2_calc.get_mt2();
+
+    }
+
+    // Transverse mass of a single particle system
+    inline double get_mT(const Particle *part, P4 pTmiss)
+    {
+      return sqrt( 2 * pTmiss.pT() * part->pT()*(1 - cos(part->phi() - pTmiss.phi())) );
+    }
+
+    // Transverse mass of a single particle system, given the 4-momentum
+    inline double get_mT(P4 mom, P4 pTmiss)
+    {
+      return sqrt( 2 * pTmiss.pT() * mom.pT()*(1 - cos(mom.phi() - pTmiss.phi())) );
+    }
+
+    // Transverse mass of a two-particle system
+    inline double get_mT(const Particle *part1, const Particle *part2, P4 pTmiss)
+    {
+      P4 p2mom = part1->mom() + part2->mom();
+      return get_mT(p2mom, pTmiss);
+    }
+
+    // Transverse mass of a three-particle system
+    inline double get_mT(const Particle *part1, const Particle *part2, const Particle *part3, P4 pTmiss)
+    {
+      P4 p3mom = part1->mom() + part2->mom() + part3->mom();
+      return get_mT(p3mom, pTmiss);
+    }
+
+    //@}
+
+    /// @name Particle sign helper functions
+    //@{
+    
+    /// Have two particles the same sign?
+    inline bool sameSign(const Particle *P1, const Particle *P2)
+    {
+      return P1->pid() * P2->pid() > 0;
+    }
+
+    /// Have two particles the opposite sign?
+    inline bool oppositeSign(const Particle *P1, const Particle *P2)
+    {
+      return P1->pid() * P2->pid() < 0;
     }
 
     //@}
