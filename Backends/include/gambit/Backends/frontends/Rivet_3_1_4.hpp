@@ -38,8 +38,6 @@ BE_FUNCTION(addAnalysisLibPath, void, (const ::std::basic_string<char, std::char
 
 // Convenience functions (registration)
 
-// Initialisation function (definition)
-BE_INI_FUNCTION{} END_BE_INI_FUNCTION
 
 // Convenience functions (definitions)
 
