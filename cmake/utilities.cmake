@@ -459,11 +459,6 @@ function(add_standalone executablename)
       add_dependencies(${executablename} ${dep})
     endforeach()
 
-    # Add each of the declared dependencies
-    foreach(dep ${ARG_DEPENDENCIES})
-      add_dependencies(${executablename} ${dep})
-    endforeach()
-
     # Add the new executable to the standalones target
     add_dependencies(standalones ${executablename})
 

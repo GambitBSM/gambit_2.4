@@ -220,6 +220,8 @@ if(NOT EXCLUDE_HEPMC)
     )
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${dir} clean)
+  # HepMC must be build before any bits as it is included early because it's in Pythia's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 #contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
@@ -276,6 +278,8 @@ if(NOT EXCLUDE_YODA)
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
+  # YODA must be build before any bits as it is included early because it's in Rivet's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 #contrib/fjcore-3.2.0

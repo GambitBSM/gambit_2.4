@@ -1,5 +1,5 @@
 cd ../../../downloaded
-tar -xvf *Rivet*
+tar -xvf *rivet*
 echo "diff -rupN Rivet-3.1.4/Makefile.in ../installed/rivet/3.1.4/Makefile.in" >> patch_rivet_3.1.4.dif
 diff -rupN Rivet-3.1.4/Makefile.in ../installed/rivet/3.1.4/Makefile.in >> patch_rivet_3.1.4.dif
 echo "diff -rupN Rivet-3.1.4/include/Rivet/Makefile.in ../installed/rivet/3.1.4/include/Rivet/Makefile.in" >> patch_rivet_3.1.4.dif
