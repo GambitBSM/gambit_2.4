@@ -96,7 +96,7 @@ known_classes = {
 
 convenience_functions = []
 
-ini_function_in_header = True
+ini_function_in_header = False
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 
