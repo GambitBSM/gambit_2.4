@@ -30,8 +30,6 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    extern std::map<std::string,bool> event_weight_flags;
-
     // ======= Utility functions =======
 
 
@@ -205,6 +203,7 @@ namespace Gambit
     #endif
 
     #ifdef HAVE_PYBIND11
+      /// WORK IN PROGRESS
       /// Get a cross-section from the xsecBE backend
       void getPIDPairCrossSectionsMap_xsecBE(map_PID_pair_PID_pair_xsec& result)
       {
@@ -218,8 +217,8 @@ namespace Gambit
         if(*Loop::iteration == XSEC_CALCULATION)
         {
           // Create dicts to pass parameters and flags to the backend
-          pybind11::dict xsecBE_pars;
-          // pybind11::dict xsecBE_flags;
+          PyDict xsecBE_pars;
+          // PyDict xsecBE_flags;
 
           // // First set the flags
           // xsecBE_flags["alphas_err"] = true;
@@ -253,7 +252,7 @@ namespace Gambit
             iipair proc = pid_pair.PIDs();
 
             // Get dictionary with cross-section results from backend
-            pybind11::dict xs_fb_dict = BEreq::xsecBE_get_xsection(proc);
+            PyDict xs_fb_dict = BEreq::xsecBE_get_xsection(proc);
 
             // The xsec_container classes don't have asymmetric errors yet,
             // so let's take the max error for now
@@ -276,6 +275,7 @@ namespace Gambit
     #endif
 
     #ifdef HAVE_PYBIND11
+      /// WORK IN PROGRESS
       /// Get a cross-section from the salami backend (using Prospino for LO)
       void getPIDPairCrossSectionsMap_salami(map_PID_pair_PID_pair_xsec& result)
       {
@@ -380,7 +380,6 @@ namespace Gambit
             double LOxs_err_fb = LOxs_fb * LOxs_rel_err;
             pp_LOxs.set_xsec(LOxs_fb, LOxs_err_fb);
 
-            cerr << "DEBUG: got trust_level: " << prospino_trust_level << endl;
             pp_LOxs.set_trust_level(prospino_trust_level);
 
             // Put the LO cross-section in the map
@@ -389,7 +388,7 @@ namespace Gambit
 
 
           // Pass a dictionary with parameters/settings (if any) to the backend
-          pybind11::dict salami_pars;
+          PyDict salami_pars;
           // (fill salami_pars here...)
           BEreq::salami_set_parameters(salami_pars);
 
@@ -415,7 +414,7 @@ namespace Gambit
             int LOxs_trust_level = pp_LOxs_map.at(pid_pair).trust_level();
 
             // Get dictionary with cross-section results from backend
-            pybind11::dict xs_fb_dict = BEreq::salami_get_xsection(proc, energy, LOxs_fb);
+            PyDict xs_fb_dict = BEreq::salami_get_xsection(proc, energy, LOxs_fb);
 
             // The xsec_container classes don't have asymmetric errors yet,
             // so let's take the max error for now
@@ -449,6 +448,7 @@ namespace Gambit
 
 
     /// Get a cross-section from Prospino
+    /// WORK IN PROGRESS
     void getPIDPairCrossSectionsMap_prospino(map_PID_pair_PID_pair_xsec& result)
     {
       using namespace Pipes::getPIDPairCrossSectionsMap_prospino;
@@ -466,9 +466,6 @@ namespace Gambit
       {
         // Get a copy of the SLHA1 spectrum that we can modify
         SLHAstruct slha(*Dep::SLHA1Spectrum);
-
-        // // Get the GAMBIT model parameters
-        // const param_map_type& model_params = Param;
 
         // Contstruct EXTPAR block from the GAMBIT model parameters
         SLHAea_add_block(slha, "EXTPAR");
@@ -1101,7 +1098,6 @@ namespace Gambit
 
             // Make sure the trust_level of the process_xsec_container proc_xs is set to 
             // the lowest trust_level of the contributing PID_pair_xsec_containers
-            cerr << "DEBUG: pids_xs.trust_level() = " << pids_xs.trust_level() << ",  pids_xs.pid_pair().str() = " << pids_xs.pid_pair().str() << endl;
             if (pids_xs.trust_level() < proc_xs.trust_level()) { proc_xs.set_trust_level(pids_xs.trust_level()); }
 
             // Accumulate result in the process_xsec_container proc_xs
@@ -1171,13 +1167,6 @@ namespace Gambit
     void getEvGenCrossSection(MC_xsec_container& result)
     {
       using namespace Pipes::getEvGenCrossSection;
-
-      static bool first = true;
-      if (first)
-      {
-        event_weight_flags["total_cross_section_from_MC"] = true;
-        first = false;
-      }
 
       // Don't bother if there are no analyses that will use this.
       if (Dep::RunMC->analyses.empty()) return;
@@ -1554,7 +1543,7 @@ namespace Gambit
 
 
     /// A function that assigns a total cross-sections directly from the scan parameters
-    /// (for models CB_SLHA_simpmod_scan_model and CB_SLHA_scan_model)
+    /// (for model ColliderBit_SLHA_scan_model)
     void getYAMLCrossSection_param(xsec_container& result)
     {
       using namespace Pipes::getYAMLCrossSection_param;
@@ -1720,6 +1709,30 @@ namespace Gambit
       }
 
     }
+
+    /// A consistency check that ensures that if each event is weighted
+    /// by a process-level cross-section from an external calculator, then
+    /// the total cross-section is taken from the event generator
+    void doCrossSectionConsistencyCheck(bool& result)
+    {
+      using namespace Pipes::doCrossSectionConsistencyCheck;
+
+      if (Dep::EventWeighterFunction.name() == "setEventWeight_fromCrossSection" 
+          && Dep::TotalCrossSection.name() != "getEvGenCrossSection_as_base")
+      {
+        std::stringstream errmsg_ss;
+        errmsg_ss << "Inconsistent choice for how to scale the generated events. "
+                  << "If each event is weighted by a process-specific cross-section that is not from " 
+                  << "the event generator (function 'setEventWeight_fromCrossSection' for capability "
+                  << "'EventWeighterFunction'), you need to scale by the total cross-section "
+                  << "calculated by the event generator. (Choose the function "
+                  << "'getEvGenCrossSection_as_base' for capability 'TotalCrossSection'.)";
+        ColliderBit_error().raise(LOCAL_INFO, errmsg_ss.str());
+      }
+
+      result = true;
+    }
+
 
   }
 }

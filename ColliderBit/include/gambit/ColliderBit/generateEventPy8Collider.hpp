@@ -55,7 +55,7 @@ namespace Gambit
 
     /// Drop a HepMC file for the event
     #ifndef EXCLUDE_HEPMC
-      template<typename PythiaT>
+      template<typename PythiaT, typename hepmc_writerT>
       void dropHepMCEventPy8Collider(const PythiaT* Pythia, const safe_ptr<Options>& runOptions)
       {
         // Write event to HepMC file
@@ -63,7 +63,7 @@ namespace Gambit
         static const bool drop_HepMC3_file = runOptions->getValueOrDef<bool>(false, "drop_HepMC3_file");
         if (drop_HepMC2_file or drop_HepMC3_file)
         {
-          thread_local Pythia_default::Pythia8::GAMBIT_hepmc_writer hepmc_writer;
+          thread_local hepmc_writerT hepmc_writer;
           thread_local bool first = true;
 
           if (first)
@@ -85,10 +85,10 @@ namespace Gambit
     #endif
 
     /// Generate a hard scattering event with Pythia
-    template<typename PythiaT, typename EventT>
+    template<typename PythiaT, typename EventT, typename hepmc_writerT>
     void generateEventPy8Collider(HEPUtils::Event& event,
                                   const MCLoopInfo& RunMC,
-                                  const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                  const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
                                   const EventWeighterFunctionType& EventWeighterFunction,
                                   const int iteration,
                                   void(*wrapup)(),
@@ -97,7 +97,6 @@ namespace Gambit
       static int nFailedEvents;
       thread_local EventT pythia_event;
       static const double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
-
 
       // If the event loop has not been entered yet, reset the counter for the number of failed events
       if (iteration == BASE_INIT)
@@ -129,7 +128,7 @@ namespace Gambit
           HardScatteringSim.nextEvent(pythia_event);
           break;
         }
-        catch (typename Py8Collider<PythiaT,EventT>::EventGenerationError& e)
+        catch (typename Py8Collider<PythiaT,EventT,hepmc_writerT>::EventGenerationError& e)
         {
           #ifdef COLLIDERBIT_DEBUG
           cerr << DEBUG_PREFIX << "Py8Collider::EventGenerationError caught in generateEventPy8Collider. Check the ColliderBit log for event details." << endl;
@@ -160,7 +159,7 @@ namespace Gambit
       }
 
       #ifndef EXCLUDE_HEPMC
-        dropHepMCEventPy8Collider<PythiaT>(HardScatteringSim.pythia(), runOptions);
+        dropHepMCEventPy8Collider<PythiaT,hepmc_writerT>(HardScatteringSim.pythia(), runOptions);
       #endif
 
 

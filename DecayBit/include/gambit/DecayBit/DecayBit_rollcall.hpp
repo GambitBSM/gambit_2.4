@@ -29,13 +29,11 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Aug
 ///
-///  \author Tomas Gonzalo
+///   \author Tomas Gonzalo
 ///           (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Feb
-///
 ///  \author Andrew Fowlie
 ///  \date 2018 May
-///
 ///  \author Peter Athron
 ///  \date 2018 May
 ///
@@ -517,9 +515,9 @@ START_MODULE
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
-    ALLOW_MODEL_DEPENDENCE(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino, StandardModel_SLHA2)
+    ALLOW_MODEL_DEPENDENCE(MSSM63atQ, MSSM63atMGUT, StandardModel_SLHA2)
     MODEL_GROUP(group1, (StandardModel_SLHA2))
-    MODEL_GROUP(group2, (MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino))
+    MODEL_GROUP(group2, (MSSM63atQ, MSSM63atMGUT))
     ALLOW_MODEL_COMBINATION(group1,group2)
     #undef FUNCTION
 
@@ -888,10 +886,10 @@ START_MODULE
   #undef CAPABILITY
 
 
-#define CAPABILITY decay_rates
-    START_CAPABILITY
+  #define CAPABILITY decay_rates
+  START_CAPABILITY
 
-#define FUNCTION all_decays_from_SLHA
+    #define FUNCTION all_decays_from_SLHA
     START_FUNCTION(DecayTable)
     #undef FUNCTION
 
@@ -1018,7 +1016,7 @@ START_MODULE
     #define FUNCTION Z_gamma_chi_0_MSSM_tree
     START_FUNCTION(triplet<double>)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
   #undef CAPABILITY
 

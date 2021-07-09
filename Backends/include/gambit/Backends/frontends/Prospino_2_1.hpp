@@ -28,7 +28,6 @@ LOAD_LIBRARY
 BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
 BE_ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT_mA_lightgravitino)
 
-
 // Import functions
 
 // PROSPINO_GB(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)

@@ -1,8 +1,8 @@
 //   GAMBIT: Global and Modular BSM Inference Tool
 //  *********************************************
-///
 ///  \file
-///  Utils functions for ColliderBit analysis
+///
+///  Util variables and functions for ColliderBit
 ///
 ///  *********************************************
 ///
@@ -20,7 +20,7 @@
 ///          (gonzalo@physk.rwth-aachen.de)
 ///  \date 2021 Jul
 ///
-///  ********************************
+///  *********************************************
 
 #pragma once
 
