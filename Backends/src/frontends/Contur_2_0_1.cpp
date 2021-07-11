@@ -60,8 +60,8 @@ BE_NAMESPACE
   {
     //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
     pybind11::dict args_dict = 
-      ((Contur.attr("run_analysis").attr("get_argparser")(pybind11::cast(contur_yaml_args))).attr("parse_args")()).attr("__dict__");
-    args_dict[pybind11::cast("YODASTREAM")];
+      ((Contur.attr("run_analysis").attr("get_argparser")()).attr("parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
+    args_dict[pybind11::cast("YODASTREAM")] = YODA_filename;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
     args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
    
