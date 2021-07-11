@@ -50,6 +50,7 @@ BE_NAMESPACE
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
     args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
 
+
     //Run contur, get a LLR and return it
     return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
   }
@@ -63,7 +64,7 @@ BE_NAMESPACE
     args_dict[pybind11::cast("YODASTREAM")];
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
     args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
-    
+   
     //Run contur, get a LLR and return it
     return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
   }

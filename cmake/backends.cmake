@@ -1569,6 +1569,10 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
       BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
       INSTALL_COMMAND ""
     )
