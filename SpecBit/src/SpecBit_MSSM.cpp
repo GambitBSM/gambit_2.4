@@ -78,7 +78,7 @@ namespace Gambit
     //  them up to their dependencies, and input parameters.
 
     /// Check that the spectrum has the canonical LSP for the model being scanned.
-    void check_LSP(const Spectrum& spec, const safe_ptr<Options>& runOptions, bool gravitino_is_canonical_LSP)
+    void check_LSP(const Spectrum& spec, const Options& runOptions, bool gravitino_is_canonical_LSP)
     {
       double msqd  = spec.get(Par::Pole_Mass, 1000001, 0);
       double msqu  = spec.get(Par::Pole_Mass, 1000002, 0);
@@ -91,12 +91,12 @@ namespace Gambit
 
       if (gravitino_is_canonical_LSP)
       {
-        if (not runOptions->getValueOrDef<bool>(true, "only_gravitino_LSP")) return;
+        if (not runOptions.getValueOrDef<bool>(true, "only_gravitino_LSP")) return;
         m_canonical_LSP = spec.get(Par::Pole_Mass, 1000039, 0);
       }
       else
       {
-        if (not runOptions->getValueOrDef<bool>(true, "only_neutralino_LSP")) return;
+        if (not runOptions.getValueOrDef<bool>(true, "only_neutralino_LSP")) return;
         m_canonical_LSP = mchi0;
       }
 
@@ -114,15 +114,15 @@ namespace Gambit
        }
     }
     /// Helper to work with pointer
-    void check_LSP(const Spectrum* spec, const safe_ptr<Options>& runOptions, bool gravitino_model)
+    void check_LSP(const Spectrum* spec, const Options& runOptions, bool gravitino_model)
     {
       check_LSP(*spec, runOptions, gravitino_model);
     }
 
     /// Check that the gravitino is actually light, and retrieve its mass
-    double get_light_gravitino_mass(const std::map<str, safe_ptr<const double> >& Param, const safe_ptr<Gambit::Options>& runOptions)
+    double get_light_gravitino_mass(const std::map<str, safe_ptr<const double> >& Param, const Options& runOptions)
     {
-      static const double gmax = runOptions->getValueOrDef<double>(10.0, "max_permitted_gravitino_mass_GeV");
+      static const double gmax = runOptions.getValueOrDef<double>(10.0, "max_permitted_gravitino_mass_GeV");
       double mG = *Param.at("mG");
       if (mG > gmax)
       {
@@ -135,13 +135,13 @@ namespace Gambit
     }
 
     /// Add the gravitino mass if it is present (spectrum object version)
-    void add_gravitino_mass(Spectrum& spec, const std::map<str, safe_ptr<const double> >& Param, const safe_ptr<Options>& runOptions)
+    void add_gravitino_mass(Spectrum& spec, const std::map<str, safe_ptr<const double> >& Param, const Options& runOptions)
     {
       spec.get_HE().set_override(Par::Pole_Mass, get_light_gravitino_mass(Param,runOptions), "~G", true);
     }
 
     /// Add the gravitino mass if it is present (SLHAea version)
-    void add_gravitino_mass(SLHAstruct& slha, const std::map<str, safe_ptr<const double> >& Param, const safe_ptr<Options>& runOptions)
+    void add_gravitino_mass(SLHAstruct& slha, const std::map<str, safe_ptr<const double> >& Param, const Options& runOptions)
     {
       slha["MASS"][""] << 1000039 << get_light_gravitino_mass(Param,runOptions) << "# ~G";
     }
@@ -785,10 +785,7 @@ namespace Gambit
       // This FS spectrum generator has mA as the parameter
       input.mAInput = *myPipe::Param.at("mA");
       fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMatMSUSYEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      result = run_FS_spectrum_generator<MSSMatMSUSYEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMSUSY_mA_lightgravitino"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -816,10 +813,7 @@ namespace Gambit
       input.mHd2IN = *myPipe::Param.at("mHd2");
       input.SignMu = *myPipe::Param.at("SignMu");
       fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      result = run_FS_spectrum_generator<MSSMEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_lightgravitino"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -852,7 +846,7 @@ namespace Gambit
       // Note: This particular spectrum generator has been created with
       // different names for parameter inputs.  We should standardise this
       fill_MSSM63_input_altnames(input,myPipe::Param);
-      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mA_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mA_lightgravitino"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -928,8 +922,11 @@ namespace Gambit
         SpecBit_error().raise(LOCAL_INFO,msg.str());
       }
       fill_MSSM63_input(input,myPipe::Param);
-      result = run_FS_spectrum_generator<MSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Run spectrum generator
+      result = run_FS_spectrum_generator<MSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_lightgravitino"));
+
+      // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
     }
     #endif
@@ -951,8 +948,11 @@ namespace Gambit
       double mA = *myPipe::Param.at("mA");
       input.mA2Input = mA*mA;
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSM_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Run spectrum generator
+      result = run_FS_spectrum_generator<MSSM_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mA_lightgravitino"));
+
+      // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
     }
     #endif
@@ -975,8 +975,11 @@ namespace Gambit
         SpecBit_error().raise(LOCAL_INFO,msg.str());
       }
       fill_MSSM63_input(input,myPipe::Param);
-      result = run_FS_spectrum_generator<MSSMatMGUT_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Run the spectrum generator
+      result = run_FS_spectrum_generator<MSSMatMGUT_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_lightgravitino"));
+
+      // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
     }
     #endif
@@ -1006,10 +1009,9 @@ namespace Gambit
       }
 
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      // Run the spectrum generator
+      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_lightgravitino"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -1034,8 +1036,11 @@ namespace Gambit
       double mA = *myPipe::Param.at("mA");
       input.mA2Input = mA*mA;
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMatMGUT_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Run the spectrum generator
+      result = run_FS_spectrum_generator<MSSMatMGUT_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mA_lightgravitino"));
+
+      // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
     }
     #endif
@@ -1090,8 +1095,11 @@ namespace Gambit
       double mA = *myPipe::Param.at("mA");
       input.mA2Input = mA*mA;    // FS has mA^2 as the parameter
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMatMSUSY_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Run the spectrum generator
+      result = run_FS_spectrum_generator<MSSMatMSUSY_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMSUSY_mA_lightgravitino"));
+
+      // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
     }
     #endif
@@ -1183,8 +1191,11 @@ namespace Gambit
          result.get_HE().set_override(Par::mass1,result.get_HE().GetScale(),"susy_scale",true);
       }
 
+      // Add the gravitino mass to a spectrum object if it has been provided in an SLHAea object
+      add_gravitino_mass_from_slhaea(result, input_slha);
+
       // No sneaking in charged LSPs via SLHA, jävlar.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      check_LSP(result, *myPipe::runOptions, result.has(Par::Pole_Mass, "~G"));
     }
 
     /// Get an MSSMSpectrum object from an SLHAstruct
@@ -1202,8 +1213,11 @@ namespace Gambit
       // Create Spectrum object from the slhaea object
       result = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(input_slha, input_slha, mass_cut, mass_ratio_cut);
 
+      // Add the gravitino mass to the spectrum object if it has been provided in the SLHAea object
+      add_gravitino_mass_from_slhaea(result, input_slha);
+
       // No sneaking in charged LSPs via SLHA, jävlar.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      check_LSP(result, *myPipe::runOptions, result.has(Par::Pole_Mass, "~G"));
 
       // In order to translate from e.g. MSSM63atMGUT to MSSM63atQ, we need
       // to know that input scale Q. This is generally not stored in SLHA format,
