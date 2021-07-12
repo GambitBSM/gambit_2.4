@@ -1067,10 +1067,9 @@ namespace Gambit
       input.mA2Input = mA*mA;
 
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      // Run the specctrum generator
+      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mA_lightgravitino"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -1982,6 +1981,8 @@ namespace Gambit
            SpecBit_error().forced_throw(LOCAL_INFO,errmsg.str());
          }
       }
+      // add the gravitino mass
+      if (subspec.has(Par::Pole_Mass, "~G")) specmap["~G Pole_Mass"] = subspec.get(Par::Pole_Mass, "~G");
       // add the scale!
       specmap["scale(Q)"] = subspec.GetScale();
     }

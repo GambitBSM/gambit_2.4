@@ -515,9 +515,9 @@ START_MODULE
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
-    ALLOW_MODEL_DEPENDENCE(MSSM63atQ, MSSM63atMGUT, StandardModel_SLHA2)
+    ALLOW_MODEL_DEPENDENCE(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino, StandardModel_SLHA2)
     MODEL_GROUP(group1, (StandardModel_SLHA2))
-    MODEL_GROUP(group2, (MSSM63atQ, MSSM63atMGUT))
+    MODEL_GROUP(group2, (MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino))
     ALLOW_MODEL_COMBINATION(group1,group2)
     #undef FUNCTION
 
@@ -1016,7 +1016,7 @@ START_MODULE
     #define FUNCTION Z_gamma_chi_0_MSSM_tree
     START_FUNCTION(triplet<double>)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
   #undef CAPABILITY
 
