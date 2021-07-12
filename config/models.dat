@@ -1,4 +1,4 @@
-1# GAMBIT central models description database
+# GAMBIT central models description database
 #
 # GAMBIT will parse this file and try to match the entries
 # to the models it has registered. If there are any
