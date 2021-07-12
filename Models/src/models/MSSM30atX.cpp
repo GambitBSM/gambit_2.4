@@ -56,6 +56,7 @@
 #include "gambit/Models/models/MSSM30atMGUT_mA.hpp"
 #include "gambit/Models/models/MSSM30atMSUSY.hpp"
 #include "gambit/Models/models/MSSM30atMSUSY_mA.hpp"
+#include "gambit/Models/models/MSSM_translation_helpers.hpp"
 
 #include "gambit/Elements/spectrum.hpp"
 
