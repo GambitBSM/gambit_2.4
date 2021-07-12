@@ -1,4 +1,4 @@
-# GAMBIT central models description database
+1# GAMBIT central models description database
 #
 # GAMBIT will parse this file and try to match the entries
 # to the models it has registered. If there are any
@@ -1184,8 +1184,6 @@ DecayingDM_electron: |
    mass        - mass of the dark matter candidate [in GeV]
    lifetime    - lifetime of said DM candidate [in s]
    fraction    - fraction of how much the decaying DM component contributes to all DM.
-<<<<<<< HEAD
-=======
 
 #
 # Simple SLHA-based models used for validation of ColliderBit analyses
@@ -1211,4 +1209,3 @@ ColliderBit_SLHA_file_model: |
    yaml file that uses this model.
 
    dummy    - a dummy parameter, not used for anything
->>>>>>> ColliderBit_development
