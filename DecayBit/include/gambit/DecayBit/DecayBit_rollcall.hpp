@@ -615,6 +615,7 @@ START_MODULE
     #define FUNCTION chargino_plus_1_decays_gravitino
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(MSSM_spectrum, Spectrum)
+    DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
@@ -677,6 +678,7 @@ START_MODULE
     #define FUNCTION chargino_plus_2_decays_gravitino
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(MSSM_spectrum, Spectrum)
+    DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 

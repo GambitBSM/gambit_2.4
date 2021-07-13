@@ -33,6 +33,7 @@
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2018 Jan
+///  \date 2021 Jul
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
@@ -3456,11 +3457,12 @@ namespace Gambit
     /// MSSM decays: chargino decays to gravitinos.
     /// Using results from hep-ph/9605398.
     /// The decay width formulas are valid in the light-gravitino limit.
-    DecayTable::Entry chargino_decays_gravitino(int n_Cha, const Spectrum &spec)
+    DecayTable::Entry chargino_decays_gravitino(int n_Cha, const Spectrum &spec, const DecayTable::Entry &W_decays)
     {
       // Get spectrum objects
       // const Spectrum &spec = *Dep::MSSM_spectrum;
       const SubSpectrum &mssm = spec.get_HE();
+      const SubSpectrum &sm = spec.get_LE();
       // const SMInputs &sm = Dep::SM_spectrum->get_SMInputs();
 
       // Get gravitino mass
@@ -3486,6 +3488,30 @@ namespace Gambit
 
       // Get SM parameters
       const double m_W = mssm.safeget(Par::Pole_Mass, "W+");
+      const double m_u = sm.safeget(Par::mass1, "u", 1);
+      const double m_c = sm.safeget(Par::mass1, "u", 2);
+      const double m_d = sm.safeget(Par::mass1, "d", 1);
+      const double m_s = sm.safeget(Par::mass1, "d", 2);
+      const double m_b = sm.safeget(Par::mass1, "d", 3);
+      const double m_e = sm.safeget(Par::mass1, "e-", 1);
+      const double m_mu = sm.safeget(Par::mass1, "e-", 2);
+      const double m_tau = sm.safeget(Par::mass1, "e-", 3);
+
+      // W decay rates
+      // @todo For simplicity we're here just using the same numbers as Pythia for the SM W branching 
+      // ratios to specific quark pairs, since we currenly only have a general BR(W --> hadrons) 
+      // available in our SM W decay table. 
+      const double width_W = W_decays.width_in_GeV;
+
+      const double BF_W_to_udbar = 0.3213690; // W_decays.BF("u", "dbar");
+      const double BF_W_to_usbar = 0.0165020; // W_decays.BF("u", "sbar");
+      const double BF_W_to_ubbar = 0.0000100; // W_decays.BF("u", "bbar");
+      const double BF_W_to_cdbar = 0.0164940; // W_decays.BF("c", "dbar");
+      const double BF_W_to_csbar = 0.3206150; // W_decays.BF("c", "sbar");
+      const double BF_W_to_cbbar = 0.0005910; // W_decays.BF("c", "bbar");
+      const double BF_W_to_enue = 0.1081660;     // W_decays.BF("e+", "nu_e");
+      const double BF_W_to_munumu = 0.1081660;   // W_decays.BF("mu+", "nu_mu");
+      const double BF_W_to_taunutau = 0.1080870; // W_decays.BF("tau+", "nu_tau");
 
       // Convenient quantities
       const double cos_beta = 1. / sqrt(1. + pow2(tan_beta));
@@ -3498,22 +3524,105 @@ namespace Gambit
       // Map to store partial width results
       std::map<str, double> partial_widths;
 
+      // Transverse wino contribution factor (Eq. (24) in hep-ph/9605398)
+      double kappa_i_W_T = 0.5 * (pow2(abs(V_wino)) + pow2(abs(U_wino)));
+
+      // Longitudinal wino contribution factor (Eq. (25) in hep-ph/9605398)
+      double kappa_i_W_L = (pow2(abs(V_higgsino)) * pow2(sin_beta) + pow2(abs(U_higgsino)) * pow2(cos_beta));
+
+      // Chargino--gravitino mass difference
+      double delta_m = m_Cha - m_G;
+
       //
       // Channel: ~chi+_i --> ~G + W+
       //
       partial_widths["~G_W+"] = 0.0;
-      if (m_Cha > m_G + m_W)
+      if (delta_m > m_W)
       {
-        // Transverse wino contribution factor (Eq. (24) in hep-ph/9605398)
-        double kappa_i_W_T = 0.5 * (pow2(abs(V_wino)) + pow2(abs(U_wino)));
-
-        // Longitudinal wino contribution factor (Eq. (25) in hep-ph/9605398)
-        double kappa_i_W_L = (pow2(abs(V_higgsino)) * pow2(sin_beta) + pow2(abs(U_higgsino)) * pow2(cos_beta));
-
         // Decay width (Eq. (22) in hep-ph/9605398, light-gravitino limit)
         double chargino_to_gravitino_W = ((2. * kappa_i_W_T + kappa_i_W_L) / (96. * pi * m_planck_red_2) * (m_Cha_5 / m_G_2) * pow4(1. - pow2(m_W / m_Cha)));
 
         partial_widths["~G_W+"] = chargino_to_gravitino_W;
+      }
+
+
+      //
+      // Channel: ~chi+_i --> ~G + f + f' (from off-shell W)
+      //
+      partial_widths["~G_u_dbar"] = 0.0;
+      partial_widths["~G_u_sbar"] = 0.0;
+      partial_widths["~G_u_bbar"] = 0.0;
+      partial_widths["~G_c_dbar"] = 0.0;
+      partial_widths["~G_c_sbar"] = 0.0;
+      partial_widths["~G_c_bbar"] = 0.0;
+      partial_widths["~G_e+_nu_e"] = 0.0;
+      partial_widths["~G_mu+_nu_mu"] = 0.0;
+      partial_widths["~G_tau+_nu_tau"] = 0.0;
+      // Include this when we're close to or below the W threshold
+      if (delta_m <= m_W + width_W)
+      {
+        // Construct list of W decay products to iterate over (pairs of near-mass less W decay products)
+        std::list<std::tuple<std::string, std::string, const double, const double, const double>> fermion_pairs_list;
+
+        fermion_pairs_list.push_back(std::make_tuple("u", "dbar", m_u, m_d, BF_W_to_udbar));
+        fermion_pairs_list.push_back(std::make_tuple("u", "sbar", m_u, m_s, BF_W_to_usbar));
+        fermion_pairs_list.push_back(std::make_tuple("u", "bbar", m_u, m_b, BF_W_to_ubbar));
+        fermion_pairs_list.push_back(std::make_tuple("c", "dbar", m_c, m_d, BF_W_to_cdbar));
+        fermion_pairs_list.push_back(std::make_tuple("c", "sbar", m_c, m_s, BF_W_to_csbar));
+        fermion_pairs_list.push_back(std::make_tuple("c", "bbar", m_c, m_b, BF_W_to_cbbar));
+        fermion_pairs_list.push_back(std::make_tuple("e+", "nu_e", m_e, 0.0, BF_W_to_enue));
+        fermion_pairs_list.push_back(std::make_tuple("mu+", "nu_mu", m_mu, 0.0, BF_W_to_munumu));
+        fermion_pairs_list.push_back(std::make_tuple("tau+", "nu_tau", m_tau, 0.0, BF_W_to_taunutau));
+
+        // Compute *total* 3-body rate from ~chi+_i --> ~G + W(*) --> ~G + f + fbar', in the limit of massless SM fermions (from hep-ph/9605398)
+        double eps = width_W * m_W / pow2(m_Cha);
+        double R = pow2(m_W) / pow2(m_Cha);
+
+        std::function<double(double)> I0_integrand = [&R, &eps](double x)
+        {
+          return pow4(1.0 - x) / (pow2(x - R) + pow2(eps));
+        };
+        double I0 = (eps / pi) * Utils::integrate_cquad(I0_integrand, 0.0, 1.0, 0, 1e-2);
+
+        std::function<double(double)> I1_integrand = [&R, &eps](double x)
+        {
+          return pow4(1.0 - x) * (x / R) / (pow2(x - R) + pow2(eps));
+        };
+        double I1 = (eps / pi) * Utils::integrate_cquad(I1_integrand, 0.0, 1.0, 0, 1e-2);
+
+        double total_chargino_3_body_rate = 1.0 / (96. * pi * m_planck_red_2) * (m_Cha_5 / m_G_2) * (2. * kappa_i_W_T * I1 + kappa_i_W_L * I0);
+
+        // For each fermion pair, decide whether to include the 3-body decay rate to that final state
+        for (auto fermion_pair_info : fermion_pairs_list)
+        {
+          // Retrieve relevant variables
+          std::string fermion1 = std::get<0>(fermion_pair_info);
+          std::string fermion2 = std::get<1>(fermion_pair_info);
+          double m_f1 = std::get<2>(fermion_pair_info);
+          double m_f2 = std::get<3>(fermion_pair_info);
+          double BF_W_to_ff = std::get<4>(fermion_pair_info);
+
+          // Is this final state open?
+          if (delta_m > m_f1 + m_f2)  // and (delta_m <= m_W + width_W) already 
+          {
+            // Compute the 3-body contribution
+            double width_3_body_ff = BF_W_to_ff * total_chargino_3_body_rate;
+
+            // Ensure smooth transition between 3-body and 2-body,
+            if (m_W < delta_m)  // and (delta_m < m_W + width_W) already
+            {
+              double x = (delta_m - m_W) / width_W;
+              double width_2_body_ff = partial_widths["~G_W"] * BF_W_to_ff;
+              partial_widths["~G_" + fermion1 + "_" + fermion2] = (1.-x) * width_3_body_ff + x * width_2_body_ff;
+              // Avoid double-counting
+              partial_widths["~G_W"] = 0.0;
+            }
+            else  // 2.*m_f <= delta_m <= m_W: only 3-body with virtual W possible
+            {
+              partial_widths["~G_" + fermion1 + "_" + fermion2] = width_3_body_ff;
+            }
+          }
+        }
       }
 
       //
@@ -3531,6 +3640,15 @@ namespace Gambit
       result.width_in_GeV = total_width_gravitinos;
 
       result.set_BF((partial_widths["~G_W+"] / result.width_in_GeV > 0 ? partial_widths["~G_W+"] / result.width_in_GeV : 0), 0.0, "~G", "W+");
+      result.set_BF((partial_widths["~G_u_dbar"] / result.width_in_GeV > 0 ? partial_widths["~G_u_dbar"] / result.width_in_GeV : 0), 0.0, "~G", "u", "dbar");
+      result.set_BF((partial_widths["~G_u_sbar"] / result.width_in_GeV > 0 ? partial_widths["~G_u_sbar"] / result.width_in_GeV : 0), 0.0, "~G", "u", "sbar");
+      result.set_BF((partial_widths["~G_u_bbar"] / result.width_in_GeV > 0 ? partial_widths["~G_u_bbar"] / result.width_in_GeV : 0), 0.0, "~G", "u", "bbar");
+      result.set_BF((partial_widths["~G_c_dbar"] / result.width_in_GeV > 0 ? partial_widths["~G_c_dbar"] / result.width_in_GeV : 0), 0.0, "~G", "c", "dbar");
+      result.set_BF((partial_widths["~G_c_sbar"] / result.width_in_GeV > 0 ? partial_widths["~G_c_sbar"] / result.width_in_GeV : 0), 0.0, "~G", "c", "sbar");
+      result.set_BF((partial_widths["~G_c_bbar"] / result.width_in_GeV > 0 ? partial_widths["~G_c_bbar"] / result.width_in_GeV : 0), 0.0, "~G", "c", "bbar");
+      result.set_BF((partial_widths["~G_e+_nu_e"] / result.width_in_GeV > 0 ? partial_widths["~G_e+_nu_e"] / result.width_in_GeV : 0), 0.0, "~G", "e+", "nu_e");
+      result.set_BF((partial_widths["~G_mu+_nu_mu"] / result.width_in_GeV > 0 ? partial_widths["~G_mu+_nu_mu"] / result.width_in_GeV : 0), 0.0, "~G", "mu+", "nu_mu");
+      result.set_BF((partial_widths["~G_tau+_nu_tau"] / result.width_in_GeV > 0 ? partial_widths["~G_tau+_nu_tau"] / result.width_in_GeV : 0), 0.0, "~G", "tau+", "nu_tau");
 
       return result;
     }
@@ -3542,7 +3660,8 @@ namespace Gambit
 
       int n_Cha = 1;
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      result = chargino_decays_gravitino(n_Cha, spec);
+      const DecayTable::Entry &W_decays = *Dep::W_plus_decay_rates;
+      result = chargino_decays_gravitino(n_Cha, spec, W_decays);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
@@ -3553,7 +3672,8 @@ namespace Gambit
 
       int n_Cha = 2;
       const Spectrum &spec = *Dep::MSSM_spectrum;
-      result = chargino_decays_gravitino(n_Cha, spec);
+      const DecayTable::Entry &W_decays = *Dep::W_plus_decay_rates;
+      result = chargino_decays_gravitino(n_Cha, spec, W_decays);
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
