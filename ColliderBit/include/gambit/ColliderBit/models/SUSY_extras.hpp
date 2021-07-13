@@ -49,7 +49,7 @@
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       DEPENDENCY(ActivePIDPairs, vec_PID_pair)
       DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-      ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+      ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
       BACKEND_REQ(simplexs_init, (), void, (PyDict&))
       BACKEND_REQ(simplexs_get_xsection, (), PyDict, (PyDict&, PyDict&))
       #undef FUNCTION
@@ -65,7 +65,7 @@
       DEPENDENCY(ActivePIDPairs, vec_PID_pair)
       DEPENDENCY(SLHA1Spectrum, SLHAstruct)
       ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
-      ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+      ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
       BACKEND_REQ(xsecBE_import_slha_string, (), void, (std::string&))
       BACKEND_REQ(xsecBE_set_parameters, (), void, (PyDict&))
       BACKEND_REQ(xsecBE_get_xsection, (), PyDict, (iipair&))
@@ -79,7 +79,7 @@
     DEPENDENCY(ActivePIDPairs, vec_PID_pair)
     DEPENDENCY(SLHA1Spectrum, SLHAstruct)
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
-    /// @todo Extend to also allow models CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model
+    /// @todo Extend to also allow models ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model
     BACKEND_REQ(prospino_run, (libprospino), map_str_dbl, (const PID_pair&, const Options&))
     BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
     #undef FUNCTION
@@ -94,7 +94,7 @@
       DEPENDENCY(ActivePIDPairs, vec_PID_pair)
       DEPENDENCY(SLHA1Spectrum, SLHAstruct)
       ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
-      ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+      ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
       BACKEND_REQ(salami_import_slha_string, (), void, (std::string&))
       BACKEND_REQ(salami_set_parameters, (), void, (PyDict&))
       BACKEND_REQ(salami_get_xsection, (), PyDict, (iipair&, double&, double&))
@@ -113,30 +113,30 @@
   #define CAPABILITY SLHAFileNameAndContent
   START_CAPABILITY
 
-    /// Get the next SLHA filename and content (for model CB_SLHA_file_model)
+    /// Get the next SLHA filename and content (for model ColliderBit_SLHA_file_model)
     #define FUNCTION getNextSLHAFileNameAndContent
     START_FUNCTION(pair_str_SLHAstruct)
-    ALLOW_MODELS(CB_SLHA_file_model)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model)
     #undef FUNCTION
 
     /// Read single SLHA file and replace some entries
-    /// (for use with models CB_SLHA_simpmod_scan_model and CB_SLHA_scan_model)
+    /// (for use with the model ColliderBit_SLHA_scan_model)
     #define FUNCTION getAndReplaceSLHAContent
     START_FUNCTION(pair_str_SLHAstruct)
-    ALLOW_MODELS(CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
   #undef CAPABILITY
   /// @}
 
 
-  /// Extract SLHA file elements (for model CB_SLHA_file_model)
+  /// Extract SLHA file elements (for model ColliderBit_SLHA_file_model)
   /// @{
   #define CAPABILITY SLHAFileElements
   START_CAPABILITY
     #define FUNCTION getSLHAFileElements
     START_FUNCTION(map_str_dbl)
-    ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
     #undef FUNCTION
   #undef CAPABILITY
@@ -150,7 +150,7 @@
     #define FUNCTION getSLHA1Spectrum
     START_FUNCTION(SLHAstruct)
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
-    ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
     #undef FUNCTION
@@ -161,7 +161,7 @@
     #define FUNCTION getSLHA2Spectrum
     START_FUNCTION(SLHAstruct)
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
-    ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
     #undef FUNCTION
