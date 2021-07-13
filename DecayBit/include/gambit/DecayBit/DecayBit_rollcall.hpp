@@ -29,13 +29,11 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Aug
 ///
-///  \author Tomas Gonzalo
+///   \author Tomas Gonzalo
 ///           (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Feb
-///
 ///  \author Andrew Fowlie
 ///  \date 2018 May
-///
 ///  \author Peter Athron
 ///  \date 2018 May
 ///
@@ -888,10 +886,10 @@ START_MODULE
   #undef CAPABILITY
 
 
-#define CAPABILITY decay_rates
-    START_CAPABILITY
+  #define CAPABILITY decay_rates
+  START_CAPABILITY
 
-#define FUNCTION all_decays_from_SLHA
+    #define FUNCTION all_decays_from_SLHA
     START_FUNCTION(DecayTable)
     #undef FUNCTION
 

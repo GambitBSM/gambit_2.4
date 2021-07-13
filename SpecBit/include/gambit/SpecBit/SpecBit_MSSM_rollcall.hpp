@@ -36,14 +36,14 @@
 ///  This stuff should be removed when FlexibleSUSY becomes a "real"
 ///  backend. The preprocessor variables are created automatically in
 ///  cmake/contrib.cmake as part of the FlexibleSUSY configuration process.
-///  Note that these #if checks are in both this header AND these
+///  Note that these #if checks are in both this header AND these 
 ///  source files which define the corresponding module functions.
 ///
 #ifndef __SpecBit_MSSM_hpp__
 #define __SpecBit_MSSM_hpp__
 
 // Include this here so that typedef for SLHAstruct gets passed on to standalone codes which use these module functions
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
   /// @{ Functions to supply particle spectra in various forms
 
@@ -138,7 +138,7 @@
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
-
+     
 
     // ==============================
     // MSSM parameterised by mA and mu (instead of mHu2 and mHd2) at SUSY scale
@@ -216,6 +216,13 @@
     #define FUNCTION get_MSSM_spectrum_as_SLHAea_SLHA2
     START_FUNCTION(SLHAstruct)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum) // Takes a Spectrum object and returns an SLHAstruct
+    #undef FUNCTION
+
+    // Get MSSM spectrum from previous GAMBIT output via the postprocessor scanner
+    #define FUNCTION get_MSSM_spectrum_from_postprocessor
+    START_FUNCTION(Spectrum)
+    ALLOW_MODELS(MSSM63atMGUT,MSSM63atMGUT_mA,MSSM63atQ,MSSM63atQ_mA) // Needed for tanbeta(mZ)_DRbar only
+    DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to create full Spectrum object
     #undef FUNCTION
 
   #undef CAPABILITY

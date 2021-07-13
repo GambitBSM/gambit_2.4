@@ -38,7 +38,6 @@
 #include "gambit/Models/models/MSSM63atQ_mA.hpp"
 #include "gambit/Models/models/MSSM63atMSUSY_mA.hpp"
 #include "gambit/Models/models/MSSM63atMGUT_mA.hpp"
-#include "gambit/Models/models/MSSM_translation_helpers.hpp"
 #include "gambit/Elements/spectrum.hpp"
 
 // Activate debug output

@@ -1,27 +1,27 @@
-///  GAMBIT: Global and Modular BSM Inference Tool
-///  *********************************************
-///
-///  MSSM25 translation function definitions
-///
-///  Contains translation functions for
-///  MSSM25atQ        --> MSSM30atQ
-///  MSSM25atQ_mA     --> MSSM30atQ_mA
-///  MSSM25atMGUT     --> MSSM30atMGUT
-///  MSSM25atMGUT_mA  --> MSSM30atMGUT_mA
-///  MSSM25atMSUSY    --> MSSM30atMSUSY
-///  MSSM25atMSUSY_mA --> MSSM30atMSUSY_mA
-///
-///  *********************************************
-///
-///  Authors
-///  =======
-///
-///  (add name and date if you modify)
-///
-///  Ben Farmer
-///  2017 Oct
-///
-///  *********************************************
+//  GAMBIT: Global and Modular BSM Inference Tool
+//  *********************************************
+//
+//  MSSM25 translation function definitions
+//  
+//  Contains translation functions for
+//  MSSM25atQ        --> MSSM30atQ
+//  MSSM25atQ_mA     --> MSSM30atQ_mA
+//  MSSM25atMGUT     --> MSSM30atMGUT
+//  MSSM25atMGUT_mA  --> MSSM30atMGUT_mA
+//  MSSM25atMSUSY    --> MSSM30atMSUSY
+//  MSSM25atMSUSY_mA --> MSSM30atMSUSY_mA
+//
+//  *********************************************
+//
+//  Authors
+//  =======
+//
+//  (add name and date if you modify)
+//
+//  Ben Farmer
+//  2017 Oct
+//
+//  *********************************************
 
 #include <string>
 #include <vector>
@@ -39,6 +39,8 @@
 #include "gambit/Models/models/MSSM25atMSUSY_mA.hpp"
 #include "gambit/Models/models/MSSM_translation_helpers.hpp"
 
+
+using namespace Gambit::Utils;
 
 /// @{ Interpret-as-parent function definitions
 /// These are particularly repetitive so let's define them with the help of a macro

@@ -3,10 +3,10 @@
 ///
 ///  MSSM30atX translation function definitions
 ///
-///  Specialisations of MSSM63atQ with all
+///  Specialisations of MSSM63atQ with all 
 ///  off-diagonal m and A terms set to zero.
 ///
-///  Contains the interpret-as-parent translation
+///  Contains the interpret-as-parent translation 
 ///  functions for:
 ///
 ///  MSSM30atQ        --> MSSM63atQ
@@ -49,7 +49,7 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/MSSM63atQ.hpp"
+#include "gambit/Models/models/MSSM63atQ.hpp" // Contains declaration of MSSM_mA_to_MSSM_mhud and MSSMatX_to_MSSMatQ functions
 #include "gambit/Models/models/MSSM30atQ.hpp"
 #include "gambit/Models/models/MSSM30atQ_mA.hpp"
 #include "gambit/Models/models/MSSM30atMGUT.hpp"

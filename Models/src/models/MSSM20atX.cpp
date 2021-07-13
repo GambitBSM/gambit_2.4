@@ -2,9 +2,9 @@
 //   *********************************************
 ///  \file
 ///
-///  MSSM20atQ translation function definitions.
+///  MSSM20atQ translation function definitions. 
 ///
-///  Contains the interpret-as-parent translation
+///  Contains the interpret-as-parent translation 
 ///  functions for:
 ///
 ///  MSSM20atQ        --> MSSM25atQ
@@ -29,8 +29,8 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///
-///  \author Pat Scott
+///   
+///  \author Pat Scott  
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Sep
 ///
@@ -45,7 +45,7 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/MSSM63atQ.hpp"
+#include "gambit/Models/models/MSSM63atQ.hpp" // Contains declaration of MSSM_mA_to_MSSM_mhud and MSSMatX_to_MSSMatQ functions
 #include "gambit/Models/models/MSSM20atQ.hpp"
 #include "gambit/Models/models/MSSM20atQ_mA.hpp"
 #include "gambit/Models/models/MSSM20atMGUT.hpp"
