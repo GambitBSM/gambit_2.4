@@ -115,9 +115,7 @@ namespace Gambit
               baselineMuons.push_back(muon);
           }
 
-          // TODO: Some vertex and overlap stuff
-
-          // TODO: Prompt stuff
+          // Mini-isolation of electrons and muons, Imin < 0.4, hard to implement, leave for now
 
           // Baseline taus
           std::vector<const HEPUtils::Particle*> baselineTaus;
@@ -128,7 +126,8 @@ namespace Gambit
               baselineTaus.push_back(tau);
           }
 
-          // TODO: Tight vs loose
+          // We assume that the efficiency above accounts for the selection of prompt leptons
+          // and only "tight" leptons pass the cuts
 
           // Baseline jets
           std::vector<const HEPUtils::Jet*> baselineJets;
@@ -137,12 +136,11 @@ namespace Gambit
             if (jet->pT()>25. &&fabs(jet->eta())<2.4)
               baselineJets.push_back(jet);
           }
-          // TODO: Separation of R > 0.4 from leptons
 
-          // TODO: Veto events with b-tagged jets
-
-          // TODO: Veto mll < 12 GeV
-
+          // Jets must have a separation of R > 0.4 from any lepton
+          removeOverlap(baselineJets, baselineElectrons, 0.4);
+          removeOverlap(baselineJets, baselineMuons, 0.4);
+          removeOverlap(baselineJets, baselineTaus, 0.4);
 
           ////////////////////
           // Signal objects //
