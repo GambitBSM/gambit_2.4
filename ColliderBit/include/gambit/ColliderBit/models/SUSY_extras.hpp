@@ -151,7 +151,7 @@
     START_FUNCTION(SLHAstruct)
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
-    MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
     #undef FUNCTION
   #undef CAPABILITY
@@ -162,7 +162,7 @@
     START_FUNCTION(SLHAstruct)
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
-    MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
     #undef FUNCTION
   #undef CAPABILITY
