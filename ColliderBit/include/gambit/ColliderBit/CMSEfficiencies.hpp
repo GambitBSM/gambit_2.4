@@ -362,81 +362,67 @@ namespace Gambit
       /// From https://twiki.cern.ch/twiki/bin/view/CMSPublic/SUSMoriond2017ObjectsEfficiency
       ///{@
 
-      // Electron efficiency 
-      inline HEPUtils::BinnedFn2D<double> &eff2DEl(str analysis)
-      {
-        // Efficiencies from the 2016 Multilepton EWK analyses (SUS_16_039)
-        // Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_039_multi_ttbar.pdf
-        // The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
-        HEPUtils::BinnedFn2D<double> eff2DEl_SUS_16_039(
-          {0., 0.8, 1.442, 1.556, 2., 2.5, DBL_MAX},   // Bin edges in eta
-          {0., 10., 15., 20., 25., 30., 40., 50., DBL_MAX}, // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-          {
-            // pT: (0,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
-                    0.0,    0.95,    0.507,    0.619,    0.682,    0.742,    0.798,    0.863,  // eta: (0, 0.8)
-                    0.0,    0.95,    0.429,    0.546,    0.619,    0.710,    0.734,    0.833,  // eta: (0.8, 1.4429
-                    0.0,    0.95,    0.256,    0.221,    0.315,    0.351,    0.373,    0.437,  // eta: (1.442, 1.556)
-                    0.0,    0.85,    0.249,    0.404,    0.423,    0.561,    0.642,    0.749,  // eta: (1.556, 2)
-                    0.0,    0.85,    0.195,    0.245,    0.380,    0.441,    0.533,    0.644,  // eta: (2, 2.5)
-                    0.0,    0.0,     0.0,      0.0,      0.0,      0.0,      0.0,      0.0,    // eta > 2.5
-          }
-        );
-
-        std::map<str, HEPUtils::BinnedFn2D<double> *> _eff2DEl = 
+      // Efficiencies from the 2016 Multilepton EWK analyses (SUS_16_039)
+      // Electrons
+      // Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_039_multi_ttbar.pdf
+      // The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
+      static const HEPUtils::BinnedFn2D<double> eff2DEl_SUS_16_039(
+        {0., 0.8, 1.442, 1.556, 2., 2.5, DBL_MAX},   // Bin edges in eta
+        {0., 10., 15., 20., 25., 30., 40., 50., DBL_MAX}, // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
         {
-          {"SUS_16_039", &eff2DEl_SUS_16_039}
-        };
+          // pT: (0,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
+                  0.0,    0.95,    0.507,    0.619,    0.682,    0.742,    0.798,    0.863,  // eta: (0, 0.8)
+                  0.0,    0.95,    0.429,    0.546,    0.619,    0.710,    0.734,    0.833,  // eta: (0.8, 1.4429
+                  0.0,    0.95,    0.256,    0.221,    0.315,    0.351,    0.373,    0.437,  // eta: (1.442, 1.556)
+                  0.0,    0.85,    0.249,    0.404,    0.423,    0.561,    0.642,    0.749,  // eta: (1.556, 2)
+                  0.0,    0.85,    0.195,    0.245,    0.380,    0.441,    0.533,    0.644,  // eta: (2, 2.5)
+                  0.0,    0.0,     0.0,      0.0,      0.0,      0.0,      0.0,      0.0     // eta > 2.5
+        }
+      );
 
-        return *_eff2DEl[analysis];
-      }
-
-      // Muon efficiency
-      inline HEPUtils::BinnedFn2D<double> &eff2DMu(str analysis)
-      {
-        // Efficiencies from the 2016 Multilepton EWK analyses (SUS_16_039)
-        // Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_mu_039_multi_ttbar.pdf
-        // The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
-        HEPUtils::BinnedFn2D<double> eff2DMu_SUS_16_039(
-          {0., 0.9, 1.2, 2.1, 2.4, DBL_MAX},   // Bin edges in eta
-          {0., 10., 15., 20., 25., 30., 40., 50., DBL_MAX},  // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-          {
-            // pT:   (0,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf) 
-                      0.0,     0.704,    0.797,    0.855,    0.880,    0.906,    0.927,    0.931,  // eta: (0, 0.9)
-                      0.0,     0.639,    0.776,    0.836,    0.875,    0.898,    0.940,    0.930,  // eta: (0.9, 1.2)
-                      0.0,     0.596,    0.715,    0.840,    0.862,    0.891,    0.906,    0.925,  // eta: (1.2, 2.1)
-                      0.0,     0.522,    0.720,    0.764,    0.803,    0.807,    0.885,    0.877,  // eta: (2.1, 2.4)
-                      0.0,     0.0,      0.0,      0.0,      0.0,      0.0,      0.0,      0.0,    // eta > 2.4
-          }
-        );
-
-        std::map<str, HEPUtils::BinnedFn2D<double> *> _eff2DMu =
+      // Muons
+      // Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_mu_039_multi_ttbar.pdf
+      // The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
+      static const HEPUtils::BinnedFn2D<double> eff2DMu_SUS_16_039(
+        {0., 0.9, 1.2, 2.1, 2.4, DBL_MAX},   // Bin edges in eta
+        {0., 10., 15., 20., 25., 30., 40., 50., DBL_MAX},  // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
         {
-          {"SUS_16_039", &eff2DMu_SUS_16_039}
-        };
+          // pT:   (0,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf) 
+                    0.0,     0.704,    0.797,    0.855,    0.880,    0.906,    0.927,    0.931,  // eta: (0, 0.9)
+                    0.0,     0.639,    0.776,    0.836,    0.875,    0.898,    0.940,    0.930,  // eta: (0.9, 1.2)
+                    0.0,     0.596,    0.715,    0.840,    0.862,    0.891,    0.906,    0.925,  // eta: (1.2, 2.1)
+                    0.0,     0.522,    0.720,    0.764,    0.803,    0.807,    0.885,    0.877,  // eta: (2.1, 2.4)
+                    0.0,     0.0,      0.0,      0.0,      0.0,      0.0,      0.0,      0.0     // eta > 2.4
+        }
+      );
 
-        return *_eff2DMu[analysis];
-      }
+      // Taus (Tight WP)
+      // Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/TauIDEfficiency_pT_DP2016_066.pdf
+      // The tau efficiencies should be corrected with a data/simulation scale factor of 0.95, as instructed here: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SUSMoriond2017ObjectsEfficiency
+      static const HEPUtils::BinnedFn2D<double> eff2DTau_SUS_16_039(
+        {0.,2.3},
+        {0.,25.,30.,35.,40.,45.,50.,60.,70.,80.,DBL_MAX},  // Assuming flat efficiency above pT = 100 GeV, where the CMS map stops.
+        {0.38*0.95, 0.48*0.95, 0.5*0.95, 0.49*0.95, 0.51*0.95, 0.49*0.95, 0.47*0.95, 0.45*0.95, 0.48*0.95, 0.5*0.95}
+      );
 
 
-      // Tau efficiency (Tight WP)
-      inline HEPUtils::BinnedFn2D<double> eff2DTau(str analysis)
+      // Map of electron efficiencies
+      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DEl = 
       {
-        // Efficiencies from the 2016 Multilepton EWK analyses (SUS_16_039)
-        // Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/TauIDEfficiency_pT_DP2016_066.pdf
-        // The tau efficiencies should be corrected with a data/simulation scale factor of 0.95, as instructed here: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SUSMoriond2017ObjectsEfficiency
-        HEPUtils::BinnedFn2D<double> eff2DTau_SUS_16_039(
-          {0.,2.3},
-          {0.,25.,30.,35.,40.,45.,50.,60.,70.,80.,DBL_MAX},  // Assuming flat efficiency above pT = 100 GeV, where the CMS map stops.
-          {0.38*0.95, 0.48*0.95, 0.5*0.95, 0.49*0.95, 0.51*0.95, 0.49*0.95, 0.47*0.95, 0.45*0.95, 0.48*0.95, 0.5*0.95}
-        );
+        {"SUS_16_039", eff2DEl_SUS_16_039}
+      };
 
-        std::map<str, HEPUtils::BinnedFn2D<double> *> _eff2DTau =
-        {
-          {"SUS_16_039", &eff2DTau_SUS_16_039}
-        };
+      // Map of muon efficiencies
+      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DMu = 
+      {
+        {"SUS_16_039", eff2DMu_SUS_16_039}
+      };
 
-        return *_eff2DTau[analysis];
-      }
+      // Map of tau efficiencies
+      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DTau =
+      {
+        {"SUS_16_039", eff2DTau_SUS_16_039}
+      };
 
       ///@}
 

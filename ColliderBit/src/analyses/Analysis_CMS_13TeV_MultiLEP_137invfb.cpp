@@ -93,15 +93,15 @@ namespace Gambit
           P4 mmom = event->missingmom();
 
           // Here we will be using the same efficiencies as in the 36invfb version, as there is no public data for this yet
-          HEPUtils::BinnedFn2D<double> _eff2DEl(CMS::eff2DEl("SUS_16_039"));
-          HEPUtils::BinnedFn2D<double> _eff2DMu(CMS::eff2DMu("SUS_16_039"));
-          HEPUtils::BinnedFn2D<double> _eff2DTau(CMS::eff2DTau("SUS_16_039"));
+          //HEPUtils::BinnedFn2D<double> _eff2DEl = CMS::eff2DEl("SUS_16_039");
+          //HEPUtils::BinnedFn2D<double> _eff2DMu(CMS::eff2DMu("SUS_16_039"));
+          //HEPUtils::BinnedFn2D<double> _eff2DTau(CMS::eff2DTau("SUS_16_039"));
 
           // Baseline electrons
           std::vector<const HEPUtils::Particle*> baselineElectrons;
           for (const HEPUtils::Particle* electron : event->electrons())
           {
-            bool isEl = has_tag(_eff2DEl, fabs(electron->eta()), electron->pT());
+            bool isEl = has_tag(CMS::eff2DEl.at("SUS_16_039"), fabs(electron->eta()), electron->pT());
             if (electron->pT()>10. && fabs(electron->eta())<2.5 && isEl)
               baselineElectrons.push_back(electron);
           }
@@ -110,7 +110,7 @@ namespace Gambit
           std::vector<const HEPUtils::Particle*> baselineMuons;
           for (const HEPUtils::Particle* muon : event->muons())
           {
-            bool isMu = has_tag(_eff2DEl, fabs(muon->eta()), muon->pT());
+            bool isMu = has_tag(CMS::eff2DMu.at("SUS_16_039"), fabs(muon->eta()), muon->pT());
             if (muon->pT()>10. && fabs(muon->eta())<2.4 && isMu)
               baselineMuons.push_back(muon);
           }
@@ -121,7 +121,7 @@ namespace Gambit
           std::vector<const HEPUtils::Particle*> baselineTaus;
           for (const HEPUtils::Particle* tau : event->taus())
           {
-            bool isTau = has_tag(_eff2DTau, fabs(tau->eta()), tau->pT());
+            bool isTau = has_tag(CMS::eff2DTau.at("SUS_16_039"), fabs(tau->eta()), tau->pT());
             if (tau->pT()>20. &&fabs(tau->eta())<2.3 && isTau)
               baselineTaus.push_back(tau);
           }
