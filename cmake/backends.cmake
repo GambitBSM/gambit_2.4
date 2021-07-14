@@ -1567,6 +1567,7 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from run import arg_utils" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
