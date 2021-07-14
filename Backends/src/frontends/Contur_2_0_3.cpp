@@ -19,7 +19,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Contur_2_0_1.hpp"
+#include "gambit/Backends/frontends/Contur_2_0_3.hpp"
 
 
 using namespace pybind11::literals;
@@ -49,7 +49,7 @@ BE_NAMESPACE
         "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
     args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
-    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
+    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("CLs");
 
 
     //Run contur, get a LLR and return it
@@ -65,7 +65,7 @@ BE_NAMESPACE
         "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
     args_dict[pybind11::cast("YODASTREAM")] = YODA_filename;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
-    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("LLR");
+    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("CLs");
    
     //Run contur, get a LLR and return it
     return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();

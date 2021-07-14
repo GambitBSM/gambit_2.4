@@ -24,8 +24,8 @@
 
 #define BACKENDNAME Contur
 #define BACKENDLANG Python3
-#define VERSION 2.0.1
-#define SAFE_VERSION 2_0_1
+#define VERSION 2.0.3
+#define SAFE_VERSION 2_0_3
 
 LOAD_LIBRARY
 

@@ -1536,9 +1536,9 @@ endif()
 
 # Contur
 set(name "contur")
-set(ver "2.0.1")
+set(ver "2.0.3")
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
-set(md5 "12918158c84b006e7e8996c5f41553b4")
+set(md5 "5f49560e718bb9e75751f693b40d552b")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
