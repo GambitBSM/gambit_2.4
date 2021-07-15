@@ -7,7 +7,10 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
+
+#define CHECK_CUTFLOW
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-19-012/index.html
 
@@ -35,51 +38,95 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
+        Cutflows _cutflows;
+
         Analysis_CMS_13TeV_MultiLEP_137invfb()
         {
 
           // Fill counters map
           // 2SSLep (2lSS)
           for(size_t i=1; i<=20; ++i)
+          {
             _counters[SR("SS",i)] =  EventCounter(SR("SS",i));
+            _cutflows.addCutflow(SR("SS",i), {"Preselection", "Final"});
+          }
           // 3Lep, OSSF pair (3lA)
           for(size_t i=1; i<=64; ++i)
+          {
             _counters[SR("A",i)] = EventCounter(SR("A",i));
+            _cutflows.addCutflow(SR("A",i), {"Preselection", "Final"});
+          }
           // 3Lep, no OSSF pair (3lB)
           for(size_t i=1; i<=3; ++i)
+          {
             _counters[SR("B",i)] = EventCounter(SR("B",i));
+            _cutflows.addCutflow(SR("B",i), {"Preselection", "Final"});
+          }
           // 3Lep, OSSF pair + tau (3lC)
           for(size_t i=1; i<=9; ++i)
+          {
             _counters[SR("C",i)] = EventCounter(SR("C",i));
+            _cutflows.addCutflow(SR("C",i), {"Preselection", "Final"});
+          }
           // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
           for(size_t i=1; i<=16; ++i)
+          {
             _counters[SR("D",i)] = EventCounter(SR("D",i));
+            _cutflows.addCutflow(SR("D",i), {"Preselection", "Final"});
+          }
           // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
           for(size_t i=1; i<=9; ++i)
+          {
             _counters[SR("E",i)] = EventCounter(SR("E",i));
+            _cutflows.addCutflow(SR("E",i), {"Preselection", "Final"});
+          }
           // 3Lep, 2 tau (3lF)
           for(size_t i=1; i<=12; ++i)
+          {
             _counters[SR("F",i)] = EventCounter(SR("F",i));
+            _cutflows.addCutflow(SR("F",i), {"Preselection", "Final"});
+          }
           // 4Lep, 2 OSSF pairs (4lG)
           for(size_t i=1; i<=5; ++i)
+          {
             _counters[SR("G",i)] = EventCounter(SR("G",i));
+            _cutflows.addCutflow(SR("G",i), {"Preselection", "Final"});
+          }
           // 4Lep, 1 or fewer OSSF pairs (4lH)
           for(size_t i=1; i<=3; ++i)
+          {
             _counters[SR("H",i)] = EventCounter(SR("H",i));
+            _cutflows.addCutflow(SR("H",i), {"Preselection", "Final"});
+          }
           // 4Lep, tau + 3 light leptons (4lI)
           for(size_t i=1; i<=3; ++i)
+          {
             _counters[SR("I",i)] = EventCounter(SR("I",i));
+            _cutflows.addCutflow(SR("I",i), {"Preselection", "Final"});
+          }
           // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
           for(size_t i=1; i<=3; ++i)
+          {
             _counters[SR("J",i)] = EventCounter(SR("J",i));
+            _cutflows.addCutflow(SR("J",i), {"Preselection", "Final"});
+          }
           // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
           for(size_t i=1; i<=3; ++i)
+          {
             _counters[SR("K",i)] = EventCounter(SR("K",i));
+            _cutflows.addCutflow(SR("K",i), {"Preselection", "Final"});
+          }
 
 
           set_analysis_name("CMS_13TeV_MultiLEP_137invfb");
           set_luminosity(137.0);
 
+        }
+
+        void counter_cutflow(str SR, const HEPUtils::Event *event, double weight)
+        {
+          _cutflows[SR].fillnext(weight);
+          _counters.at(SR).add_event(event);
         }
 
         void run(const HEPUtils::Event* event)
@@ -93,14 +140,12 @@ namespace Gambit
           P4 mmom = event->missingmom();
 
           // Here we will be using the same efficiencies as in the 36invfb version, as there is no public data for this yet
-          //HEPUtils::BinnedFn2D<double> _eff2DEl = CMS::eff2DEl("SUS_16_039");
-          //HEPUtils::BinnedFn2D<double> _eff2DMu(CMS::eff2DMu("SUS_16_039"));
-          //HEPUtils::BinnedFn2D<double> _eff2DTau(CMS::eff2DTau("SUS_16_039"));
 
           // Baseline electrons
           std::vector<const HEPUtils::Particle*> baselineElectrons;
           for (const HEPUtils::Particle* electron : event->electrons())
           {
+            //bool isEl = 1;
             bool isEl = has_tag(CMS::eff2DEl.at("SUS_16_039"), fabs(electron->eta()), electron->pT());
             if (electron->pT()>10. && fabs(electron->eta())<2.5 && isEl)
               baselineElectrons.push_back(electron);
@@ -110,6 +155,7 @@ namespace Gambit
           std::vector<const HEPUtils::Particle*> baselineMuons;
           for (const HEPUtils::Particle* muon : event->muons())
           {
+            //bool isMu = 1;
             bool isMu = has_tag(CMS::eff2DMu.at("SUS_16_039"), fabs(muon->eta()), muon->pT());
             if (muon->pT()>10. && fabs(muon->eta())<2.4 && isMu)
               baselineMuons.push_back(muon);
@@ -121,6 +167,7 @@ namespace Gambit
           std::vector<const HEPUtils::Particle*> baselineTaus;
           for (const HEPUtils::Particle* tau : event->taus())
           {
+            //bool isTau = 1;
             bool isTau = has_tag(CMS::eff2DTau.at("SUS_16_039"), fabs(tau->eta()), tau->pT());
             if (tau->pT()>20. &&fabs(tau->eta())<2.3 && isTau)
               baselineTaus.push_back(tau);
@@ -179,6 +226,7 @@ namespace Gambit
           const size_t nTaus = nLeptons - nLightLeptons;
           const size_t nSSpairs = SSpairs.size();
           const size_t nOSSFpairs = OSSFpairs.size();
+          const size_t nOSpairs = OSpairs.size();
 
           const size_t nJets = signalJets.size();
           const size_t nBJets = signalBJets.size();
@@ -203,11 +251,16 @@ namespace Gambit
           bool mixedPair = nLightLeptons == 2 and ( ( amIaMuon(signalLeptons.at(0)) and amIanElectron(signalLeptons.at(1)) ) or
                                                   ( amIanElectron(signalLeptons.at(0)) and amIaMuon(signalLeptons.at(1)) ) );
 
+          // Cuflow initialization
+          const double w = event->weight();
+          _cutflows.fillinit(w);
+
           //////////////////
           // Preselection //
           if(nLeptons < 3 and (nLightLeptons < 2 or nSSpairs == 0) ) return;
           if(nBJets > 0) return;
           if(nOSSFpairs > 0 and mossf[0] < 12.0) return;
+          _cutflows.fillnext(w);
 
           ////////////////////
           // Signal regions //
@@ -220,7 +273,6 @@ namespace Gambit
              ( nJets < 2 or signalJets.at(1)->pT() < 40) and
              met > 60. )
           {
-
             // Stransverse mass
             double mT2 = get_mT2(signalLeptons.at(0), signalLeptons.at(1), mmom, 0);
 
@@ -228,29 +280,29 @@ namespace Gambit
             double pTll = ( signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() ).pT();
 
             // Sign of final states
-            bool positive = signalLeptons.at(0)->pid() * signalLeptons.at(1)->pid() > 0;
+            bool positive = signalLeptons.at(0)->pid() > 0;
             bool negative = not positive;
 
-            if(mT2 == 0. and pTll <  70.) _counters.at("SS01").add_event(event);
-            if(mT2 == 0. and pTll >= 70. and met <  100.) _counters.at("SS02").add_event(event);
-            if(mT2 == 0. and pTll >= 70. and met >= 100. and met < 200. and positive) _counters.at("SS03").add_event(event);
-            if(mT2 == 0. and pTll >= 70. and met >= 100. and met < 200. and negative) _counters.at("SS04").add_event(event);
-            if(mT2 == 0. and pTll >= 70. and met >= 200. and positive) _counters.at("SS05").add_event(event);
-            if(mT2 == 0. and pTll >= 70. and met >= 200. and negative) _counters.at("SS06").add_event(event);
-            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met <  200. and positive) _counters.at("SS07").add_event(event);
-            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met <  200. and negative) _counters.at("SS08").add_event(event);
-            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met >= 200.) _counters.at("SS09").add_event(event);
-            if(mT2 >  0. and mT2 <= 80. and pTll >= 30.) _counters.at("SS10").add_event(event);
-            if(mT2 > 80. and pTll <  200. and met <  100.) _counters.at("SS11").add_event(event);
-            if(mT2 > 80. and pTll <  200. and met >= 100. and met < 200. and positive) _counters.at("SS12").add_event(event);
-            if(mT2 > 80. and pTll <  200. and met >= 100. and met < 200. and negative) _counters.at("SS13").add_event(event);
-            if(mT2 > 80. and pTll <  200. and met >= 200. and positive) _counters.at("SS14").add_event(event);
-            if(mT2 > 80. and pTll <  200. and met >= 200. and negative) _counters.at("SS15").add_event(event);
-            if(mT2 > 80. and pTll >= 200. and met <  100.) _counters.at("SS16").add_event(event);
-            if(mT2 > 80. and pTll >= 200. and met >= 100. and met < 200. and positive) _counters.at("SS17").add_event(event);
-            if(mT2 > 80. and pTll >= 200. and met >= 100. and met < 200. and negative) _counters.at("SS18").add_event(event);
-            if(mT2 > 80. and pTll >= 200. and met >= 200. and positive) _counters.at("SS19").add_event(event);
-            if(mT2 > 80. and pTll >= 200. and met >= 200. and negative) _counters.at("SS20").add_event(event);
+            if(mT2 == 0. and pTll <  70.) counter_cutflow("SS01",event,w);
+            if(mT2 == 0. and pTll >= 70. and met <  100.) counter_cutflow("SS02",event,w);
+            if(mT2 == 0. and pTll >= 70. and met >= 100. and met < 200. and positive) counter_cutflow("SS03",event,w);
+            if(mT2 == 0. and pTll >= 70. and met >= 100. and met < 200. and negative) counter_cutflow("SS04",event,w);
+            if(mT2 == 0. and pTll >= 70. and met >= 200. and positive) counter_cutflow("SS05",event,w);
+            if(mT2 == 0. and pTll >= 70. and met >= 200. and negative) counter_cutflow("SS06",event,w);
+            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met <  200. and positive) counter_cutflow("SS07",event,w);
+            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met <  200. and negative) counter_cutflow("SS08",event,w);
+            if(mT2 >  0. and mT2 <= 80. and pTll <  30. and met >= 200.) counter_cutflow("SS09",event,w);
+            if(mT2 >  0. and mT2 <= 80. and pTll >= 30.) counter_cutflow("SS10",event,w);
+            if(mT2 > 80. and pTll <  200. and met <  100.) counter_cutflow("SS11",event,w);
+            if(mT2 > 80. and pTll <  200. and met >= 100. and met < 200. and positive) counter_cutflow("SS12",event,w);
+            if(mT2 > 80. and pTll <  200. and met >= 100. and met < 200. and negative) counter_cutflow("SS13",event,w);
+            if(mT2 > 80. and pTll <  200. and met >= 200. and positive) counter_cutflow("SS14",event,w);
+            if(mT2 > 80. and pTll <  200. and met >= 200. and negative) counter_cutflow("SS15",event,w);
+            if(mT2 > 80. and pTll >= 200. and met <  100.) counter_cutflow("SS16",event,w);
+            if(mT2 > 80. and pTll >= 200. and met >= 100. and met < 200. and positive) counter_cutflow("SS17",event,w);
+            if(mT2 > 80. and pTll >= 200. and met >= 100. and met < 200. and negative) counter_cutflow("SS18",event,w);
+            if(mT2 > 80. and pTll >= 200. and met >= 200. and positive) counter_cutflow("SS19",event,w);
+            if(mT2 > 80. and pTll >= 200. and met >= 200. and negative) counter_cutflow("SS20",event,w);
           }
 
           // Selection conditon for 3 lepton events
@@ -282,76 +334,76 @@ namespace Gambit
             double HT = scalarSumPt(signalJets);
 
             // Signal regions
-            if(mll < 50. and mT >= 0.   and mT < 100. and mT3l >=  0. and mT3l <  50.) _counters.at("A01").add_event(event);
-            if(mll < 50. and mT >= 0.   and mT < 100. and mT3l >= 50. and mT3l < 100.) _counters.at("A02").add_event(event);
-            if(mll < 50. and mT >= 0.   and mT < 100. and mT3l >= 100.) _counters.at("A03").add_event(event);
-            if(mll < 50. and mT >= 100. and mT < 200.) _counters.at("A04").add_event(event);
-            if(mll < 50. and mT >= 200.) _counters.at("A05").add_event(event);
+            if(mll < 50. and mT >= 0.   and mT < 100. and mT3l >=  0. and mT3l <  50.) counter_cutflow("A01",event,w);
+            if(mll < 50. and mT >= 0.   and mT < 100. and mT3l >= 50. and mT3l < 100.) counter_cutflow("A02",event,w);
+            if(mll < 50. and mT >= 0.   and mT < 100. and mT3l >= 100.) counter_cutflow("A03",event,w);
+            if(mll < 50. and mT >= 100. and mT < 200.) counter_cutflow("A04",event,w);
+            if(mll < 50. and mT >= 200.) counter_cutflow("A05",event,w);
 
-            if(mll >= 50. and mll < 75. and mT >=   0. and mT < 100. and mT3l >=   0. and mT3l < 100.) _counters.at("A06").add_event(event);
-            if(mll >= 50. and mll < 75. and mT >=   0. and mT < 100. and mT3l >= 100. and mT3l < 400.) _counters.at("A07").add_event(event);
-            if(mll >= 50. and mll < 75. and mT >=   0. and mT < 100. and mT3l >= 400.) _counters.at("A08").add_event(event);
-            if(mll >= 50. and mll < 75. and mT >= 100. and mT < 200. and mT3l >=   0. and mT3l < 200.) _counters.at("A09").add_event(event);
-            if(mll >= 50. and mll < 75. and mT >= 100. and mT < 200. and mT3l >= 200.) _counters.at("A10").add_event(event);
-            if(mll >= 50. and mll < 75. and mT >= 200. and mT3l >=   0. and mT3l < 400.) _counters.at("A11").add_event(event);
-            if(mll >= 50. and mll < 75. and mT >= 200. and mT3l >= 400.) _counters.at("A12").add_event(event);
+            if(mll >= 50. and mll < 75. and mT >=   0. and mT < 100. and mT3l >=   0. and mT3l < 100.) counter_cutflow("A06",event,w);
+            if(mll >= 50. and mll < 75. and mT >=   0. and mT < 100. and mT3l >= 100. and mT3l < 400.) counter_cutflow("A07",event,w);
+            if(mll >= 50. and mll < 75. and mT >=   0. and mT < 100. and mT3l >= 400.) counter_cutflow("A08",event,w);
+            if(mll >= 50. and mll < 75. and mT >= 100. and mT < 200. and mT3l >=   0. and mT3l < 200.) counter_cutflow("A09",event,w);
+            if(mll >= 50. and mll < 75. and mT >= 100. and mT < 200. and mT3l >= 200.) counter_cutflow("A10",event,w);
+            if(mll >= 50. and mll < 75. and mT >= 200. and mT3l >=   0. and mT3l < 400.) counter_cutflow("A11",event,w);
+            if(mll >= 50. and mll < 75. and mT >= 200. and mT3l >= 400.) counter_cutflow("A12",event,w);
 
-            if(mll >= 105. and mll < 250. and mT >=   0. and mT < 100. and mT3l >=   0. and mT3l < 400.) _counters.at("A13").add_event(event);
-            if(mll >= 105. and mll < 250. and mT >=   0. and mT < 100. and mT3l >= 400.) _counters.at("A14").add_event(event);
-            if(mll >= 105. and mll < 250. and mT >= 100. and mT < 200. and mT3l >=   0. and mT3l < 200.) _counters.at("A15").add_event(event);
-            if(mll >= 105. and mll < 250. and mT >= 100. and mT < 200. and mT3l >= 200.) _counters.at("A16").add_event(event);
-            if(mll >= 105. and mll < 250. and mT >= 200. and mT3l >=   0. and mT3l < 400.) _counters.at("A17").add_event(event);
-            if(mll >= 105. and mll < 250. and mT >= 200. and mT3l >= 400.) _counters.at("A18").add_event(event);
+            if(mll >= 105. and mll < 250. and mT >=   0. and mT < 100. and mT3l >=   0. and mT3l < 400.) counter_cutflow("A13",event,w);
+            if(mll >= 105. and mll < 250. and mT >=   0. and mT < 100. and mT3l >= 400.) counter_cutflow("A14",event,w);
+            if(mll >= 105. and mll < 250. and mT >= 100. and mT < 200. and mT3l >=   0. and mT3l < 200.) counter_cutflow("A15",event,w);
+            if(mll >= 105. and mll < 250. and mT >= 100. and mT < 200. and mT3l >= 200.) counter_cutflow("A16",event,w);
+            if(mll >= 105. and mll < 250. and mT >= 200. and mT3l >=   0. and mT3l < 400.) counter_cutflow("A17",event,w);
+            if(mll >= 105. and mll < 250. and mT >= 200. and mT3l >= 400.) counter_cutflow("A18",event,w);
 
-            if(mll >= 250. and mT >=   0. and mT < 100. and mT3l >=   0. and mT3l < 400.) _counters.at("A19").add_event(event);
-            if(mll >= 250. and mT >=   0. and mT < 100. and mT3l >= 400.) _counters.at("A20").add_event(event);
-            if(mll >= 250. and mT >= 100. and mT < 200.) _counters.at("A21").add_event(event);
-            if(mll >= 250. and mT >= 200.) _counters.at("A22").add_event(event);
+            if(mll >= 250. and mT >=   0. and mT < 100. and mT3l >=   0. and mT3l < 400.) counter_cutflow("A19",event,w);
+            if(mll >= 250. and mT >=   0. and mT < 100. and mT3l >= 400.) counter_cutflow("A20",event,w);
+            if(mll >= 250. and mT >= 100. and mT < 200.) counter_cutflow("A21",event,w);
+            if(mll >= 250. and mT >= 200.) counter_cutflow("A22",event,w);
 
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >=  50. and met < 100.) _counters.at("A23").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 100. and met < 150.) _counters.at("A24").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 150. and met < 200.) _counters.at("A25").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 200. and met < 250.) _counters.at("A26").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 250.) _counters.at("A27").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >=  50. and met < 100.) _counters.at("A28").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >= 100. and met < 150.) _counters.at("A29").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >= 150. and met < 200.) _counters.at("A30").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >= 200.) _counters.at("A31").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >=  50. and met < 100.) _counters.at("A32").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >= 100. and met < 150.) _counters.at("A33").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >= 150. and met < 200.) _counters.at("A34").add_event(event);
-            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >= 200.) _counters.at("A35").add_event(event);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >=  50. and met < 100.) counter_cutflow("A23",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 100. and met < 150.) counter_cutflow("A24",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 150. and met < 200.) counter_cutflow("A25",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 200. and met < 250.) counter_cutflow("A26",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >=   0. and mT < 100. and met >= 250.) counter_cutflow("A27",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >=  50. and met < 100.) counter_cutflow("A28",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >= 100. and met < 150.) counter_cutflow("A29",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >= 150. and met < 200.) counter_cutflow("A30",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 100. and mT < 160. and met >= 200.) counter_cutflow("A31",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >=  50. and met < 100.) counter_cutflow("A32",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >= 100. and met < 150.) counter_cutflow("A33",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >= 150. and met < 200.) counter_cutflow("A34",event,w);
+            if(mll >= 75. and mll < 105. and HT < 100 and mT >= 160. and met >= 200.) counter_cutflow("A35",event,w);
 
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >=  50. and met < 100.) _counters.at("A36").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 100. and met < 150.) _counters.at("A37").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 150. and met < 200.) _counters.at("A38").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 200. and met < 250.) _counters.at("A39").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 250.) _counters.at("A40").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >=  50. and met < 100.) _counters.at("A41").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >= 100. and met < 150.) _counters.at("A42").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >= 150. and met < 200.) _counters.at("A43").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >= 200.) _counters.at("A44").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >=  50. and met < 100.) _counters.at("A45").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >= 100. and met < 150.) _counters.at("A46").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >= 150. and met < 200.) _counters.at("A47").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >= 200.) _counters.at("A48").add_event(event);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >=  50. and met < 100.) counter_cutflow("A36",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 100. and met < 150.) counter_cutflow("A37",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 150. and met < 200.) counter_cutflow("A38",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 200. and met < 250.) counter_cutflow("A39",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >=   0. and mT < 100. and met >= 250.) counter_cutflow("A40",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >=  50. and met < 100.) counter_cutflow("A41",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >= 100. and met < 150.) counter_cutflow("A42",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >= 150. and met < 200.) counter_cutflow("A43",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 100. and mT < 160. and met >= 200.) counter_cutflow("A44",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >=  50. and met < 100.) counter_cutflow("A45",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >= 100. and met < 150.) counter_cutflow("A46",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >= 150. and met < 200.) counter_cutflow("A47",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 100. and HT < 200 and mT >= 160. and met >= 200.) counter_cutflow("A48",event,w);
 
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >=  50. and met < 150.) _counters.at("A49").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >= 150. and met < 250.) _counters.at("A50").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >= 250. and met < 350.) _counters.at("A51").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >= 350.) _counters.at("A52").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >=  50. and met < 100.) _counters.at("A53").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 100. and met < 150.) _counters.at("A54").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 150. and met < 200.) _counters.at("A55").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 200. and met < 250.) _counters.at("A56").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 250. and met < 300.) _counters.at("A57").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 300.) _counters.at("A58").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >=  50. and met < 100.) _counters.at("A59").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 100. and met < 150.) _counters.at("A60").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 150. and met < 200.) _counters.at("A61").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 200. and met < 250.) _counters.at("A61").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 250. and met < 300.) _counters.at("A63").add_event(event);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 300.) _counters.at("A64").add_event(event);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >=  50. and met < 150.) counter_cutflow("A49",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >= 150. and met < 250.) counter_cutflow("A50",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >= 250. and met < 350.) counter_cutflow("A51",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >=   0. and mT < 100. and met >= 350.) counter_cutflow("A52",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >=  50. and met < 100.) counter_cutflow("A53",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 100. and met < 150.) counter_cutflow("A54",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 150. and met < 200.) counter_cutflow("A55",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 200. and met < 250.) counter_cutflow("A56",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 250. and met < 300.) counter_cutflow("A57",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 100. and mT < 160. and met >= 300.) counter_cutflow("A58",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >=  50. and met < 100.) counter_cutflow("A59",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 100. and met < 150.) counter_cutflow("A60",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 150. and met < 200.) counter_cutflow("A61",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 200. and met < 250.) counter_cutflow("A61",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 250. and met < 300.) counter_cutflow("A63",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 300.) counter_cutflow("A64",event,w);
           }
 
           // 3Lep, no OSSF pair (3lB)
@@ -364,15 +416,14 @@ namespace Gambit
                 if(lep1 != lep2 and (minDeltaR > deltaR_eta(lep1->mom(),lep2->mom()) or minDeltaR == 0.) )
                   minDeltaR = deltaR_eta(lep1->mom(),lep2->mom());
 
-            if(minDeltaR <  0.4) _counters.at("B01").add_event(event);
-            if(minDeltaR >= 0.4 and minDeltaR < 1.0) _counters.at("B02").add_event(event);
-            if(minDeltaR >= 1.0) _counters.at("B03").add_event(event);
+            if(minDeltaR <  0.4) counter_cutflow("B01",event,w);
+            if(minDeltaR >= 0.4 and minDeltaR < 1.0) counter_cutflow("B02",event,w);
+            if(minDeltaR >= 1.0) counter_cutflow("B03",event,w);
           }
 
           // 3Lep, OSSF pair + tau (3lC)
           if(_3Lep and nTaus == 1 and nOSSFpairs > 0)
           {
-
             // mT2 variable
             // TODO: Is this the ll MT2?
             // TODO: Use Lester's
@@ -384,15 +435,15 @@ namespace Gambit
             // mT2l variable
             double mT2l = get_mT(signalLightLeptons.at(0), signalLightLeptons.at(1), mmom);
 
-            if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 <   80.) _counters.at("C01").add_event(event);
-            if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 >=  80. and mT2 < 120.) _counters.at("C02").add_event(event);
-            if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 >= 120.) _counters.at("C03").add_event(event);
-            if(abs(mll - mZ) > 15. and met >= 200. and met < 300. and mT2l >= 0. and mT2 <   80.) _counters.at("C04").add_event(event);
-            if(abs(mll - mZ) > 15. and met >= 200. and met < 300. and mT2l >= 0. and mT2 >=  80. and mT2 < 120.) _counters.at("C05").add_event(event);
-            if(abs(mll - mZ) > 15. and met >= 200. and met < 300. and mT2l >= 0. and mT2 >= 120.) _counters.at("C06").add_event(event);
-            if(abs(mll - mZ) > 15. and met >= 300. and mT2l >=   0. and mT2l < 250.) _counters.at("C07").add_event(event);
-            if(abs(mll - mZ) > 15. and met >= 300. and mT2l >= 250. and mT2l < 500.) _counters.at("C08").add_event(event);
-            if(abs(mll - mZ) > 15. and met >= 300. and mT2l >= 500.) _counters.at("C09").add_event(event);
+            if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 <   80.) counter_cutflow("C01",event,w);
+            if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 >=  80. and mT2 < 120.) counter_cutflow("C02",event,w);
+            if(abs(mll - mZ) > 15. and met >=  50. and met < 200. and mT2l >= 0. and mT2 >= 120.) counter_cutflow("C03",event,w);
+            if(abs(mll - mZ) > 15. and met >= 200. and met < 300. and mT2l >= 0. and mT2 <   80.) counter_cutflow("C04",event,w);
+            if(abs(mll - mZ) > 15. and met >= 200. and met < 300. and mT2l >= 0. and mT2 >=  80. and mT2 < 120.) counter_cutflow("C05",event,w);
+            if(abs(mll - mZ) > 15. and met >= 200. and met < 300. and mT2l >= 0. and mT2 >= 120.) counter_cutflow("C06",event,w);
+            if(abs(mll - mZ) > 15. and met >= 300. and mT2l >=   0. and mT2l < 250.) counter_cutflow("C07",event,w);
+            if(abs(mll - mZ) > 15. and met >= 300. and mT2l >= 250. and mT2l < 500.) counter_cutflow("C08",event,w);
+            if(abs(mll - mZ) > 15. and met >= 300. and mT2l >= 500.) counter_cutflow("C09",event,w);
           }
 
           // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
@@ -405,25 +456,25 @@ namespace Gambit
             // TODO: Lester's?
             double mT2 = get_mT2(signalLightLeptons.at(0), signalLightLeptons.at(1), mmom, 0.);
 
-            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >=  50. and met < 100.) _counters.at("D01").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 100. and met < 150.) _counters.at("D02").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 150. and met < 200.) _counters.at("D03").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 200. and met < 250.) _counters.at("D04").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 250.) _counters.at("D05").add_event(event);
+            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >=  50. and met < 100.) counter_cutflow("D01",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 100. and met < 150.) counter_cutflow("D02",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 150. and met < 200.) counter_cutflow("D03",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 200. and met < 250.) counter_cutflow("D04",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >= 250.) counter_cutflow("D05",event,w);
 
-            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >=  50. and met < 100.) _counters.at("D06").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 100. and met < 150.) _counters.at("D07").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 150. and met < 200.) _counters.at("D08").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 200. and met < 250.) _counters.at("D09").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 250.) _counters.at("D10").add_event(event);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >=  50. and met < 100.) counter_cutflow("D06",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 100. and met < 150.) counter_cutflow("D07",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 150. and met < 200.) counter_cutflow("D08",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 200. and met < 250.) counter_cutflow("D09",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 60. and mll < 100. and met >= 250.) counter_cutflow("D10",event,w);
 
-            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >=  50. and met < 100.) _counters.at("D11").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >= 100. and met < 150.) _counters.at("D12").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >= 150. and met < 200.) _counters.at("D13").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >= 200.) _counters.at("D14").add_event(event);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >=  50. and met < 100.) counter_cutflow("D11",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >= 100. and met < 150.) counter_cutflow("D12",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >= 150. and met < 200.) counter_cutflow("D13",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mll >= 100. and met >= 200.) counter_cutflow("D14",event,w);
 
-            if(mT2 >= 100. and met >=  50. and met < 200.) _counters.at("D15").add_event(event);
-            if(mT2 >= 100. and met >= 200.) _counters.at("D16").add_event(event);
+            if(mT2 >= 100. and met >=  50. and met < 200.) counter_cutflow("D15",event,w);
+            if(mT2 >= 100. and met >= 200.) counter_cutflow("D16",event,w);
 
           }
 
@@ -442,16 +493,16 @@ namespace Gambit
             // TODO:  Lester's
             double mT2 = get_mT2(signalLightLeptons.at(0), signalTaus.at(0), mmom, 0.);
 
-            if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >=  50. and met < 100.) _counters.at("E01").add_event(event);
-            if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 100. and met < 250.) _counters.at("E02").add_event(event);
-            if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 250.) _counters.at("E03").add_event(event);
-            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >=  50. and met < 100.) _counters.at("E04").add_event(event);
-            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >= 100.) _counters.at("E05").add_event(event); 
+            if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >=  50. and met < 100.) counter_cutflow("E01",event,w);
+            if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 100. and met < 250.) counter_cutflow("E02",event,w);
+            if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 250.) counter_cutflow("E03",event,w);
+            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >=  50. and met < 100.) counter_cutflow("E04",event,w);
+            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >= 100.) counter_cutflow("E05",event,w); 
 
-            if(mT2 >= 80. and mlth <= 100. and met >=  50. and met < 150.) _counters.at("E06").add_event(event);
-            if(mT2 >= 80. and mlth <= 100. and met >= 150.) _counters.at("E07").add_event(event);
-            if(mT2 >= 80. and mlth >  100. and met >=  50. and met < 200.) _counters.at("E08").add_event(event);
-            if(mT2 >= 80. and mlth >  100. and met >= 200.) _counters.at("E09").add_event(event);
+            if(mT2 >= 80. and mlth <= 100. and met >=  50. and met < 150.) counter_cutflow("E06",event,w);
+            if(mT2 >= 80. and mlth <= 100. and met >= 150.) counter_cutflow("E07",event,w);
+            if(mT2 >= 80. and mlth >  100. and met >=  50. and met < 200.) counter_cutflow("E08",event,w);
+            if(mT2 >= 80. and mlth >  100. and met >= 200.) counter_cutflow("E09",event,w);
           }
 
           // 3Lep, 2 tau (3lF)
@@ -464,20 +515,20 @@ namespace Gambit
             // TODO: Lester's
             double mT2 = get_mT2(signalTaus.at(0), signalLightLeptons.at(0), mmom, 0);
 
-            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >=  50. and met < 100.) _counters.at("F01").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 100. and met < 150.) _counters.at("F02").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 150. and met < 200.) _counters.at("F03").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 200. and met < 250.) _counters.at("F04").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 250. and met < 300.) _counters.at("F05").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 300.) _counters.at("F06").add_event(event);
+            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >=  50. and met < 100.) counter_cutflow("F01",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 100. and met < 150.) counter_cutflow("F02",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 150. and met < 200.) counter_cutflow("F03",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 200. and met < 250.) counter_cutflow("F04",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 250. and met < 300.) counter_cutflow("F05",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >= 300.) counter_cutflow("F06",event,w);
 
-            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >=  50. and met < 100.) _counters.at("F07").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >= 100. and met < 150.) _counters.at("F08").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >= 150. and met < 200.) _counters.at("F09").add_event(event);
-            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >= 200.) _counters.at("F10").add_event(event);
+            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >=  50. and met < 100.) counter_cutflow("F07",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >= 100. and met < 150.) counter_cutflow("F08",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >= 150. and met < 200.) counter_cutflow("F09",event,w);
+            if(mT2 >= 0. and mT2 < 100. and mlth >= 100. and met >= 200.) counter_cutflow("F10",event,w);
 
-            if(mT2 >= 100. and met >=  50. and met < 200.) _counters.at("F11").add_event(event);
-            if(mT2 >= 100. and met >= 200.) _counters.at("F12").add_event(event);
+            if(mT2 >= 100. and met >=  50. and met < 200.) counter_cutflow("F11",event,w);
+            if(mT2 >= 100. and met >= 200.) counter_cutflow("F12",event,w);
           }
 
           // 4Lep, 2 OSSF pairs (4lG)
@@ -490,15 +541,15 @@ namespace Gambit
             // Z2 invariant mass
             double mZ2 = (OSSFpairs.at(1).at(0)->mom() + OSSFpairs.at(1).at(1)->mom()).m();
 
-            if(mT2 >=   0. and mT2 < 150.) _counters.at("G01").add_event(event);
-            if(mT2 >= 150. and mT2 < 250. and mZ2 >= 60.) _counters.at("G02").add_event(event);
-            if(mT2 >= 150. and mT2 < 250. and mZ2 <  60.) _counters.at("G03").add_event(event);
-            if(mT2 >= 250. and mT2 < 400.) _counters.at("G04").add_event(event);
-            if(mT2 >= 400) _counters.at("G05").add_event(event);
+            if(mT2 >=   0. and mT2 < 150.) counter_cutflow("G01",event,w);
+            if(mT2 >= 150. and mT2 < 250. and mZ2 >= 60.) counter_cutflow("G02",event,w);
+            if(mT2 >= 150. and mT2 < 250. and mZ2 <  60.) counter_cutflow("G03",event,w);
+            if(mT2 >= 250. and mT2 < 400.) counter_cutflow("G04",event,w);
+            if(mT2 >= 400) counter_cutflow("G05",event,w);
           }
 
           // These variables are common to all remaining SRs
-          if(nLeptons == 4)
+          if(nLeptons == 4 and (nOSSFpairs > 0 or nOSpairs > 0))
           {
             // Z1 invariant mass
             double mZ1 = 0.;
@@ -528,33 +579,33 @@ namespace Gambit
             // 4Lep, 1 or fewer OSSF pairs (4lH)
             if(nLightLeptons == 4 and nOSSFpairs < 2)
             {
-              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("H01").add_event(event);
-              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("H02").add_event(event);
-              if(deltaRH < 0.8) _counters.at("H03").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 > 60.) counter_cutflow("H01",event,w);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) counter_cutflow("H02",event,w);
+              if(deltaRH < 0.8) counter_cutflow("H03",event,w);
             }
 
             // 4Lep, tau + 3 light leptons (4lI)
             if(nLightLeptons == 3 and nTaus == 1)
             {
-              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("I01").add_event(event);
-              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("I02").add_event(event);
-              if(deltaRH < 0.8) _counters.at("I03").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 > 60.) counter_cutflow("I01",event,w);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) counter_cutflow("I02",event,w);
+              if(deltaRH < 0.8) counter_cutflow("I03",event,w);
             }
 
             // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
             if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairs == 2)
             {
-              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("J01").add_event(event);
-              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("J02").add_event(event);
-              if(deltaRH < 0.8) _counters.at("J03").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 > 60.) counter_cutflow("J01",event,w);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) counter_cutflow("J02",event,w);
+              if(deltaRH < 0.8) counter_cutflow("J03",event,w);
             }
 
             // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
             if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairs < 2)
             {
-              if(deltaRH >= 0.8 and mZ1 > 60.) _counters.at("K01").add_event(event);
-              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) _counters.at("K02").add_event(event);
-              if(deltaRH < 0.8) _counters.at("K03").add_event(event);
+              if(deltaRH >= 0.8 and mZ1 > 60.) counter_cutflow("K01",event,w);
+              if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) counter_cutflow("K02",event,w);
+              if(deltaRH < 0.8) counter_cutflow("K03",event,w);
             }
           }
 
@@ -747,6 +798,17 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K02"), 5., {5.2, 2.45}));
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
+          // Cutflow printout
+          #ifdef CHECK_CUTFLOW
+            const double xsec = 121.013;
+            const double sf = 137*xsec;
+            _cutflows.normalize(sf);
+            cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+            cout << "\nSRCOUNTS:\n";
+            // for (double x : _srnums) cout << x << "  ";
+            for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
+            cout << "\n" << endl;
+          #endif
         }
 
       protected:
