@@ -187,7 +187,6 @@ namespace Gambit {
           if(ntest > 1) break;
         }
         int nV = nZ + nW;
-        // cout << "nZ " << nZ << " nW " << nW << " nV " << nV << endl;
         
   	    // b-jet tagging
         /* There is a difference here wrt the actual analysis where small
@@ -197,7 +196,9 @@ namespace Gambit {
          a b-labeled large radius jet and mis-tagging large radius non-b-jets
          according to the mis-tag probabilities of the small radius track jets.
         */
-        double btag = 0.83; double cmisstag = 1/3.; double misstag = 1./33.;
+        // double btag = 0.83; // currently not using this variable
+        double cmisstag = 1/3.; 
+        double misstag = 1./33.;
         int nb = 0;
         for ( const HEPUtils::Jet* jet : event->jets() ) {
           // Tag b-jet
