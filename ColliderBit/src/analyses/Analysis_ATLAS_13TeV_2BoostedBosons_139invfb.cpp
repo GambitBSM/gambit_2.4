@@ -52,15 +52,16 @@ namespace Gambit {
         {"SR-4Q-WZ", EventCounter("SR-4Q-WZ")},
         {"SR-4Q-ZZ", EventCounter("SR-4Q-ZZ")},
         {"SR-4Q-VV", EventCounter("SR-4Q-VV")},
-        {"SR-2B2Q-WZ", EventCounter("SR-2B2Q-WZ")},
-        {"SR-2B2Q-ZZ", EventCounter("SR-2B2Q-ZZ")},
-        {"SR-2B2Q-Wh", EventCounter("SR-2B2Q-Wh")},
-        {"SR-2B2Q-Zh", EventCounter("SR-2B2Q-Zh")},
-        {"SR-2B2Q-VZ", EventCounter("SR-2B2Q-VZ")},
-        {"SR-2B2Q-Vh", EventCounter("SR-2B2Q-Vh")},
-        // Discovery regions
-        {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
-        {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
+        // b-jet SRs not implemented
+        // {"SR-2B2Q-WZ", EventCounter("SR-2B2Q-WZ")},
+        // {"SR-2B2Q-ZZ", EventCounter("SR-2B2Q-ZZ")},
+        // {"SR-2B2Q-Wh", EventCounter("SR-2B2Q-Wh")},
+        // {"SR-2B2Q-Zh", EventCounter("SR-2B2Q-Zh")},
+        // {"SR-2B2Q-VZ", EventCounter("SR-2B2Q-VZ")},
+        // {"SR-2B2Q-Vh", EventCounter("SR-2B2Q-Vh")},
+        // // Discovery regions
+        // {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
+        // {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
       };
             
     public:
@@ -265,14 +266,16 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR-4Q-WZ"),   3., {3.4, 0.7}));
         add_result(SignalRegionData(_counters.at("SR-4Q-ZZ"),   1., {1.9, 0.5}));
         add_result(SignalRegionData(_counters.at("SR-4Q-VV"),   3., {3.9, 0.8}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-WZ"), 2., {1.6, 0.4}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-ZZ"), 2., {1.7, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-Wh"), 0., {1.9, 0.7}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-Zh"), 1., {1.6, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-VZ"), 2., {2.2, 0.6}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-Vh"), 1., {2.5, 0.8}));
-        add_result(SignalRegionData(_counters.at("Disc-SR-2B2Q"), 3., {4.7, 1.0})); // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
-        add_result(SignalRegionData(_counters.at("Disc-SR-Incl"), 6., {8.6, 1.3})); // Union of SR-4Q-VV and Disc-SR-2B2Q
+
+        // b-jet SRs not implemented
+        // add_result(SignalRegionData(_counters.at("SR-2B2Q-WZ"), 2., {1.6, 0.4}));
+        // add_result(SignalRegionData(_counters.at("SR-2B2Q-ZZ"), 2., {1.7, 0.5}));
+        // add_result(SignalRegionData(_counters.at("SR-2B2Q-Wh"), 0., {1.9, 0.7}));
+        // add_result(SignalRegionData(_counters.at("SR-2B2Q-Zh"), 1., {1.6, 0.5}));
+        // add_result(SignalRegionData(_counters.at("SR-2B2Q-VZ"), 2., {2.2, 0.6}));
+        // add_result(SignalRegionData(_counters.at("SR-2B2Q-Vh"), 1., {2.5, 0.8}));
+        // add_result(SignalRegionData(_counters.at("Disc-SR-2B2Q"), 3., {4.7, 1.0})); // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
+        // add_result(SignalRegionData(_counters.at("Disc-SR-Incl"), 6., {8.6, 1.3})); // Union of SR-4Q-VV and Disc-SR-2B2Q
 
         #ifdef CHECK_CUTFLOW
         cout << "Cut-flow output" << endl;
