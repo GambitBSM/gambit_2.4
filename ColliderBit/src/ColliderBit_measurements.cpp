@@ -33,14 +33,14 @@
   #include "YODA/IO.h"
 #endif
 
-
+//Small convenience function for supplying options to the contur argparser.
 void convert_yaml_options_for_contur(std::vector<std::string> &yaml_options)
 {
   for (size_t i{0}; i <yaml_options.size(); ++i){
     yaml_options[i] = ("--"+yaml_options[i]);
   }
 }
-
+add
 namespace Gambit
 {
 
@@ -99,12 +99,11 @@ namespace Gambit
             {
               ah->removeAnalyses(excluded_analyses);
             }
-
             //Write the utilised analyses to a file in yaml-like format
             //This will list only the analyses that RIVET has succesfully loaded.
-            //Only do this the first time.
             # pragma omp critical
             {
+              //Only do this the first time contur is run.
               static bool analyses_written_to_file = false;
               if (!analyses_written_to_file){
                 std::ofstream analyses_output_file;
@@ -161,7 +160,6 @@ namespace Gambit
 
             // Drop YODA file if requested
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
-
             if(drop_YODA_file)
             {
               str filename = "GAMBIT_collider_measurements.yoda";
