@@ -36,7 +36,7 @@ BE_NAMESPACE
 
   }
 
-  double Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string> &contur_yaml_args)
+  pybind11::object Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string> &contur_yaml_args)
   {
     //Convert C++ ostringstream to python StringIO
     pybind11::str InputString = pybind11::cast(yodastream->str());
@@ -53,11 +53,11 @@ BE_NAMESPACE
 
 
     //Run contur, get a LLR and return it
-    return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
+    return Contur.attr("run_analysis").attr("main")(args_dict);
   }
 
 
-  double Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
+  pybind11::object Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
   {
     //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
     pybind11::dict args_dict = 
@@ -68,7 +68,7 @@ BE_NAMESPACE
     args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("CLs");
    
     //Run contur, get a LLR and return it
-    return Contur.attr("run_analysis").attr("main")(args_dict).cast<double>();
+    return Contur.attr("run_analysis").attr("main")(args_dict);
   }
 
 
