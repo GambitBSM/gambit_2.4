@@ -249,7 +249,7 @@ namespace Gambit
 
         //Get the likelihood object previously evaluated
         pybind11::list contur_sorted_likelihoods = (*Dep::LHC_measurements).attr("sorted_likelihood_blocks");
-        
+
         const size_t number_of_pools = pybind11::len(contur_sorted_likelihoods);
         for (size_t i = 0; i < number_of_pools; i++){
           pybind11::object individual_likelihood = contur_sorted_likelihoods[i];
