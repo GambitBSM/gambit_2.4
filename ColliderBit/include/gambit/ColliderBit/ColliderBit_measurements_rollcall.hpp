@@ -64,6 +64,15 @@
     #undef CAPABILITY
 
     //The capability for getting the LLR contribution per pool from Contur.
+    #define CAPABILITY LHC_measurements_LogLike
+    START_CAPABILITY
+      #define FUNCTION Contur_LHC_measurements_LogLike
+      START_FUNCTION(double)
+      DEPENDENCY(LHC_measurements, pybind11::object)
+      #undef FUNCTION
+    #undef CAPABILITY
+
+    //Get a map of each contur pool and the contributed LLR
     #define CAPABILITY LHC_measurements_LogLike_perPool
     START_CAPABILITY
       #define FUNCTION Contur_LHC_measurements_LogLike_perPool
@@ -72,10 +81,10 @@
       #undef FUNCTION
     #undef CAPABILITY
 
-    #define CAPABILITY LHC_measurements_LogLike
+    #define CAPABILITY LHC_measurements_histotags_perPool
     START_CAPABILITY
-      #define FUNCTION Contur_LHC_measurements_LogLike
-      START_FUNCTION(double)
+      #define FUNCTION Contur_LHC_measurements_histotags_perPool
+      START_FUNCTION(map_str_str)
       DEPENDENCY(LHC_measurements, pybind11::object)
       #undef FUNCTION
     #undef CAPABILITY

@@ -49,13 +49,9 @@ BE_NAMESPACE
         "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
     args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
-    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("CLs");
 
-
-    //Run contur, get a LLR and return it
     return Contur.attr("run_analysis").attr("main")(args_dict);
   }
-
 
   pybind11::object Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
   {
@@ -65,7 +61,6 @@ BE_NAMESPACE
         "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
     args_dict[pybind11::cast("YODASTREAM")] = YODA_filename;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
-    args_dict[pybind11::cast("STAT_OUTPUT_TYPE")] = pybind11::str("CLs");
    
     //Run contur, get a LLR and return it
     return Contur.attr("run_analysis").attr("main")(args_dict);
@@ -84,9 +79,7 @@ BE_NAMESPACE
     for (std::string analysis : obtained_analyses){
       analyses.push_back(analysis);
     }
-
   }
-
 }
 END_BE_NAMESPACE
 
