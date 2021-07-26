@@ -48,16 +48,16 @@
 
       // Contur version, from YODA stream
       #define FUNCTION Contur_LHC_measurements_from_stream
-      START_FUNCTION(pybind11::object)
+      START_FUNCTION(Contur_output)
       DEPENDENCY(Rivet_measurements, std::shared_ptr<std::ostringstream>)
-      BACKEND_REQ(Contur_Measurements, (libcontur), pybind11::object, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&))
+      BACKEND_REQ(Contur_Measurements, (libcontur), Contur_output, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&))
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
 
       // Contur version, from file
       #define FUNCTION Contur_LHC_measurements_from_file
-      START_FUNCTION(pybind11::object)
-      BACKEND_REQ(Contur_Measurements, (libcontur), pybind11::object, (str &, std::vector<std::string>&))
+      START_FUNCTION(Contur_output)
+      BACKEND_REQ(Contur_Measurements, (libcontur), Contur_output, (str &, std::vector<std::string>&))
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
    
@@ -68,7 +68,7 @@
     START_CAPABILITY
       #define FUNCTION Contur_LHC_measurements_LogLike
       START_FUNCTION(double)
-      DEPENDENCY(LHC_measurements, pybind11::object)
+      DEPENDENCY(LHC_measurements, Contur_output)
       #undef FUNCTION
     #undef CAPABILITY
 
@@ -77,7 +77,7 @@
     START_CAPABILITY
       #define FUNCTION Contur_LHC_measurements_LogLike_perPool
       START_FUNCTION(map_str_dbl)
-      DEPENDENCY(LHC_measurements, pybind11::object)
+      DEPENDENCY(LHC_measurements, Contur_output)
       #undef FUNCTION
     #undef CAPABILITY
 
@@ -85,7 +85,7 @@
     START_CAPABILITY
       #define FUNCTION Contur_LHC_measurements_histotags_perPool
       START_FUNCTION(map_str_str)
-      DEPENDENCY(LHC_measurements, pybind11::object)
+      DEPENDENCY(LHC_measurements, Contur_output)
       #undef FUNCTION
     #undef CAPABILITY
 

@@ -36,7 +36,7 @@ BE_NAMESPACE
 
   }
 
-  pybind11::object Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string> &contur_yaml_args)
+  Contur_output Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string> &contur_yaml_args)
   {
     //Convert C++ ostringstream to python StringIO
     pybind11::str InputString = pybind11::cast(yodastream->str());
@@ -49,11 +49,15 @@ BE_NAMESPACE
         "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
     args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")] = pybind11::list();
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_tags");
 
-    return Contur.attr("run_analysis").attr("main")(args_dict);
+    return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
   }
 
-  pybind11::object Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
+  Contur_output Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
   {
     //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
     pybind11::dict args_dict = 
@@ -61,9 +65,13 @@ BE_NAMESPACE
         "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
     args_dict[pybind11::cast("YODASTREAM")] = YODA_filename;
     args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
-   
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")] = pybind11::list();
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_tags");
+
     //Run contur, get a LLR and return it
-    return Contur.attr("run_analysis").attr("main")(args_dict);
+    return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
   }
 
 

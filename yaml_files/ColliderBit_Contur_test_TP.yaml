@@ -103,6 +103,9 @@ ObsLikes:
     - purpose: likelihood_details
       capability: LHC_measurements_LogLike_perPool
 
+    - purpose: likelihood_details
+      capability: LHC_measurements_histotags_perPool
+
     # Other observables
 #    - purpose:    likelihood_details
 #      capability: LHC_LogLike_per_analysis
@@ -288,27 +291,27 @@ Rules:
     options:
       drop_YODA_file: true
       analyses:
-         - 13TeV
-        # - ATLAS_2021_I1849535
-        # - ATLAS_2016_I1458270
-        #  - ATLAS_2017_I1514251:LMODE=EL
-        #  - ATLAS_2017_I1514251:LMODE=MU
-        #  - ATLAS_2017_I1609448
-        #  - ATLAS_2017_I1614149
-        # - ATLAS_2017_I1625109
-        # - ATLAS_2017_I1637587
-        # - ATLAS_2017_I1645627
-        # - ATLAS_2018_I1634970
-        # - ATLAS_2018_I1646686
-        # - ATLAS_2018_I1656578
-        # - ATLAS_2018_I1705857
-        # - ATLAS_2018_I1707015:LMODE=DILEPTON
-        # - ATLAS_2018_I1707015:LMODE=SINGLE
-        # - ATLAS_2019_I1718132:LMODE=ELEL
-        # - ATLAS_2019_I1718132:LMODE=ELMU
-        # - ATLAS_2019_I1718132:LMODE=MUMU
-        #- ATLAS_2019_I1725190
-        #- ATLAS_2019_I1734263
+        # - 13TeV
+        - ATLAS_2021_I1849535
+        - ATLAS_2016_I1458270
+        - ATLAS_2017_I1514251:LMODE=EL
+        - ATLAS_2017_I1514251:LMODE=MU
+        - ATLAS_2017_I1609448
+        - ATLAS_2017_I1614149
+        - ATLAS_2017_I1625109
+        - ATLAS_2017_I1637587
+        - ATLAS_2017_I1645627
+        - ATLAS_2018_I1634970
+        - ATLAS_2018_I1646686
+        - ATLAS_2018_I1656578
+        - ATLAS_2018_I1705857
+        - ATLAS_2018_I1707015:LMODE=DILEPTON
+        - ATLAS_2018_I1707015:LMODE=SINGLE
+        - ATLAS_2019_I1718132:LMODE=ELEL
+        - ATLAS_2019_I1718132:LMODE=ELMU
+        - ATLAS_2019_I1718132:LMODE=MUMU
+        - ATLAS_2019_I1725190
+        - ATLAS_2019_I1734263
       exclude_analyses:
         - ATLAS_2016_I1469071
         #full- ATLAS_2021_I1849535

@@ -196,7 +196,7 @@ namespace Gambit
     #ifndef EXCLUDE_YODA
 
       // Contur version, from YODA stream
-      void Contur_LHC_measurements_from_stream(pybind11::object &result)
+      void Contur_LHC_measurements_from_stream(Contur_output &result)
       {
         using namespace Pipes::Contur_LHC_measurements_from_stream;
   
@@ -213,7 +213,7 @@ namespace Gambit
       }
 
       // Contur version, from YODA file
-      void Contur_LHC_measurements_from_file(pybind11::object &result)
+      void Contur_LHC_measurements_from_file(Contur_output &result)
       {
         using namespace Pipes::Contur_LHC_measurements_from_file;
 
@@ -236,35 +236,18 @@ namespace Gambit
       void Contur_LHC_measurements_LogLike(double &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike;
-        pybind11::object contur_likelihood_object = *Dep::LHC_measurements;
+        Contur_output contur_likelihood_object = *Dep::LHC_measurements;
 
-        result = contur_likelihood_object.attr("_full_likelihood").attr("ts_s_b").cast<double>()
-          - contur_likelihood_object.attr("_full_likelihood").attr("ts_b").cast<double>();
+        result = contur_likelihood_object.LLR;
       }
 
       void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
         std::stringstream summary_line;
-
-        //Get the likelihood object previously evaluated
-        pybind11::list contur_sorted_likelihoods = (*Dep::LHC_measurements).attr("sorted_likelihood_blocks");
-
-        const size_t number_of_pools = pybind11::len(contur_sorted_likelihoods);
-        for (size_t i = 0; i < number_of_pools; i++){
-          pybind11::object individual_likelihood = contur_sorted_likelihoods[i];
-          //Sometimes if there is no contribution contur returns Nonetype, which can't be cast into a double.
-          //Check for this, and just don't list it if this is the case.
-          //TODO: Discuss with Jon and Andy if this is correct.
-          if (!individual_likelihood.attr("ts_s_b").is_none() && !individual_likelihood.attr("ts_b").is_none())
-          {
-            result[individual_likelihood.attr("pools").cast<std::string>()] =
-              individual_likelihood.attr("ts_s_b").cast<double>() - individual_likelihood.attr("ts_b").cast<double>();
-          }
-        }
-
-        //result = (contur_sorted_likelihoods[0].attr("pools")).cast<map_str_dbl>();
         summary_line << "LHC Contur LogLikes per pool: ";
+
+        result = (*Dep::LHC_measurements).pool_LLR;
 
         for( auto const& entry : result){
           summary_line << entry.first << ":" << entry.second << ", ";
@@ -277,25 +260,9 @@ namespace Gambit
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
         std::stringstream summary_line;
-
-        //Get the likelihood object previously evaluated
-        pybind11::list contur_sorted_likelihoods = (*Dep::LHC_measurements).attr("sorted_likelihood_blocks");
-
-        const size_t number_of_pools = pybind11::len(contur_sorted_likelihoods);
-        for (size_t i = 0; i < number_of_pools; i++){
-          pybind11::object individual_likelihood = contur_sorted_likelihoods[i];
-          //Sometimes if there is no contribution contur returns Nonetype, which can't be cast into a double.
-          //Check for this, and just don't list it if this is the case.
-          //TODO: Discuss with Jon and Andy if this is correct.
-          if (!individual_likelihood.attr("ts_s_b").is_none() && !individual_likelihood.attr("ts_b").is_none())
-          {
-            result[individual_likelihood.attr("pools").cast<std::string>()] =
-              individual_likelihood.attr("tags").cast<std::string>();
-          }
-        }
-
-        //result = (contur_sorted_likelihoods[0].attr("pools")).cast<map_str_dbl>();
         summary_line << "LHC Contur LogLikes per pool: ";
+
+        result = (*Dep::LHC_measurements).pool_tags;
 
         for( auto const& entry : result){
           summary_line << entry.first << ":" << entry.second << ", ";
