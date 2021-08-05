@@ -104,9 +104,11 @@ ini_function_in_header = False
 # the BOSS-generated headers in GAMBIT.
 
 pragmas_begin = [
+  '#pragma GCC diagnostic push',
+  '#pragma GCC diagnostic ignored "-Wignored-qualifiers"',
+  '#pragma GCC diagnostic ignored "-Wunused-parameter"',
 ]
 
 pragmas_end = [
+  '#pragma GCC diagnostic pop'
 ]
-
-
