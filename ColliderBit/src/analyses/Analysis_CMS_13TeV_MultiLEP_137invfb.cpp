@@ -141,6 +141,12 @@ namespace Gambit
 
           // Here we will be using the same efficiencies as in the 36invfb version, as there is no public data for this yet
 
+          //static int count = 0;
+          //count++;
+          //std::cout << "#" << count << std::endl;
+ 
+          //std::cout << "n Baseline leptons = " << event->electrons().size() + event->muons().size() + event->taus().size() << std::endl;
+
           // Baseline electrons
           std::vector<const HEPUtils::Particle*> baselineElectrons;
           for (const HEPUtils::Particle* electron : event->electrons())
@@ -204,7 +210,6 @@ namespace Gambit
           std::vector<std::vector<const HEPUtils::Particle*> > OSSFpairs = getSFOSpairs(signalLightLeptons);
           sortByParentMass(OSSFpairs, mZ);
 
-
           std::vector<const HEPUtils::Particle*> signalLeptons=signalTaus;
           signalLeptons.insert(signalLeptons.end(), signalLightLeptons.begin(), signalLightLeptons.end());
           sortByPt(signalLeptons);
@@ -214,10 +219,22 @@ namespace Gambit
 
           std::vector<const HEPUtils::Jet*> signalJets = baselineJets;
           sortByPt(signalJets);
+
+          // Make b-jets object, including miss-identification of c and light-quark jets
           std::vector<const HEPUtils::Jet*> signalBJets;
+          double ctagmissid = 0.024, qtagmissid = 0.001;
           for(const Jet* j: signalJets)
-            if(j->btag()) signalBJets.push_back(j);
+          {
+            if( j->btag() or
+                (j->ctag() and random_bool(ctagmissid)) or
+                random_bool(qtagmissid) )
+              signalBJets.push_back(j);
+          }
+
+          // Apply b-tag efficiency on b-jets
+          CMS::applyCSVv2TightBtagEff(signalBJets);
           
+
 
           ///////////////////////////////
           // Common variables and cuts //
@@ -246,9 +263,9 @@ namespace Gambit
           
 
            // Flags for lepton pairs
-          bool muonPair = nLightLeptons == 2 and amIaMuon(signalLeptons.at(0)) and amIaMuon(signalLeptons.at(1));
-          bool electronPair = nLightLeptons == 2 and amIanElectron(signalLeptons.at(0)) and amIanElectron(signalLeptons.at(1));
-          bool mixedPair = nLightLeptons == 2 and ( ( amIaMuon(signalLeptons.at(0)) and amIanElectron(signalLeptons.at(1)) ) or
+          bool muonPair = nLeptons == 2 and nLightLeptons == 2 and amIaMuon(signalLeptons.at(0)) and amIaMuon(signalLeptons.at(1));
+          bool electronPair = nLeptons == 2 and nLightLeptons == 2 and amIanElectron(signalLeptons.at(0)) and amIanElectron(signalLeptons.at(1));
+          bool mixedPair = nLeptons == 2 and nLightLeptons == 2 and ( ( amIaMuon(signalLeptons.at(0)) and amIanElectron(signalLeptons.at(1)) ) or
                                                   ( amIanElectron(signalLeptons.at(0)) and amIaMuon(signalLeptons.at(1)) ) );
 
           // Cuflow initialization
@@ -257,6 +274,7 @@ namespace Gambit
 
           //////////////////
           // Preselection //
+          //std::cout << "nLeptons = " << nLeptons << std::endl;
           if(nLeptons < 3 and (nLightLeptons < 2 or nSSpairs == 0) ) return;
           if(nBJets > 0) return;
           if(nOSSFpairs > 0 and mossf[0] < 12.0) return;
@@ -267,7 +285,7 @@ namespace Gambit
 
           // 2SSLep, (2lSS)
           // TODO: Missing implementing the case of a third loose lepton
-          if(nLightLeptons == 2 and nLeptons == 2 and
+          if(nLightLeptons == 2 and nLeptons == 2 and nSSpairs == 1 and 
              ( (muonPair and signalLeptons.at(0)->pT() > 20.) or ((electronPair or mixedPair) and signalLeptons.at(0)->pT() > 25.) ) and
              ( (amIanElectron(signalLeptons.at(1)) and signalLeptons.at(1)->pT() >  15.) or (amIaMuon(signalLeptons.at(1)) and signalLeptons.at(1)->pT() > 10.) ) and
              ( nJets < 2 or signalJets.at(1)->pT() < 40) and
@@ -306,6 +324,12 @@ namespace Gambit
           }
 
           // Selection conditon for 3 lepton events
+          /*if(nLeptons == 3 and nLightLeptons >0)
+          {
+            std::cout << "I am a light lepton!" << std::endl;
+            if(amIanElectron(signalLightLeptons.at(0))) std::cout << "I am an electron!" << std::endl;
+            if(amIaMuon(signalLightLeptons.at(0))) std::cout << "I am a muon!" << std::endl;
+          }*/
           bool _3Lep = nLeptons == 3 and 
                       nLightLeptons > 0 and 
                       ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or 
@@ -320,12 +344,19 @@ namespace Gambit
           {
             // Mll variable, OSSF pairs are already ordered by how close they are to mZ
             double mll = (OSSFpairs.at(0).at(0)->mom() + OSSFpairs.at(0).at(1)->mom()).m();
+            //std::cout << "number of OSSFpairs = " << OSSFpairs.size() << std::endl;
+            //for(auto pair : OSSFpairs)
+            //{
+            //   std::cout << "OSSFpair mll = " << (pair.at(0)->mom() + pair.at(1)->mom()).m() << std::endl;
+            //}
 
             // MT variable
             double mT = 0.;
             for(auto lepton : signalLeptons)
+            {
               if(lepton != OSSFpairs.at(0).at(0) and lepton != OSSFpairs.at(0).at(1))
                 mT = sqrt( 2*mmom.pT()*lepton->pT()*(1 - cos(lepton->phi() - mmom.phi())) );
+            }
 
             //MT3l variable
             double mT3l = get_mT(signalLeptons.at(0), signalLeptons.at(1), signalLeptons.at(2), mmom);
@@ -800,7 +831,15 @@ namespace Gambit
 
           // Cutflow printout
           #ifdef CHECK_CUTFLOW
-            const double xsec = 121.013;
+            //const double xsec = 5180.86; // 150 GeV winos
+            const double xsec = 1215.47; // 150 GeV higgsinos
+            //const double xsec = 1165.09; // 225 GeV winos
+            //const double xsec = 90.8167; // 300 GeV higgsinos
+            //const double xsec = 121.013; // 400 GeV winos
+            //const double xsec = 46.3533; // 500 GeV winos
+            //const double xsec = 20.1372; // 600 GeV winos
+            //const double xsec = 2.49667; // 900 GeV winos
+            //const double xsec = 0.415851; // 1200 GeV winos
             const double sf = 137*xsec;
             _cutflows.normalize(sf);
             cout << "\nCUTFLOWS:\n" << _cutflows << endl;

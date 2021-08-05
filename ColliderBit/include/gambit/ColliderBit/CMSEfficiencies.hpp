@@ -283,6 +283,29 @@ namespace Gambit
         applyCSVv2LooseBtagEff(reinterpret_cast<std::vector<const HEPUtils::Jet*>&>(bjets));
       }
 
+      ///Apply efficiency function to CSVv2 tight WP b-tagged jets
+      ///@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/btag_eff_CSVv2_DeepCSV.pdf
+      inline void applyCSVv2TightBtagEff(std::vector<const HEPUtils::Jet*>& bjets) {
+        if (bjets.empty()) return;
+
+        const static std::vector<double> binedges_et = {25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500.,DBL_MAX };
+        const static std::vector<double> bineffs_et  = {0.4997, 0.5081, 0.5104, 0.5085, 0.4994, 0.4790, 0.4481, 0.4184, 0.3798, 0.3394, 0.3};
+        const static HEPUtils::BinnedFn1D<double> _eff_et(binedges_et, bineffs_et);
+
+        auto keptBjetsEnd = std::remove_if(bjets.begin(), bjets.end(),
+                                              [](const HEPUtils::Jet* bjet) {
+                                                 const double bjet_pt = bjet->pT();
+                                                 const double bjet_aeta = bjet->abseta();
+                                                 if (bjet_aeta > 2.4 || bjet_pt < 25) return true;
+                                                 const double eff = _eff_et.get_at(bjet_pt);
+                                                 return random_bool(1-eff);
+                                               } );
+        bjets.erase(keptBjetsEnd, bjets.end());
+      }
+
+      inline void applyCSVv2TightBtagEff(std::vector<HEPUtils::Jet*>& bjets) {
+        applyCSVv2TightBtagEff(reinterpret_cast<std::vector<const HEPUtils::Jet*>&>(bjets));
+      }
 
       ///Apply user-specified b-tag misidentification rate (flat)
       inline void applyBtagMisId(double mis_id_prob, std::vector<const HEPUtils::Jet*>& jets, std::vector<const HEPUtils::Jet*>& bjets) {

@@ -418,7 +418,7 @@ namespace Gambit
     inline void sortByPt(JetPtrs& jets) { sortBy(jets, cmpJetsByPt); }
 
     // Sort a list of pairs by how close their invariant mass is to their parent mass
-    inline void sortByParentMass(std::vector<std::vector<const Particle *> > pairs, double mP)
+    inline void sortByParentMass(std::vector<std::vector<const Particle *> > &pairs, double mP)
     {
       auto compfn = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
       {
