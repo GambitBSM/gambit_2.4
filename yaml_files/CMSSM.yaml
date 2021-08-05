@@ -399,6 +399,10 @@ Rules:
     options:
       allow_yield_extrapolation: true
 
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
     #function: DD_couplings_DarkSUSY_DS5
@@ -563,6 +567,10 @@ Rules:
   # Just use unweighted cross-sections
   - capability: EventWeighterFunction
     function: setEventWeight_unity
+
+  # Choose to generate events with Pythia on the fly (rather than reading them in)
+  - capability: HardScatteringEvent
+    function: generateEventPythia
 
   # Choose Monte Carlo event simulator and options.
   - capability: HardScatteringSim

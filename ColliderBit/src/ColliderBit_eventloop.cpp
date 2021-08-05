@@ -46,9 +46,6 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    extern std::map<std::string,bool> event_weight_flags;
-
-
     /// LHC Loop Manager
     void operateLHCLoop(MCLoopInfo& result)
     {
@@ -97,8 +94,11 @@ namespace Gambit
           result.event_count[collider]                                    = 0;
           // Check that the nEvents options given make sense.
           if (min_nEvents.at(collider) > max_nEvents.at(collider))
-           ColliderBit_error().raise(LOCAL_INFO,"Option min_nEvents is greater than corresponding max_nEvents for collider "
-                                                +collider+". Please correct your YAML file.");
+          {
+            ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+            ColliderBit_error().raise(LOCAL_INFO,"Option min_nEvents is greater than corresponding max_nEvents for collider "
+                                                 +collider+". Please correct your YAML file.");
+          }
           // Check that the analyses all correspond to actual ColliderBit analyses, and sort them into separate maps for each detector.
           for (str& analysis : result.analyses.at(collider))
           {
@@ -163,24 +163,6 @@ namespace Gambit
         // Any problems during the XSEC_CALCULATION step?
         piped_warnings.check(ColliderBit_warning());
         piped_errors.check(ColliderBit_error());
-
-        // Consistency check for the event weighting
-        static bool do_weights_check = true;
-        if (do_weights_check)
-        {
-          if(event_weight_flags["weight_by_cross_section"] && !event_weight_flags["total_cross_section_from_MC"])
-          {
-            std::stringstream errmsg_ss;
-            errmsg_ss << "Inconsistent choice for how to scale the generated events. "
-                      << "If you weight each event by a cross-section that's not from the event " 
-                      << "generator (function 'setEventWeight_fromCrossSection' for capability "
-                      << "'EventWeighterFunction'), you need to scale by the total cross-section "
-                      << "calculated by the event generator. (Choose function 'getMCxsec_as_base' "
-                      << "for capability 'TotalCrossSection'.)";
-            ColliderBit_error().raise(LOCAL_INFO, errmsg_ss.str());
-          }
-          do_weights_check = false;
-        } 
 
         //
         // The main OMP parallelized sections begin here
@@ -258,9 +240,6 @@ namespace Gambit
             } // end while loop
 
           } // end omp parallel block
-
-          // Update the flag indicating if there have been warnings raised about exceeding the maximum allowed number of failed events
-          // result.exceeded_maxFailedEvents = result.exceeded_maxFailedEvents or piped_warnings.inquire("exceeded maxFailedEvents");
 
           // Any problems during the main event loop?
           piped_warnings.check(ColliderBit_warning());

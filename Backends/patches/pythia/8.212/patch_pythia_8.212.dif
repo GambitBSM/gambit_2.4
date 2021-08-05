@@ -347,11 +347,11 @@ diff -rupN pythia_8.212_original/include/Pythia8/SusyLesHouches.h pythia_8.212_p
  
 diff -rupN pythia_8.212_original/include/Pythia8Plugins/GeneratorInput.h pythia_8.212_patched/include/Pythia8Plugins/GeneratorInput.h
 --- pythia_8.212_original/include/Pythia8Plugins/GeneratorInput.h	2015-09-23 17:34:41.000000000 +0200
-+++ pythia_8.212_patched/include/Pythia8Plugins/GeneratorInput.h	2020-09-09 19:19:25.928423333 +0200
++++ pythia_8.212_patched/include/Pythia8Plugins/GeneratorInput.h	2020-09-09 20:17:55.633040729 +0200
 @@ -202,1045 +202,6 @@ private:
- 
+
  };
- 
+
 -//==========================================================================
 -
 -// Main implementation of AlpgenPar class.
@@ -1392,7 +1392,7 @@ diff -rupN pythia_8.212_original/include/Pythia8Plugins/GeneratorInput.h pythia_
 -//==========================================================================
 -
  } // end namespace Pythia8
- 
+
  #endif //  Pythia8_GeneratorInput_H
 diff -rupN pythia_8.212_original/include/Pythia8Plugins/HepMC3.h pythia_8.212_patched/include/Pythia8Plugins/HepMC3.h
 --- pythia_8.212_original/include/Pythia8Plugins/HepMC3.h	1970-01-01 01:00:00.000000000 +0100
@@ -1660,11 +1660,11 @@ diff -rupN pythia_8.212_original/include/Pythia8Plugins/HepMC3.h pythia_8.212_pa
 +#endif  // end Pythia8_HepMC3_H
 diff -rupN pythia_8.212_original/include/Pythia8Plugins/JetMatching.h pythia_8.212_patched/include/Pythia8Plugins/JetMatching.h
 --- pythia_8.212_original/include/Pythia8Plugins/JetMatching.h	2015-09-23 17:34:41.000000000 +0200
-+++ pythia_8.212_patched/include/Pythia8Plugins/JetMatching.h	2020-09-09 19:21:57.925146778 +0200
++++ pythia_8.212_patched/include/Pythia8Plugins/JetMatching.h	2020-09-09 20:18:04.609091765 +0200
 @@ -234,1476 +234,6 @@ protected:
- 
+
  };
- 
+
 -//==========================================================================
 -
 -// Main implementation of JetMatching class.
@@ -3136,11 +3136,11 @@ diff -rupN pythia_8.212_original/include/Pythia8Plugins/JetMatching.h pythia_8.2
 -//==========================================================================
 -
  } // end namespace Pythia8
- 
+
  #endif // end Pythia8_JetMatching_H
 diff -rupN pythia_8.212_original/src/GeneratorInput.cc pythia_8.212_patched/src/GeneratorInput.cc
 --- pythia_8.212_original/src/GeneratorInput.cc	1970-01-01 01:00:00.000000000 +0100
-+++ pythia_8.212_patched/src/GeneratorInput.cc	2020-09-09 19:19:24.732417800 +0200
++++ pythia_8.212_patched/src/GeneratorInput.cc	2020-09-09 20:18:23.689199120 +0200
 @@ -0,0 +1,1053 @@
 +#include "Pythia8Plugins/GeneratorInput.h"
 +
@@ -4197,7 +4197,7 @@ diff -rupN pythia_8.212_original/src/GeneratorInput.cc pythia_8.212_patched/src/
 +
 diff -rupN pythia_8.212_original/src/JetMatching.cc pythia_8.212_patched/src/JetMatching.cc
 --- pythia_8.212_original/src/JetMatching.cc	1970-01-01 01:00:00.000000000 +0100
-+++ pythia_8.212_patched/src/JetMatching.cc	2020-09-09 19:22:05.069181673 +0200
++++ pythia_8.212_patched/src/JetMatching.cc	2020-09-09 20:18:31.109240459 +0200
 @@ -0,0 +1,1481 @@
 +#include "Pythia8Plugins/JetMatching.h"
 +
@@ -5681,8 +5681,8 @@ diff -rupN pythia_8.212_original/src/JetMatching.cc pythia_8.212_patched/src/Jet
 +} // end namespace Pythia8
 +
 diff -rupN pythia_8.212_original/src/ParticleData.cc pythia_8.212_patched/src/ParticleData.cc
---- pythia_8.212_original/src/ParticleData.cc	2015-09-23 17:35:08.000000000 +0200
-+++ pythia_8.212_patched/src/ParticleData.cc	2020-09-09 18:50:37.044949402 +0200
+--- pythia_8.212_original/src/ParticleData.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/ParticleData.cc	2018-12-12 18:42:55.401926818 +0000
 @@ -572,6 +572,8 @@ void ParticleData::initCommon() {
  
  void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
@@ -5922,8 +5922,8 @@ diff -rupN pythia_8.212_original/src/ParticleData.cc pythia_8.212_patched/src/Pa
    };
  
 diff -rupN pythia_8.212_original/src/PartonDistributions.cc pythia_8.212_patched/src/PartonDistributions.cc
---- pythia_8.212_original/src/PartonDistributions.cc	2015-09-23 17:35:08.000000000 +0200
-+++ pythia_8.212_patched/src/PartonDistributions.cc	2020-09-09 18:50:37.044949402 +0200
+--- pythia_8.212_original/src/PartonDistributions.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/PartonDistributions.cc	2018-12-12 18:42:55.405926833 +0000
 @@ -2133,17 +2133,10 @@ void NNPDF::init(int iFitIn, string xmlP
    for (int iq = 0; iq < fNQ2; iq++) fLogQ2Grid[iq] = log(fQ2Grid[iq]);
  
@@ -6190,8 +6190,8 @@ diff -rupN pythia_8.212_original/src/PartonDistributions.cc pythia_8.212_patched
  //--------------------------------------------------------------------------
  
 diff -rupN pythia_8.212_original/src/ProcessLevel.cc pythia_8.212_patched/src/ProcessLevel.cc
---- pythia_8.212_original/src/ProcessLevel.cc	2015-09-23 17:35:08.000000000 +0200
-+++ pythia_8.212_patched/src/ProcessLevel.cc	2020-09-09 18:50:37.044949402 +0200
+--- pythia_8.212_original/src/ProcessLevel.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/ProcessLevel.cc	2018-12-12 18:42:55.405926833 +0000
 @@ -6,6 +6,20 @@
  // Function definitions (not found in the header) for the ProcessLevel class.
  
@@ -6290,8 +6290,8 @@ diff -rupN pythia_8.212_original/src/ProcessLevel.cc pythia_8.212_patched/src/Pr
      // Update sum of maxima if current maximum violated.
      if (containerPtrs[iContainer]->newSigmaMax()) {
 diff -rupN pythia_8.212_original/src/Pythia.cc pythia_8.212_patched/src/Pythia.cc
---- pythia_8.212_original/src/Pythia.cc	2015-09-23 17:35:08.000000000 +0200
-+++ pythia_8.212_patched/src/Pythia.cc	2020-09-09 18:50:37.044949402 +0200
+--- pythia_8.212_original/src/Pythia.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/Pythia.cc	2018-12-12 18:42:55.405926833 +0000
 @@ -113,7 +113,9 @@ Pythia::Pythia(string xmlDir, bool print
      info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
      return;
@@ -6636,3 +6636,23 @@ diff -rupN pythia_8.212_original/src/SusyLesHouches.cc pythia_8.212_patched/src/
    if (modsel(3) == 1) {
      //NMNMIX
      if ( nmnmix.exists() ) {
+diff -rupN pythia_8.212_original/src/SigmaProcess.cc pythia_8.212_patched/src/SigmaProcess.cc
+--- pythia_8.212_original/src/SigmaProcess.cc	2015-09-23 17:35:10.000000000 +0200
++++ pythia_8.212_patched/src/SigmaProcess.cc	2021-05-21 13:11:52.469990009 +1000
+@@ -1204,7 +1204,7 @@ bool Sigma3Process::setupForME() {
+   } else if (id4Tmp != 0 && id5Tmp == id4Tmp) {
+     mME[3] = sqrtpos(0.5 * (pow2(mME[3]) + pow2(mME[4]))
+            - 0.25 * pow2(pow2(mME[3]) - pow2(mME[4])) / sH);
+-    mME[4] = mME[2];
++    mME[4] = mME[3];
+   }
+ 
+   // Iterate rescaled three-momenta until convergence.
+@@ -1224,6 +1224,7 @@ bool Sigma3Process::setupForME() {
+   while ( abs(esum - mH) > COMPRELERR * mH && iStep < NCOMPSTEP ) {
+     ++iStep;
+     double compFac = 1. + 2. * (mH - esum) / p2rat;
++    if (compFac < 0) break;
+     p2ME3 *= compFac;
+     p2ME4 *= compFac;
+     p2ME5 *= compFac;
