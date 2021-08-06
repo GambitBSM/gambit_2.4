@@ -26,7 +26,7 @@
 #ifndef EXCLUDE_HEPMC
   #include "HepMC3/ReaderAscii.h"
   #include "HepMC3/ReaderAsciiHepMC2.h"
-#endif
+#endif  
 
 #ifndef EXCLUDE_YODA
   #include "YODA/AnalysisObject.h"
@@ -61,10 +61,13 @@ namespace Gambit
 
           if (*Loop::iteration == BASE_INIT)
           {
-            if (ah != nullptr) {
-              ah->~AnalysisHandler();  
+            #pragma omp critical
+            {
+              if (ah != nullptr) {
+                ah->~AnalysisHandler();  
+              }
+              ah = std::make_shared<AnalysisHandler>();
             }
-            ah = std::make_shared<AnalysisHandler>();
 
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
@@ -83,7 +86,7 @@ namespace Gambit
                 //If its a normal analyis just add it.
                 else {
                   // Rivet is reading from file here, so make it critical
-                  # pragma omp critical
+                  #pragma omp critical
                   {
                     ah->addAnalysis(analyses[i]);
                   }
@@ -153,10 +156,11 @@ namespace Gambit
               result = std::make_shared<std::ostringstream>();
             }
 
-            ah->finalize();
-
-            // Get YODA object
-            ah->writeData(*result, "yoda");
+            #pragma omp critical
+            {
+              ah->finalize();
+              ah->writeData(*result, "yoda");
+            }
 
             // Drop YODA file if requested
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
@@ -164,13 +168,18 @@ namespace Gambit
             {
               str filename = "GAMBIT_collider_measurements.yoda";
               
-              //TODO: should this also be critical?
-              try{ ah->writeData(filename); }
-              catch (...)
-              { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+              #pragma omp critical
+              {
+                try{ ah->writeData(filename); }
+                catch (...)
+                { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+              }
             }
 
-            ah->~AnalysisHandler();
+            #pragma omp critical
+            {
+              ah->~AnalysisHandler();
+            }
           }
 
           // Don't do anything else during special iterations
