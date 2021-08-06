@@ -1715,7 +1715,7 @@ if(NOT ditched_${name}_${ver})
   )
   BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
+  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # Contur

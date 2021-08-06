@@ -629,15 +629,18 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ColliderBit/" AND ";${GAMBIT_BITS};" MATCHES ";
   add_dependencies(module_harvest collider_harvest)
 endif()
 
+# Add backends and scanners
+include(cmake/externals.cmake)
+
+# Reprocess the ditch set into a comma-separated list again
+string (REPLACE ";" "," itch_with_commas "${itch}")
+
 # Generate the CMakeLists.txt files for GAMBIT modules, Backends, Models and Printers)
 message("${Yellow}-- Updating GAMBIT module, model, backend, and printer CMake files.${ColourReset}")
 set(update_cmakelists ${PROJECT_SOURCE_DIR}/cmake/scripts/update_cmakelists.py -x __not_a_real_name__,${itch_with_commas})
 execute_process(RESULT_VARIABLE result COMMAND ${PYTHON_EXECUTABLE} ${update_cmakelists} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 check_result(${result} ${update_cmakelists})
 message("${Yellow}-- Updating GAMBIT module, backend, and printer CMake files - done.${ColourReset}")
-
-# Add backends and scanners
-include(cmake/externals.cmake)
 
 # Add GAMBIT subdirectories.
 add_subdirectory(Logs)

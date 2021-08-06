@@ -125,6 +125,8 @@ def neatsplit(regex,string):
 def excluded(string,st):
     for x in st:
         if string.startswith(x): return True
+        if string.lower().startswith(x.lower()): return True
+        if string.lower().startswith(x.lower().replace('.','_')): return True
     return False
 
 # Nice sorting function (from http://stackoverflow.com/a/2669120/1447953)

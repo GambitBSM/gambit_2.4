@@ -1,18 +1,18 @@
 #ifndef __abstract_AnalysisHandler_Rivet_3_1_4_hh__
 #define __abstract_AnalysisHandler_Rivet_3_1_4_hh__
 
-#include <cstddef>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <utility>
-#include <map>
-#include <ostream>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hh"
 #include "forward_decls_wrapper_classes.hh"
+#include <string>
+#include <vector>
 #include "HepMC3/GenEvent.h"
+#include <utility>
+#include <map>
+#include <ostream>
 #include "YODA/AnalysisObject.h"
+#include <cstddef>
+#include <iostream>
 
 #include "identification.hpp"
 

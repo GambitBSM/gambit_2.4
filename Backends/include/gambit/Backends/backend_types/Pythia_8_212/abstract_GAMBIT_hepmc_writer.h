@@ -9,6 +9,8 @@
 #include "forward_decls_wrapper_classes.h"
 #include "wrapper_Pythia_decl.h"
 #include "HepMC3/GenEvent.h"
+#include <cstddef>
+#include <iostream>
 
 #include "identification.hpp"
 

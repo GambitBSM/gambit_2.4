@@ -3,10 +3,10 @@
 
 #include <string>
 #include <vector>
+#include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
 #include <ostream>
-#include "HepMC3/GenEvent.h"
 #include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
@@ -290,14 +290,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Wrappers for original constructors: 
-      inline AnalysisHandler::AnalysisHandler(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& runname) :
+      inline Rivet::AnalysisHandler::AnalysisHandler(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& runname) :
          WrapperBase(__factory0(runname))
       {
          get_BEptr()->set_wptr(this);
          get_BEptr()->set_delete_wrapper(false);
       }
       
-      inline AnalysisHandler::AnalysisHandler() :
+      inline Rivet::AnalysisHandler::AnalysisHandler() :
          WrapperBase(__factory1())
       {
          get_BEptr()->set_wptr(this);
@@ -305,7 +305,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Special pointer-based constructor: 
-      inline AnalysisHandler::AnalysisHandler(Abstract_AnalysisHandler* in) :
+      inline Rivet::AnalysisHandler::AnalysisHandler(Rivet::Abstract_AnalysisHandler* in) :
          WrapperBase(in)
       {
          get_BEptr()->set_wptr(this);
@@ -313,7 +313,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Copy constructor: 
-      inline AnalysisHandler::AnalysisHandler(const AnalysisHandler& in) :
+      inline Rivet::AnalysisHandler::AnalysisHandler(const AnalysisHandler& in) :
          WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
       {
          get_BEptr()->set_wptr(this);
@@ -321,7 +321,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Assignment operator: 
-      inline AnalysisHandler& AnalysisHandler::operator=(const AnalysisHandler& in)
+      inline Rivet::AnalysisHandler& AnalysisHandler::operator=(const AnalysisHandler& in)
       {
          if (this != &in)
          {
@@ -332,7 +332,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Destructor: 
-      inline AnalysisHandler::~AnalysisHandler()
+      inline Rivet::AnalysisHandler::~AnalysisHandler()
       {
          if (get_BEptr() != 0)
          {
@@ -347,9 +347,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Returns correctly casted pointer to Abstract class: 
-      inline Abstract_AnalysisHandler* Rivet::AnalysisHandler::get_BEptr() const
+      inline Rivet::Abstract_AnalysisHandler* Rivet::AnalysisHandler::get_BEptr() const
       {
-         return dynamic_cast<Abstract_AnalysisHandler*>(BEptr);
+         return dynamic_cast<Rivet::Abstract_AnalysisHandler*>(BEptr);
       }
    }
    
