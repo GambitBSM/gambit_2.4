@@ -575,6 +575,12 @@ endif()
 # Add the main gambit sources and identify which modules are to be included.
 include(cmake/gambit.cmake)
 
+# Add backends and scanners
+include(cmake/externals.cmake)
+
+# Reprocess the ditch set into a comma-separated list again
+string (REPLACE ";" "," itch_with_commas "${itch}")
+
 # Identify the different harvester scripts
 set(MODULE_HARVESTER ${PROJECT_SOURCE_DIR}/Elements/scripts/module_harvester.py)
 set(BACKEND_HARVESTER ${PROJECT_SOURCE_DIR}/Backends/scripts/backend_harvester.py)
@@ -628,12 +634,6 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ColliderBit/" AND ";${GAMBIT_BITS};" MATCHES ";
   add_gambit_custom(collider_harvest colliders_harvested COLLIDER_HARVESTER COLLIDER_HARVESTER_FILES)
   add_dependencies(module_harvest collider_harvest)
 endif()
-
-# Add backends and scanners
-include(cmake/externals.cmake)
-
-# Reprocess the ditch set into a comma-separated list again
-string (REPLACE ";" "," itch_with_commas "${itch}")
 
 # Generate the CMakeLists.txt files for GAMBIT modules, Backends, Models and Printers)
 message("${Yellow}-- Updating GAMBIT module, model, backend, and printer CMake files.${ColourReset}")
