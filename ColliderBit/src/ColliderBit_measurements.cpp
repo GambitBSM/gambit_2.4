@@ -26,13 +26,20 @@
 #ifndef EXCLUDE_HEPMC
   #include "HepMC3/ReaderAscii.h"
   #include "HepMC3/ReaderAsciiHepMC2.h"
-#endif
+#endif  
 
 #ifndef EXCLUDE_YODA
   #include "YODA/AnalysisObject.h"
   #include "YODA/IO.h"
 #endif
 
+//Small convenience function for supplying options to the contur argparser.
+void convert_yaml_options_for_contur(std::vector<std::string> &yaml_options)
+{
+  for (size_t i{0}; i <yaml_options.size(); ++i){
+    yaml_options[i] = ("--"+yaml_options[i]);
+  }
+}
 
 namespace Gambit
 {
@@ -63,10 +70,13 @@ namespace Gambit
 
           if (*Loop::iteration == BASE_INIT)
           {
-            if (ah != nullptr) {
-              ah->~AnalysisHandler();  
+            #pragma omp critical
+            {
+              if (ah != nullptr) {
+                ah->~AnalysisHandler();  
+              }
+              ah = std::make_shared<AnalysisHandler>();
             }
-            ah = std::make_shared<AnalysisHandler>();
 
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
@@ -85,7 +95,7 @@ namespace Gambit
                 //If its a normal analyis just add it.
                 else {
                   // Rivet is reading from file here, so make it critical
-                  # pragma omp critical
+                  #pragma omp critical
                   {
                     ah->addAnalysis(analyses[i]);
                   }
@@ -155,10 +165,11 @@ namespace Gambit
               result = std::make_shared<std::ostringstream>();
             }
 
-            ah->finalize();
-
-            // Get YODA object
-            ah->writeData(*result, "yoda");
+            #pragma omp critical
+            {
+              ah->finalize();
+              ah->writeData(*result, "yoda");
+            }
 
             // Drop YODA file if requested
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
@@ -166,13 +177,18 @@ namespace Gambit
             {
               str filename = "GAMBIT_collider_measurements.yoda";
               
-              //TODO: should this also be critical?
-              try{ ah->writeData(filename); }
-              catch (...)
-              { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+              #pragma omp critical
+              {
+                try{ ah->writeData(filename); }
+                catch (...)
+                { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+              }
             }
 
-            ah->~AnalysisHandler();
+            #pragma omp critical
+            {
+              ah->~AnalysisHandler();
+            }
           }
 
           // Don't do anything else during special iterations
@@ -197,37 +213,10 @@ namespace Gambit
 
     #ifndef EXCLUDE_YODA
 
-      // GAMBIT version
-      void LHC_measurements_LogLike(double &result)
-      {
-        using namespace Pipes::LHC_measurements_LogLike;
-
-        // Get YODA analysis objects from Rivet
-        //vector_shared_ptr<YODA::AnalysisObject> aos = *Dep::Rivet_measurements;
-
-        // Compute the likelihood
-        // TODO: come up with a homebrew computation of the likelihood based on this
-        result = 0.0;
-
-      }
-
-      // Contur version
-      void Contur_LHC_measurements_LogLike(double &result)
-      {
-        using namespace Pipes::Contur_LHC_measurements_LogLike;
-
-        // Get YODA analysis objects from Rivet
-        vector_shared_ptr<YODA::AnalysisObject> aos = *Dep::Rivet_measurements;
-
-        // Call Contur
-        result = BEreq::Contur_LogLike(aos);
-
-      }
-
       // Contur version, from YODA stream
-      void Contur_LHC_measurements_LogLike_from_stream(double &result)
+      void Contur_LHC_measurements_from_stream(Contur_output &result)
       {
-        using namespace Pipes::Contur_LHC_measurements_LogLike_from_stream;
+        using namespace Pipes::Contur_LHC_measurements_from_stream;
   
         std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
         
@@ -237,16 +226,14 @@ namespace Gambit
         #pragma omp critical
         {
           ///Call contur
-          result = BEreq::Contur_LogLike(std::move(yodastream), yaml_contur_options);
+          result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
         } 
-
-        std::cout << "Contur loglike = " << result << std::endl;
       }
 
       // Contur version, from YODA file
-      void Contur_LHC_measurements_LogLike_from_file(double &result)
+      void Contur_LHC_measurements_from_file(Contur_output &result)
       {
-        using namespace Pipes::Contur_LHC_measurements_LogLike_from_file;
+        using namespace Pipes::Contur_LHC_measurements_from_file;
 
         // This function only works if there is a file
         str YODA_filename = runOptions->getValueOrDef<str>("", "YODA_filename");
@@ -260,12 +247,48 @@ namespace Gambit
         #pragma omp critical
         {
           // Call Contur
-          result = BEreq::Contur_LogLike(YODA_filename, yaml_contur_options);
+          result = BEreq::Contur_Measurements(YODA_filename, yaml_contur_options);
         } 
-
-        std::cout << "Contur loglike = " << result << std::endl;
-
       }
+
+      void Contur_LHC_measurements_LogLike(double &result)
+      {
+        using namespace Pipes::Contur_LHC_measurements_LogLike;
+        Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+
+        result = contur_likelihood_object.LLR;
+      }
+
+      void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
+      {
+        using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
+        std::stringstream summary_line;
+        summary_line << "LHC Contur LogLikes per pool: ";
+
+        result = (*Dep::LHC_measurements).pool_LLR;
+
+        for( auto const& entry : result){
+          summary_line << entry.first << ":" << entry.second << ", ";
+        }
+
+        logger() << LogTags::debug << summary_line.str() << EOM;
+      }
+
+      void Contur_LHC_measurements_histotags_perPool(map_str_str &result)
+      {
+        using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
+        std::stringstream summary_line;
+        summary_line << "LHC Contur LogLikes per pool: ";
+
+        result = (*Dep::LHC_measurements).pool_tags;
+
+        for( auto const& entry : result){
+          summary_line << entry.first << ":" << entry.second << ", ";
+        }
+
+        logger() << LogTags::debug << summary_line.str() << EOM;
+      }
+
 
     #endif //EXCLUDE_YODA
 

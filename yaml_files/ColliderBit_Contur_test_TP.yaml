@@ -83,7 +83,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1
+      point_number: 3
       output_file:  output
       like:  Likelihood
       files:
@@ -99,6 +99,12 @@ ObsLikes:
 
     - purpose: LogLike
       capability: LHC_measurements_LogLike
+
+    - purpose: likelihood_details
+      capability: LHC_measurements_LogLike_perPool
+
+    - purpose: likelihood_details
+      capability: LHC_measurements_histotags_perPool
 
     # Other observables
 #    - purpose:    likelihood_details
@@ -184,7 +190,7 @@ Rules:
     type: Pythia_default::Pythia8::Event
     function: generateEventPythia
     options:
-      drop_HepMC2_file: true
+      drop_HepMC2_file: false
 
   - capability: HardScatteringEvent
     type: HEPUtils::Event
@@ -208,8 +214,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 740
-        max_nEvents: 740
+        min_nEvents: 500
+        max_nEvents: 500
         events_between_convergence_checks: 500
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -283,20 +289,49 @@ Rules:
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
     options:
-      drop_YODA_file: true
+      drop_YODA_file: false
       analyses:
-       #- ATLAS_2017_I1625109
-       - 13TeV
+         - 13TeV
+        # - ATLAS_2021_I1849535
+        # - ATLAS_2016_I1458270
+        # - ATLAS_2017_I1514251:LMODE=EL
+        # - ATLAS_2017_I1514251:LMODE=MU
+        # - ATLAS_2017_I1609448
+        # - ATLAS_2017_I1614149
+        # - ATLAS_2017_I1625109
+        # - ATLAS_2017_I1637587
+        # - ATLAS_2017_I1645627
+        # - ATLAS_2018_I1634970
+        # - ATLAS_2018_I1646686
+        # - ATLAS_2018_I1656578
+        # - ATLAS_2018_I1705857
+        # - ATLAS_2018_I1707015:LMODE=DILEPTON
+        # - ATLAS_2018_I1707015:LMODE=SINGLE
+        # - ATLAS_2019_I1718132:LMODE=ELEL
+        # - ATLAS_2019_I1718132:LMODE=ELMU
+        # - ATLAS_2019_I1718132:LMODE=MUMU
+        # - ATLAS_2019_I1725190
+        # - ATLAS_2019_I1734263
       exclude_analyses:
-       - ATLAS_2016_I1469071
+        - ATLAS_2016_I1469071
+        
 
-  - capability: LHC_measurements_LogLike
-    function: Contur_LHC_measurements_LogLike_from_stream
+  - capability: LHC_measurements
+    function: Contur_LHC_measurements_from_stream
     options:
       #Adding a contur option is equivalent to running contur with the equivalent flag.
-      contur_options:
-       - use-searches
-      #YODA_filename: "./runpoint_0017.yoda"
+      #contur_options:
+       #- use-searches
+       # - theory
+      YODA_filename: "./runpoint_0017.yoda"
+
+  - capability: LHC_measurements_LogLike
+    function: Contur_LHC_measurements_LogLike
+
+  - capability: LHC_measurements_LogLike_perPool
+    function: Contur_LHC_measurements_LogLike_perPool
+
+
 
 # Set the names of key log files
 
