@@ -83,7 +83,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1
+      point_number: 3
       output_file:  output
       like:  Likelihood
       files:
@@ -190,7 +190,7 @@ Rules:
     type: Pythia_default::Pythia8::Event
     function: generateEventPythia
     options:
-      drop_HepMC2_file: true
+      drop_HepMC2_file: false
 
   - capability: HardScatteringEvent
     type: HEPUtils::Event
@@ -289,32 +289,31 @@ Rules:
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
     options:
-      drop_YODA_file: true
+      drop_YODA_file: false
       analyses:
-        # - 13TeV
-        - ATLAS_2021_I1849535
-        - ATLAS_2016_I1458270
-        - ATLAS_2017_I1514251:LMODE=EL
-        - ATLAS_2017_I1514251:LMODE=MU
-        - ATLAS_2017_I1609448
-        - ATLAS_2017_I1614149
-        - ATLAS_2017_I1625109
-        - ATLAS_2017_I1637587
-        - ATLAS_2017_I1645627
-        - ATLAS_2018_I1634970
-        - ATLAS_2018_I1646686
-        - ATLAS_2018_I1656578
-        - ATLAS_2018_I1705857
-        - ATLAS_2018_I1707015:LMODE=DILEPTON
-        - ATLAS_2018_I1707015:LMODE=SINGLE
-        - ATLAS_2019_I1718132:LMODE=ELEL
-        - ATLAS_2019_I1718132:LMODE=ELMU
-        - ATLAS_2019_I1718132:LMODE=MUMU
-        - ATLAS_2019_I1725190
-        - ATLAS_2019_I1734263
+         - 13TeV
+        # - ATLAS_2021_I1849535
+        # - ATLAS_2016_I1458270
+        # - ATLAS_2017_I1514251:LMODE=EL
+        # - ATLAS_2017_I1514251:LMODE=MU
+        # - ATLAS_2017_I1609448
+        # - ATLAS_2017_I1614149
+        # - ATLAS_2017_I1625109
+        # - ATLAS_2017_I1637587
+        # - ATLAS_2017_I1645627
+        # - ATLAS_2018_I1634970
+        # - ATLAS_2018_I1646686
+        # - ATLAS_2018_I1656578
+        # - ATLAS_2018_I1705857
+        # - ATLAS_2018_I1707015:LMODE=DILEPTON
+        # - ATLAS_2018_I1707015:LMODE=SINGLE
+        # - ATLAS_2019_I1718132:LMODE=ELEL
+        # - ATLAS_2019_I1718132:LMODE=ELMU
+        # - ATLAS_2019_I1718132:LMODE=MUMU
+        # - ATLAS_2019_I1725190
+        # - ATLAS_2019_I1734263
       exclude_analyses:
         - ATLAS_2016_I1469071
-        #full- ATLAS_2021_I1849535
         
 
   - capability: LHC_measurements
