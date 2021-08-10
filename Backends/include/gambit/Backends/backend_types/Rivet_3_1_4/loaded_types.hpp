@@ -1,8 +1,12 @@
 #ifndef __loaded_types_Rivet_3_1_4_hpp__
 #define __loaded_types_Rivet_3_1_4_hpp__ 1
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include "wrapper_AnalysisHandler.hh"
 #include "identification.hpp"
+#pragma GCC diagnostic pop
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define Rivet_3_1_4_all_data \

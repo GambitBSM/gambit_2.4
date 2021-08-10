@@ -281,17 +281,19 @@ Rules:
       cap_loglike_individual_analyses: false
       # skip_analyses: 
 
-  # Set analyses for Rivet measurements
-  - capability: Rivet_measurements
+  # Set analyses for LHC measurements
+  - capability: LHC_measurements
+    function: Contur_LHC_measurements_from_stream
     options:
-      drop_YODA_file: true
-      analyses: 
-        - ATLAS_2019_I1720442
+      #Adding a contur option is equivalent to running contur with the equivalent flag.
+      #contur_options:
+       #- use-searches
+       # - theory
+      YODA_filename: "./runpoint_0017.yoda"
 
   - capability: LHC_measurements_LogLike
     #function: LHC_measurements_LogLike
-    #function: Contur_LHC_measurements_LogLike
-    function: Contur_LHC_measurements_LogLike_from_stream
+    function: Contur_LHC_measurements_LogLike
     #options:
       #YODA_filename: "./runpoint_0017.yoda"
 
