@@ -2,15 +2,15 @@
 #define __wrapper_AnalysisHandler_decl_Rivet_3_1_4_hh__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.hh"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_AnalysisHandler.hh"
 #include <string>
 #include <vector>
-#include "HepMC3/GenEvent.h"
 #include <utility>
 #include <map>
 #include <ostream>
+#include "forward_decls_wrapper_classes.hh"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_AnalysisHandler.hh"
+#include "HepMC3/GenEvent.h"
 #include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
@@ -26,8 +26,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static Rivet::Abstract_AnalysisHandler* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
-            static Rivet::Abstract_AnalysisHandler* (*__factory1)();
+            static Abstract_AnalysisHandler* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
+            static Abstract_AnalysisHandler* (*__factory1)();
       
             // -- Other member variables: 
       
@@ -148,7 +148,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             AnalysisHandler();
       
             // Special pointer-based constructor: 
-            AnalysisHandler(Rivet::Abstract_AnalysisHandler* in);
+            AnalysisHandler(Abstract_AnalysisHandler* in);
       
             // Copy constructor: 
             AnalysisHandler(const AnalysisHandler& in);
@@ -160,7 +160,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~AnalysisHandler();
       
             // Returns correctly casted pointer to Abstract class: 
-            Rivet::Abstract_AnalysisHandler* get_BEptr() const;
+            Abstract_AnalysisHandler* get_BEptr() const;
       
       };
    }

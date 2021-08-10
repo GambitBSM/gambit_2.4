@@ -167,10 +167,14 @@ namespace Gambit
                                   const EventT &pythia_event,
                                   const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
                                   const EventWeighterFunctionType& EventWeighterFunction,
+                                  const int iteration,
                                   void(*wrapup)(),
                                   const safe_ptr<Options>& runOptions)
  
     {
+
+      // If in any other special iteration, do nothing
+      if (iteration <= BASE_INIT) return;
 
       // Clear the HEPUtils event
       event.clear();
@@ -217,8 +221,12 @@ namespace Gambit
       void convertEventToHepMCPy8Collider(HepMC3::GenEvent& event,
                                     const EventT &pythia_event,
                                     const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
+                                    const int iteration,
                                     void(*wrapup)())
       {
+
+        // If in any other special iteration, do nothing
+        if (iteration <= BASE_INIT) return;
 
         // Clear the HepMC event
         event.clear();
@@ -279,7 +287,8 @@ namespace Gambit
       using namespace Pipes::CAT(NAME,_HEPUtils);                \
       convertEventToHEPUtilsPy8Collider(result,                  \
        *Dep::HardScatteringEvent, *Dep::HardScatteringSim,       \
-       *Dep::EventWeighterFunction, Loop::wrapup, runOptions);   \
+       *Dep::EventWeighterFunction, *Loop::iteration,            \
+       Loop::wrapup, runOptions);                                \
     }                                                            \
                                                                  \
     IF_NOT_DEFINED(EXCLUDE_HEPMC,                                \
@@ -288,7 +297,7 @@ namespace Gambit
           using namespace Pipes::CAT(NAME,_HepMC);               \
           convertEventToHepMCPy8Collider(result,                 \
            *Dep::HardScatteringEvent, *Dep::HardScatteringSim,   \
-           Loop::wrapup);                                        \
+           *Loop::iteration, Loop::wrapup);                      \
         }                                                        \
     )
 

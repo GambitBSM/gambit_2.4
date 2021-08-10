@@ -33,14 +33,6 @@
   #include "YODA/IO.h"
 #endif
 
-//Small convenience function for supplying options to the contur argparser.
-void convert_yaml_options_for_contur(std::vector<std::string> &yaml_options)
-{
-  for (size_t i{0}; i <yaml_options.size(); ++i){
-    yaml_options[i] = ("--"+yaml_options[i]);
-  }
-}
-
 namespace Gambit
 {
 
