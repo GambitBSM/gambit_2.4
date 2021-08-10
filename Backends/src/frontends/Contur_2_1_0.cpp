@@ -19,7 +19,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Contur_2_0_3.hpp"
+#include "gambit/Backends/frontends/Contur_2_1_0.hpp"
 
 
 using namespace pybind11::literals;
