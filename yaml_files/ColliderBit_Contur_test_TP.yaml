@@ -323,7 +323,7 @@ Rules:
       #contur_options:
        #- use-searches
        # - theory
-      YODA_filename: "./runpoint_0017.yoda"
+       # YODA_filename: "./runpoint_0017.yoda"
 
   - capability: LHC_measurements_LogLike
     function: Contur_LHC_measurements_LogLike
