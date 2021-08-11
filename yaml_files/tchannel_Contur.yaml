@@ -72,8 +72,8 @@ ObsLikes:
   - purpose:    LogLike
     capability: LHC_Combined_LogLike
 
-#  - purpose:    LogLike
-#    capability: LHC_measurements_LogLike
+  - purpose:    LogLike
+    capability: LHC_measurements_LogLike
 
   # Dark matter likelihoods
   - capability: lnL_oh2
@@ -151,6 +151,12 @@ ObsLikes:
   # Other observables
   - purpose:    likelihood_details
     capability: LHC_LogLike_per_analysis
+
+  - purpose: likelihood_details
+    capability: LHC_measurements_LogLike_perPool
+
+  - purpose: likelihood_details
+    capability: LHC_measurements_histotags_perPool
 
   - purpose:    Observable
     capability: LHC_signals
@@ -254,6 +260,17 @@ Rules:
         maxFailedEvents: 10
         analyses:
           - ATLAS_13TeV_0LEP_13invfb
+          - ATLAS_13TeV_MultiLEP_36invfb
+          - ATLAS_13TeV_0LEPStop_36invfb
+          - ATLAS_13TeV_2LEPStop_36invfb
+          - ATLAS_13TeV_2bMET_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_0LEP_13invfb
+          - CMS_13TeV_1LEPbb_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_1LEPStop_36invfb
+          - CMS_13TeV_MultiLEP_36invfb
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
@@ -320,6 +337,35 @@ Rules:
       cap_loglike: false
       cap_loglike_individual_analyses: false
       # skip_analyses: 
+
+  # Set analyses for Rivet measurements
+  - capability: Rivet_measurements
+    options:
+      drop_YODA_file: false
+      analyses:
+         - 13TeV
+        # - ATLAS_2021_I1849535
+        # - ATLAS_2016_I1458270
+        # - ATLAS_2017_I1514251:LMODE=EL
+        # - ATLAS_2017_I1514251:LMODE=MU
+        # - ATLAS_2017_I1609448
+        # - ATLAS_2017_I1614149
+        # - ATLAS_2017_I1625109
+        # - ATLAS_2017_I1637587
+        # - ATLAS_2017_I1645627
+        # - ATLAS_2018_I1634970
+        # - ATLAS_2018_I1646686
+        # - ATLAS_2018_I1656578
+        # - ATLAS_2018_I1705857
+        # - ATLAS_2018_I1707015:LMODE=DILEPTON
+        # - ATLAS_2018_I1707015:LMODE=SINGLE
+        # - ATLAS_2019_I1718132:LMODE=ELEL
+        # - ATLAS_2019_I1718132:LMODE=ELMU
+        # - ATLAS_2019_I1718132:LMODE=MUMU
+        # - ATLAS_2019_I1725190
+        # - ATLAS_2019_I1734263
+      exclude_analyses:
+        - ATLAS_2016_I1469071
 
   # Set analyses for LHC measurements
   - capability: LHC_measurements
