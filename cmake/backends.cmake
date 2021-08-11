@@ -1512,7 +1512,7 @@ if(NOT ditched_${name}_${ver})
           COMMAND sed ${dashi} -e "s|CFLAGS=.*|CFLAGS=\"${calchep_C_FLAGS}\"|" ${dir}/FlagsForSh
           COMMAND sed ${dashi} -e "s|CXXFLAGS=.*|CXXFLAGS=\"${calchep_CXX_FLAGS}\"|" ${dir}/FlagsForSh
           COMMAND sed ${dashi} -e "s|lFort=.*|lFort=|" ${dir}/FlagsForSh
-    BUILD_COMMAND ${MAKE_PARALLEL}
+    BUILD_COMMAND ${MAKE_SERIAL}
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/Models/ ${dir}/models/
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} "yes | clean")
@@ -1651,6 +1651,9 @@ set(fastjet_ver "3.3.2")
 set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
 set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
 set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
+set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
+set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
+set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1684,6 +1687,8 @@ set(fjcontrib_name "fjcontrib")
 set(fjcontrib_ver "1.041")
 set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
+set_compiler_warning("no-unused-parameter" Rivet_CXX_FLAGS)
+set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
 set(Rivet_LD_FLAGS "-L${dir}/include/Rivet ${HEPMC_LDFLAGS}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")

@@ -89,6 +89,8 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia, default)
     DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
     #define FUNCTION generateEventPythia_HEPUtils
@@ -98,8 +100,6 @@
     DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
     DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
-    ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
     #ifndef EXCLUDE_HEPMC
