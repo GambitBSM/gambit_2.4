@@ -59,6 +59,7 @@ namespace Gambit
           using namespace Rivet_default::Rivet;
           
           static std::shared_ptr<AnalysisHandler> ah;
+          static bool studying_first_event;
 
           if (*Loop::iteration == BASE_INIT)
           {
@@ -68,6 +69,7 @@ namespace Gambit
                 ah->~AnalysisHandler();  
               }
               ah = std::make_shared<AnalysisHandler>();
+              studying_first_event = true;
             }
 
             // Get analysis list from yaml file
@@ -104,7 +106,8 @@ namespace Gambit
               ah->removeAnalyses(excluded_analyses);
             }
             //Write the utilised analyses to a file in yaml-like format
-            //This will list only the analyses that RIVET has succesfully loaded.
+            //This will list only the analyses that RIVET has succesfully loaded -
+            // can be used to debug any typos in the initial yaml file etc.
             # pragma omp critical
             {
               //Only do this the first time contur is run.
@@ -186,7 +189,37 @@ namespace Gambit
           // Don't do anything else during special iterations
           if (*Loop::iteration < 0) return;
 
-          // Make sure this is single thread only (assuming Rivet is not thread-safe)
+          if (studying_first_event){
+            if (omp_get_thread_num() == 0)
+            {
+              // Get the HepMC event
+              HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+
+              try { ah->analyze(ge); }
+              catch(std::runtime_error &e)
+              {
+                ColliderBit_error().raise(LOCAL_INFO, e.what());
+              }
+              studying_first_event = false;
+            }
+            #pragma omp barrier
+            if (omp_get_thread_num() != 0)
+            {
+              #pragma omp critical
+              {
+                // Get the HepMC event
+                HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+
+                try { ah->analyze(ge); }
+                catch(std::runtime_error &e)
+                {
+                  ColliderBit_error().raise(LOCAL_INFO, e.what());
+                }
+                studying_first_event = false;
+              }
+            }
+          }
+        else{
           # pragma omp critical
           {
             // Get the HepMC event
@@ -199,6 +232,7 @@ namespace Gambit
             }
           }
         }
+      }
       
       #endif //EXCLUDE_YODA
     #endif // EXCLUDE_HEPMC
