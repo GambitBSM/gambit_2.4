@@ -591,6 +591,7 @@ namespace Gambit
 
             // deltaRH variable
             double deltaRH = 0.;
+            bool deltaRH_done = false;
             for(auto lep1: signalLeptons)
             {
               if( (nOSSFpairs >  0 and lep1 != OSSFpairs.at(0).at(0) and lep1 != OSSFpairs.at(0).at(1)) or 
@@ -598,12 +599,18 @@ namespace Gambit
               {
                 for(auto lep2: signalLeptons)
                 {
+                  if (lep2 == lep1)
+                    continue;
                   if( (nOSSFpairs >  0 and lep2 != OSSFpairs.at(0).at(0) and lep2 != OSSFpairs.at(0).at(1)) or 
                       (nOSSFpairs == 0 and lep2 != OSpairs.at(0).at(0)   and lep2 != OSpairs.at(0).at(1)) )
                   {
                     deltaRH = deltaR_eta(lep1->mom(),lep2->mom());
+                    deltaRH_done = true;
+                    break;
                   }
                 }
+                if (deltaRH_done)
+                  break;
               }
             }
 
@@ -832,9 +839,9 @@ namespace Gambit
           // Cutflow printout
           #ifdef CHECK_CUTFLOW
             //const double xsec = 5180.86; // 150 GeV winos
-            const double xsec = 1215.47; // 150 GeV higgsinos
+            const double xsec = 3832.31; // 150 GeV higgsinos
             //const double xsec = 1165.09; // 225 GeV winos
-            //const double xsec = 90.8167; // 300 GeV higgsinos
+            // const double xsec = 284.855; // 300 GeV higgsinos
             //const double xsec = 121.013; // 400 GeV winos
             //const double xsec = 46.3533; // 500 GeV winos
             //const double xsec = 20.1372; // 600 GeV winos
