@@ -10,7 +10,7 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-19-012/index.html
 
@@ -209,6 +209,7 @@ namespace Gambit
           std::vector<std::vector<const HEPUtils::Particle*> > SSpairs = getSSpairs(signalLightLeptons);
           std::vector<std::vector<const HEPUtils::Particle*> > OSSFpairs = getSFOSpairs(signalLightLeptons);
           sortByParentMass(OSSFpairs, mZ);
+          uniquePairs(OSSFpairs);
 
           std::vector<const HEPUtils::Particle*> signalLeptons=signalTaus;
           signalLeptons.insert(signalLeptons.end(), signalLightLeptons.begin(), signalLightLeptons.end());
@@ -216,6 +217,7 @@ namespace Gambit
 
           std::vector<std::vector<const HEPUtils::Particle*> > OSpairs = getOSpairs(signalLeptons);
           sortByParentMass(OSpairs, mZ);         
+          uniquePairs(OSpairs);
 
           std::vector<const HEPUtils::Jet*> signalJets = baselineJets;
           sortByPt(signalJets);

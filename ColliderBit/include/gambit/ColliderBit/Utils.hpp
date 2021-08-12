@@ -429,6 +429,26 @@ namespace Gambit
 
     //@}
 
+    /// Remove pairs with already used leptons, assumes some order
+    //@{
+    inline void uniquePairs(std::vector<std::vector<const Particle *> > &pairs)
+    {
+      for(auto it = pairs.begin(); it != pairs.end(); ++it)
+      {
+        for(auto it2 = std::next(it); it2 != pairs.end(); ++it2)
+        {
+          if(it2->at(0) == it->at(0) or
+             it2->at(1) == it->at(0) or
+             it2->at(0) == it->at(1) or
+             it2->at(1) == it->at(1))
+          {
+            it2--;
+            pairs.erase(it2+1);
+          }
+        }
+      }
+    }
+    //@}
 
     /// @name Counting
     //@{
