@@ -152,7 +152,8 @@ namespace Gambit
           for (const HEPUtils::Particle* electron : event->electrons())
           {
             //bool isEl = 1;
-            bool isEl = has_tag(CMS::eff2DEl.at("SUS_16_039"), fabs(electron->eta()), electron->pT());
+            //bool isEl = has_tag(CMS::eff2DEl.at("SUS_16_039"), fabs(electron->eta()), electron->pT());
+            bool isEl = has_tag(CMS::eff2DEl.at("SUS_19_008"), fabs(electron->eta()), electron->pT());
             if (electron->pT()>10. && fabs(electron->eta())<2.5 && isEl)
               baselineElectrons.push_back(electron);
           }
@@ -162,7 +163,8 @@ namespace Gambit
           for (const HEPUtils::Particle* muon : event->muons())
           {
             //bool isMu = 1;
-            bool isMu = has_tag(CMS::eff2DMu.at("SUS_16_039"), fabs(muon->eta()), muon->pT());
+            //bool isMu = has_tag(CMS::eff2DMu.at("SUS_16_039"), fabs(muon->eta()), muon->pT());
+            bool isMu = has_tag(CMS::eff2DMu.at("SUS_19_008"), fabs(muon->eta()), muon->pT());
             if (muon->pT()>10. && fabs(muon->eta())<2.4 && isMu)
               baselineMuons.push_back(muon);
           }
