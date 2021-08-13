@@ -100,6 +100,12 @@ ObsLikes:
     - purpose: LogLike
       capability: LHC_measurements_LogLike
 
+    - purpose: likelihood_details
+      capability: LHC_measurements_LogLike_perPool
+
+    - purpose: likelihood_details
+      capability: LHC_measurements_histotags_perPool
+
     # Other observables
 #    - purpose:    likelihood_details
 #      capability: LHC_LogLike_per_analysis
@@ -184,7 +190,7 @@ Rules:
     type: Pythia_default::Pythia8::Event
     function: generateEventPythia
     options:
-      #drop_HepMC3_file: true
+      drop_HepMC2_file: true
 
   - capability: HardScatteringEvent
     type: HEPUtils::Event
@@ -202,15 +208,14 @@ Rules:
   - capability: EventWeighterFunction
     function: setEventWeight_unity
 
-
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
     function: operateLHCLoop
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 100
-        max_nEvents: 100
+        min_nEvents: 500
+        max_nEvents: 500
         events_between_convergence_checks: 500
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -242,7 +247,7 @@ Rules:
         partonOnly: false
         antiktR: 0.4
         pythia_settings:
-          - Print:quiet = off
+          - Print:quiet = on
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = on
@@ -281,7 +286,36 @@ Rules:
       cap_loglike_individual_analyses: false
       # skip_analyses: 
 
-  # Set analyses for LHC measurements
+  # Set analyses for Rivet measurements
+  - capability: Rivet_measurements
+    options:
+      drop_YODA_file: true
+      analyses:
+         - 13TeV
+        # - ATLAS_2021_I1849535
+        # - ATLAS_2016_I1458270
+        # - ATLAS_2017_I1514251:LMODE=EL
+        # - ATLAS_2017_I1514251:LMODE=MU
+        # - ATLAS_2017_I1609448
+        # - ATLAS_2017_I1614149
+        # - ATLAS_2017_I1625109
+        # - ATLAS_2017_I1637587
+        # - ATLAS_2017_I1645627
+        # - ATLAS_2018_I1634970
+        # - ATLAS_2018_I1646686
+        # - ATLAS_2018_I1656578
+        # - ATLAS_2018_I1705857
+        # - ATLAS_2018_I1707015:LMODE=DILEPTON
+        # - ATLAS_2018_I1707015:LMODE=SINGLE
+        # - ATLAS_2019_I1718132:LMODE=ELEL
+        # - ATLAS_2019_I1718132:LMODE=ELMU
+        # - ATLAS_2019_I1718132:LMODE=MUMU
+        # - ATLAS_2019_I1725190
+        # - ATLAS_2019_I1734263
+      exclude_analyses:
+        - ATLAS_2016_I1469071 #This analysis causes crashes if run on BSM outside of rivet.
+        
+
   - capability: LHC_measurements
     function: Contur_LHC_measurements_from_stream
     options:
@@ -289,13 +323,15 @@ Rules:
       #contur_options:
        #- use-searches
        # - theory
-      YODA_filename: "./runpoint_0017.yoda"
+       # YODA_filename: "./runpoint_0017.yoda"
 
   - capability: LHC_measurements_LogLike
-    #function: LHC_measurements_LogLike
     function: Contur_LHC_measurements_LogLike
-    #options:
-      #YODA_filename: "./runpoint_0017.yoda"
+
+  - capability: LHC_measurements_LogLike_perPool
+    function: Contur_LHC_measurements_LogLike_perPool
+
+
 
 # Set the names of key log files
 
