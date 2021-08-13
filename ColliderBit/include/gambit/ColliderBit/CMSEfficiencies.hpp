@@ -470,14 +470,14 @@ namespace Gambit
       static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DEl = 
       {
         {"SUS_16_039", eff2DEl_SUS_16_039},
-        {"SUS-19-008", eff2DEl_SUS_19_008}
+        {"SUS_19_008", eff2DEl_SUS_19_008}
       };
 
       // Map of muon efficiencies
       static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DMu = 
       {
         {"SUS_16_039", eff2DMu_SUS_16_039},
-        {"SUS-19-008", eff2DMu_SUS_19_008}
+        {"SUS_19_008", eff2DMu_SUS_19_008}
 
       };
 
