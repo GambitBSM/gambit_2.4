@@ -60,6 +60,7 @@ namespace Gambit
           
           static std::shared_ptr<AnalysisHandler> ah;
           static bool studying_first_event;
+          static int events_analysed = 0;
 
           if (*Loop::iteration == BASE_INIT)
           {
@@ -209,6 +210,11 @@ namespace Gambit
               {
                 // Get the HepMC event
                 HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+                // Save the old event number in case other bits of Gambit need it.
+                int old_events_analysed = ge.event_number();
+                // Set the Event number to a stream independent total so Rivet can
+                // make sense of things.
+                ge.set_event_number(++events_analysed);
 
                 try { ah->analyze(ge); }
                 catch(std::runtime_error &e)
@@ -216,6 +222,8 @@ namespace Gambit
                   ColliderBit_error().raise(LOCAL_INFO, e.what());
                 }
                 studying_first_event = false;
+                // Reset the old event number in case GAMBIT needs it elsewhere.
+                ge.set_event_number(old_events_analysed);
               }
             }
           }
@@ -224,12 +232,19 @@ namespace Gambit
           {
             // Get the HepMC event
             HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+            // Save the old event number in case other bits of Gambit need it.
+            int old_events_analysed = ge.event_number();
+            // Set the Event number to a stream independent total so Rivet can
+            // make sense of things.
+            ge.set_event_number(++events_analysed);
 
             try { ah->analyze(ge); }
             catch(std::runtime_error &e)
             {
               ColliderBit_error().raise(LOCAL_INFO, e.what());
             }
+            // Reset the old event number in case GAMBIT needs it elsewhere.
+            ge.set_event_number(old_events_analysed);
           }
         }
       }
