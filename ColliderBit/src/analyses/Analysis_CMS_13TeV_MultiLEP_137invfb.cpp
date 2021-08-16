@@ -141,9 +141,9 @@ namespace Gambit
 
           // Here we will be using the same efficiencies as in the 36invfb version, as there is no public data for this yet
 
-          //static int count = 0;
-          //count++;
-          //std::cout << "#" << count << std::endl;
+          static int count = 0;
+          count++;
+          //if(!(count%1000)) std::cout << "#" << count << std::endl;
  
           //std::cout << "n Baseline leptons = " << event->electrons().size() + event->muons().size() + event->taus().size() << std::endl;
 
@@ -328,12 +328,12 @@ namespace Gambit
           }
 
           // Selection conditon for 3 lepton events
-          /*if(nLeptons == 3 and nLightLeptons >0)
+          if(nLeptons == 3 and nLightLeptons >0)
           {
-            std::cout << "I am a light lepton!" << std::endl;
-            if(amIanElectron(signalLightLeptons.at(0))) std::cout << "I am an electron!" << std::endl;
-            if(amIaMuon(signalLightLeptons.at(0))) std::cout << "I am a muon!" << std::endl;
-          }*/
+            static int n3lepevents = 0;
+            n3lepevents++;
+            //std::cout << "3l events = " << n3lepevents << std::endl;
+          }
           bool _3Lep = nLeptons == 3 and 
                       nLightLeptons > 0 and 
                       ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or 
@@ -461,7 +461,6 @@ namespace Gambit
           {
             // mT2 variable
             // TODO: Is this the ll MT2?
-            // TODO: Use Lester's
             double mT2 = get_mT2(signalLightLeptons.at(0), signalLightLeptons.at(1), mmom, 0);
 
             // mll variable
@@ -486,9 +485,25 @@ namespace Gambit
           {
             // mll variable, OSpairs are alread ordered by how close they are to mZ
             double mll = (OSpairs.at(0).at(0)->mom() + OSpairs.at(0).at(1)->mom()).m();
+            double mlth1 = (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m();
+            double mlth2 = (signalTaus.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
+            double mZ1 = 50;
+            double mZ2 = 60;
+            if(abs(mll - mZ1) < abs(mlth1 - mZ2))
+            {
+              if(abs(mll - mZ1) > abs(mlth2 - mZ2))
+                mll = mlth2;
+            }
+            else
+            {
+              if(abs(mlth1 - mZ2) > abs(mlth2 - mZ2))
+                mll = mlth2;
+              else
+                mll = mlth1;
+            }
+
 
             // mT2 variable
-            // TODO: Lester's?
             double mT2 = get_mT2(signalLightLeptons.at(0), signalLightLeptons.at(1), mmom, 0.);
 
             if(mT2 >= 0. and mT2 < 100. and mll < 60. and met >=  50. and met < 100.) counter_cutflow("D01",event,w);
@@ -519,13 +534,13 @@ namespace Gambit
             // mlth variable
             double mlth1 = (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m();
             double mlth2 = (signalTaus.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
-            double mlth = abs(mlth1 - mZ) < abs(mlth2 -mZ) ? mlth1 : mlth2;
+            double mZ2 = 60;
+            double mlth = abs(mlth1 - mZ2) < abs(mlth2 -mZ2) ? mlth1 : mlth2;
 
             // Set mlth to zero is the tau has the same sign as the pair of light leptons
             if(sameSign(signalTaus.at(0), signalLightLeptons.at(0))) mlth = 0.;
 
             // mT2 varaible
-            // TODO:  Lester's
             double mT2 = get_mT2(signalLightLeptons.at(0), signalTaus.at(0), mmom, 0.);
 
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >=  50. and met < 100.) counter_cutflow("E01",event,w);
@@ -547,7 +562,6 @@ namespace Gambit
             double mlth = (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m();
 
             // mT2 variable
-            // TODO: Lester's
             double mT2 = get_mT2(signalTaus.at(0), signalLightLeptons.at(0), mmom, 0);
 
             if(mT2 >= 0. and mT2 < 100. and mlth < 100. and met >=  50. and met < 100.) counter_cutflow("F01",event,w);
@@ -570,7 +584,6 @@ namespace Gambit
           if(nLeptons == 4 and nLightLeptons == 4 and nOSSFpairs > 1)
           {
             // mT2 variable, using Z1 and Z2
-            // TODO: Lester's
             double mT2 = get_mT2(OSSFpairs.at(0).at(0)->mom() + OSSFpairs.at(0).at(1)->mom(), OSSFpairs.at(1).at(0)->mom() + OSSFpairs.at(1).at(1)->mom(), mmom, 0.);
 
             // Z2 invariant mass
