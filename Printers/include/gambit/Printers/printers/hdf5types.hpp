@@ -34,9 +34,15 @@
   (std::vector<double>)     \
   (bool)                    \
   (map_str_dbl)             \
+  (map_str_str)             \
   (ModelParameters)         \
   (triplet<double>)         \
-  (map_intpair_dbl)         \
+  (map_intpair_dbl)         
+
+#define HDF5_RETRIEVABLE_TYPES \
+  HDF5_TYPES \
+  (MSSM_SLHAstruct) \
+  (SMslha_SLHAstruct)
 
 #define HDF5_BACKEND_TYPES            \
   (DM_nucleon_couplings)              \

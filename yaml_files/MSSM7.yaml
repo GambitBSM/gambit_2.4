@@ -391,6 +391,10 @@ Rules:
     options:
       allow_yield_extrapolation: true
 
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
     #function: DD_couplings_DarkSUSY_DS5
@@ -611,7 +615,6 @@ Rules:
         # - ATLAS_13TeV_RJ3L_lowmass_36invfb
         # - ATLAS_13TeV_1LEPStop_36invfb
         # The last two analyses depend on ROOT.
-
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes

@@ -36,7 +36,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::GAMBIT_hepmc_writer::GAMBIT_hepmc_writer() :
+        inline GAMBIT_hepmc_writer::GAMBIT_hepmc_writer() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -44,7 +44,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::GAMBIT_hepmc_writer::GAMBIT_hepmc_writer(Pythia8::Abstract_GAMBIT_hepmc_writer* in) :
+        inline GAMBIT_hepmc_writer::GAMBIT_hepmc_writer(Abstract_GAMBIT_hepmc_writer* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -52,7 +52,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::GAMBIT_hepmc_writer::GAMBIT_hepmc_writer(const GAMBIT_hepmc_writer& in) :
+        inline GAMBIT_hepmc_writer::GAMBIT_hepmc_writer(const GAMBIT_hepmc_writer& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -60,7 +60,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::GAMBIT_hepmc_writer& GAMBIT_hepmc_writer::operator=(const GAMBIT_hepmc_writer& in)
+        inline GAMBIT_hepmc_writer& GAMBIT_hepmc_writer::operator=(const GAMBIT_hepmc_writer& in)
         {
             if (this != &in)
             {
@@ -71,7 +71,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::GAMBIT_hepmc_writer::~GAMBIT_hepmc_writer()
+        inline GAMBIT_hepmc_writer::~GAMBIT_hepmc_writer()
         {
             if (get_BEptr() != 0)
             {
@@ -86,9 +86,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_GAMBIT_hepmc_writer* Pythia8::GAMBIT_hepmc_writer::get_BEptr() const
+        inline Abstract_GAMBIT_hepmc_writer* Pythia8::GAMBIT_hepmc_writer::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_GAMBIT_hepmc_writer*>(BEptr);
+            return dynamic_cast<Abstract_GAMBIT_hepmc_writer*>(BEptr);
         }
     }
     

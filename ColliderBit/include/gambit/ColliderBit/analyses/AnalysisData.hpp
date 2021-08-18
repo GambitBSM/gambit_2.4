@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Core"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include <string>
 #include <map>
@@ -79,11 +81,16 @@ namespace Gambit {
       /// Constructor with separate n & nsys args
       SignalRegionData(const std::string& sr,
                        double nobs, double nsigMC, double nbkg,
-                       double nsigMCsys, double nbkgerr, double nsigscaled=0)
-       : sr_label(sr),
-         n_obs(nobs), n_sig_MC(nsigMC), n_sig_scaled(nsigscaled), n_bkg(nbkg),
-         n_sig_MC_sys(nsigMCsys), n_bkg_err(nbkgerr)
-      {}
+                       double nsigMCsys, double nbkgerr, double nsigscaled=0) :
+        sr_label(sr),
+        n_obs(nobs), 
+        n_sig_MC(nsigMC), 
+        n_sig_MC_sys(nsigMCsys), 
+        n_sig_MC_stat(sqrt(nsigMC)), 
+        n_sig_scaled(nsigscaled), 
+        n_bkg(nbkg),
+        n_bkg_err(nbkgerr)
+      { }
 
       /// Default constructor
       SignalRegionData() {}
@@ -98,17 +105,10 @@ namespace Gambit {
       /// Uncertainty calculators
       double scalefactor() const { return n_sig_MC == 0 ? 1 : n_sig_scaled / n_sig_MC; }
 
-      double calc_n_sig_MC_stat() const { return sqrt(n_sig_MC); }
-
       double calc_n_sig_MC_err() const 
       { 
-        double n_sig_MC_stat = calc_n_sig_MC_stat();
         return sqrt( n_sig_MC_stat * n_sig_MC_stat + n_sig_MC_sys * n_sig_MC_sys ); 
       }
-
-      double calc_n_sig_scaled_stat() const { return scalefactor() * calc_n_sig_MC_stat(); }
-
-      double calc_n_sig_scaled_sys() const { return scalefactor() * n_sig_MC_sys; }
 
       double calc_n_sig_scaled_err() const { return scalefactor() * calc_n_sig_MC_err(); }
 
@@ -127,12 +127,13 @@ namespace Gambit {
 
       /// @name Signal region data
       //@{
-      double n_obs = 0; ///< The number of events passing selection for this signal region as reported by the experiment
-      double n_sig_MC = 0; ///< The number of simulated model events passing selection for this signal region
-      double n_sig_scaled = 0; ///< n_sig_MC, scaled to luminosity * cross-section
-      double n_bkg = 0; ///< The number of standard model events expected to pass the selection for this signal region, as reported by the experiment.
-      double n_sig_MC_sys = 0; ///< The absolute systematic error of n_sig_MC
-      double n_bkg_err = 0; ///< The absolute error of n_bkg
+      double n_obs; ///< The number of events passing selection for this signal region as reported by the experiment
+      double n_sig_MC; ///< The number of simulated model events passing selection for this signal region
+      double n_sig_MC_sys; ///< The absolute systematic error of n_sig_MC
+      double n_sig_MC_stat; ///< The absolute statistical (MC) error of n_sig_MC
+      double n_sig_scaled; ///< n_sig_MC, scaled to luminosity * cross-section
+      double n_bkg; ///< The number of standard model events expected to pass the selection for this signal region, as reported by the experiment.
+      double n_bkg_err; ///< The absolute error of n_bkg
       //@}
 
     };
@@ -235,13 +236,12 @@ namespace Gambit {
       /// @todo Allow naming the SRs?
       void add(const SignalRegionData& srd)
       {
-        std::string key = analysis_name + srd.sr_label;
-        auto loc = srdata_identifiers.find(key);
+        auto loc = srdata_identifiers.find(srd.sr_label);
         if (loc == srdata_identifiers.end())
         {
           // If the signal region doesn't exist in this object yet, add it
           srdata.push_back(srd);
-          srdata_identifiers[key] = srdata.size() - 1;
+          srdata_identifiers[srd.sr_label] = srdata.size() - 1;
         }
         else
         {

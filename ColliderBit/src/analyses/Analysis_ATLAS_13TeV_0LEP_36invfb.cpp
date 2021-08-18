@@ -3,7 +3,10 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 // #include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
+
+#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Eigen"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 
 namespace Gambit {
@@ -18,11 +21,6 @@ namespace Gambit {
     /// Recursive jigsaw reconstruction signal regions are currently not included
     /// Boosted signal regions not currently used.
     ///
-    /// Note: cutflows have not been updated yet (sincec 13 invfb analysis).
-    ///
-    ///Tomek Procter July 2019: This version will be used to output some plots while
-    /// we debug
-
     /// Yang Zhang Feb 2020: For SR-3j-1300, SR-5j-1600, SR-5j-1700 and SR-6j-1200,
     /// the cuts of signal regions are different to those of cut-flows.
     /// We use the cuts described in Tab.2 of the paper

@@ -181,7 +181,11 @@ if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
   message("   HepMC v${ver} will be downloaded and installed when building GAMBIT.")
   message("   ColliderBit Solo (CBS) will be activated.")
-  message("   Pythia can now drop HepMC files.")
+  if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/Pythia_8_212/abstract_GAMBIT_hepmc_writer.h")
+    message("   Pythia can now drop HepMC files.")
+  else()
+    message("${BoldRed}   Pythia has already been compiled without HepMC so the main gambit build will fail. Please nuke Pythia before compiling gambit.${ColourReset}")
+  endif()
   message("   Backends depending on HepMC will be enabled.")
   if(NOT ROOT_FOUND)
     message("   No ROOT found, ROOT-IO in HepMC will be deactivated.")
@@ -206,15 +210,23 @@ if(NOT EXCLUDE_HEPMC)
   set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
+  set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
   set(HEPMC_PATH "${dir}")
   set(HEPMC_LIB "${dir}/local/lib")
   set(HEPMC_LDFLAGS "-L${HEPMC_LIB} -l${lib} -l${lib_search}")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
+
+  # Silence some compiler warnings coming from HepMC
+  set_compiler_warning("no-unused-parameter" HEPMC_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" HEPMC_CXX_FLAGS)
+  set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
+
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     CMAKE_COMMAND ${CMAKE_COMMAND}  ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
@@ -234,7 +246,7 @@ elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
 endif()
 
 set(name "yoda")
-set(ver "1.9.0")
+set(ver "1.9.1")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -249,16 +261,17 @@ endif()
 
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
-  set(YODA_VERSION "1.9.0")
+  set(YODA_VERSION "1.9.1")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${YODA_VERSION}.tar.gz")
-  #set(md5 "4a2f0b5562bad12e02b656dac6fd62f6")
-  #set(md5 "420abe730380f7e0c3221b1357ee0ae4")
-  set(md5 "3a756c8d45ec1d754e0f16853891153f")
+  #set(md5 "3a756c8d45ec1d754e0f16853891153f")
+  set(md5 "8f835049fb88c0ad0ed82f0ad16a7073")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
   set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
+  set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
@@ -292,6 +305,15 @@ add_gambit_library(fjcore OPTION OBJECT
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
 
+#contrib/multimin
+set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
+include_directories("${multimin_INCLUDE_DIR}")
+add_gambit_library(multimin OPTION OBJECT
+                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/multimin/src/multimin.cpp
+                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/multimin/include/multimin/multimin.hpp)
+set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
+
+
 #contrib/MassSpectra; include only if SpecBit is in use and if
 #BUILD_FS_MODELS is set to something other than "" or "None" or "none"
 set (FS_DIR "${PROJECT_SOURCE_DIR}/contrib/MassSpectra/flexiblesusy")
@@ -321,6 +343,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Silence the deprecated-declarations warnings coming from Eigen3
   set_compiler_warning("no-deprecated-declarations" FS_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FS_CXX_FLAGS)
 
   # Silence the mass of compiler warnings coming from FlexibleSUSY
   set_compiler_warning("no-unused-parameter" FS_CXX_FLAGS)

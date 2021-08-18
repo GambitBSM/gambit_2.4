@@ -43,38 +43,50 @@
   #ifndef EXCLUDE_YODA
 
     // Calculate the log-likelihood for LHC measurements from a YODA file
-    #define CAPABILITY LHC_measurements_LogLike
+    #define CAPABILITY LHC_measurements
     START_CAPABILITY
 
-      // GAMBIT version
-      #define FUNCTION LHC_measurements_LogLike
-      START_FUNCTION(double)
-      DEPENDENCY(Rivet_measurements, vector_shared_ptr<YODA::AnalysisObject>)
-      #undef FUNCTION
-
-      // Contur version
-      #define FUNCTION Contur_LHC_measurements_LogLike
-      START_FUNCTION(double)
-      DEPENDENCY(Rivet_measurements, vector_shared_ptr<YODA::AnalysisObject>)
-      BACKEND_REQ(Contur_LogLike, (libcontur), double, (vector_shared_ptr<YODA::AnalysisObject> &))
-      BACKEND_OPTION( (Contur), (libcontur) )
-      #undef FUNCTION
-
       // Contur version, from YODA stream
-      #define FUNCTION Contur_LHC_measurements_LogLike_from_stream
-      START_FUNCTION(double)
+      #define FUNCTION Contur_LHC_measurements_from_stream
+      START_FUNCTION(Contur_output)
       DEPENDENCY(Rivet_measurements, std::shared_ptr<std::ostringstream>)
-      BACKEND_REQ(Contur_LogLike, (libcontur), double, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&))
+      BACKEND_REQ(Contur_Measurements, (libcontur), Contur_output, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&))
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
 
       // Contur version, from file
-      #define FUNCTION Contur_LHC_measurements_LogLike_from_file
-      START_FUNCTION(double)
-      BACKEND_REQ(Contur_LogLike, (libcontur), double, (str &, std::vector<std::string>&))
+      #define FUNCTION Contur_LHC_measurements_from_file
+      START_FUNCTION(Contur_output)
+      BACKEND_REQ(Contur_Measurements, (libcontur), Contur_output, (str &, std::vector<std::string>&))
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
    
+    #undef CAPABILITY
+
+    //The capability for getting the LLR contribution per pool from Contur.
+    #define CAPABILITY LHC_measurements_LogLike
+    START_CAPABILITY
+      #define FUNCTION Contur_LHC_measurements_LogLike
+      START_FUNCTION(double)
+      DEPENDENCY(LHC_measurements, Contur_output)
+      #undef FUNCTION
+    #undef CAPABILITY
+
+    //Get a map of each contur pool and the contributed LLR
+    #define CAPABILITY LHC_measurements_LogLike_perPool
+    START_CAPABILITY
+      #define FUNCTION Contur_LHC_measurements_LogLike_perPool
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(LHC_measurements, Contur_output)
+      #undef FUNCTION
+    #undef CAPABILITY
+
+    #define CAPABILITY LHC_measurements_histotags_perPool
+    START_CAPABILITY
+      #define FUNCTION Contur_LHC_measurements_histotags_perPool
+      START_FUNCTION(map_str_str)
+      DEPENDENCY(LHC_measurements, Contur_output)
+      #undef FUNCTION
     #undef CAPABILITY
 
   #endif

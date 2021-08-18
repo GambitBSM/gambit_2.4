@@ -43,7 +43,7 @@ input_files = [
 include_paths = [
     '../../../Backends/installed/rivet/'+gambit_backend_version+'/include',
     '../../../contrib/HepMC3-3.1.1/local/include',
-    '../../../contrib/YODA-1.9.0/local/include',
+    '../../../contrib/YODA-1.9.1/local/include',
     '../../../Backends/installed/fastjet/3.3.2/local/include'
 ]
 base_paths = ['../../../Backends/installed/rivet/'+gambit_backend_version]
@@ -104,9 +104,11 @@ ini_function_in_header = False
 # the BOSS-generated headers in GAMBIT.
 
 pragmas_begin = [
+  '#pragma GCC diagnostic push',
+  '#pragma GCC diagnostic ignored "-Wignored-qualifiers"',
+  '#pragma GCC diagnostic ignored "-Wunused-parameter"',
 ]
 
 pragmas_end = [
+  '#pragma GCC diagnostic pop'
 ]
-
-

@@ -48,11 +48,6 @@
 // #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
 
-#define WITH_HEPMC 1
-#define WITHOUT_HEPMC 0
-#define EXCLUDEHEPMC_TRUE 1
-#define EXCLUDEHEPMC_FALSE 0
-
 namespace Gambit
 {
 
@@ -61,21 +56,15 @@ namespace Gambit
 
     /// Drop a HepMC file for the event
     #ifndef EXCLUDE_HEPMC
-      template<typename PythiaT>
-      void dropHepMCEventPy8Collider(const PythiaT* Pythia, 
-                                     const int iteration,
-                                     const safe_ptr<Options>& runOptions)
+      template<typename PythiaT, typename hepmc_writerT>
+      void dropHepMCEventPy8Collider(const PythiaT* Pythia, const safe_ptr<Options>& runOptions)
       {
-
-        // If in any other special iteration, do nothing
-        if (iteration <= BASE_INIT) return;
-
         // Write event to HepMC file
         static const bool drop_HepMC2_file = runOptions->getValueOrDef<bool>(false, "drop_HepMC2_file");
         static const bool drop_HepMC3_file = runOptions->getValueOrDef<bool>(false, "drop_HepMC3_file");
         if (drop_HepMC2_file or drop_HepMC3_file)
         {
-          thread_local Pythia_default::Pythia8::GAMBIT_hepmc_writer hepmc_writer;
+          thread_local hepmc_writerT hepmc_writer;
           thread_local bool first = true;
 
           if (first)
@@ -97,15 +86,15 @@ namespace Gambit
     #endif
 
     /// Generate a hard scattering event with Pythia
-    template<typename PythiaT, typename EventT>
+    template<typename PythiaT, typename EventT, typename hepmc_writerT>
     void generateEventPy8Collider(EventT& pythia_event,
                                   const MCLoopInfo& RunMC,
-                                  const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                  const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
                                   const int iteration,
-                                  void(*wrapup)())
+                                  void(*wrapup)(),
+                                  const safe_ptr<Options>& runOptions)
     {
       static int nFailedEvents;
-//      thread_local EventT pythia_event;
 
       // If the event loop has not been entered yet, reset the counter for the number of failed events
       if (iteration == BASE_INIT)
@@ -136,7 +125,7 @@ namespace Gambit
           HardScatteringSim.nextEvent(pythia_event);
           break;
         }
-        catch (typename Py8Collider<PythiaT,EventT>::EventGenerationError& e)
+        catch (typename Py8Collider<PythiaT,EventT,hepmc_writerT>::EventGenerationError& e)
         {
           #ifdef COLLIDERBIT_DEBUG
           cerr << DEBUG_PREFIX << "Py8Collider::EventGenerationError caught in generateEventPy8Collider. Check the ColliderBit log for event details." << endl;
@@ -166,13 +155,17 @@ namespace Gambit
         return;
       }
 
+      #ifndef EXCLUDE_HEPMC
+        dropHepMCEventPy8Collider<PythiaT,hepmc_writerT>(HardScatteringSim.pythia(), runOptions);
+      #endif
+
     }
 
     /// Generate a hard scattering event with Pythia and convert it to HEPUtils::Event
-    template<typename PythiaT, typename EventT>
+    template<typename PythiaT, typename EventT, typename hepmc_writerT>
     void convertEventToHEPUtilsPy8Collider(HEPUtils::Event& event,
                                   const EventT &pythia_event,
-                                  const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                  const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
                                   const EventWeighterFunctionType& EventWeighterFunction,
                                   const int iteration,
                                   void(*wrapup)(),
@@ -224,10 +217,10 @@ namespace Gambit
 
     #ifndef EXCLUDE_HEPMC
       /// Generate a hard scattering event with Pythia and convert it to HepMC event
-      template<typename PythiaT, typename EventT>
+      template<typename PythiaT, typename EventT, typename hepmc_writerT>
       void convertEventToHepMCPy8Collider(HepMC3::GenEvent& event,
                                     const EventT &pythia_event,
-                                    const Py8Collider<PythiaT,EventT>& HardScatteringSim,
+                                    const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
                                     const int iteration,
                                     void(*wrapup)())
       {
@@ -241,7 +234,7 @@ namespace Gambit
         // Attempt to convert the Pythia event to a HepMC event
         try
         {
-          thread_local Pythia_default::Pythia8::GAMBIT_hepmc_writer hepmc_writer;
+          thread_local hepmc_writerT hepmc_writer;
           thread_local bool first = true;
 
           if (first)
@@ -279,20 +272,15 @@ namespace Gambit
 
 
     /// Generate a hard scattering event with a specific Pythia,
-    #define GET_PYTHIA_EVENT_3(NAME, PYTHIA_EVENT_TYPE, HEPMC)   \
+//    #define GET_PYTHIA_EVENT_3(NAME, PYTHIA_EVENT_TYPE, HEPMC)   \
+
+    #define GET_PYTHIA_EVENT(NAME, PYTHIA_EVENT_TYPE)            \
     void NAME(PYTHIA_EVENT_TYPE &result)                         \
     {                                                            \
       using namespace Pipes::NAME;                               \
       generateEventPy8Collider(result, *Dep::RunMC,              \
-       *Dep::HardScatteringSim, *Loop::iteration, Loop::wrapup); \
-                                                                 \
-      IF_NOT_DEFINED(EXCLUDE_HEPMC,                              \
-        BOOST_PP_IIF(HEPMC,                                      \
-          dropHepMCEventPy8Collider(                             \
-            Dep::HardScatteringSim->pythia(),                    \
-            *Loop::iteration, runOptions);                       \
-        ,)                                                       \
-      )                                                          \
+       *Dep::HardScatteringSim, *Loop::iteration,                \
+       Loop::wrapup, runOptions);                                \
                                                                  \
     }                                                            \
                                                                  \
@@ -306,7 +294,6 @@ namespace Gambit
     }                                                            \
                                                                  \
     IF_NOT_DEFINED(EXCLUDE_HEPMC,                                \
-      BOOST_PP_IIF(HEPMC,                                        \
         void CAT(NAME,_HepMC)(HepMC3::GenEvent& result)          \
         {                                                        \
           using namespace Pipes::CAT(NAME,_HepMC);               \
@@ -314,14 +301,27 @@ namespace Gambit
            *Dep::HardScatteringEvent, *Dep::HardScatteringSim,   \
            *Loop::iteration, Loop::wrapup);                      \
         }                                                        \
-      ,)                                                         \
     )
 
-    #define GET_PYTHIA_EVENT_2(NAME, PYTHIA_EVENT_TYPE)          \
+//    #define GET_PYTHIA_EVENT_2(NAME, PYTHIA_EVENT_TYPE)          \
       GET_PYTHIA_EVENT_3(NAME, PYTHIA_EVENT_TYPE, WITHOUT_HEPMC)
 
-    #define GET_PYTHIA_EVENT(...)  VARARG(GET_PYTHIA_EVENT, __VA_ARGS__)
+//    #define GET_PYTHIA_EVENT(...)  VARARG(GET_PYTHIA_EVENT, __VA_ARGS__)
 
   }
+
+/*
+    IF_NOT_DEFINED(EXCLUDE_HEPMC,                                \
+      BOOST_PP_IIF(HEPMC,                                        \
+        void CAT(NAME,_HepMC)(HepMC3::GenEvent& result)          \
+        {                                                        \
+          using namespace Pipes::CAT(NAME,_HepMC);               \
+          convertEventToHepMCPy8Collider(result,                 \
+           *Dep::HardScatteringEvent, *Dep::HardScatteringSim,   \
+           Loop::wrapup);                                        \
+        }                                                        \
+      ,)                                                         \
+    )
+*/
 
 }
