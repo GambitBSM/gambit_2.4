@@ -221,11 +221,13 @@ namespace Gambit
         }
 
         bool isTau = false;
+        int signedTauPID = MCUtils::PID::TAU;
         for (HEPUtils::Particle& ptau : tauCandidates)
         {
           if (jetMom.deltaR_eta(ptau.mom()) < 0.5) ///< @todo Hard-coded radius!!!
           {
             isTau = true;
+            signedTauPID = ptau.pid();
             break;
           }
         }
@@ -264,7 +266,7 @@ namespace Gambit
         // Add to the event (use jet momentum for tau)
         if (isTau)
         {
-          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), MCUtils::PID::TAU);
+          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), signedTauPID);
           gp->set_prompt();
           result.add_particle(gp);
         }
@@ -404,19 +406,21 @@ namespace Gambit
         result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC, false, false, false)); // This does not currently deal with boson tagging
 
         bool isTau=false;
+        int signedTauPID = MCUtils::PID::TAU;
         for (auto& ptau : tauCandidates)
         {
           HEPUtils::P4 jetMom = HEPUtils::mk_p4(pj);
           if (jetMom.deltaR_eta(ptau.mom()) < 0.5)
           {
             isTau=true;
+            signedTauPID = ptau.pid();
             break;
           }
         }
         // Add to the event (use jet momentum for tau)
         if (isTau)
         {
-          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), MCUtils::PID::TAU);
+          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), signedTauPID);
           gp->set_prompt();
           result.add_particle(gp);
         }
