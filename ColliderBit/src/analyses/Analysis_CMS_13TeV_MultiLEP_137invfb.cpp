@@ -199,28 +199,82 @@ namespace Gambit
 
           ////////////////////
           // Signal objects //
-          std::vector<const HEPUtils::Particle*> signalElectrons=baselineElectrons;
-          std::vector<const HEPUtils::Particle*> signalMuons=baselineMuons;
-          std::vector<const HEPUtils::Particle*> signalTaus=baselineTaus;
-          sortByPt(signalTaus);
 
-          std::vector<const HEPUtils::Particle*> signalLightLeptons=signalElectrons;
-          signalLightLeptons.insert(signalLightLeptons.end(), signalMuons.begin(), signalMuons.end());
-          sortByPt(signalLightLeptons);
+          // - Keep the four hardest leptons (incl. taus) --> signalLeptons
+          // - Create signalLightLeptons and other lepton containers from signalLeptons
 
+          std::vector<const HEPUtils::Particle*> signalLeptonCandidates;
+          signalLeptonCandidates.insert(signalLeptonCandidates.end(), baselineElectrons.begin(), baselineElectrons.end());
+          signalLeptonCandidates.insert(signalLeptonCandidates.end(), baselineMuons.begin(), baselineMuons.end());
+          signalLeptonCandidates.insert(signalLeptonCandidates.end(), baselineTaus.begin(), baselineTaus.end());
+
+          // Only keep the four highest-pT leptons
+          sortByPt(signalLeptonCandidates);
+          std::vector<const HEPUtils::Particle*> signalLeptons;
+          if (signalLeptonCandidates.size() > 4)
+          {
+            signalLeptons.insert(signalLeptons.end(), signalLeptonCandidates.begin(), signalLeptonCandidates.begin()+3);
+          }
+          else
+          {
+            signalLeptons = signalLeptonCandidates;
+          }
+
+          // Create other signal lepton containers from signalLeptons
+          std::vector<const HEPUtils::Particle*> signalLightLeptons;
+          std::vector<const HEPUtils::Particle*> signalElectrons;
+          std::vector<const HEPUtils::Particle*> signalMuons;
+          std::vector<const HEPUtils::Particle*> signalTaus;
+          for (const HEPUtils::Particle* lep : signalLeptons)
+          {
+            if (amIanElectron(lep))
+            {
+              signalLightLeptons.push_back(lep);
+              signalElectrons.push_back(lep);
+            }
+            else if (amIaMuon(lep))
+            {
+              signalLightLeptons.push_back(lep);
+              signalMuons.push_back(lep);
+            }
+            else if (amIaTau(lep))
+            {
+              signalTaus.push_back(lep);
+            }
+          }
+
+          // Create containers with SS, OS and OSSF pairs:
+
+          // - SS pairs, only light leptons
           std::vector<std::vector<const HEPUtils::Particle*> > SSpairs = getSSpairs(signalLightLeptons);
+          // Should these pairs be unique?
+
+          // - SS pairs, including taus
+          std::vector<std::vector<const HEPUtils::Particle*> > SSpairsWithTaus = getSSpairs(signalLeptons);
+          // Should these pairs be unique?
+
+          // - OS pairs, only light leptons
+          std::vector<std::vector<const HEPUtils::Particle*> > OSpairs = getOSpairs(signalLightLeptons);
+          sortByParentMass(OSpairs, mZ);         
+          uniquePairs(OSpairs);
+
+          // - OS pairs, including taus
+          std::vector<std::vector<const HEPUtils::Particle*> > OSpairsWithTaus = getOSpairs(signalLeptons);
+          sortByParentMass(OSpairsWithTaus, mZ);         
+          uniquePairs(OSpairsWithTaus);
+
+          // - OSSF pairs, only light leptons
           std::vector<std::vector<const HEPUtils::Particle*> > OSSFpairs = getSFOSpairs(signalLightLeptons);
           sortByParentMass(OSSFpairs, mZ);
           uniquePairs(OSSFpairs);
 
-          std::vector<const HEPUtils::Particle*> signalLeptons=signalTaus;
-          signalLeptons.insert(signalLeptons.end(), signalLightLeptons.begin(), signalLightLeptons.end());
-          sortByPt(signalLeptons);
+          // - OSSF pairs, including taus
+          std::vector<std::vector<const HEPUtils::Particle*> > OSSFpairsWithTaus = getSFOSpairs(signalLeptons);
+          sortByParentMass(OSSFpairsWithTaus, mZ);
+          uniquePairs(OSSFpairsWithTaus);
 
-          std::vector<std::vector<const HEPUtils::Particle*> > OSpairs = getOSpairs(signalLeptons);
-          sortByParentMass(OSpairs, mZ);         
-          uniquePairs(OSpairs);
 
+          // Jets
           std::vector<const HEPUtils::Jet*> signalJets = baselineJets;
           sortByPt(signalJets);
 
@@ -244,10 +298,13 @@ namespace Gambit
           // Common variables and cuts //
           const size_t nLeptons = signalLeptons.size();
           const size_t nLightLeptons = signalLightLeptons.size();
-          const size_t nTaus = nLeptons - nLightLeptons;
+          const size_t nTaus = signalTaus.size();
           const size_t nSSpairs = SSpairs.size();
-          const size_t nOSSFpairs = OSSFpairs.size();
+          const size_t nSSpairsWithTaus = SSpairsWithTaus.size();
           const size_t nOSpairs = OSpairs.size();
+          const size_t nOSpairsWithTaus = OSpairsWithTaus.size();
+          const size_t nOSSFpairs = OSSFpairs.size();
+          const size_t nOSSFpairsWithTaus = OSSFpairsWithTaus.size();
 
           const size_t nJets = signalJets.size();
           const size_t nBJets = signalBJets.size();
@@ -281,7 +338,7 @@ namespace Gambit
           //std::cout << "nLeptons = " << nLeptons << std::endl;
           if(nLeptons < 3 and (nLightLeptons < 2 or nSSpairs == 0) ) return;
           if(nBJets > 0) return;
-          if(nOSSFpairs > 0 and mossf[0] < 12.0) return;
+          if(nOSSFpairs > 0 and mossf.at(0) < 12.0) return;
           _cutflows.fillnext(w);
 
           ////////////////////
@@ -581,7 +638,7 @@ namespace Gambit
           }
 
           // 4Lep, 2 OSSF pairs (4lG)
-          if(nLeptons == 4 and nLightLeptons == 4 and nOSSFpairs > 1)
+          if(nLeptons == 4 and nLightLeptons == 4 and nOSSFpairs == 2)
           {
             // mT2 variable, using Z1 and Z2
             double mT2 = get_mT2(OSSFpairs.at(0).at(0)->mom() + OSSFpairs.at(0).at(1)->mom(), OSSFpairs.at(1).at(0)->mom() + OSSFpairs.at(1).at(1)->mom(), mmom, 0.);
@@ -597,42 +654,40 @@ namespace Gambit
           }
 
           // These variables are common to all remaining SRs
-          if(nLeptons == 4 and (nOSSFpairs > 0 or nOSpairs > 0))
+          if(nLeptons == 4 and (nOSSFpairsWithTaus > 0 or nOSpairsWithTaus > 0))
           {
-            // Z1 invariant mass
-            double mZ1 = 0.;
-            if(nOSSFpairs > 0)
-              mZ1 = (OSSFpairs.at(0).at(0)->mom() + OSSFpairs.at(0).at(1)->mom()).m();
-            else
-              mZ1 = (OSpairs.at(0).at(0)->mom() + OSpairs.at(0).at(1)->mom()).m();
 
-            // deltaRH variable
-            double deltaRH = 0.;
-            bool deltaRH_done = false;
-            for(auto lep1: signalLeptons)
+            // Z1 invariant mass
+            std::vector<const HEPUtils::Particle*> Z1pair;
+            double mZ1 = 0.;
+            if(nOSSFpairsWithTaus > 0)
             {
-              if( (nOSSFpairs >  0 and lep1 != OSSFpairs.at(0).at(0) and lep1 != OSSFpairs.at(0).at(1)) or 
-                  (nOSSFpairs == 0 and lep1 != OSpairs.at(0).at(0)   and lep1 != OSpairs.at(0).at(1)) )
-              {
-                for(auto lep2: signalLeptons)
-                {
-                  if (lep2 == lep1)
-                    continue;
-                  if( (nOSSFpairs >  0 and lep2 != OSSFpairs.at(0).at(0) and lep2 != OSSFpairs.at(0).at(1)) or 
-                      (nOSSFpairs == 0 and lep2 != OSpairs.at(0).at(0)   and lep2 != OSpairs.at(0).at(1)) )
-                  {
-                    deltaRH = deltaR_eta(lep1->mom(),lep2->mom());
-                    deltaRH_done = true;
-                    break;
-                  }
-                }
-                if (deltaRH_done)
-                  break;
-              }
+              mZ1 = (OSSFpairsWithTaus.at(0).at(0)->mom() + OSSFpairsWithTaus.at(0).at(1)->mom()).m();
+              Z1pair.push_back(OSSFpairsWithTaus.at(0).at(0));
+              Z1pair.push_back(OSSFpairsWithTaus.at(0).at(1));
+            }
+            else
+            {
+              mZ1 = (OSpairsWithTaus.at(0).at(0)->mom() + OSpairsWithTaus.at(0).at(1)->mom()).m();
+              Z1pair.push_back(OSpairsWithTaus.at(0).at(0));
+              Z1pair.push_back(OSpairsWithTaus.at(0).at(1));
             }
 
+            // deltaRH variable
+            std::vector<const HEPUtils::Particle*> deltaRHpair;
+            double deltaRH = 0.;
+            for(const HEPUtils::Particle* lep : signalLeptons)
+            {
+              if(lep != Z1pair.at(0) && lep != Z1pair.at(1))
+              {
+                deltaRHpair.push_back(lep);
+              }
+            }
+            deltaRH = deltaR_eta(deltaRHpair.at(0)->mom(), deltaRHpair.at(1)->mom());
+
+
             // 4Lep, 1 or fewer OSSF pairs (4lH)
-            if(nLightLeptons == 4 and nOSSFpairs < 2)
+            if(nLightLeptons == 4 and nOSSFpairsWithTaus < 2)
             {
               if(deltaRH >= 0.8 and mZ1 > 60.) counter_cutflow("H01",event,w);
               if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) counter_cutflow("H02",event,w);
@@ -648,7 +703,7 @@ namespace Gambit
             }
 
             // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
-            if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairs == 2)
+            if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairsWithTaus == 2)
             {
               if(deltaRH >= 0.8 and mZ1 > 60.) counter_cutflow("J01",event,w);
               if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) counter_cutflow("J02",event,w);
@@ -656,7 +711,7 @@ namespace Gambit
             }
 
             // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
-            if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairs < 2)
+            if(nLightLeptons == 2 and nTaus == 2 and nOSSFpairsWithTaus < 2)
             {
               if(deltaRH >= 0.8 and mZ1 > 60.) counter_cutflow("K01",event,w);
               if(deltaRH >= 0.8 and mZ1 >  0. and mZ1 <= 60.) counter_cutflow("K02",event,w);
