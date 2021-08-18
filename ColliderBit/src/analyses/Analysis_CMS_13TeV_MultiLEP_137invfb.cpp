@@ -143,7 +143,8 @@ namespace Gambit
 
           static int count = 0;
           count++;
-          //if(!(count%1000)) std::cout << "#" << count << std::endl;
+          //if(!(count%1000))
+          //std::cout << "#" << count << std::endl;
  
           //std::cout << "n Baseline leptons = " << event->electrons().size() + event->muons().size() + event->taus().size() << std::endl;
 
@@ -287,6 +288,8 @@ namespace Gambit
           ////////////////////
           // Signal regions //
 
+          //std::cout << "number of signal leptons = " << nLightLeptons << std::endl;
+          //std::cout << "number of same sign pairs = " << nSSpairs << std::endl; 
           // 2SSLep, (2lSS)
           // TODO: Missing implementing the case of a third loose lepton
           if(nLightLeptons == 2 and nLeptons == 2 and nSSpairs == 1 and 
@@ -295,8 +298,10 @@ namespace Gambit
              ( nJets < 2 or signalJets.at(1)->pT() < 40) and
              met > 60. )
           {
+            //std::cout << "passed SS selection" << std::endl;
             // Stransverse mass
             double mT2 = get_mT2(signalLeptons.at(0), signalLeptons.at(1), mmom, 0);
+            //std::cout << "mT2 = " << mT2 << std::endl;
 
             // pT of dilepton system for SS leptons
             double pTll = ( signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() ).pT();
