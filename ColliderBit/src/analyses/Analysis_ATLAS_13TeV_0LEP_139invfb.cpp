@@ -333,16 +333,32 @@ namespace Gambit {
         // Cutflow printout
         #ifdef CHECK_CUTFLOW
           // const double sf = 139*crossSection()/femtobarn/sumOfWeights();
-          _cutflows["2j-1600"].normalize(1763, 1);
-          _cutflows["2j-2200"].normalize(1763, 1);
-          _cutflows["2j-2800"].normalize(1763, 1);
-          _cutflows["4j-1000"].normalize(2562, 1);
-          _cutflows["4j-2200"].normalize(2562, 1);
-          _cutflows["4j-3400"].normalize(2562, 1);
-          _cutflows["5j-1600"].normalize(6101, 1);
-          _cutflows["6j-1000"].normalize(6101, 1);
-          _cutflows["6j-2200"].normalize(6101, 1);
-          _cutflows["6j-3400"].normalize(6101, 1);
+
+          // // Confnote cutflows:
+          // _cutflows["2j-1600"].normalize(1763, 1);
+          // _cutflows["2j-2200"].normalize(1763, 1);
+          // _cutflows["2j-2800"].normalize(1763, 1);
+          // _cutflows["4j-1000"].normalize(2562, 1);
+          // _cutflows["4j-2200"].normalize(2562, 1);
+          // _cutflows["4j-3400"].normalize(2562, 1);
+          // _cutflows["5j-1600"].normalize(6101, 1);
+          // _cutflows["6j-1000"].normalize(6101, 1);
+          // _cutflows["6j-2200"].normalize(6101, 1);
+          // _cutflows["6j-3400"].normalize(6101, 1);
+
+          // Paper cutflows:
+          _cutflows["2j-1600"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
+          _cutflows["2j-2200"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
+          _cutflows["2j-2800"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
+          _cutflows["4j-1000"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay  
+          _cutflows["4j-2200"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay  
+          _cutflows["4j-3400"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay  
+          _cutflows["5j-1600"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
+          _cutflows["6j-1000"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
+          _cutflows["6j-2200"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
+          _cutflows["6j-3400"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
+
+
           cout << "\nCUTFLOWS:\n" << _cutflows << endl;
           cout << "\nSRCOUNTS:\n";
           // for (double x : _srnums) cout << x << "  ";
