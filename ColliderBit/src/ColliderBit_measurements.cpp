@@ -64,61 +64,57 @@ namespace Gambit
 
           if (*Loop::iteration == BASE_INIT)
           {
-            //Should only be executed by one thread but better safe than sorry
-            #pragma omp critical
-            {
-              if (ah != nullptr) {
-                ah->~AnalysisHandler();  
-              }
-              ah = std::make_shared<AnalysisHandler>();
-              studying_first_event = true;
-            
+            if (ah != nullptr) {
+              ah->~AnalysisHandler();  
+            }
+            ah = std::make_shared<AnalysisHandler>();
+            studying_first_event = true;
+          
 
-              // Get analysis list from yaml file
-              std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
+            // Get analysis list from yaml file
+            std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
 
-              if(not analyses.size())
-                ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
-              // TODO: Add somewhere a check to make sure we only do LHC analyses
-              else{
-                for (size_t i = 0; i < analyses.size() ; ++i){
-                  //If the analysis is a special code referring to multiple analyses,
-                  //append these to the end of the vector, so they are dealt with
-                  //later in the loop
-                  if (analyses[i] == "13TeV" || analyses[i] == "8TeV"){
-                    BEreq::Contur_GetAnalyses(analyses, analyses[i]);
-                  }
-                  //If its a normal analyis just add it.
-                  else {
-                    // Rivet is reading from file here, so make it critical
-                    ah->addAnalysis(analyses[i]);                  
-                  }
+            if(not analyses.size())
+              ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
+            // TODO: Add somewhere a check to make sure we only do LHC analyses
+            else{
+              for (size_t i = 0; i < analyses.size() ; ++i){
+                //If the analysis is a special code referring to multiple analyses,
+                //append these to the end of the vector, so they are dealt with
+                //later in the loop
+                if (analyses[i] == "13TeV" || analyses[i] == "8TeV"){
+                  BEreq::Contur_GetAnalyses(analyses, analyses[i]);
+                }
+                //If its a normal analyis just add it.
+                else {
+                  // Rivet is reading from file here, so make it critical
+                  ah->addAnalysis(analyses[i]);                  
                 }
               }
+            }
 
-              //If the yaml file wants to exclude analyses, remove them
-              //This feature was inspired by ATLAS_2016_I1469071, which is effectively
-              //invalid for most BSM cases and can cause crashes.
-              std::vector<str> excluded_analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
-              ah->removeAnalyses(excluded_analyses);
-            
-              //Write the utilised analyses to a file in yaml-like format
-              //This will list only the analyses that RIVET has succesfully loaded -
-              // can be used to debug any typos in the initial yaml file etc.
-              //Only do this the first time contur is run.
-              static bool analyses_written_to_file = false;
-              if (!analyses_written_to_file){
-                std::ofstream analyses_output_file;
-                //TODO please feel free to change name/put in more appropriate location.
-                analyses_output_file.open(GAMBIT_DIR+std::string("/GAMBIT_rivet_analyses.log"));
-                analyses_output_file << "analyses:";
+            //If the yaml file wants to exclude analyses, remove them
+            //This feature was inspired by ATLAS_2016_I1469071, which is effectively
+            //invalid for most BSM cases and can cause crashes.
+            std::vector<str> excluded_analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
+            ah->removeAnalyses(excluded_analyses);
+          
+            //Write the utilised analyses to a file in yaml-like format
+            //This will list only the analyses that RIVET has succesfully loaded -
+            // can be used to debug any typos in the initial yaml file etc.
+            //Only do this the first time contur is run.
+            static bool analyses_written_to_file = false;
+            if (!analyses_written_to_file){
+              std::ofstream analyses_output_file;
+              //TODO please feel free to change name/put in more appropriate location.
+              analyses_output_file.open(GAMBIT_DIR+std::string("/GAMBIT_rivet_analyses.log"));
+              analyses_output_file << "analyses:";
 
-                for (std::string an_analysis_string : ah->analysisNames()) {
-                  analyses_output_file << "\n - " << an_analysis_string;
-                }
-                analyses_output_file.close();
-                analyses_written_to_file = true;
+              for (std::string an_analysis_string : ah->analysisNames()) {
+                analyses_output_file << "\n - " << an_analysis_string;
               }
+              analyses_output_file.close();
+              analyses_written_to_file = true;
             }
           }
           //If we're not in an init loop, seg faults will occur if the analysis handler is null.
