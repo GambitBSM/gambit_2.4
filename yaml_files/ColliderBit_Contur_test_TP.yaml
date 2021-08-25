@@ -83,7 +83,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 3
+      point_number: 1
       output_file:  output
       like:  Likelihood
       files:
@@ -214,8 +214,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 500
-        max_nEvents: 500
+        min_nEvents: 100
+        max_nEvents: 100
         events_between_convergence_checks: 500
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -291,13 +291,13 @@ Rules:
     options:
       drop_YODA_file: false
       analyses:
-         - 13TeV
-        # - ATLAS_2021_I1849535
-        # - ATLAS_2016_I1458270
-        # - ATLAS_2017_I1514251:LMODE=EL
-        # - ATLAS_2017_I1514251:LMODE=MU
-        # - ATLAS_2017_I1609448
-        # - ATLAS_2017_I1614149
+        # - 13TeV
+         - ATLAS_2021_I1849535
+         - ATLAS_2016_I1458270
+         - ATLAS_2017_I1514251:LMODE=EL
+         - ATLAS_2017_I1514251:LMODE=MU
+         - ATLAS_2017_I1609448
+         - ATLAS_2017_I1614149
         # - ATLAS_2017_I1625109
         # - ATLAS_2017_I1637587
         # - ATLAS_2017_I1645627
