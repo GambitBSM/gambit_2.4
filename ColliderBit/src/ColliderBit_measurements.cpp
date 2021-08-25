@@ -70,7 +70,6 @@ namespace Gambit
             ah = std::make_shared<AnalysisHandler>();
             studying_first_event = true;
           
-
             // Get analysis list from yaml file
             std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
 
@@ -87,7 +86,6 @@ namespace Gambit
                 }
                 //If its a normal analyis just add it.
                 else {
-                  // Rivet is reading from file here, so make it critical
                   ah->addAnalysis(analyses[i]);                  
                 }
               }
