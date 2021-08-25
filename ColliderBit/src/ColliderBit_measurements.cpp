@@ -183,7 +183,6 @@ namespace Gambit
             {
               // Get the HepMC event
               HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-
               try { ah->analyze(ge); }
               catch(std::runtime_error &e)
               {
@@ -203,13 +202,11 @@ namespace Gambit
                 // Set the Event number to a stream independent total so Rivet can
                 // make sense of things.
                 ge.set_event_number(++events_analysed);
-
                 try { ah->analyze(ge); }
                 catch(std::runtime_error &e)
                 {
                   ColliderBit_error().raise(LOCAL_INFO, e.what());
                 }
-                studying_first_event = false;
                 // Reset the old event number in case GAMBIT needs it elsewhere.
                 ge.set_event_number(old_events_analysed);
               }
@@ -225,7 +222,6 @@ namespace Gambit
             // Set the Event number to a stream independent total so Rivet can
             // make sense of things.
             ge.set_event_number(++events_analysed);
-
             try { ah->analyze(ge); }
             catch(std::runtime_error &e)
             {
