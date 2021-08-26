@@ -302,5 +302,20 @@ namespace Gambit
 
     }
 
+
+    // A dummy loglike function to ensure that points with failed mass spectrum 
+    // and/or decay calculations can be invalidated aslo in "observables-only" scans
+    void get_susy_spectrum_validation_loglike(double& result)
+    {
+      using namespace Pipes::get_susy_spectrum_validation_loglike;
+
+      // This function has dependencies Dep::MSSM_spectrum and Dep::decay_rates (see SUSY_extras.hpp).
+      // So if the computation of either of these dependencies fail, the loglike "computation" in
+      // this function will never complete and GAMBIT will treat the parameter point as invalid.
+
+      result = 0.0;
+    }
+
+
   }
 }

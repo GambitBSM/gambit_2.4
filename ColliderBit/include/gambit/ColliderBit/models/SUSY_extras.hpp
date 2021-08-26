@@ -179,5 +179,16 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// A dummy loglike function to ensure that points with failed mass spectrum 
+  /// and/or decay calculations can be invalidated aslo in "observables-only" scans
+  #define CAPABILITY susy_spectrum_validation_loglike
+    #define FUNCTION get_susy_spectrum_validation_loglike
+    START_FUNCTION(double)
+    DEPENDENCY(decay_rates, DecayTable)
+    DEPENDENCY(MSSM_spectrum, Spectrum)
+    DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 #undef MODULE

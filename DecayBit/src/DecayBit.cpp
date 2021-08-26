@@ -3305,9 +3305,10 @@ namespace Gambit
                   + (a * (2.0 * pow2(d_Z) + 6.0 * (x - 1.0) * d_Z + 3.0 * pow2(x - 1.0))
                       - pow2(d_Z) * (x - 1.0))
                   * pow2(x))
-                + (4.0 * pow2(c) + (12.0 * pow2(d_Z) - 8.0 * d_Z - pow2(x) - 4.0 * x + 4.0)
-                  * 6.0 * a * k_L * k_R *  c + (2.0 * d_Z + x - 1.0)
-                * pow2(x))
+
+                + 6.0 * a * k_L * k_R * (4.0 * pow2(c) 
+                                         + (12.0 * pow2(d_Z) - 8.0 * d_Z - pow2(x) - 4.0 * x + 4.0) * c
+                                         + (2.0 * d_Z + x - 1.0) * pow2(x))
               )
           );
         };
@@ -3346,30 +3347,27 @@ namespace Gambit
         auto m_f = std::get<3>(fermion_pair);
         auto BF_Z_to_ff = std::get<4>(fermion_pair);
 
-        // Check whether Z can be produced sufficiently on-shell in ~chi0_i --> ~G + Z(*) --> ~G + f fbar
         double delta_m = m_Neu - m_G;
-        if ((delta_m >= m_Z + width_Z) or (delta_m < 2. * m_f))
+        if (delta_m <= 2. * m_f)
         {
-          // Computing the 2-body decay to ~G + on-shell Z is sufficient
           partial_widths["~G_" + fermion1 + "_" + fermion2] = 0.0;
         }
-        else  // 2.*m_f <= delta_m < m_Z + width_Z
+        else  // 2.*m_f < delta_m
         {
-          // Compute the 3-body contribution
+          // Perform the full 3-body computation
           double width_3_body_ff = neutralino_decays_Z_3body(m_f, type_f);
 
-          // Ensure smooth transition between 3-body and 2-body,
-          if (m_Z < delta_m)  // and (delta_m < m_Z + width_Z) already
+          // Compute the contribution from on-shell 2-body ~N --> ~G Z, with subsequest Z --> f fbar
+          double width_2_body_ff = partial_widths["~G_Z"] * BF_Z_to_ff;
+
+          // Assign partial width
+          if (width_3_body_ff > width_2_body_ff)
           {
-            double x = (delta_m - m_Z) / width_Z;
-            double width_2_body_ff = partial_widths["~G_Z"] * BF_Z_to_ff;
-            partial_widths["~G_" + fermion1 + "_" + fermion2] = (1.-x) * width_3_body_ff + x * width_2_body_ff;
-            // Avoid double-counting
-            partial_widths["~G_Z"] = 0.0;
+            partial_widths["~G_" + fermion1 + "_" + fermion2] = width_3_body_ff - width_2_body_ff;
           }
-          else  // 2.*m_f <= delta_m <= m_Z: only 3-body with virtual Z possible
+          else // width_3_body_ff <= width_2_body_ff
           {
-            partial_widths["~G_" + fermion1 + "_" + fermion2] = width_3_body_ff;
+            partial_widths["~G_" + fermion1 + "_" + fermion2] = 0.0;
           }
         }
 	    };
@@ -3402,6 +3400,21 @@ namespace Gambit
       result.set_BF((partial_widths["~G_nu_e_nubar_e"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_e_nubar_e"] / result.width_in_GeV : 0), 0.0, "~G", "nu_e", "nubar_e");
       result.set_BF((partial_widths["~G_nu_mu_nubar_mu"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_mu_nubar_mu"] / result.width_in_GeV : 0), 0.0, "~G", "nu_mu", "nubar_mu");
       result.set_BF((partial_widths["~G_nu_tau_nubar_tau"] / result.width_in_GeV > 0 ? partial_widths["~G_nu_tau_nubar_tau"] / result.width_in_GeV : 0), 0.0, "~G", "nu_tau", "nubar_tau");
+
+      #ifdef DECAYBIT_DEBUG
+        if (n_Neu == 1)
+        {
+          double width_Gffbar = partial_widths["~G_u_ubar"] + partial_widths["~G_d_dbar"] + partial_widths["~G_s_sbar"] 
+                                + partial_widths["~G_c_cbar"] + partial_widths["~G_b_bbar"] + partial_widths["~G_e-_e+"]
+                                + partial_widths["~G_mu-_mu+"] + partial_widths["~G_tau-_tau+"] + partial_widths["~G_nu_e_nubar_e"] 
+                                + partial_widths["~G_nu_mu_nubar_mu"] + partial_widths["~G_nu_tau_nubar_tau"];
+          double width_Ggamma = partial_widths["~G_gamma"];
+          double width_GZ = partial_widths["~G_Z"];
+          double width_Gh = partial_widths["~G_h"];
+
+          std::cerr << "DEBUG: neutralino_decays_gravitino: " << m_Neu << ", " << width_Gh << ", " << width_GZ << ", " << width_Gffbar << ", " << width_Ggamma << std::endl;
+        }
+      #endif
 
       return result;
     }
