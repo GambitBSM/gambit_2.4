@@ -141,22 +141,27 @@ namespace Gambit
 
           // Here we will be using the same efficiencies as in the 36invfb version, as there is no public data for this yet
 
-          static int count = 0;
-          count++;
-          //if(!(count%1000))
-          //std::cout << "#" << count << std::endl;
+          static int counts = 0;
+          counts++;
+          //if(!(counts%1000))
+          //std::cout << "#" << counts << std::endl;
  
           //std::cout << "n Baseline leptons = " << event->electrons().size() + event->muons().size() + event->taus().size() << std::endl;
 
           // Baseline electrons
           std::vector<const HEPUtils::Particle*> baselineElectrons;
+          std::vector<const HEPUtils::Particle*> baselineLeptons;
           for (const HEPUtils::Particle* electron : event->electrons())
           {
             //bool isEl = 1;
             //bool isEl = has_tag(CMS::eff2DEl.at("SUS_16_039"), fabs(electron->eta()), electron->pT());
             bool isEl = has_tag(CMS::eff2DEl.at("SUS_19_008"), fabs(electron->eta()), electron->pT());
-            if (electron->pT()>10. && fabs(electron->eta())<2.5 && isEl)
-              baselineElectrons.push_back(electron);
+            if (electron->pT() > 10. and fabs(electron->eta()) < 2.5)
+            {
+              baselineLeptons.push_back(electron);
+              if(isEl)
+                baselineElectrons.push_back(electron);
+            }
           }
 
           // Baseline muons
@@ -166,8 +171,12 @@ namespace Gambit
             //bool isMu = 1;
             //bool isMu = has_tag(CMS::eff2DMu.at("SUS_16_039"), fabs(muon->eta()), muon->pT());
             bool isMu = has_tag(CMS::eff2DMu.at("SUS_19_008"), fabs(muon->eta()), muon->pT());
-            if (muon->pT()>10. && fabs(muon->eta())<2.4 && isMu)
-              baselineMuons.push_back(muon);
+            if (muon->pT() > 10. and fabs(muon->eta()) < 2.4)
+            {
+              baselineLeptons.push_back(muon);
+              if(isMu)
+                baselineMuons.push_back(muon);
+            }
           }
 
           // Mini-isolation of electrons and muons, Imin < 0.4, hard to implement, leave for now
@@ -316,15 +325,16 @@ namespace Gambit
             mossf.push_back( (pair.at(0)->mom() + pair.at(1)->mom()).m() );
           std::sort(mossf.begin(), mossf.end());
 
-          // Invariant mass of third lepton in the event with the rest of leptons
-          // TODO: Unused for now
+          // Invariant mass of third baseline lepton in the event with the rest of leptons
           std::vector<double> m3l;
-          if(nLeptons > 2)
-            for(auto lep: signalLeptons)
-              m3l.push_back( (signalLeptons.at(2)->mom() + lep->mom() ).m());
-          
+          if(nLightLeptons == 2)
+            for(auto lep: baselineLeptons)
+              for(auto lep2 : baselineLeptons)
+                if(lep != lep2)
+                  m3l.push_back(abs((lep->mom() + lep2->mom()).m() - mZ));
+          std::sort(m3l.begin(), m3l.end());
 
-           // Flags for lepton pairs
+          // Flags for lepton pairs
           bool muonPair = nLeptons == 2 and nLightLeptons == 2 and amIaMuon(signalLeptons.at(0)) and amIaMuon(signalLeptons.at(1));
           bool electronPair = nLeptons == 2 and nLightLeptons == 2 and amIanElectron(signalLeptons.at(0)) and amIanElectron(signalLeptons.at(1));
           bool mixedPair = nLeptons == 2 and nLightLeptons == 2 and ( ( amIaMuon(signalLeptons.at(0)) and amIanElectron(signalLeptons.at(1)) ) or
@@ -348,14 +358,19 @@ namespace Gambit
           //std::cout << "number of signal leptons = " << nLightLeptons << std::endl;
           //std::cout << "number of same sign pairs = " << nSSpairs << std::endl; 
           // 2SSLep, (2lSS)
-          // TODO: Missing implementing the case of a third loose lepton
           if(nLightLeptons == 2 and nLeptons == 2 and nSSpairs == 1 and 
              ( (muonPair and signalLeptons.at(0)->pT() > 20.) or ((electronPair or mixedPair) and signalLeptons.at(0)->pT() > 25.) ) and
              ( (amIanElectron(signalLeptons.at(1)) and signalLeptons.at(1)->pT() >  15.) or (amIaMuon(signalLeptons.at(1)) and signalLeptons.at(1)->pT() > 10.) ) and
              ( nJets < 2 or signalJets.at(1)->pT() < 40) and
+             m3l.size() > 0 and m3l.at(0) > 15. and
              met > 60. )
           {
-            //std::cout << "passed SS selection" << std::endl;
+
+            //std::cout << "2SS SR" << std::endl;
+            //std::cout << (muonPair ? "muon pair" : (electronPair ? "electron pair" : "mixed pair")) << std::endl;
+            //std::cout << "pTs = " << signalLeptons.at(0)->pT() << ", " << signalLeptons.at(1)->pT() << std::endl;
+            //std::cout << "pIDs = " << signalLeptons.at(0)->pid() << ", " << signalLeptons.at(1)->pid() << std::endl;
+
             // Stransverse mass
             double mT2 = get_mT2(signalLeptons.at(0), signalLeptons.at(1), mmom, 0);
             //std::cout << "mT2 = " << mT2 << std::endl;
@@ -363,8 +378,8 @@ namespace Gambit
             // pT of dilepton system for SS leptons
             double pTll = ( signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() ).pT();
 
-            // Sign of final states
-            bool positive = signalLeptons.at(0)->pid() > 0;
+            // Sign of final states, turns out positive leptons have negative pids, who knew
+            bool positive = signalLeptons.at(0)->pid() < 0;
             bool negative = not positive;
 
             if(mT2 == 0. and pTll <  70.) counter_cutflow("SS01",event,w);
@@ -545,24 +560,11 @@ namespace Gambit
           // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
           if(_3Lep and nTaus == 1 and nOSSFpairs == 0 and oppositeSign(signalLightLeptons.at(0), signalLightLeptons.at(1)))
           {
-            // mll variable, OSpairs are alread ordered by how close they are to mZ
+            // mll variable
+            // Select OS pair with mass closest to the recontructed mass of Z -> tautau (50 for emu pairs and 60 for pairs with a tau)
             double mll = (OSpairs.at(0).at(0)->mom() + OSpairs.at(0).at(1)->mom()).m();
-            double mlth1 = (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m();
-            double mlth2 = (signalTaus.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
-            double mZ1 = 50;
-            double mZ2 = 60;
-            if(abs(mll - mZ1) < abs(mlth1 - mZ2))
-            {
-              if(abs(mll - mZ1) > abs(mlth2 - mZ2))
-                mll = mlth2;
-            }
-            else
-            {
-              if(abs(mlth1 - mZ2) > abs(mlth2 - mZ2))
-                mll = mlth2;
-              else
-                mll = mlth1;
-            }
+            double mlth = oppositeSign(signalTaus.at(0), signalLightLeptons.at(0)) ? (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m() :  (signalTaus.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
+            if(abs(mll - 50.) > abs(mlth - 60.)) mll = mlth;
 
 
             // mT2 variable
@@ -594,10 +596,10 @@ namespace Gambit
           if(_3Lep and nTaus == 1 and nOSSFpairs == 0 and sameSign(signalLightLeptons.at(0), signalLightLeptons.at(1)))
           {
             // mlth variable
+            // Select the OS pair with mass closest to the recontructed mass of Z -> tautau (50 for emu pairs and 60 for pairs with a tau)
             double mlth1 = (signalTaus.at(0)->mom() + signalLightLeptons.at(0)->mom()).m();
             double mlth2 = (signalTaus.at(0)->mom() + signalLightLeptons.at(1)->mom()).m();
-            double mZ2 = 60;
-            double mlth = abs(mlth1 - mZ2) < abs(mlth2 -mZ2) ? mlth1 : mlth2;
+            double mlth = abs(mlth1 - 60.) < abs(mlth2 - 60.) ? mlth1 : mlth2;
 
             // Set mlth to zero is the tau has the same sign as the pair of light leptons
             if(sameSign(signalTaus.at(0), signalLightLeptons.at(0))) mlth = 0.;
