@@ -107,7 +107,7 @@ namespace Gambit {
       Analysis_CMS_13TeV_2OSLEP_137invfb()
       {
         set_analysis_name("CMS_13TeV_2OSLEP_137invfb");
-        set_luminosity(35.9);
+        set_luminosity(137.);
 
         NCUTS_1=11;
 
@@ -125,7 +125,7 @@ namespace Gambit {
         cutFlowVector_1_str[6] = "Thied lepton veto";
         cutFlowVector_1_str[7] = "$M_{T2}(ll) > 100 GeV$";
         cutFlowVector_1_str[8] = "$E^{miss}_{T} > 100 GeV$";
-        cutFlowVector_1_str[9] = "$n_j>0$, etc.";
+        cutFlowVector_1_str[9] = "$n_j>0$,etc.";
         cutFlowVector_1_str[10] = "$n_j=0$";
 
         NCUTS_2=4;
@@ -150,19 +150,9 @@ namespace Gambit {
         double met = event->met();
         
         // Apply electron efficiency and collect baseline electrons
-        //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_034_ttbar.pdf.
-        //@note The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
-        const vector<double> aEl={0., 0.8, 1.442, 1.556, 2., 2.5, DBL_MAX};   // Bin edges in eta
-        const vector<double> bEl={0., 10., 20., 25., 30., 40., 50., DBL_MAX}; // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-        const vector<double> cEl={
-                          // pT: (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
-                                    0.0,    0.95,    0.619,     0.669,    0.7,     0.737,    0.79,  // eta: (0, 0.8)
-                                    0.0,    0.95,    0.625,     0.658,    0.72,    0.712,    0.793, // eta: (0.8, 1.4429
-                                    0.0,    0.95,    0.338,     0.372,    0.36,    0.365,    0.416, // eta: (1.442, 1.556)
-                                    0.0,    0.85,    0.576,     0.531,    0.614,   0.644,    0.712, // eta: (1.556, 2)
-                                    0.0,    0.85,    0.440,     0.527,    0.585,   0.606,    0.648, // eta: (2, 2.5)
-                                    0.0,    0.0,     0.0,       0.0,      0.0,     0.0,      0.0,   // eta > 2.5
-                                  };
+        const vector<double> aEl={0., DBL_MAX};
+        const vector<double> bEl={0., DBL_MAX};
+        const vector<double> cEl={0.9};
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
         vector<const HEPUtils::Particle*> baselineElectrons;
         for (const HEPUtils::Particle* electron : event->electrons())
@@ -176,18 +166,9 @@ namespace Gambit {
 
 
         // Apply muon efficiency and collect baseline muons
-        //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_mu_034_ttbar.pdf
-        //@note The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
-        const vector<double> aMu={0., 0.9, 1.2, 2.1, 2.4, DBL_MAX};   // Bin edges in eta
-        const vector<double> bMu={0., 10., 20., 25., 30., 40., 50., DBL_MAX};  // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-        const vector<double> cMu={
-                           // pT:   (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
-                                     0.0,    0.950,    0.869,    0.889,    0.910,    0.929,    0.930,  // eta: (0, 0.9)
-                                     0.0,    0.950,    0.857,    0.880,    0.893,    0.937,    0.930,  // eta: (0.9, 1.2)
-                                     0.0,    0.950,    0.891,    0.894,    0.901,    0.912,    0.927,  // eta: (1.2, 2.1)
-                                     0.0,    0.950,    0.803,    0.818,    0.817,    0.855,    0.869,  // eta: (2.1, 2.4)
-                                     0.0,    0.0,      0.0,      0.0,      0.0,      0.0,      0.0,    // eta > 2.4
-                                 };
+        const vector<double> aMu={0., DBL_MAX};  
+        const vector<double> bMu={0., DBL_MAX};
+        const vector<double> cMu={0.99};
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons())
@@ -242,13 +223,13 @@ namespace Gambit {
         for (size_t iJet=0;iJet<baselineJets.size();iJet++)
         {
           bool overlap=false;
-          for (size_t iLe=0;iLe<baselineElectrons.size();iLe++)
+          for (size_t iLe=0;iLe<signalElectrons.size();iLe++)
           {
-            if (baselineElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+            if (signalElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
           }
-          for (size_t iLe=0;iLe<baselineMuons.size();iLe++)
+          for (size_t iLe=0;iLe<signalMuons.size();iLe++)
           {
-            if (baselineMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+            if (signalMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
           }
           if (baselinePhotons.size()!=0)
           {
@@ -264,7 +245,7 @@ namespace Gambit {
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
         }
-        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
+//        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
 
         // Signal leptons = electrons + muons
         signalLeptons=signalElectrons;
@@ -375,8 +356,8 @@ namespace Gambit {
                 if (met>50){
                   cutFlowVector_1[8]++;
                   if (nSignalBJets==0){
-                    if (nSignalJets>0 and event->missingmom().deltaR_eta(signalJets.at(0)->mom())>0.4
-                      and signalLeptons[1]->pT()/signalJets[0]->pT()>1.2 ){
+                    if (nSignalJets25>0 and event->missingmom().deltaR_eta(signalJets25.at(0)->mom())>0.4
+                      and (signalLeptons[1]->pT()/signalJets25[0]->pT())>1.2 ){
                       cutFlowVector_1[9]++;
                       if (mT2<150) _counters.at("SRoffZj_100_150").add_event(event);
                       else if (mT2<225) _counters.at("SRoffZj_150_225").add_event(event);
