@@ -202,6 +202,98 @@ namespace Gambit
               baselineJets.push_back(jet);
           }
 
+          // Mini isolation of light leptons
+          /* Remove this for now
+          std::vector<const HEPUtils::Particle*> goodBaselineMuons, goodBaselineElectrons;
+          for(auto el : baselineElectrons)
+          {
+            double maxdeltaR = 10. / std::min(std::max(el->pT(),50.),200.);
+
+            double Imini = 0.;
+
+            // check other electrons
+            for(auto el2: baselineElectrons)
+            {
+               if(el != el2 and deltaR_eta(el->mom(), el2->mom()) < maxdeltaR)
+                 Imini += el2->pT()/el->pT();
+            }
+            // check muons
+            for(auto mu : baselineMuons) 
+            {
+              if(deltaR_eta(el->mom(), mu->mom()) < maxdeltaR)
+                 Imini += mu->pT()/el->pT();
+            }
+            // check photons
+            for(auto ph : event->photons())
+            {
+              if(deltaR_eta(el->mom(), ph->mom()) < maxdeltaR)
+                 Imini += ph->pT()/el->pT();
+            }
+
+            // check taus
+            for(auto tau : baselineTaus)
+            {
+              if(deltaR_eta(el->mom(), tau->mom()) < maxdeltaR)
+                 Imini += tau->pT()/el->pT();
+            }
+
+            // check jets
+            for(auto jet : baselineJets)
+            {
+              if(deltaR_eta(el->mom(), jet->mom()) < maxdeltaR)
+                 Imini += jet->pT()/el->pT();
+            }
+            if(Imini < 0.4)
+              goodBaselineElectrons.push_back(el);
+
+          }
+          // Mini isolation of light leptons
+          for(auto mu : baselineMuons)
+          {
+            double maxdeltaR = 10. / std::min(std::max(mu->pT(),50.),200.);
+
+            double Imini = 0.;
+            // check other electrons
+            for(auto el: baselineElectrons)
+            {
+               if(deltaR_eta(mu->mom(), el->mom()) < maxdeltaR)
+                 Imini += el->pT()/mu->pT();
+            }
+            // check muons
+            for(auto mu2 : baselineMuons) 
+            {
+              if(mu != mu2 and deltaR_eta(mu->mom(), mu2->mom()) < maxdeltaR)
+                 Imini += mu2->pT()/mu->pT();
+            }
+            // check photons
+            for(auto ph : event->photons())
+            {
+              if(deltaR_eta(mu->mom(), ph->mom()) < maxdeltaR)
+                 Imini += ph->pT()/mu->pT();
+            }
+
+            // check taus
+            for(auto tau : baselineTaus)
+            {
+              if(deltaR_eta(mu->mom(), tau->mom()) < maxdeltaR)
+                 Imini += tau->pT()/tau->pT();
+            }
+
+            // check jets
+            for(auto jet : baselineJets)
+            {
+              if(deltaR_eta(mu->mom(), jet->mom()) < maxdeltaR)
+                 Imini += jet->pT()/mu->pT();
+            }
+            if(Imini < 0.4)
+            {
+              goodBaselineMuons.push_back(mu);
+            }
+          }
+          baselineElectrons = goodBaselineElectrons;
+          baselineMuons = goodBaselineMuons;
+          */
+
           // Jets must have a separation of R > 0.4 from any lepton
           removeOverlap(baselineJets, baselineElectrons, 0.4);
           removeOverlap(baselineJets, baselineMuons, 0.4);
@@ -370,6 +462,9 @@ namespace Gambit
             //std::cout << (muonPair ? "muon pair" : (electronPair ? "electron pair" : "mixed pair")) << std::endl;
             //std::cout << "pTs = " << signalLeptons.at(0)->pT() << ", " << signalLeptons.at(1)->pT() << std::endl;
             //std::cout << "pIDs = " << signalLeptons.at(0)->pid() << ", " << signalLeptons.at(1)->pid() << std::endl;
+            //std::cout << "deltaR = " << deltaR_eta(signalLeptons.at(0)->mom(), signalLeptons.at(1)->mom()) << std::endl;
+            //std::cout << "max deltaR for lepton 1 = " <<  10 / (std::min(std::max(signalLeptons.at(0)->pT(),50.), 200.)) << std::endl;
+            //std::cout << "max deltaR for lepton 2 = " <<  10 / (std::min(std::max(signalLeptons.at(1)->pT(),50.), 200.)) << std::endl;
 
             // Stransverse mass
             double mT2 = get_mT2(signalLeptons.at(0), signalLeptons.at(1), mmom, 0);
