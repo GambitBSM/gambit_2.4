@@ -43,10 +43,10 @@ namespace Gambit {
         {"SRB_150_230", EventCounter("SRB bveto [150, 230]")},
         {"SRB_230_300", EventCounter("SRB bveto [230, 300]")},
         {"SRB_300", EventCounter("SRB bveto [300, ~]")},
-        {"SRC_50_100", EventCounter("SRA bveto [50, 100]")},
-        {"SRC_100_150", EventCounter("SRA bveto [100, 150]")},
-        {"SRC_150_250", EventCounter("SRA bveto [150, 250]")},
-        {"SRC_250", EventCounter("SRA bveto [250, ~]")},
+        {"SRC_50_100", EventCounter("SRC bveto [50, 100]")},
+        {"SRC_100_150", EventCounter("SRC bveto [100, 150]")},
+        {"SRC_150_250", EventCounter("SRC bveto [150, 250]")},
+        {"SRC_250", EventCounter("SRC bveto [250, ~]")},
         {"SRAb_50_100", EventCounter("SRA btag [50, 100]")},
         {"SRAb_100_150", EventCounter("SRA btag [100, 150]")},
         {"SRAb_150_230", EventCounter("SRA btag [150, 230]")},
@@ -57,10 +57,10 @@ namespace Gambit {
         {"SRBb_150_230", EventCounter("SRB btag [150, 230]")},
         {"SRBb_230_300", EventCounter("SRB btag [230, 300]")},
         {"SRBb_300", EventCounter("SRB btag [300, ~]")},
-        {"SRCb_50_100", EventCounter("SRA btag [50, 100]")},
-        {"SRCb_100_150", EventCounter("SRA btag [100, 150]")},
-        {"SRCb_150_250", EventCounter("SRA btag [150, 250]")},
-        {"SRCb_250", EventCounter("SRA btag [250, ~]")},
+        {"SRCb_50_100", EventCounter("SRC btag [50, 100]")},
+        {"SRCb_100_150", EventCounter("SRC btag [100, 150]")},
+        {"SRCb_150_250", EventCounter("SRC btag [150, 250]")},
+        {"SRCb_250", EventCounter("SRC btag [250, ~]")},
         {"SRoffZ0j_100_150", EventCounter("SR Off-Z nj=0 [100, 150]")},
         {"SRoffZ0j_150_225", EventCounter("SR Off-Z nj=0 [150, 225]")},
         {"SRoffZ0j_225_300", EventCounter("SR Off-Z nj=0 [225, 300]")},
@@ -561,7 +561,6 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SRCb_250"),     1.,    {0.7, 0.2}));
 
         // Covariance matrix
-        // Note that this is a 43x43 matrix, since the row & column corresponding to SR A15 has been removed
         static const vector< vector<double> > BKGCOV = {
           {1.4521e+03, 5.5203e+01, 6.0650e+00, 2.1085e-01, 1.1549e+01, -1.2563e+01, 1.4640e+01, 9.2761e+00, -3.3911e+00, -2.7049e-01, 5.4988e+01, 1.2710e+01, 5.0895e+00, 1.8274e+00, 1.3101e+00, -1.8685e+01, 9.3332e+00, 3.0903e+00, 1.9607e-01, 3.1051e-01, -2.5945e+01, -6.0308e-01, -1.3191e+00, -1.7823e-01, -9.3416e+00, 6.5442e-01, 5.3011e-01, 2.9185e-01},
           {5.5203e+01, 8.9511e+01, 1.1500e+00, 1.2805e-01, 1.3616e+00, -6.7154e+00, -5.0154e+00, 1.5398e+00, 1.6068e-01, -1.2968e+00, -1.8061e+01, 8.2175e-01, -2.6257e-01, 3.4625e-01, 1.0484e+00, -1.8691e+00, -2.6804e+00, 1.6552e+00, -9.2475e-01, 2.9139e-01, 1.1311e+01, 4.6062e+00, 1.6555e-01, -6.0225e-02, 5.7873e+00, 7.0825e-01, -7.4564e-01, -9.4884e-02},
@@ -624,7 +623,6 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SRoffZj_300"),     8.,    {8.7, 2.3}));
 
         // Covariance matrix
-        // Note that this is a 43x43 matrix, since the row & column corresponding to SR A15 has been removed
         static const vector< vector<double> > BKGCOV = {
           {1.1727e+03, 5.9158e+01, 4.6246e+00, 2.9892e+01, -1.1501e+02, -4.2767e+01, 1.3406e+01, 1.7651e+01},
           {5.9158e+01, 5.0375e+02, 2.8331e+01, 1.5938e+01, 9.4936e+00, 5.1864e+00, 2.3633e+01, 1.2521e+01},
