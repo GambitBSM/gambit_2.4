@@ -81,7 +81,7 @@ namespace Gambit
                 //If the analysis is a special code referring to multiple analyses,
                 //append these to the end of the vector, so they are dealt with
                 //later in the loop
-                if (analyses[i] == "13TeV" || analyses[i] == "8TeV"){
+                if (analyses[i] == "13TeV" || analyses[i] == "8TeV" || analyses[i] == "7TeV"){
                   BEreq::Contur_GetAnalyses(analyses, analyses[i]);
                 }
                 //If its a normal analyis just add it.
