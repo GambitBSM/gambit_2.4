@@ -28,7 +28,7 @@
 
   namespace Gambit
   {
-    // Class that manages the input dictionary for classy
+    // Class that manages the input dictionary for Contur
     class Contur_output
     {
     public:
@@ -57,9 +57,3 @@
 #endif
 
 #endif
-
-
-
-
-
-
