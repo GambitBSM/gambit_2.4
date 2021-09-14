@@ -43,10 +43,10 @@ namespace Gambit {
         {"SRB_150_230", EventCounter("SRB bveto [150, 230]")},
         {"SRB_230_300", EventCounter("SRB bveto [230, 300]")},
         {"SRB_300", EventCounter("SRB bveto [300, ~]")},
-        {"SRC_50_100", EventCounter("SRA bveto [50, 100]")},
-        {"SRC_100_150", EventCounter("SRA bveto [100, 150]")},
-        {"SRC_150_250", EventCounter("SRA bveto [150, 250]")},
-        {"SRC_250", EventCounter("SRA bveto [250, ~]")},
+        {"SRC_50_100", EventCounter("SRC bveto [50, 100]")},
+        {"SRC_100_150", EventCounter("SRC bveto [100, 150]")},
+        {"SRC_150_250", EventCounter("SRC bveto [150, 250]")},
+        {"SRC_250", EventCounter("SRC bveto [250, ~]")},
         {"SRAb_50_100", EventCounter("SRA btag [50, 100]")},
         {"SRAb_100_150", EventCounter("SRA btag [100, 150]")},
         {"SRAb_150_230", EventCounter("SRA btag [150, 230]")},
@@ -57,10 +57,10 @@ namespace Gambit {
         {"SRBb_150_230", EventCounter("SRB btag [150, 230]")},
         {"SRBb_230_300", EventCounter("SRB btag [230, 300]")},
         {"SRBb_300", EventCounter("SRB btag [300, ~]")},
-        {"SRCb_50_100", EventCounter("SRA btag [50, 100]")},
-        {"SRCb_100_150", EventCounter("SRA btag [100, 150]")},
-        {"SRCb_150_250", EventCounter("SRA btag [150, 250]")},
-        {"SRCb_250", EventCounter("SRA btag [250, ~]")},
+        {"SRCb_50_100", EventCounter("SRC btag [50, 100]")},
+        {"SRCb_100_150", EventCounter("SRC btag [100, 150]")},
+        {"SRCb_150_250", EventCounter("SRC btag [150, 250]")},
+        {"SRCb_250", EventCounter("SRC btag [250, ~]")},
         {"SRoffZ0j_100_150", EventCounter("SR Off-Z nj=0 [100, 150]")},
         {"SRoffZ0j_150_225", EventCounter("SR Off-Z nj=0 [150, 225]")},
         {"SRoffZ0j_225_300", EventCounter("SR Off-Z nj=0 [225, 300]")},
@@ -107,7 +107,7 @@ namespace Gambit {
       Analysis_CMS_13TeV_2OSLEP_137invfb()
       {
         set_analysis_name("CMS_13TeV_2OSLEP_137invfb");
-        set_luminosity(35.9);
+        set_luminosity(137.);
 
         NCUTS_1=11;
 
@@ -125,7 +125,7 @@ namespace Gambit {
         cutFlowVector_1_str[6] = "Thied lepton veto";
         cutFlowVector_1_str[7] = "$M_{T2}(ll) > 100 GeV$";
         cutFlowVector_1_str[8] = "$E^{miss}_{T} > 100 GeV$";
-        cutFlowVector_1_str[9] = "$n_j>0$, etc.";
+        cutFlowVector_1_str[9] = "$n_j>0$,etc.";
         cutFlowVector_1_str[10] = "$n_j=0$";
 
         NCUTS_2=4;
@@ -150,19 +150,9 @@ namespace Gambit {
         double met = event->met();
         
         // Apply electron efficiency and collect baseline electrons
-        //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_034_ttbar.pdf.
-        //@note The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
-        const vector<double> aEl={0., 0.8, 1.442, 1.556, 2., 2.5, DBL_MAX};   // Bin edges in eta
-        const vector<double> bEl={0., 10., 20., 25., 30., 40., 50., DBL_MAX}; // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-        const vector<double> cEl={
-                          // pT: (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
-                                    0.0,    0.95,    0.619,     0.669,    0.7,     0.737,    0.79,  // eta: (0, 0.8)
-                                    0.0,    0.95,    0.625,     0.658,    0.72,    0.712,    0.793, // eta: (0.8, 1.4429
-                                    0.0,    0.95,    0.338,     0.372,    0.36,    0.365,    0.416, // eta: (1.442, 1.556)
-                                    0.0,    0.85,    0.576,     0.531,    0.614,   0.644,    0.712, // eta: (1.556, 2)
-                                    0.0,    0.85,    0.440,     0.527,    0.585,   0.606,    0.648, // eta: (2, 2.5)
-                                    0.0,    0.0,     0.0,       0.0,      0.0,     0.0,      0.0,   // eta > 2.5
-                                  };
+        const vector<double> aEl={0., DBL_MAX};
+        const vector<double> bEl={0., DBL_MAX};
+        const vector<double> cEl={0.9};
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
         vector<const HEPUtils::Particle*> baselineElectrons;
         for (const HEPUtils::Particle* electron : event->electrons())
@@ -176,18 +166,9 @@ namespace Gambit {
 
 
         // Apply muon efficiency and collect baseline muons
-        //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_mu_034_ttbar.pdf
-        //@note The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
-        const vector<double> aMu={0., 0.9, 1.2, 2.1, 2.4, DBL_MAX};   // Bin edges in eta
-        const vector<double> bMu={0., 10., 20., 25., 30., 40., 50., DBL_MAX};  // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-        const vector<double> cMu={
-                           // pT:   (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
-                                     0.0,    0.950,    0.869,    0.889,    0.910,    0.929,    0.930,  // eta: (0, 0.9)
-                                     0.0,    0.950,    0.857,    0.880,    0.893,    0.937,    0.930,  // eta: (0.9, 1.2)
-                                     0.0,    0.950,    0.891,    0.894,    0.901,    0.912,    0.927,  // eta: (1.2, 2.1)
-                                     0.0,    0.950,    0.803,    0.818,    0.817,    0.855,    0.869,  // eta: (2.1, 2.4)
-                                     0.0,    0.0,      0.0,      0.0,      0.0,      0.0,      0.0,    // eta > 2.4
-                                 };
+        const vector<double> aMu={0., DBL_MAX};  
+        const vector<double> bMu={0., DBL_MAX};
+        const vector<double> cMu={0.99};
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons())
@@ -242,13 +223,13 @@ namespace Gambit {
         for (size_t iJet=0;iJet<baselineJets.size();iJet++)
         {
           bool overlap=false;
-          for (size_t iLe=0;iLe<baselineElectrons.size();iLe++)
+          for (size_t iLe=0;iLe<signalElectrons.size();iLe++)
           {
-            if (baselineElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+            if (signalElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
           }
-          for (size_t iLe=0;iLe<baselineMuons.size();iLe++)
+          for (size_t iLe=0;iLe<signalMuons.size();iLe++)
           {
-            if (baselineMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+            if (signalMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
           }
           if (baselinePhotons.size()!=0)
           {
@@ -264,7 +245,7 @@ namespace Gambit {
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
         }
-        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
+//        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
 
         // Signal leptons = electrons + muons
         signalLeptons=signalElectrons;
@@ -375,8 +356,8 @@ namespace Gambit {
                 if (met>50){
                   cutFlowVector_1[8]++;
                   if (nSignalBJets==0){
-                    if (nSignalJets>0 and event->missingmom().deltaR_eta(signalJets.at(0)->mom())>0.4
-                      and signalLeptons[1]->pT()/signalJets[0]->pT()>1.2 ){
+                    if (nSignalJets25>0 and event->missingmom().deltaR_eta(signalJets25.at(0)->mom())>0.4
+                      and (signalLeptons[1]->pT()/signalJets25[0]->pT())>1.2 ){
                       cutFlowVector_1[9]++;
                       if (mT2<150) _counters.at("SRoffZj_100_150").add_event(event);
                       else if (mT2<225) _counters.at("SRoffZj_150_225").add_event(event);
@@ -580,7 +561,6 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SRCb_250"),     1.,    {0.7, 0.2}));
 
         // Covariance matrix
-        // Note that this is a 43x43 matrix, since the row & column corresponding to SR A15 has been removed
         static const vector< vector<double> > BKGCOV = {
           {1.4521e+03, 5.5203e+01, 6.0650e+00, 2.1085e-01, 1.1549e+01, -1.2563e+01, 1.4640e+01, 9.2761e+00, -3.3911e+00, -2.7049e-01, 5.4988e+01, 1.2710e+01, 5.0895e+00, 1.8274e+00, 1.3101e+00, -1.8685e+01, 9.3332e+00, 3.0903e+00, 1.9607e-01, 3.1051e-01, -2.5945e+01, -6.0308e-01, -1.3191e+00, -1.7823e-01, -9.3416e+00, 6.5442e-01, 5.3011e-01, 2.9185e-01},
           {5.5203e+01, 8.9511e+01, 1.1500e+00, 1.2805e-01, 1.3616e+00, -6.7154e+00, -5.0154e+00, 1.5398e+00, 1.6068e-01, -1.2968e+00, -1.8061e+01, 8.2175e-01, -2.6257e-01, 3.4625e-01, 1.0484e+00, -1.8691e+00, -2.6804e+00, 1.6552e+00, -9.2475e-01, 2.9139e-01, 1.1311e+01, 4.6062e+00, 1.6555e-01, -6.0225e-02, 5.7873e+00, 7.0825e-01, -7.4564e-01, -9.4884e-02},
@@ -643,16 +623,15 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SRoffZj_300"),     8.,    {8.7, 2.3}));
 
         // Covariance matrix
-        // Note that this is a 43x43 matrix, since the row & column corresponding to SR A15 has been removed
         static const vector< vector<double> > BKGCOV = {
-          {1.1727e+03, 5.9158e+01, 4.6246e+00, 2.9892e+01, -1.1501e+02, -4.2767e+01, 1.3406e+01, 1.7651e+01},
-          {5.9158e+01, 5.0375e+02, 2.8331e+01, 1.5938e+01, 9.4936e+00, 5.1864e+00, 2.3633e+01, 1.2521e+01},
-          {4.6246e+00, 2.8331e+01, 1.1024e+02, 9.9465e+00, 1.6497e+01, 1.0204e+01, 4.1741e+00, 7.5638e+00},
-          {2.9892e+01, 1.5938e+01, 9.9465e+00, 2.6880e+01, -8.1035e+00, -6.0419e+00, 3.9314e+00, 1.5269e+01},
-          {-1.1501e+02, 9.4936e+00, 1.6497e+01, -8.1035e+00, 7.4079e+02, 3.1342e+01, -2.9936e+01, 3.3048e+00},
-          {-4.2767e+01, 5.1864e+00, 1.0204e+01, -6.0419e+00, 3.1342e+01, 2.5968e+02, -1.1868e+01, 4.9038e-01},
-          {1.3406e+01, 2.3633e+01, 4.1741e+00, 3.9314e+00, -2.9936e+01, -1.1868e+01, 6.9722e+01, 5.7954e+00},
-          {1.7651e+01, 1.2521e+01, 7.5638e+00, 1.5269e+01, 3.3048e+00, 4.9038e-01, 5.7954e+00, 1.5399e+01}
+          {1.7786e+03, 5.2615e+02, 8.0495e+01, 5.8355e-01, 1.5138e+03, 2.6629e+02, 6.5045e+01, 1.7791e+01},
+          {5.2615e+02, 3.0245e+02, 2.8575e+01, 2.1602e+00, 5.0962e+02, 9.8039e+01, 2.5751e+01, 7.0010e+00},
+          {8.0495e+01, 2.8575e+01, 1.9189e+01, 1.3511e+00, 8.3331e+01, 2.0008e+01, 3.4306e+00, 2.0171e+00},
+          {5.8355e-01, 2.1602e+00, 1.3511e+00, 4.2977e+00, -1.1595e+00, -4.9924e-01, -2.3743e-01, -3.3360e-01},
+          {1.5138e+03, 5.0962e+02, 8.3331e+01, -1.1595e+00, 1.6701e+03, 2.6076e+02, 6.7503e+01, 1.3919e+01},
+          {2.6629e+02, 9.8039e+01, 2.0008e+01, -4.9924e-01, 2.6076e+02, 1.8247e+02, 1.5454e+01, 1.0831e+00},
+          {6.5045e+01, 2.5751e+01, 3.4306e+00, -2.3743e-01, 6.7503e+01, 1.5454e+01, 1.2282e+01, 9.8613e-01},
+          {1.7791e+01, 7.0010e+00, 2.0171e+00, -3.3360e-01, 1.3919e+01, 1.0831e+00, 9.8613e-01, 6.6077e+00}
         };
 
         set_covariance(BKGCOV);
