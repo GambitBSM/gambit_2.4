@@ -64,7 +64,6 @@ namespace Gambit
 
           if (*Loop::iteration == COLLIDER_INIT)
           {
-            std::cout << "\n\nADDING RIVET ANALYSES\n\n";
             if (ah != nullptr) {
               ah->~AnalysisHandler();
               ah = nullptr;
@@ -74,7 +73,6 @@ namespace Gambit
 
             YAML::Node colNode = runOptions->getValue<YAML::Node>(Dep::RunMC->current_collider());
             Options colOptions(colNode);
-            std::cout << "\n\n STARTING rivet for Collider: " << Dep::RunMC->current_collider() << "\n\n";
             // xsec_veto_fb = colOptions.getValueOrDef<double>(xsec_veto_default, "xsec_veto");
             // result.partonOnly = colOptions.getValueOrDef<bool>(partonOnly_default, "partonOnly");
             // result.antiktR = colOptions.getValueOrDef<double>(antiktR_default, "antiktR");
@@ -146,8 +144,6 @@ namespace Gambit
             std::cout << std::flush;
           #endif
 
-            std::cout << "\n\nFINALISING RIVET ANALYSES\n" << std::endl;
-
             //Initialise somewhere for the yoda file to be outputted.
             //This circuitous route is necesarry because ostringstream does not
             //support copy assignment or copy initialisation, and which is 
@@ -157,16 +153,13 @@ namespace Gambit
               result = std::make_shared<std::ostringstream>();
             }
 
+            #pragma omp critical
+            {
+              ah->finalize();
+              ah->writeData(*result, "yoda");
+            }
 
             // Drop YODA file if requested
-
-            std::cout << "\n\nAbout to output yoda" << std::endl;
-            std::cout << "\tNumEvnts: " << ah->numEvents() << std::endl;
-            std::cout << "\tbeamIDs: " << ah->beamIds().first << ", " << ah->beamIds().second << std::endl;
-            std::cout << "\tXS: " << ah->nominalCrossSection() << std::endl;
-            std::cout << "\tRunName: " << ah->runName() << std::endl;
-            std::cout << "\tSqrtS: " << ah->sqrtS() << std::endl;
-
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
             if(drop_YODA_file)
             {
@@ -179,14 +172,6 @@ namespace Gambit
                 { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
               }
             }
-
-            #pragma omp critical
-            {
-              ah->finalize();
-              ah->writeData(*result, "yoda");
-            }
-
-            
 
             #pragma omp critical
             {
@@ -249,7 +234,6 @@ namespace Gambit
             }
             // Reset the old event number in case GAMBIT needs it elsewhere.
             ge.set_event_number(old_events_analysed);
-            std::cout << "\nRIVET ANALYSING" << std::endl;
           }
         }
       }
@@ -265,8 +249,6 @@ namespace Gambit
         using namespace Pipes::Contur_LHC_measurements_from_stream;
         if (*Loop::iteration == COLLIDER_FINALIZE)
         {
-          std::cout << "\n\nDOING CONTUR STUFF\n" << std::endl;
-    
           std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
           
           std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
@@ -277,7 +259,6 @@ namespace Gambit
             ///Call contur
             result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
           } 
-          std::cout << "\n\nFINISHING CONTUR STUFF\n" << std::endl;
         }
       }
 

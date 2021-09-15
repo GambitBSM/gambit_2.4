@@ -9,13 +9,12 @@
 
 
 Parameters:
-
   CMSSM:
-    A0: 388.523
-    M0: 2147.66
-    M12: 2063.39
+    A0: -100.0
+    M0: 100.0
+    M12: 250.0
     SignMu: 1
-    TanBeta: 8.8266
+    TanBeta: 10.0
   StandardModel_SLHA2:
     CKM_A: 0.814
     CKM_etabar: 0.353
@@ -245,26 +244,25 @@ Rules:
     function: getPythia
     options:
       LHC_8TeV:
-        LHC_8TeV:
-          xsec_veto: 0.0
-          partonOnly: false
-          antiktR: 0.4
-          pythia_settings:
-            - SLHA:verbose = 1
-            - Next:numberShowEvent = 1
-            - Print:quiet = off
-            - Next:numberCount = 100
-            - Random:setSeed = on
-            - Beams:eCM = 8000
-            - PartonLevel:MPI = off
-            - PartonLevel:ISR = on
-            - PartonLevel:FSR = on
-            - HadronLevel:all = on
-            - TauDecays:mode = 0
-            - TimeShower:pTmin = 2
-            - SUSY:all = on
-            - 23:mMin = 0.1
-            - 24:mMin = 0.1
+        xsec_veto: 0.0
+        partonOnly: false
+        antiktR: 0.4
+        pythia_settings:
+          - SLHA:verbose = 1
+          - Next:numberShowEvent = 1
+          - Print:quiet = off
+          - Next:numberCount = 100
+          - Random:setSeed = on
+          - Beams:eCM = 8000
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - SUSY:all = on
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
