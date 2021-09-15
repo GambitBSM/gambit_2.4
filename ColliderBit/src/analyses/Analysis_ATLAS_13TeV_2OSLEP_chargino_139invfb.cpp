@@ -204,7 +204,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> muons;
         for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10.
-              && fabs(muon->eta()) < 2.5)
+              && fabs(muon->eta()) < 2.7)
             muons.push_back(muon);
         }
 
@@ -214,7 +214,7 @@ namespace Gambit
         // Jets
         vector<const HEPUtils::Jet*> candJets;
         for (const HEPUtils::Jet* jet : event->jets()) {
-          if (jet->pT() > 20. && fabs(jet->eta()) < 2.5)
+          if (jet->pT() > 20. && fabs(jet->eta()) < 2.4)
             candJets.push_back(jet);
         }
 
