@@ -20,6 +20,7 @@ using namespace std;
 // Have gone with the code snippet version (60% working point for the signal B jets)
 //
 
+
 namespace Gambit {
   namespace ColliderBit {
 
@@ -46,10 +47,11 @@ namespace Gambit {
         {"0L_SRA550", EventCounter("0L_SRA550")},
         {"0L_SRB", EventCounter("0L_SRB")},
         {"0L_SRC", EventCounter("0L_SRC")},
-        {"1L_SRA600", EventCounter("1L_SRA600")},
-        {"1L_SRA750", EventCounter("1L_SRA750")},
-        {"1L_SRA300_2j", EventCounter("1L_SRA300_2j")},
-        {"1L_SRB", EventCounter("1L_SRB")},
+        // MJW removes these regions for the Feb 2018 MareNostrum scans, since the aMT2 variable is not well-described.
+        // {"1L_SRA600", EventCounter("1L_SRA600")},
+        // {"1L_SRA750", EventCounter("1L_SRA750")},
+        // {"1L_SRA300_2j", EventCounter("1L_SRA300_2j")},
+        // {"1L_SRB", EventCounter("1L_SRB")},
       };
 
       vector<int> cutFlowVector;
@@ -854,13 +856,15 @@ namespace Gambit {
 
         if(zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500. && meff4j > 1300. && asym > 0.8 && mjj_20 > 200.) _counters.at("0L_SRC").add_event(event);
 
-        if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 600.) _counters.at("1L_SRA600").add_event(event);
+        // Removed due to issue with aMT2 variable
 
-        if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 750.) _counters.at("1L_SRA750").add_event(event);
+        // if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 600.) _counters.at("1L_SRA600").add_event(event);
 
-        if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200. && meff>300. && nJets35==2) _counters.at("1L_SRA300_2j").add_event(event);
+        // if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 750.) _counters.at("1L_SRA750").add_event(event);
 
-        if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0 && mtminb > 200.) _counters.at("1L_SRB").add_event(event);
+        // if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200. && meff>300. && nJets35==2) _counters.at("1L_SRA300_2j").add_event(event);
+
+        // if(oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0 && mtminb > 200.) _counters.at("1L_SRB").add_event(event);
 
         return;
 
