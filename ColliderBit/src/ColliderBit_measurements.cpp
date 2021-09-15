@@ -62,19 +62,28 @@ namespace Gambit
           static bool studying_first_event;
           static int events_analysed = 0;
 
-          if (*Loop::iteration == BASE_INIT)
+          if (*Loop::iteration == COLLIDER_INIT)
           {
+            std::cout << "\n\nADDING RIVET ANALYSES\n\n";
             if (ah != nullptr) {
-              ah->~AnalysisHandler();  
+              ah->~AnalysisHandler();
+              ah = nullptr;
             }
             ah = std::make_shared<AnalysisHandler>();
             studying_first_event = true;
+
+            YAML::Node colNode = runOptions->getValue<YAML::Node>(Dep::RunMC->current_collider());
+            Options colOptions(colNode);
+            std::cout << "\n\n STARTING rivet for Collider: " << Dep::RunMC->current_collider() << "\n\n";
+            // xsec_veto_fb = colOptions.getValueOrDef<double>(xsec_veto_default, "xsec_veto");
+            // result.partonOnly = colOptions.getValueOrDef<bool>(partonOnly_default, "partonOnly");
+            // result.antiktR = colOptions.getValueOrDef<double>(antiktR_default, "antiktR");
           
             // Get analysis list from yaml file
-            std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
+            std::vector<str> analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
 
             if(not analyses.size())
-              ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet");
+              ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet. This means an empty yoda file will be passed to Contur");
             // TODO: Add somewhere a check to make sure we only do LHC analyses
             else{
               for (size_t i = 0; i < analyses.size() ; ++i){
@@ -94,13 +103,16 @@ namespace Gambit
             //If the yaml file wants to exclude analyses, remove them
             //This feature was inspired by ATLAS_2016_I1469071, which is effectively
             //invalid for most BSM cases and can cause crashes.
-            std::vector<str> excluded_analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
+            std::vector<str> excluded_analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
             ah->removeAnalyses(excluded_analyses);
           
             //Write the utilised analyses to a file in yaml-like format
             //This will list only the analyses that RIVET has succesfully loaded -
             // can be used to debug any typos in the initial yaml file etc.
             //Only do this the first time contur is run.
+            //TODO: This may need adapting so it deals well with multiple different collider energies in one run.
+            //Second TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER.
+            //Should we account for this? E.g. By wiping the file in base_init.
             static bool analyses_written_to_file = false;
             if (!analyses_written_to_file){
               std::ofstream analyses_output_file;
@@ -115,14 +127,8 @@ namespace Gambit
               analyses_written_to_file = true;
             }
           }
-          //If we're not in an init loop, seg faults will occur if the analysis handler is null.
-          //This should never happen if the loops happen in the right order, but just in case:
-          else if (ah == nullptr){
-            ColliderBit_error().raise(LOCAL_INFO, "No Analysis handler set. Is the Loop going in the right order?");
-            //TODO: Is it possible special loop iterations could break this?
-          }
 
-          if (*Loop::iteration == BASE_FINALIZE)
+          if (*Loop::iteration == COLLIDER_FINALIZE)
           {
           #ifdef COLLIDERBIT_DEBUG
             std::cout << "Summary data from rivet:\n\tAnalyses used: ";
@@ -140,6 +146,8 @@ namespace Gambit
             std::cout << std::flush;
           #endif
 
+            std::cout << "\n\nFINALISING RIVET ANALYSES\n" << std::endl;
+
             //Initialise somewhere for the yoda file to be outputted.
             //This circuitous route is necesarry because ostringstream does not
             //support copy assignment or copy initialisation, and which is 
@@ -149,13 +157,16 @@ namespace Gambit
               result = std::make_shared<std::ostringstream>();
             }
 
-            #pragma omp critical
-            {
-              ah->finalize();
-              ah->writeData(*result, "yoda");
-            }
 
             // Drop YODA file if requested
+
+            std::cout << "\n\nAbout to output yoda" << std::endl;
+            std::cout << "\tNumEvnts: " << ah->numEvents() << std::endl;
+            std::cout << "\tbeamIDs: " << ah->beamIds().first << ", " << ah->beamIds().second << std::endl;
+            std::cout << "\tXS: " << ah->nominalCrossSection() << std::endl;
+            std::cout << "\tRunName: " << ah->runName() << std::endl;
+            std::cout << "\tSqrtS: " << ah->sqrtS() << std::endl;
+
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
             if(drop_YODA_file)
             {
@@ -171,7 +182,16 @@ namespace Gambit
 
             #pragma omp critical
             {
+              ah->finalize();
+              ah->writeData(*result, "yoda");
+            }
+
+            
+
+            #pragma omp critical
+            {
               ah->~AnalysisHandler();
+              ah = nullptr;
             }
           }
 
@@ -229,6 +249,7 @@ namespace Gambit
             }
             // Reset the old event number in case GAMBIT needs it elsewhere.
             ge.set_event_number(old_events_analysed);
+            std::cout << "\nRIVET ANALYSING" << std::endl;
           }
         }
       }
@@ -242,17 +263,22 @@ namespace Gambit
       void Contur_LHC_measurements_from_stream(Contur_output &result)
       {
         using namespace Pipes::Contur_LHC_measurements_from_stream;
-  
-        std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
-        
-        std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
-        convert_yaml_options_for_contur(yaml_contur_options);
-
-        #pragma omp critical
+        if (*Loop::iteration == COLLIDER_FINALIZE)
         {
-          ///Call contur
-          result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
-        } 
+          std::cout << "\n\nDOING CONTUR STUFF\n" << std::endl;
+    
+          std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
+          
+          std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
+          convert_yaml_options_for_contur(yaml_contur_options);
+
+          #pragma omp critical
+          {
+            ///Call contur
+            result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+          } 
+          std::cout << "\n\nFINISHING CONTUR STUFF\n" << std::endl;
+        }
       }
 
       // Contur version, from YODA file
@@ -279,39 +305,45 @@ namespace Gambit
       void Contur_LHC_measurements_LogLike(double &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike;
-        Contur_output contur_likelihood_object = *Dep::LHC_measurements;
-
-        result = contur_likelihood_object.LLR;
+        if (*Loop::iteration == COLLIDER_FINALIZE)
+        {
+          Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+          result = contur_likelihood_object.LLR;
+        }
       }
 
       void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
-        std::stringstream summary_line;
-        summary_line << "LHC Contur LogLikes per pool: ";
+        if (*Loop::iteration == COLLIDER_FINALIZE)
+        {
+          std::stringstream summary_line;
+          summary_line << "LHC Contur LogLikes per pool: ";
+          result = (*Dep::LHC_measurements).pool_LLR;
 
-        result = (*Dep::LHC_measurements).pool_LLR;
-
-        for( auto const& entry : result){
-          summary_line << entry.first << ":" << entry.second << ", ";
+          for( auto const& entry : result){
+            summary_line << entry.first << ":" << entry.second << ", ";
+          }
+          logger() << LogTags::debug << summary_line.str() << EOM;
         }
-
-        logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
       void Contur_LHC_measurements_histotags_perPool(map_str_str &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
-        std::stringstream summary_line;
-        summary_line << "LHC Contur LogLikes per pool: ";
+        if (*Loop::iteration == COLLIDER_FINALIZE)
+        {
+          std::stringstream summary_line;
+          summary_line << "LHC Contur LogLikes per pool: ";
 
-        result = (*Dep::LHC_measurements).pool_tags;
+          result = (*Dep::LHC_measurements).pool_tags;
 
-        for( auto const& entry : result){
-          summary_line << entry.first << ":" << entry.second << ", ";
+          for( auto const& entry : result){
+            summary_line << entry.first << ":" << entry.second << ", ";
+          }
+
+          logger() << LogTags::debug << summary_line.str() << EOM;
         }
-
-        logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
 
