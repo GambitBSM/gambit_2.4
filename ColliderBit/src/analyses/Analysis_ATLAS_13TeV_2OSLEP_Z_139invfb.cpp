@@ -1,11 +1,19 @@
 ///
 ///  \author Tomas Gonzalo
 ///  \date 2019 June
+///
+///  \author Anders Kvellestad
+///  \date 2021 Sep
+///
 ///  *********************************************
 
-// Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2019-016/
+// Based on confnote https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2019-016/
+// Updated to paper version (only 3-lepton SRs so far):
+// - https://arxiv.org/abs/2006.05880
+// - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-21/
+// 
+// Luminosity: 139 fb^-1
 
-// - 139 fb^-1 data
 
 #include <vector>
 #include <cmath>
@@ -460,10 +468,10 @@ namespace Gambit
       virtual void collect_results()
       {
 
-        add_result(SignalRegionData(_counters.at("SR1A"), 3., {5.4, 0.7}));
-        add_result(SignalRegionData(_counters.at("SR1B"), 14., {12.8, 1.6}));
-        add_result(SignalRegionData(_counters.at("SR2A"), 3., {5.7, 1.7}));
-        add_result(SignalRegionData(_counters.at("SR2B"), 6., {5.4, 0.8}));
+        add_result(SignalRegionData(_counters.at("SR1A"), 3., {5.7, 1.0}));
+        add_result(SignalRegionData(_counters.at("SR1B"), 14., {12.1, 2.0}));
+        add_result(SignalRegionData(_counters.at("SR2A"), 3., {5.6, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR2B"), 6., {5.5, 0.9}));
 
         #ifdef CHECK_CUTFLOW
           cout << _cutflow << endl;

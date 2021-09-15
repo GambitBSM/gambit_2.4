@@ -36,7 +36,7 @@ namespace Gambit {
 
 
     class Analysis_ATLAS_13TeV_PhotonGGM_36invfb : public Analysis {
-    private:
+    protected:
 
       // Numbers passing cuts
       std::map<string, EventCounter> _counters = {
@@ -572,7 +572,7 @@ namespace Gambit {
       }
 
 
-      void collect_results() {
+      virtual void collect_results() {
 
         #ifdef CHECK_CUTFLOW
           double scale_by= 70.8 / 1.0e4;
@@ -617,6 +617,56 @@ namespace Gambit {
 
     // Factory function
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_PhotonGGM_36invfb)
+
+
+    //
+    // Derived analysis class for the 1Photon SRs
+    //
+    class Analysis_ATLAS_13TeV_PhotonGGM_1Photon_36invfb : public Analysis_ATLAS_13TeV_PhotonGGM_36invfb {
+
+    public:
+      Analysis_ATLAS_13TeV_PhotonGGM_1Photon_36invfb() {
+        set_analysis_name("ATLAS_13TeV_PhotonGGM_1Photon_36invfb");
+      }
+
+      virtual void collect_results() {
+
+        add_result(SignalRegionData(_counters.at("SRaj_L"), 4., { 1.33, 0.54}));
+        add_result(SignalRegionData(_counters.at("SRaj_L200"), 8., { 2.68, 0.64}));
+        add_result(SignalRegionData(_counters.at("SRaj_H"), 3., { 1.14, 0.61}));
+
+      }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)
+
+
+    //
+    // Derived analysis class for the 1Photon SRs
+    //
+    class Analysis_ATLAS_13TeV_PhotonGGM_2Photon_36invfb : public Analysis_ATLAS_13TeV_PhotonGGM_36invfb {
+
+    public:
+      Analysis_ATLAS_13TeV_PhotonGGM_2Photon_36invfb() {
+        set_analysis_name("ATLAS_13TeV_PhotonGGM_2Photon_36invfb");
+      }
+
+      virtual void collect_results() {
+
+        add_result(SignalRegionData(_counters.at("SRaa_SL"), 0., { 0.50, 0.30}));
+        add_result(SignalRegionData(_counters.at("SRaa_SH"), 0., { 0.48, 0.30}));
+        add_result(SignalRegionData(_counters.at("SRaa_WL"), 6., { 3.7, 1.1}));
+        add_result(SignalRegionData(_counters.at("SRaa_WH"), 1., { 2.05, 0.65}));
+
+      }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_PhotonGGM_2Photon_36invfb)
+
 
   }
 }
