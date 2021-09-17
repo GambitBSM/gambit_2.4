@@ -52,6 +52,21 @@
       }
 
       //Automatic destructor should be fine, no need to define
+
+      //Print the object and all its data in an easy to read format.
+      void print_Contur_output_debug(){
+        std::cout << "\nContur Output Object.\n\tLLR is: " <<
+          LLR << "\n\tPool LLR's:";
+
+        for (auto pool : pool_LLR){
+          std::cout << "\n\t\t" << pool.first << ": " << pool.second;
+        }
+        std::cout << "\n\tPool Histotags:";
+        for (auto pool : pool_tags){
+          std::cout << "\n\t\t" << pool.first << ": " << pool.second;
+        }
+        std::cout << std::endl;
+      }
     };
   }
 #endif

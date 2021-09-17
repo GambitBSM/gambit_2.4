@@ -62,7 +62,7 @@ namespace Gambit
           static bool studying_first_event;
           static int events_analysed = 0;
 
-          if (*Loop::iteration == COLLIDER_INIT)
+          if (*Loop::iteration == COLLIDER_INIT_OMP)
           {
             if (ah != nullptr) {
               ah->~AnalysisHandler();
@@ -73,9 +73,6 @@ namespace Gambit
 
             YAML::Node colNode = runOptions->getValue<YAML::Node>(Dep::RunMC->current_collider());
             Options colOptions(colNode);
-            // xsec_veto_fb = colOptions.getValueOrDef<double>(xsec_veto_default, "xsec_veto");
-            // result.partonOnly = colOptions.getValueOrDef<bool>(partonOnly_default, "partonOnly");
-            // result.antiktR = colOptions.getValueOrDef<double>(antiktR_default, "antiktR");
           
             // Get analysis list from yaml file
             std::vector<str> analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
@@ -105,54 +102,62 @@ namespace Gambit
             ah->removeAnalyses(excluded_analyses);
           
             //Write the utilised analyses to a file in yaml-like format
-            //This will list only the analyses that RIVET has succesfully loaded -
-            // can be used to debug any typos in the initial yaml file etc.
+            //This will list only the analyses that RIVET has succesfully loaded - can be used to debug any typos in the initial yaml file etc.
             //Only do this the first time contur is run.
-            //TODO: This may need adapting so it deals well with multiple different collider energies in one run.
-            //Second TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER.
-            //Should we account for this? E.g. By wiping the file in base_init.
-            static bool analyses_written_to_file = false;
-            if (!analyses_written_to_file){
-              std::ofstream analyses_output_file;
-              //TODO please feel free to change name/put in more appropriate location.
-              analyses_output_file.open(GAMBIT_DIR+std::string("/GAMBIT_rivet_analyses.log"));
-              analyses_output_file << "analyses:";
+            //TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER. Should we account for this? E.g. By wiping the file in base_init.
+            //TODO: This should be togglable on/off from yaml.
+            const static bool output_used_analyses = runOptions->getValueOrDef<bool>(true, "drop_used_analyses");
+            if (output_used_analyses){
+              static bool analysis_file_opened = false;
+              static std::map<std::string, bool> analyses_written_to_file_per_collider;
+              if (analyses_written_to_file_per_collider.count(Dep::RunMC->current_collider()) == 0){
+                std::ofstream analyses_output_file;
+                //TODO please feel free to change name/put in more appropriate location.
+                str filename = "/GAMBIT_rivet_analyses.log";
+                if (!analysis_file_opened){
+                  analyses_output_file.open(GAMBIT_DIR+std::string(filename));
+                  analysis_file_opened = true;
+                } else {
+                  analyses_output_file.open(GAMBIT_DIR+std::string(filename),std::ios_base::app);
+                  analyses_output_file << "\n";
+                }
+                analyses_output_file << Dep::RunMC->current_collider() << ":\n";
+                analyses_output_file << "  analyses:";
 
-              for (std::string an_analysis_string : ah->analysisNames()) {
-                analyses_output_file << "\n - " << an_analysis_string;
+                for (std::string an_analysis_string : ah->analysisNames()) {
+                  analyses_output_file << "\n   - " << an_analysis_string;
+                }
+                analyses_output_file.close();
+                analyses_written_to_file_per_collider[Dep::RunMC->current_collider()] = true;
               }
-              analyses_output_file.close();
-              analyses_written_to_file = true;
             }
+
           }
 
           if (*Loop::iteration == COLLIDER_FINALIZE)
           {
-          #ifdef COLLIDERBIT_DEBUG
-            std::cout << "Summary data from rivet:\n\tAnalyses used: ";
-            for (auto analysis : ah.analysisNames()){
-                std::cout << analysis << ", ";
-            }
-            std::cout << "\n\tBeam IDs are " << ah.beamIds().first << ", " << ah.beamIds().second;
-            std::cout << "\n\tXS: " << ah.nominalCrossSection();
-            std::cout << "\n\tRunName: " << ah.runName();
-            std::cout << "\n\tSqrtS: " << ah.sqrtS();
-            std::cout << "\n\tList of available analyses: ";
-            for (auto analysis : ah.stdAnalysisNames()){
-                std::cout << analysis << ", ";
-            }
-            std::cout << std::flush;
-          #endif
+            #ifdef COLLIDERBIT_DEBUG
+              std::cout << "Summary data from rivet:\n\tAnalyses used: ";
+              for (auto analysis : ah.analysisNames()){
+                  std::cout << analysis << ", ";
+              }
+              std::cout << "\n\tBeam IDs are " << ah.beamIds().first << ", " << ah.beamIds().second;
+              std::cout << "\n\tXS: " << ah.nominalCrossSection();
+              std::cout << "\n\tRunName: " << ah.runName();
+              std::cout << "\n\tSqrtS: " << ah.sqrtS();
+              std::cout << "\n\tList of available analyses: ";
+              for (auto analysis : ah.stdAnalysisNames()){
+                  std::cout << analysis << ", ";
+              }
+              std::cout << std::flush;
+            #endif
 
             //Initialise somewhere for the yoda file to be outputted.
-            //This circuitous route is necesarry because ostringstream does not
-            //support copy assignment or copy initialisation, and which is 
-            //necesarry to access items via Gambit's backends system, so we need
-            //to go via a pointer. 
-            if (result == nullptr){
-              result = std::make_shared<std::ostringstream>();
-            }
-
+            //This circuitous route is necesarry because ostringstream does not support copy 
+            //assignment or copy initialisation, and which is necesarry to access items via 
+            //Gambit's backends system, so we need to go via a pointer. 
+            result = std::make_shared<std::ostringstream>();
+            
             #pragma omp critical
             {
               ah->finalize();
@@ -163,8 +168,7 @@ namespace Gambit
             bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
             if(drop_YODA_file)
             {
-              str filename = "GAMBIT_collider_measurements.yoda";
-              
+              str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";     
               #pragma omp critical
               {
                 try{ ah->writeData(filename); }
@@ -250,7 +254,6 @@ namespace Gambit
         if (*Loop::iteration == COLLIDER_FINALIZE)
         {
           std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
-          
           std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
           convert_yaml_options_for_contur(yaml_contur_options);
 
@@ -259,6 +262,8 @@ namespace Gambit
             ///Call contur
             result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
           } 
+          std::cout << "\n\nRESULT OBTAINED: ";
+          result.print_Contur_output_debug();
         }
       }
 
@@ -316,12 +321,12 @@ namespace Gambit
         {
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
-
           result = (*Dep::LHC_measurements).pool_tags;
 
           for( auto const& entry : result){
             summary_line << entry.first << ":" << entry.second << ", ";
           }
+         
 
           logger() << LogTags::debug << summary_line.str() << EOM;
         }
