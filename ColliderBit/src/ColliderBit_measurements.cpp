@@ -102,10 +102,10 @@ namespace Gambit
             ah->removeAnalyses(excluded_analyses);
           
             //Write the utilised analyses to a file in yaml-like format
-            //This will list only the analyses that RIVET has succesfully loaded - can be used to debug any typos in the initial yaml file etc.
+            //This will list only the analyses that RIVET has succesfully loaded.
             //Only do this the first time contur is run.
-            //TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER. Should we account for this? E.g. By wiping the file in base_init.
-            //TODO: This should be togglable on/off from yaml.
+            //TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER.
+            // Should we account for this? E.g. By wiping the file in base_init.
             const static bool output_used_analyses = runOptions->getValueOrDef<bool>(true, "drop_used_analyses");
             if (output_used_analyses){
               static bool analysis_file_opened = false;
@@ -136,45 +136,54 @@ namespace Gambit
 
           if (*Loop::iteration == COLLIDER_FINALIZE)
           {
-            #ifdef COLLIDERBIT_DEBUG
-              std::cout << "Summary data from rivet:\n\tAnalyses used: ";
-              for (auto analysis : ah.analysisNames()){
-                  std::cout << analysis << ", ";
-              }
-              std::cout << "\n\tBeam IDs are " << ah.beamIds().first << ", " << ah.beamIds().second;
-              std::cout << "\n\tXS: " << ah.nominalCrossSection();
-              std::cout << "\n\tRunName: " << ah.runName();
-              std::cout << "\n\tSqrtS: " << ah.sqrtS();
-              std::cout << "\n\tList of available analyses: ";
-              for (auto analysis : ah.stdAnalysisNames()){
-                  std::cout << analysis << ", ";
-              }
-              std::cout << std::flush;
-            #endif
-
-            //Initialise somewhere for the yoda file to be outputted.
-            //This circuitous route is necesarry because ostringstream does not support copy 
-            //assignment or copy initialisation, and which is necesarry to access items via 
-            //Gambit's backends system, so we need to go via a pointer. 
-            result = std::make_shared<std::ostringstream>();
-            
-            #pragma omp critical
+            //Check if events have actually been generated. If not, don't call finalise, as
+            //rivet hasn't been fully initialised. Just return a nullptr, the contur functions
+            //will know what to do.
+            if (!studying_first_event)
             {
-              ah->finalize();
-              ah->writeData(*result, "yoda");
-            }
+              #ifdef COLLIDERBIT_DEBUG
+                std::cout << "Summary data from rivet:\n\tAnalyses used: ";
+                for (auto analysis : ah.analysisNames()){
+                    std::cout << analysis << ", ";
+                }
+                std::cout << "\n\tBeam IDs are " << ah.beamIds().first << ", " << ah.beamIds().second;
+                std::cout << "\n\tXS: " << ah.nominalCrossSection();
+                std::cout << "\n\tRunName: " << ah.runName();
+                std::cout << "\n\tSqrtS: " << ah.sqrtS();
+                std::cout << "\n\tList of available analyses: ";
+                for (auto analysis : ah.stdAnalysisNames()){
+                    std::cout << analysis << ", ";
+                }
+                std::cout << std::flush;
+              #endif
 
-            // Drop YODA file if requested
-            bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
-            if(drop_YODA_file)
-            {
-              str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";     
+              //Initialise somewhere for the yoda file to be outputted.
+              //This circuitous route is necesarry because ostringstream does not support copy 
+              //assignment or copy initialisation, and which is necesarry to access items via 
+              //Gambit's backends system, so we need to go via a pointer. 
+              result = std::make_shared<std::ostringstream>();
+              
               #pragma omp critical
               {
-                try{ ah->writeData(filename); }
-                catch (...)
-                { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+                ah->finalize();
+                ah->writeData(*result, "yoda");
               }
+
+              // Drop YODA file if requested
+              bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
+              if(drop_YODA_file)
+              {
+                str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";     
+                #pragma omp critical
+                {
+                  try{ ah->writeData(filename); }
+                  catch (...)
+                  { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+                }
+              }
+            }
+            else{
+              result = nullptr;
             }
 
             #pragma omp critical
@@ -254,14 +263,22 @@ namespace Gambit
         if (*Loop::iteration == COLLIDER_FINALIZE)
         {
           std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
-          std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
-          convert_yaml_options_for_contur(yaml_contur_options);
 
-          #pragma omp critical
-          {
-            ///Call contur
-            result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
-          } 
+          //Check that rivet actually ran. If not, produce an empty Contur_output object.
+          if (yodastream == nullptr){
+            result = Contur_output();
+          }
+          //If rivet ran, run Contur.
+          else {
+            std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
+            convert_yaml_options_for_contur(yaml_contur_options);
+
+            #pragma omp critical
+            {
+              ///Call contur
+              result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+            } 
+          }
           std::cout << "\n\nRESULT OBTAINED: ";
           result.print_Contur_output_debug();
         }
