@@ -1758,8 +1758,6 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import arg_utils" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
-                #Following line should be removed once Contur revamps its refdata caching (hopefully in Contur 2.1.1)
-                COMMAND ${CMAKE_COMMAND} -E echo "from contur import config" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
