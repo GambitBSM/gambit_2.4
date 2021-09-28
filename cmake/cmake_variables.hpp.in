@@ -67,6 +67,9 @@
 /// Leave out HepMC
 #cmakedefine EXCLUDE_HEPMC 1
 
+/// Path to HepMC lib directory
+#cmakedefine HEPMC_LIB "@HEPMC_LIB@"
+
 /// Leave out ROOT
 #cmakedefine EXCLUDE_ROOT 1
 

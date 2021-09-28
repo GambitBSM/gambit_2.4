@@ -27,6 +27,10 @@
 ///          (andy.buckley@cern.ch)
 ///  \date 2017 Jun
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Oct
+///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2019
@@ -81,7 +85,7 @@
   // Run event generator
   #define CAPABILITY HardScatteringEvent
     #define FUNCTION generateEventPythia
-    START_FUNCTION(HEPUtils::Event)
+    START_FUNCTION(Pythia_default::Pythia8::Event)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia, default)
     DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
@@ -89,7 +93,26 @@
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
-  #undef CAPABILITY
 
+    #define FUNCTION generateEventPythia_HEPUtils
+    START_FUNCTION(HEPUtils::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia, default)
+    DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+    DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+    DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
+    #undef FUNCTION
+
+    #ifndef EXCLUDE_HEPMC
+      #define FUNCTION generateEventPythia_HepMC
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      NEEDS_CLASSES_FROM(Pythia, default)
+      DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+      DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+      #undef FUNCTION
+    #endif
+
+  #undef CAPABILITY
 
 #undef MODULE

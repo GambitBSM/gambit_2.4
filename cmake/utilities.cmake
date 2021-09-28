@@ -25,6 +25,7 @@
 #  \author Tomas Gonzalo
 #          (gonzalo@physik.rwth-aachen.de)
 #  \date 2016 Sep
+#  \date 2019 Oct
 #  \date 2021 Mar
 #
 #  \author Will Handley
@@ -140,9 +141,13 @@ endmacro()
 if(CMAKE_MAKE_PROGRAM MATCHES "make$")
   set(MAKE_SERIAL   $(MAKE) -j1)
   set(MAKE_PARALLEL $(MAKE))
+  set(MAKE_INSTALL_SERIAL    $(MAKE) install -j1)
+  set(MAKE_INSTALL_PARALLEL  $(MAKE) install)
 else()
   set(MAKE_SERIAL   "${CMAKE_MAKE_PROGRAM}")
   set(MAKE_PARALLEL "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_SERIAL   "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_PARALLEL "${CMAKE_MAKE_PROGRAM}")
 endif()
 
 # Arrange clean commands
@@ -390,8 +395,8 @@ function(add_standalone executablename)
   # Assume that the standalone is to be included, unless we discover otherwise.
   set(standalone_permitted 1)
 
-  # Exclude standalones that need HepMC if it has been excluded.
-  if (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;"))
+  # Exclude standalones that need HepMC or YODA if they have been excluded.
+  if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
     set(standalone_permitted 0)
   endif()
 
@@ -440,7 +445,7 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${PROJECT_BINARY_DIR}/CMakeCache.txt)
 
-    # Add linking flags for ROOT, RestFrames and/or HepMC if required.
+    # Add linking flags for ROOT, RestFrames, HepMC and/or YODA if required.
     if (USES_COLLIDERBIT)
       if (NOT EXCLUDE_ROOT)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
@@ -450,6 +455,9 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_HEPMC)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_YODA)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
       endif()
     endif()
 
@@ -468,11 +476,6 @@ function(add_standalone executablename)
     add_elements_extras(${executablename}_elements_extras)
     add_dependencies(${executablename}_elements_extras elements_extras)
     add_dependencies(${executablename} ${executablename}_elements_extras)
-
-    # Add each of the declared dependencies
-    foreach(dep ${ARG_DEPENDENCIES})
-      add_dependencies(${executablename} ${dep})
-    endforeach()
 
     # Add each of the declared dependencies
     foreach(dep ${ARG_DEPENDENCIES})

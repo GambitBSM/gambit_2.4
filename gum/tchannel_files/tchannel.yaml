@@ -1,0 +1,175 @@
+#################################################################################################
+#
+#################################################################################################
+
+
+Parameters:
+  # Default SM values
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+    mH: 125.09
+    
+  tchannel:
+    MXs: 11
+    MXc: 14
+    MXm: 10
+    MXd: 13
+    MXv: 12
+    MXw: 15
+
+    MYS: 2000    
+    MYF: 4000
+    
+    lamS: 0.14
+    lamF: 0.24
+
+Priors:
+
+Printer:
+
+  printer: cout
+
+
+ObsLikes:
+  
+### Collider
+  # Combined LHC likelihood
+  - capability: LHC_Combined_LogLike
+    purpose: LogLike
+
+  # Other observables
+  - purpose:    likelihood_details
+    capability: LHC_LogLike_per_analysis
+
+  - purpose:    Observable
+    capability: LHC_signals
+    
+  - capability: all_BFs
+    purpose: Observable
+    
+  - purpose:    Observable 
+    capability: TotalCrossSectionAsMap
+
+  - purpose:    Observable
+    capability: LHCEventLoopInfo
+    
+  - capability: tchannel_spectrum
+    purpose:    Observable
+    type:       map_str_dbl
+  
+
+Rules:
+
+ # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+       use_covariances: true
+       use_marginalising: true
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        min_nEvents: 1
+        max_nEvents: 1
+        events_between_convergence_checks: 5000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: true
+        all_SR_must_converge: true
+        maxFailedEvents: 500
+        analyses:
+          - CMS_13TeV_MONOJET_36invfb
+
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_tchannel_defaultversion
+    function: getPythia_tchannel
+    options:
+      LHC_13TeV:
+        xsec_veto:  0.0000028 # something small so that it is more likely to actually run
+        pythia_settings:
+          - Print:quiet = off
+          - Next:numberCount = 100
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - tchannel:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - JetMatching:merge = on
+          - JetMatching:scheme = 1
+          - JetMatching:setMad = off
+          - JetMatching:qCut = 30.0
+          - JetMatching:jetAlgorithm = 2
+          - JetMatching:slowJetPower = 1
+          - JetMatching:coneRadius = 1.0
+          - JetMatching:etaJetMax = 5.0
+          - JetMatching:nJetMax = 1
+          - JetMatching:nQmatch = 4
+          - PhaseSpace:pTHatMin = 20
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+    options:
+      invalid_point_for_negative_width: true # TODO: Trying to work out where to put this
+
+  - capability: LHC_Combined_LogLike
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  ## Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+    
+  ## Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+      
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+Logger:
+
+  redirection:
+    [Default] : "default.log"
+    [Backends] : "Backends.log"
+    [ColliderBit] : "ColliderBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/tchannel"
+
+  debug: true

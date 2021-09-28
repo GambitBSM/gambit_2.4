@@ -19,7 +19,11 @@
 #
 # \author Tomas Gonzalo
 #         (tomas.gonzalo@monash.edu)
-# \dae 2019 June
+# \dae 2019 June, Oct
+#
+# \author Tomasz Procter
+#         (t.procter.1@research.gla.ac.uk)
+# \date June 2021
 #
 #************************************************
 
@@ -201,6 +205,7 @@ endif()
 
 if(NOT EXCLUDE_HEPMC)
   set(lib "HepMC3_static")
+  set(lib_search "HepMC3search_static")
   set(md5 "a9cfc6e95eff5c13a0a5a9311ad75aa7")
   set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
@@ -209,6 +214,7 @@ if(NOT EXCLUDE_HEPMC)
   set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
   set(HEPMC_PATH "${dir}")
   set(HEPMC_LIB "${dir}/local/lib")
+  set(HEPMC_LDFLAGS "-L${HEPMC_LIB} -l${lib} -l${lib_search}")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
 
   # Silence some compiler warnings coming from HepMC
@@ -224,12 +230,69 @@ if(NOT EXCLUDE_HEPMC)
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
-  # Add target
-  #add_custom_target(${name})
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${dir} clean)
+  # HepMC must be build before any bits as it is included early because it's in Pythia's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
+#contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
+option(WITH_YODA "Compile with YODA enabled" OFF)
+if(NOT WITH_YODA)
+  message("${BoldCyan} X YODA is deactivated. Set -DWITH_YODA=ON to activate YODA.${ColourReset}")
+elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X ColliderBit is not in use: excluding YODA from GAMBIT configuraton.${ColourReset}")
+  set(WITH_YODA OFF)
+endif()
+
+set(name "yoda")
+set(ver "1.9.1")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
+if(WITH_YODA)
+  message("-- YODA-dependent functions in ColliderBit will be activated.")
+  message("   Backends depending on YODA will be enabled.")
+  set(EXCLUDE_YODA FALSE)
+else()
+  message("   YODA-dependent functions in ColliderBit will be deactivated.")
+  message("   Backends depending on Yoda (e.g. Rivet, Contur) will de disabled.")
+  nuke_ditched_contrib_content(${name} ${dir})
+  set(EXCLUDE_YODA TRUE)
+endif()
+
+if(NOT EXCLUDE_YODA)
+  set(lib "YODA")
+  set(YODA_VERSION "1.9.1")
+  set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${YODA_VERSION}.tar.gz")
+  set(md5 "8f835049fb88c0ad0ed82f0ad16a7073")
+  set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
+  include_directories("${dir}/include")
+  set(YODA_PATH "${dir}")
+  set(YODA_LIB "${dir}/local/lib")
+  set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
+  set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
+  set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
+  set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  # If cython is not installed disable the python extension
+  gambit_find_python_module(cython) 
+  if(PY_cython_FOUND)
+    set(pyext yes)
+    message("   Backends depending on YODA's python extension will be enabled.")
+  else()
+    set(pyext no)
+    message("   Backends depending on YODA's python extension (e.g. Contur) will be disabled.")
+  endif()
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  # YODA must be build before any bits as it is included early because it's in Rivet's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+endif()
 
 #contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
@@ -310,6 +373,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
        --enable-shared-libs
        --with-shared-lib-ext=.so
        --with-shared-lib-cmd=${FS_SO_LINK_COMMAND}
+       --with-gsl-config=${GSL_CONFIG_EXECUTABLE}
       #--enable-verbose flag causes verbose output at runtime as well. Maybe set it dynamically somehow in future.
      )
 

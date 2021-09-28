@@ -32,6 +32,7 @@
 #
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
+#  \date 2019 Sep, Oct
 #  \date 2020 Nov
 #
 #************************************************
@@ -204,7 +205,13 @@ function(check_ditch_status name version dir)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${name}_${version}-prefix)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir})
     endif()
+    if(NOT "${itch_unique}" MATCHES ".*${ditch_command}.*")
+      set(itch_unique "${itch_unique}" "${ditch_command}")
+    endif()
   endforeach()
+  # Make sure the additions to itch are kept in the parent scope
+  set(itch "${itch_unique}")
+  set(itch "${itch_unique}" PARENT_SCOPE)
 endfunction()
 
 # Add a new target that just prints a helpful error explaining that the target for a backend base is not activated.

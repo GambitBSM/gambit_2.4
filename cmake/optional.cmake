@@ -311,6 +311,7 @@ if(SQLite3_FOUND)
   endif()
 else()
   message("${BoldRed}   No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
+  message("   Backends depending on SQLite3 (e.g. Contur) will be deactivated.")
   set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()
 

@@ -22,7 +22,8 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
-///  \date 2019 Sep
+///  \date 2019 Sep, Oct
+///  \date 2020 Apr
 ///
 ///  \author Tomek Procter
 ///           (tsp116@ic.ac.uk)
@@ -55,17 +56,14 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
-    void getHepMCEvent(HEPUtils::Event& result)
+    /// A nested function that reads in HepMC event files
+    void readHepMCEvent(HepMC3::GenEvent& result, const str HepMC_filename, 
+                        const MCLoopInfo& RunMC, const int iteration,
+                        void(*halt)())
     {
-      using namespace Pipes::getHepMCEvent;
-
       result.clear();
 
-      // Get yaml options and initialise the HepMC reader
-      const static double antiktR = runOptions->getValueOrDef<double>(0.4, "antiktR");
-      const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
-      const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
+      // Initialise the HepMC reader
       static int HepMC_file_version = -1;
 
       static bool first = true;
@@ -126,7 +124,7 @@ namespace Gambit
       static HepMC3::Reader *HepMCio;
 
       // Initialize the reader on the first iteration
-      if (*Loop::iteration == BASE_INIT)
+      if (iteration == BASE_INIT)
       {
         if (HepMC_file_version == 2)
           HepMCio = new HepMC3::ReaderAsciiHepMC2(HepMC_filename);
@@ -135,43 +133,74 @@ namespace Gambit
       }
 
       // Delete the reader in the last iteration
-      if (*Loop::iteration == BASE_FINALIZE)
+      if (iteration == BASE_FINALIZE)
         delete HepMCio;
 
       // Don't do anything else during special iterations
-      if (*Loop::iteration < 0) return;
+      if (iteration < 0) return;
 
       #ifdef COLLIDERBIT_DEBUG
-        cout << DEBUG_PREFIX << "Event number: " << *Loop::iteration << endl;
+        cout << DEBUG_PREFIX << "Event number: " << iteration << endl;
       #endif
 
-      // Attempt to read the next HepMC event as a HEPUtils event. If there are no more events, wrap up the loop and skip the rest of this iteration.
-      HepMC3::GenEvent ge(HepMC3::Units::GEV, HepMC3::Units::MM);
+      // Attempt to read the next HepMC event. If there are no more events, wrap up the loop and skip the rest of this iteration.
       bool event_retrieved = true;
       #pragma omp critical (reading_HepMCEvent)
       {
-        event_retrieved = HepMCio->read_event(ge);
+        event_retrieved = HepMCio->read_event(result);
 
         // FIXME This is a temp solution to ensure that the event reading
         //       stops when there are no more events in the HepMC file.
         //       Remove this once bugfix is implemented in HepMC.
-        if ((ge.particles().size() == 0) && (ge.vertices().size() == 0)) event_retrieved = false;
+        if ((result.particles().size() == 0) && (result.vertices().size() == 0)) event_retrieved = false;
       }
       if (not event_retrieved)
       {
         // Tell the MCLoopInfo instance that we have reached the end of the file
-        Dep::RunMC->report_end_of_event_file();
-        Loop::halt();
+        RunMC.report_end_of_event_file();
+        halt();
       }
+      if (not event_retrieved) halt();
+
+
+   }
+    /// A nested function that reads in HepMC event files
+    void getHepMCEvent(HepMC3::GenEvent& result)
+    {
+      using namespace Pipes::getHepMCEvent;
+
+      // Get yaml options
+      const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
+
+      // Get the HepMC event
+      readHepMCEvent(result, HepMC_filename, *Dep::RunMC, *Loop::iteration, Loop::halt);
+ 
+    }
+ 
+    /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+    void getHepMCEvent_HEPUtils(HEPUtils::Event &result)
+    {
+      using namespace Pipes::getHepMCEvent_HEPUtils;
+
+      // Get yaml options
+      const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
+      const static double antiktR = runOptions->getValueOrDef<double>(0.4, "antiktR");
+      const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
+ 
+      // Get the HepMC event
+      //HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+      HepMC3::GenEvent ge;
+      readHepMCEvent(ge, HepMC_filename, *Dep::RunMC, *Loop::iteration, Loop::halt);
 
       //Set the weight
       result.set_weight(ge.weight());
 
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
       Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, antiktR, jet_pt_min);
+ 
     }
-  }
 
+  }
 }
 
 #endif

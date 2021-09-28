@@ -1,4 +1,3 @@
-# GAMBIT central capabilities description database
 #
 # GAMBIT will parse this file and try to match the entries
 # to the capabilities it has registered. If there are any

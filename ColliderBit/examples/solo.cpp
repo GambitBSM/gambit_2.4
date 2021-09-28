@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     // Choose the event file reader according to file format
     if (debug) cout << "Reading " << (event_file_is_LHEF ? "LHEF" : "HepMC") << " file: " << event_filename << endl;
-    auto& getEvent = (event_file_is_LHEF ? getLHEvent : getHepMCEvent);
+    auto& getEvent = (event_file_is_LHEF ? getLHEvent_HEPUtils : getHepMCEvent_HEPUtils);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);

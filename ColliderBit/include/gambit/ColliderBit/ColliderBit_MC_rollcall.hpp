@@ -488,13 +488,19 @@
     #ifndef EXCLUDE_HEPMC
 
       /// A nested function that reads in Les Houches Event files and converts them to HEPUtils::Event format
-      #define FUNCTION getLHEvent
+      #define FUNCTION getLHEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 
-      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      /// A nested function that reads in HepMC event files
       #define FUNCTION getHepMCEvent
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      #define FUNCTION getHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
