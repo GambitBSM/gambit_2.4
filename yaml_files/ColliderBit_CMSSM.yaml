@@ -70,7 +70,7 @@ Scanner:
       plugin: random
       point_number: 10
       output_file:  output
-      like:  Likelihood
+      like:  LogLike
       files:
         output_file: "weights ..."
 
@@ -271,7 +271,10 @@ Rules:
         partonOnly: false
         antiktR: 0.4
         pythia_settings:
-          - Print:quiet = on
+          - Next:numberShowProcess = 1
+          - Beams:eCM = 13000
+          - Print:quiet = off
+          - Random:setSeed = on
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = on
@@ -279,6 +282,9 @@ Rules:
           - SUSY:all = on
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
@@ -323,6 +329,10 @@ Logger:
 
 
 KeyValues:
+
+  rng:
+    generator: default
+    seed: -1
 
   dependency_resolution:
     prefer_model_specific_functions: true
