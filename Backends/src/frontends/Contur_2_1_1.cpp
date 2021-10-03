@@ -53,6 +53,7 @@ BE_NAMESPACE
     args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
     args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
     args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_tags");
+    args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("depot");
 
     //Return the contur output.
     //TODO: In fact, why not unify the repeated code from this and func below into one function?

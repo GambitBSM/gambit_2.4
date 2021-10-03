@@ -259,14 +259,21 @@ namespace Gambit
       // Contur version, from YODA stream
       void Contur_LHC_measurements_from_stream(Contur_output &result)
       {
+        static std::vector<Contur_output> results;
+      
         using namespace Pipes::Contur_LHC_measurements_from_stream;
+        if (*Loop::iteration == BASE_INIT)
+        {
+          results.clear();
+        }
         if (*Loop::iteration == COLLIDER_FINALIZE)
         {
+          Contur_output temp_result;
           std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
 
           //Check that rivet actually ran. If not, produce an empty Contur_output object.
           if (yodastream == nullptr){
-            result = Contur_output();
+            temp_result = Contur_output();
           }
           //If rivet ran, run Contur.
           else {
@@ -276,10 +283,26 @@ namespace Gambit
             #pragma omp critical
             {
               ///Call contur
-              result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+              temp_result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
             } 
           }
-          std::cout << "\n\nRESULT OBTAINED: ";
+          results.push_back(temp_result);
+
+          //TODO put behind a colliderbit debug once testing is done.
+          std::cout << "\n\nSINGLE COLLIDER OBTAINED: ";
+          temp_result.print_Contur_output_debug();
+        }
+        else if (*Loop::iteration == BASE_FINALIZE){
+          if(results.size() == 0){
+            result = Contur_output();
+          }
+          else {
+            result = results[0];
+            for(size_t i = 1; i < results.size(); ++i){
+              result = Gambit::merge_contur_outputs(result, results[i]);
+            }
+          }
+          std::cout << "\n\nFINAL RESULT OBTAINED: ";
           result.print_Contur_output_debug();
         }
       }
@@ -308,7 +331,7 @@ namespace Gambit
       void Contur_LHC_measurements_LogLike(double &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike;
-        if (*Loop::iteration == COLLIDER_FINALIZE)
+        if (*Loop::iteration == BASE_FINALIZE)
         {
           Contur_output contur_likelihood_object = *Dep::LHC_measurements;
           result = contur_likelihood_object.LLR;
@@ -318,7 +341,7 @@ namespace Gambit
       void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
-        if (*Loop::iteration == COLLIDER_FINALIZE)
+        if (*Loop::iteration == BASE_FINALIZE)
         {
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
@@ -334,7 +357,7 @@ namespace Gambit
       void Contur_LHC_measurements_histotags_perPool(map_str_str &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
-        if (*Loop::iteration == COLLIDER_FINALIZE)
+        if (*Loop::iteration == BASE_FINALIZE)
         {
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
@@ -344,7 +367,6 @@ namespace Gambit
             summary_line << entry.first << ":" << entry.second << ", ";
           }
          
-
           logger() << LogTags::debug << summary_line.str() << EOM;
         }
       }
