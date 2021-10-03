@@ -41,28 +41,37 @@ namespace Gambit{
       double new_LLR = 0;
       //Check the depots actually exist:
 
-      if (output1.contur_depot == pybind11::none() && output2.contur_depot != pybind11::none()){
+      if (output1.contur_depot.is_none() && !output2.contur_depot.is_none()){
+        std::cout << __LINE__ << std::endl;
         newdepot = output2.contur_depot;
-        if (output2.LLR != 0){
-          new_LLR = (newdepot.attr("inbox")[0].attr("yoda_factory").attr("_full_likelihood").attr("ts_s_b").cast<double>() - 
-                    newdepot.attr("inbox")[0].attr("yoda_factory").attr("_full_likelihood").attr("ts_b").cast<double>());
+        if (output2.LLR != 0.0){
+          new_LLR = (newdepot.attr("inbox")[pybind11::int_(0)].attr("yoda_factory").attr("_full_likelihood").attr("ts_s_b").cast<double>() - 
+                    newdepot.attr("inbox")[pybind11::int_(0)].attr("yoda_factory").attr("_full_likelihood").attr("ts_b").cast<double>());
         }
       }
-      else if (output1.contur_depot != pybind11::none() && output2.contur_depot == pybind11::none()){
-        newdepot = output2.contur_depot;
-        if (output1.LLR != 0){
-          new_LLR = (newdepot.attr("inbox")[0].attr("yoda_factory").attr("_full_likelihood").attr("ts_s_b").cast<double>() - 
-                    newdepot.attr("inbox")[0].attr("yoda_factory").attr("_full_likelihood").attr("ts_b").cast<double>());
+      else if (!output1.contur_depot.is_none() && output2.contur_depot.is_none()){
+        std::cout << __LINE__ << std::endl;
+        newdepot = output1.contur_depot;
+        if (output1.LLR != 0.0){
+          new_LLR = (newdepot.attr("inbox")[pybind11::int_(0)].attr("yoda_factory").attr("_full_likelihood").attr("ts_s_b").cast<double>() - 
+                    newdepot.attr("inbox")[pybind11::int_(0)].attr("yoda_factory").attr("_full_likelihood").attr("ts_b").cast<double>());
         }
       }
-      else if (output1.contur_depot != pybind11::none() && output2.contur_depot != pybind11::none()){
-        newdepot = (output1.contur_depot).attr("merge")(output2.contur_depot);
-        if (output1.LLR != 0.0 && output2.LLR != 0.0){
-        new_LLR = (newdepot.attr("inbox")[0].attr("yoda_factory").attr("_full_likelihood").attr("ts_s_b").cast<double>() - 
-                    newdepot.attr("inbox")[0].attr("yoda_factory").attr("_full_likelihood").attr("ts_b").cast<double>());
+      else if (!output1.contur_depot.is_none() && !output2.contur_depot.is_none()){
+        std::cout << __LINE__ << std::endl;
+        newdepot = output1.contur_depot;
+        std::cout << __LINE__ << std::endl;
+        newdepot.attr("merge")(output2.contur_depot);
+        std::cout << __LINE__ << std::endl;
+        newdepot.attr("resort_points")();
+        if (output1.LLR != 0.0 && output2.LLR != 0.0){ 
+           new_LLR = (newdepot.attr("inbox")[pybind11::int_(0)].attr("yoda_factory").attr("_full_likelihood").attr("ts_s_b").cast<double>()
+                     - newdepot.attr("inbox")[pybind11::int_()].attr("yoda_factory").attr("_full_likelihood").attr("ts_b").cast<double>());
         }
+        pybind11::print(newdepot.attr("inbox")[pybind11::int_(0)].attr("yoda_factory").attr("sorted_likelihood_blocks"));
       }
       else {
+        std::cout << __LINE__ << std::endl;
         newdepot = pybind11::none();
       }
 
