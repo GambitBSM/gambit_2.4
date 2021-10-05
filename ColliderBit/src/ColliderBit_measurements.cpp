@@ -331,46 +331,36 @@ namespace Gambit
       void Contur_LHC_measurements_LogLike(double &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike;
-        if (*Loop::iteration == BASE_FINALIZE)
-        {
-          Contur_output contur_likelihood_object = *Dep::LHC_measurements;
-          result = contur_likelihood_object.LLR;
-        }
+        Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+        result = contur_likelihood_object.LLR;
       }
 
       void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
-        if (*Loop::iteration == BASE_FINALIZE)
-        {
-          std::stringstream summary_line;
-          summary_line << "LHC Contur LogLikes per pool: ";
-          result = (*Dep::LHC_measurements).pool_LLR;
+        std::stringstream summary_line;
+        summary_line << "LHC Contur LogLikes per pool: ";
+        result = (*Dep::LHC_measurements).pool_LLR;
 
-          for( auto const& entry : result){
-            summary_line << entry.first << ":" << entry.second << ", ";
-          }
-          logger() << LogTags::debug << summary_line.str() << EOM;
+        for( auto const& entry : result){
+          summary_line << entry.first << ":" << entry.second << ", ";
         }
+        logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
       void Contur_LHC_measurements_histotags_perPool(map_str_str &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
-        if (*Loop::iteration == BASE_FINALIZE)
-        {
-          std::stringstream summary_line;
-          summary_line << "LHC Contur LogLikes per pool: ";
-          result = (*Dep::LHC_measurements).pool_tags;
+        std::stringstream summary_line;
+        summary_line << "LHC Contur LogLikes per pool: ";
+        result = (*Dep::LHC_measurements).pool_tags;
 
-          for( auto const& entry : result){
-            summary_line << entry.first << ":" << entry.second << ", ";
-          }
-         
-          logger() << LogTags::debug << summary_line.str() << EOM;
+        for( auto const& entry : result){
+          summary_line << entry.first << ":" << entry.second << ", ";
         }
+        
+        logger() << LogTags::debug << summary_line.str() << EOM;
       }
-
 
     #endif //EXCLUDE_YODA
 
