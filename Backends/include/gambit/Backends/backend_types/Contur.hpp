@@ -37,7 +37,6 @@
       double LLR;
       map_str_dbl pool_LLR;
       map_str_str pool_tags;
-      pybind11::object contur_depot;
 
       //Default constructor - used if no events produced
       //TODO: now we have the depot, should we take care to merge these properly?
@@ -45,7 +44,6 @@
           LLR = 0.0;
           pool_LLR = {};
           pool_tags = {};
-          contur_depot = pybind11::none();
       }
 
       //Conctructor using the pybind11::dict we get from contur:
@@ -53,15 +51,13 @@
         LLR = input_dict.attr("get")("LLR").cast<double>();
         pool_LLR = input_dict.attr("get")("Pool_LLR").cast<map_str_dbl>();
         pool_tags = input_dict.attr("get")("Pool_tags").cast<map_str_str>();
-        contur_depot = input_dict.attr("get")("depot");
       }
 
       //Constructor with all parts supplied: for the friend merge function
-      Contur_output(const double newLLR, const map_str_dbl& newPool_LLR, const map_str_str& newPool_tags, const pybind11::object &newContur_depot){
+      Contur_output(const double newLLR, const map_str_dbl& newPool_LLR, const map_str_str& newPool_tags){
         LLR = newLLR;
         pool_LLR = newPool_LLR;
         pool_tags = newPool_tags;
-        contur_depot = newContur_depot;
       }
 
       //Automatic destructor should be fine, no need to define
