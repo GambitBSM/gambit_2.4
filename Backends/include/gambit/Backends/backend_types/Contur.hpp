@@ -31,6 +31,7 @@
     // Class that manages the input dictionary for Contur
     class Contur_output
     {
+      friend Contur_output merge_contur_outputs(const Contur_output& output1, const Contur_output& output2);
     public:
       //Three member objects:
       double LLR;
@@ -51,23 +52,23 @@
         pool_tags = input_dict.attr("get")("Pool_tags").cast<map_str_str>();
       }
 
+      //Constructor with all parts supplied: for the friend merge function
+      Contur_output(const double newLLR, const map_str_dbl& newPool_LLR, const map_str_str& newPool_tags){
+        LLR = newLLR;
+        pool_LLR = newPool_LLR;
+        pool_tags = newPool_tags;
+      }
+
       //Automatic destructor should be fine, no need to define
 
       //Print the object and all its data in an easy to read format.
-      void print_Contur_output_debug(std::ostream&outstream = std::cout){
-        outstream << "\nContur Output Object.\n\tLLR is: " <<
-          LLR << "\n\tPool LLR's:";
-
-        for (auto pool : pool_LLR){
-          outstream << "\n\t\t" << pool.first << ": " << pool.second;
-        }
-        outstream << "\n\tPool Histotags:";
-        for (auto pool : pool_tags){
-          outstream << "\n\t\t" << pool.first << ": " << pool.second;
-        }
-        outstream << std::endl;
-      }
+      void print_Contur_output_debug(std::ostream&outstream = std::cout) const;
+      
     };
+
+    //Helper function
+    Contur_output merge_contur_outputs(const Contur_output& output1, const Contur_output& output2);
+
   }
 #endif
 
