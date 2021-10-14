@@ -47,8 +47,13 @@
 
       //Conctructor using the pybind11::dict we get from contur:
       Contur_output(pybind11::dict input_dict){
-        LLR = input_dict.attr("get")("LLR").cast<double>();
+        //Eliminating the factor of -2 for the GAMBIT LLR definition
+        LLR = -0.5*input_dict.attr("get")("LLR").cast<double>();
         pool_LLR = input_dict.attr("get")("Pool_LLR").cast<map_str_dbl>();
+        //Eliminating the factor of -2 in the pools:
+        for (auto &pool : pool_LLR){
+          pool.second=-0.5*pool.second;
+        }
         pool_tags = input_dict.attr("get")("Pool_tags").cast<map_str_str>();
       }
 
