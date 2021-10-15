@@ -288,9 +288,10 @@ namespace Gambit
           }
           results.push_back(temp_result);
 
-          //TODO put behind a colliderbit debug once testing is done.
-          std::cout << "\n\nSINGLE COLLIDER OBTAINED: ";
-          temp_result.print_Contur_output_debug();
+          #ifdef COLLIDERBIT_DEBUG
+            std::cout << "\n\nSINGLE COLLIDER OBTAINED: ";
+            temp_result.print_Contur_output_debug();
+          #endif
         }
         else if (*Loop::iteration == BASE_FINALIZE){
           if(results.size() == 0){
@@ -302,8 +303,10 @@ namespace Gambit
               result = Gambit::merge_contur_outputs(result, results[i]);
             }
           }
-          std::cout << "\n\nFINAL RESULT OBTAINED: ";
-          result.print_Contur_output_debug();
+          #ifdef COLLIDERBIT_DEBUG
+            std::cout << "\n\nFINAL RESULT OBTAINED: ";
+            result.print_Contur_output_debug();
+          #endif
         }
       }
 
