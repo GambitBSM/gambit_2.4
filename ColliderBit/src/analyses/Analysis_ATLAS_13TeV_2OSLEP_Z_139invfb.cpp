@@ -8,7 +8,7 @@
 ///  *********************************************
 
 // Based on confnote https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2019-016/
-// Updated to paper version (only 3-lepton SRs so far):
+// Updated to paper version (3-lepton and 1-lepton SRs):
 // - https://arxiv.org/abs/2006.05880
 // - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-21/
 // 
@@ -273,8 +273,11 @@ namespace Gambit
         }
 
         // h candidate
-        // TODO: Not sure how to code this one
-        size_t nhcand = 1;
+        vector<vector<const HEPUtils::Jet*>> BJetPairs = getBJetPairs(signalBJets);
+        double h_id_eff = 0.52; // Paper claims an efficiency between 50% and 54% but, depending on the mass of stop1
+        int nhcand = 0;
+        for(size_t i=0; i<BJetPairs.size(); ++i)
+          if(random_bool(h_id_eff)) nhcand++;
    
         // Transverse mass from leading lepton with pT
         double mT = nSignalLeptons > 0 and get_mT(signalLeptons.at(0)->mom(), ptot);
