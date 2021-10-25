@@ -9,12 +9,20 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Andy Buckley
+///          (andy.buckley@glasgow.ac.uk)
+///  \date 2019 Oct
 ///
 ///  \author Abram Krislock
+///          (a.m.b.krislock@fys.uio.no)
+///  \date 2016 Mar
 ///
 ///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date 2020 Jun
 ///
 ///  \author Pat Scott
+///          (pat.scott@uq.edu.au)
+///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
 ///          (gonzalo@physk.rwth-aachen.de)
@@ -40,7 +48,6 @@ namespace Gambit
 
   namespace ColliderBit
   {
-
 
     /// Unit conversions (multiply to construct in standard units, divide to decode to that unit)
     static const double GeV = 1, MeV = 1e-3, TeV = 1e3;
@@ -389,6 +396,9 @@ namespace Gambit
 
     /// Utility function for returning a collection of same-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles);
+
+    /// Utility function for returning a collection of b-tagged jets
+    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets);
 
 
     /// @name Sorting
