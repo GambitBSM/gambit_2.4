@@ -26,6 +26,7 @@
 #define BACKENDLANG Python3
 #define VERSION 2.1.1
 #define SAFE_VERSION 2_1_1
+#define REFERENCE Butterworth:2016sqg
 
 LOAD_LIBRARY
 

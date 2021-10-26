@@ -43,14 +43,10 @@
 #include <algorithm>
 #include "gambit/ColliderBit/analyses/EventCounter.hpp"
 
-// #define ANALYSISDATA_DEBUG
-
-#ifdef ANALYSISDATA_DEBUG
-#include <iostream>
-#endif
-
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
 
     /// A simple container for the result of one signal region from one analysis.
@@ -96,7 +92,8 @@ namespace Gambit {
       SignalRegionData() {}
 
       /// Consistency check
-      bool check() const {
+      bool check() const
+      {
         bool consistent = true;
         /// @todo Add SR consistency checks
         return consistent;
@@ -150,9 +147,6 @@ namespace Gambit {
       /// Default constructor
       AnalysisData()
       {
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (default ctor)" << std::endl;
-        #endif
         clear();
       }
 
@@ -160,31 +154,8 @@ namespace Gambit {
       AnalysisData(const std::string& name) :
         analysis_name(name)
       {
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (ctor with analysis name)" << std::endl;
-        #endif
         clear();
       }
-
-      // A copy constructor only used for debugging
-      #ifdef ANALYSISDATA_DEBUG
-      AnalysisData(const AnalysisData& copy) :
-        analysis_name(copy.analysis_name),
-        srdata(copy.srdata),
-        srdata_identifiers(copy.srdata_identifiers),
-        srcov(copy.srcov)
-      {
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Copy-constructed from " << &copy << std::endl;
-      }
-      #endif
-
-      // A destructor only used for debugging
-      #ifdef ANALYSISDATA_DEBUG
-      ~AnalysisData()
-      {
-        std::cerr << "DEBUG: AnalysisData: " << this << " - Destructed" << std::endl;
-      }
-      #endif
 
       /// @brief Constructor from a list of SignalRegionData and an optional correlation (or covariance?) matrix
       ///
@@ -193,9 +164,6 @@ namespace Gambit {
       AnalysisData(const std::vector<SignalRegionData>& srds, const Eigen::MatrixXd& cov=Eigen::MatrixXd())
         : srdata(srds), srcov(cov)
       {
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (special ctor)" << std::endl;
-        #endif
         check();
       }
 
@@ -210,9 +178,6 @@ namespace Gambit {
           sr.n_sig_MC_sys = 0;
         }
         srcov = Eigen::MatrixXd();
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Cleared" << std::endl;
-        #endif
       }
 
       /// Number of analyses
@@ -256,15 +221,11 @@ namespace Gambit {
       {
         for (const SignalRegionData& srd : srdata) srd.check();
         assert(srcov.rows() == 0 || srcov.rows() == (int) srdata.size());
-        // for (int isr = 0; isr < srcov.rows(); ++isr) {
-        //   const double& srbg = srdata[isr].n_bkg_err;
-        //   #ifdef ANALYSISDATA_DEBUG
-        //     std::cerr << "DEBUG: AnalysisData: isr:" << isr << ", srbg:" << srbg << ", srcov(isr,isr):" << srcov(isr,isr) << std::endl;
-        //   #endif
-        //   assert(fabs(srcov(isr,isr) - srbg*srbg) < 1e-2);
-        // }
         return true;
       }
+
+      bool event_gen_BYPASS = false;
+
 
       /// bjf> Experimental! But already useful for helping me convert the key
       /// numbers from these analyses to Python for the p-value calculuations.

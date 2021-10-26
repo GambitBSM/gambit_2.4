@@ -32,13 +32,14 @@
 ///  \date   2017 March
 ///  \date   2018 Jan
 ///  \date   2018 May
+///  \date   2021 Oct
 ///
 ///  *********************************************
 
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
 // #define COLLIDERBIT_DEBUG
-#define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
+#define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
 
 namespace Gambit
 {
@@ -54,9 +55,15 @@ namespace Gambit
                               int iteration)
     {
       if (RunMC.analyses.empty() or iteration == BASE_INIT) return;
+
+      if (iteration == COLLIDER_INIT)
+      {
+        result.set_current_collider(RunMC.current_collider());
+      }
+
       if (not RunMC.current_analyses_exist_for(detname)) return;
 
-      if (iteration == START_SUBPROCESS)
+      if (iteration == COLLIDER_INIT_OMP)
       {
         // Register analysis container
         result.register_thread(detname+"AnalysisContainer");

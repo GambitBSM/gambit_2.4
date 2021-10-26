@@ -29,6 +29,7 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 gambit_backend_name    = 'Rivet'
 gambit_backend_version = '3.1.4'
+gambit_backend_reference = 'Bierlich:2019rhm'
 gambit_base_namespace  = ''
 
 

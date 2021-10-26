@@ -42,6 +42,8 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp" 
+#include "gambit/Utils/util_macros.hpp"
+#include "gambit/ColliderBit/Utils.hpp"
 
 #include "multimin/multimin.hpp"
 
@@ -103,8 +105,8 @@ namespace Gambit
     ///
     /// @note Doesn't return a full log-like: the factorial term is missing since it's expensive, fixed and cancels in DLLs
     void _gsl_calc_Analysis_MinusLogLike(const size_t n, const double* unit_nuisances_dbl,
-                                         void* fixedparamspack, double* fval) {
-
+                                         void* fixedparamspack, double* fval)
+    {
       // Convert the array of doubles into an "Eigen view" of the nuisance params
       Eigen::Map<const Eigen::ArrayXd> unit_nuisances(&unit_nuisances_dbl[0], n);
 
@@ -120,8 +122,8 @@ namespace Gambit
 
       // Calculate each SR's Poisson likelihood and add to composite likelihood calculation
       double loglike_tot = n * log(1/sqrt(2*M_PI)); //< could also drop this, but it costs ~nothing
-      for (size_t j = 0; j < n; ++j) {
-
+      for (size_t j = 0; j < n; ++j)
+      {
         // First the multivariate Gaussian bit (j = nuisance)
         const double pnorm_j = -pow(unit_nuisances(j), 2)/2.;
         loglike_tot += pnorm_j;
@@ -142,8 +144,8 @@ namespace Gambit
 
     /// Loglike gradient-function wrapper to provide the signature for GSL multimin
     void _gsl_calc_Analysis_MinusLogLikeGrad(const size_t n, const double* unit_nuisances_dbl,
-                                             void* fixedparamspack, double* fgrad) {
-
+                                             void* fixedparamspack, double* fgrad)
+    {
       // Convert the array of doubles into an "Eigen view" of the nuisance params
       Eigen::Map<const Eigen::ArrayXd> unit_nuisances(&unit_nuisances_dbl[0], n);
 
@@ -158,9 +160,11 @@ namespace Gambit
       const Eigen::VectorXd n_preds = n_preds_nominal + evecs*(sqrtevals*unit_nuisances).matrix();
 
       // Compute gradient elements
-      for (int j = 0; j < unit_nuisances.size(); ++j) {
+      for (int j = 0; j < unit_nuisances.size(); ++j)
+      {
         double llgrad = 0;
-        for (int k = 0; k < unit_nuisances.size(); ++k) {
+        for (int k = 0; k < unit_nuisances.size(); ++k)
+        {
           llgrad += (n_obss(k)/n_preds(k) - 1) * evecs(k,j);
         }
         llgrad = llgrad * sqrtevals(j) - unit_nuisances(j);
@@ -172,7 +176,8 @@ namespace Gambit
 
     void _gsl_calc_Analysis_MinusLogLikeAndGrad(const size_t n, const double* unit_nuisances_dbl,
                                                 void* fixedparamspack,
-                                                double* fval, double* fgrad) {
+                                                double* fval, double* fgrad)
+    {
       _gsl_calc_Analysis_MinusLogLike(n, unit_nuisances_dbl, fixedparamspack, fval);
       _gsl_calc_Analysis_MinusLogLikeGrad(n, unit_nuisances_dbl, fixedparamspack, fgrad);
     }
@@ -181,14 +186,17 @@ namespace Gambit
     std::vector<double> _gsl_mkpackedarray(const Eigen::ArrayXd& n_preds,
                                            const Eigen::ArrayXd& n_obss,
                                            const Eigen::ArrayXd& sqrtevals,
-                                           const Eigen::MatrixXd& evecs) {
+                                           const Eigen::MatrixXd& evecs)
+    {
       const size_t nSR = n_obss.size();
       std::vector<double> fixeds(3*nSR + 2*nSR*nSR, 0.0);
-      for (size_t i = 0; i < nSR; ++i) {
+      for (size_t i = 0; i < nSR; ++i)
+      {
         fixeds[0+i] = n_preds(i);
         fixeds[nSR+i] = n_obss(i);
         fixeds[2*nSR+i] = sqrtevals(i);
-        for (size_t j = 0; j < nSR; ++j) {
+        for (size_t j = 0; j < nSR; ++j)
+        {
           fixeds[3*nSR+i*nSR+j] = evecs(j,i);
         }
       }
@@ -203,8 +211,8 @@ namespace Gambit
     double profile_loglike_cov(const Eigen::ArrayXd& n_preds,
                                const Eigen::ArrayXd& n_obss,
                                const Eigen::ArrayXd& sqrtevals,
-                               const Eigen::MatrixXd& evecs) {
-
+                               const Eigen::MatrixXd& evecs)
+    {
       // Number of signal regions
       const size_t nSR = n_obss.size();
 
@@ -214,7 +222,8 @@ namespace Gambit
       // // Set nuisances to an informed starting position
       // const Eigen::ArrayXd& err_n_preds = (evecs*sqrtevals.matrix()).array(); //< @todo CHECK
       // std::vector<double> nuisances(nSR, 0.0);
-      // for (size_t j = 0; j < nSR; ++j) {
+      // for (size_t j = 0; j < nSR; ++j) 
+      // {
       //   // Calculate the max-L starting position, ignoring correlations
       //   const double obs = n_obss(j);
       //   const double rate = n_preds(j);
@@ -224,9 +233,12 @@ namespace Gambit
       //   const double c = delta * (rate - obs);
       //   const double d = b*b - 4*a*c;
       //   const double sqrtd = (d < 0) ? 0 : sqrt(d);
-      //   if (sqrtd == 0) {
+      //   if (sqrtd == 0)
+      //   {
       //     nuisances[j] = -b / (2*a);
-      //   } else {
+      //   }
+      //   else
+      //   {
       //     const double th0_a = (-b + sqrtd) / (2*a);
       //     const double th0_b = (-b - sqrtd) / (2*a);
       //     nuisances[j] = (fabs(th0_a) < fabs(th0_b)) ? th0_a : th0_b;
@@ -260,13 +272,31 @@ namespace Gambit
 
       // Pass to the minimiser
       double minusbestll = 999;
-      // _gsl_calc_Analysis_MinusLogLike(nSR, &nuisances[0], &fixeds[0], &minusbestll);
-      multimin::multimin(nSR, &nuisances[0], &minusbestll,
-               nullptr, nullptr, nullptr,
-               _gsl_calc_Analysis_MinusLogLike,
-               _gsl_calc_Analysis_MinusLogLikeGrad,
-               _gsl_calc_Analysis_MinusLogLikeAndGrad,
-               &fixeds[0], oparams);
+
+      // Call minimizer with stderr temporarily silenced (due to gsl output)?
+      static bool silence_multimin = runOptions->getValueOrDef<bool>(true, "silence_multimin");
+
+      // Call the minimizer
+      if (silence_multimin)
+      {
+        CALL_WITH_SILENCED_STDERR(
+          multimin::multimin(nSR, &nuisances[0], &minusbestll,
+                   nullptr, nullptr, nullptr,
+                   _gsl_calc_Analysis_MinusLogLike,
+                   _gsl_calc_Analysis_MinusLogLikeGrad,
+                   _gsl_calc_Analysis_MinusLogLikeAndGrad,
+                   &fixeds[0], oparams) 
+        )
+      }
+      else
+      {
+        multimin::multimin(nSR, &nuisances[0], &minusbestll,
+                 nullptr, nullptr, nullptr,
+                 _gsl_calc_Analysis_MinusLogLike,
+                 _gsl_calc_Analysis_MinusLogLikeGrad,
+                 _gsl_calc_Analysis_MinusLogLikeAndGrad,
+                 &fixeds[0], oparams);
+      }
 
       return -minusbestll;
     }
@@ -293,9 +323,8 @@ namespace Gambit
     double marg_loglike_cov(const Eigen::ArrayXd& n_preds,
                             const Eigen::ArrayXd& n_obss,
                             const Eigen::ArrayXd& sqrtevals,
-                            const Eigen::MatrixXd& evecs) 
+                            const Eigen::MatrixXd& evecs)
     {
-
       // Number of signal regions
       const size_t nSR = n_obss.size();
 
@@ -309,7 +338,7 @@ namespace Gambit
       // Optionally use nulike's more careful 1D marginalisation for one-SR cases
       if (NULIKE1SR && nSR == 1) return marg_loglike_nulike1sr(n_preds, n_obss, sqrtevals);
 
-      // Dynamic convergence control & test variables
+      // Dynamic convergence control & test has_and_variables
       size_t nsample = NSAMPLE_INPUT;
       bool first_iteration = true;
       double diff_abs = 9999;
@@ -330,7 +359,7 @@ namespace Gambit
       for (size_t j = 0; j < nSR; ++j)
         logfact_n_obss(j) = gsl_sf_lngamma(n_obss(j) + 1);
 
-      // Check absolute difference between independent estimates
+      // Check absolute difference between independent has_and_estimates
       /// @todo Should also implement a check of relative difference
       while ((diff_abs > CONVERGENCE_TOLERANCE_ABS && diff_rel > CONVERGENCE_TOLERANCE_REL) || 1.0/sqrt(nsample) > CONVERGENCE_TOLERANCE_ABS)
       {
@@ -348,8 +377,8 @@ namespace Gambit
           // Sample correlated SR rates from a rotated Gaussian defined by the covariance matrix and offset by the mean rates
           double lsum_private  = 0;
           #pragma omp for nowait
-          for (size_t i = 0; i < nsample; ++i) {
-
+          for (size_t i = 0; i < nsample; ++i)
+          {
             Eigen::VectorXd norm_samples(nSR);
             for (size_t j = 0; j < nSR; ++j)
               norm_samples(j) = sqrtevals(j) * unitnormdbn(Random::rng());
@@ -359,7 +388,8 @@ namespace Gambit
 
             // Calculate Poisson likelihood and add to composite likelihood calculation
             double combined_loglike = 0;
-            for (size_t j = 0; j < nSR; ++j) {
+            for (size_t j = 0; j < nSR; ++j)
+            {
               const double lambda_j = std::max(n_pred_samples(j), 1e-3); //< manually avoid <= 0 rates
               const double loglike_j  = n_obss(j)*log(lambda_j) - lambda_j - logfact_n_obss(j);
               combined_loglike += loglike_j;
@@ -415,11 +445,14 @@ namespace Gambit
     }
 
 
+
+// _Anders start: -----------------------------------------------------
+
     /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
     void fill_analysis_loglikes(const AnalysisData& ana_data, 
                                 AnalysisLogLikes& ana_loglikes,
                                 bool use_marg,
-                                bool use_covar,
+                                bool has_and_use_covar,
                                 bool combine_nocovar_SRs,
                                 const std::string alt_loglike_key = "")
     {
@@ -440,7 +473,7 @@ namespace Gambit
       double dll = NAN;
 
       // Work out the total (delta) log likelihood for this analysis, with correlations as available/instructed
-      if (use_covar)
+      if (has_and_use_covar)
       {
 
         // Check that we are indeed using the right function to compute the loglikes
@@ -502,9 +535,6 @@ namespace Gambit
         const Eigen::ArrayXd sqrtEsb = Esb.sqrt();
         const Eigen::MatrixXd Vsb = eig_sb.eigenvectors();
 
-        // cout << "B: " << srcorr_b << " " << srcov_b << endl;
-        // cout << "SB: " << srcorr_sb << " " << srcov_sb << endl;
-
         // Compute the single, correlated analysis-level DLL as the difference of s+b and b (partial) LLs
         /// @todo Only compute this once per run
         const double ll_b = marg_prof_fn(n_pred_b, n_obs, sqrtEb, Vb);
@@ -530,7 +560,7 @@ namespace Gambit
         // constraining under the s=0 assumption (default), or naively combine
         // the loglikes for all SRs (if combine_SRs_without_covariances=true).
         #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
+        cout << DEBUG_PREFIX << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
         #endif
 
         double bestexp_dll_exp = 0, bestexp_dll_obs = NAN;
@@ -634,7 +664,7 @@ namespace Gambit
             bestexp_sr_label = srData.sr_label;
             bestexp_sr_index = SR;
             #ifdef COLLIDERBIT_DEBUG
-              cout << DEBUG_PREFIX << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", bestexp_dll_exp = " << bestexp_dll_exp << ", bestexp_dll_obs = " << bestexp_dll_obs << endl;
+            cout << DEBUG_PREFIX << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", bestexp_dll_exp = " << bestexp_dll_exp << ", bestexp_dll_obs = " << bestexp_dll_obs << endl;
             #endif
           }
 
@@ -652,7 +682,7 @@ namespace Gambit
           nocovar_srsum_dll_obs += dll_obs;
 
           #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << ana_name << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
+          cout << DEBUG_PREFIX << ana_name << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
           #endif
 
         }
@@ -676,12 +706,11 @@ namespace Gambit
           ana_loglikes.combination_sr_label = bestexp_sr_label;
           ana_loglikes.combination_sr_index = bestexp_sr_index;
           #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ana_name << "_" << bestexp_sr_label << "_LogLike : " << dll << endl;
+          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ana_name << "_" << bestexp_sr_label << "_LogLike : " << dll << endl;
           #endif
         }
 
       } // end large cov/no-cov if-else block
-
 
       // Check for problems with the result
       bool check_failed = false;  
@@ -749,6 +778,7 @@ namespace Gambit
     }
 
 
+
     /// Loop over all analyses and fill a map of AnalysisLogLikes objects
     void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
     {
@@ -769,7 +799,7 @@ namespace Gambit
       static const bool calc_scaledsignal_loglikes = runOptions->getValueOrDef<bool>(false, "calc_scaledsignal_loglikes");
       static const double signal_scalefactor = runOptions->getValueOrDef<double>(1.0, "signal_scalefactor");
 
-      // Create a list of keys for the alterative loglikes that are activated
+      // Create a list of keys for the alternative loglikes that are activated
       static std::vector<std::string> alt_loglike_keys;
       if (first)
       {
@@ -780,12 +810,10 @@ namespace Gambit
         first = false;
       }
 
-      // // Fix the profiling/marginalising function according to the option
-      // auto marg_prof_fn = use_marg ? marg_loglike_cov : profile_loglike_cov;
-
       // Clear the result map
       result.clear();
 
+      // Loop over analyses in Dep::AllAnalysisNumbers
       // Main loop over all analyses to compute DLL = LL_sb - LL_b
       for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
       {
@@ -802,26 +830,25 @@ namespace Gambit
         AnalysisLogLikes& ana_loglikes = result[ana_name];
 
         #ifdef COLLIDERBIT_DEBUG
-          std::streamsize stream_precision = cout.precision();  // get current precision
-          cout.precision(2);  // set precision
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << "Will print content of " << ana_name << " signal regions:" << endl;
-          for (size_t SR = 0; SR < ana_data.size(); ++SR)
-          {
-            const SignalRegionData& srData = ana_data[SR];
-            cout << std::fixed << DEBUG_PREFIX
-                                   << "calc_LHC_LogLikes: " << ana_name
-                                   << ", " << srData.sr_label
-                                   << ",  n_b = " << srData.n_bkg << " +/- " << srData.n_bkg_err
-                                   << ",  n_obs = " << srData.n_obs
-                                   << ",  excess = " << srData.n_obs - srData.n_bkg << " +/- " << srData.n_bkg_err
-                                   << ",  n_s = " << srData.n_sig_scaled
-                                   << ",  (excess-n_s) = " << (srData.n_obs-srData.n_bkg) - srData.n_sig_scaled << " +/- " << srData.n_bkg_err
-                                   << ",  n_s_MC = " << srData.n_sig_MC
-                                   << endl;
-          }
-          cout.precision(stream_precision); // restore previous precision
+        std::streamsize stream_precision = cout.precision();  // get current precision
+        cout.precision(2);  // set precision
+        cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << "Will print content of " << ananame << " signal regions:" << endl;
+        for (size_t SR = 0; SR < adata.size(); ++SR)
+        {
+          const SignalRegionData& srData = adata[SR];
+          cout << std::fixed << DEBUG_PREFIX
+                                 << "calc_LHC_LogLikes: " << ananame
+                                 << ", " << srData.sr_label
+                                 << ",  n_b = " << srData.n_bkg << " +/- " << srData.n_bkg_err
+                                 << ",  n_obs = " << srData.n_obs
+                                 << ",  excess = " << srData.n_obs - srData.n_bkg << " +/- " << srData.n_bkg_err
+                                 << ",  n_s = " << srData.n_sig_scaled
+                                 << ",  (excess-n_s) = " << (srData.n_obs-srData.n_bkg) - srData.n_sig_scaled << " +/- " << srData.n_bkg_err
+                                 << ",  n_s_MC = " << srData.n_sig_MC
+                                 << endl;
+        }
+        cout.precision(stream_precision); // restore previous precision
         #endif
-
 
         // Shortcut #1
         //
@@ -830,7 +857,7 @@ namespace Gambit
         // every SR in each analysis.
         //
         /// @todo Needs more sophistication once we add analyses that don't use event generation.
-        if (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents)
+        if (not Dep::RunMC->event_gen_BYPASS && (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents) )
         {
           // If this is an analysis with covariance info, only add a single 0-entry in the map
           if (use_covar && has_covar)
@@ -851,7 +878,6 @@ namespace Gambit
           // Continue to next analysis
           continue;
         }
-
 
         // Shortcut #2
         //
@@ -940,6 +966,7 @@ namespace Gambit
 
       } // end analysis loop
     }
+
 
 
     /// Extract the combined log likelihood for each analysis
