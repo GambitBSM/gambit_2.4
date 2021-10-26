@@ -5581,12 +5581,35 @@ varNames: |
   CalcHEP's internal list of variable names.
 
 #------------------------
-#  Rivet capabilites
+#  Rivet & Contur capabilites
 #-----------------------
 
-Rivet_3_0_0_init: |
+Rivet_3_1_4_init: |
   Initialise Rivet backend
 
+Rivet_measurements: |
+  Run's rivet on current hepmc event. Creates output YODA object on COLLIDER_FINALISE
+
+addAnalysisLibPath: |
+  Wrapper for Rivet's addaAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
+
+Contur_2_1_1_init: |
+  Initialise Contur backend
+
+Contur_GetAnalyses: |
+  Wrapper for Contur's static_db.getAnalyses(). Gets a string vector of all the analyses known to this version of Contur for a given beam energy, e.g. "13TeV".
+
+LHC_measurements: |
+  Produces a Contur_output object. Typically will require some form of yoda input to run contur on.
+
+LHC_measurements_LogLike: |
+   Extracts the LLR from a Contur_output object (including factor -2 correction for GAMBIT).
+
+LHC_measurements_LogLike_perPool: |
+  Extracts a map_str_dbl containing each pool and its individual LLR contribution.
+
+LHC_measurements_histotags_perPool: |
+  Extracts the name, as a string, of the histogram(s) that provide exclusion for each bin. Useless except for single param points.
 
 #--------------------------------
 #  Vacuum stability capabilities
