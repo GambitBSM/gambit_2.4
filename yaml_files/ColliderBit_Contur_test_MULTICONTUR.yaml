@@ -93,12 +93,15 @@ Scanner:
 ObsLikes:
 
 
-    # Calculate the LHC likelihood
-#    - purpose:    LogLike
-#      capability: LHC_Combined_LogLike
+  #Calculate the LHC likelihood
+    # - purpose:    LogLike
+    #   capability: LHC_Combined_LogLike
 
     - purpose: LogLike
       capability: LHC_measurements_LogLike
+
+    - purpose: likelihood_details
+      capability: LHC_measurements_LogLike_Multi
 
     - purpose: likelihood_details
       capability: LHC_measurements_LogLike_perPool
@@ -318,8 +321,18 @@ Rules:
         
 
   - capability: LHC_measurements
-    function: Contur_LHC_measurements_from_stream
+    function: Multi_Contur_LHC_measurements_from_stream
     options:
+      Contur_names:
+        - ConturTheory
+        - ConturNoTheory
+        - ConturTheoryOnly
+      ConturTheory:
+        - theory
+      ConturTheoryOnly:
+        - theoryonly
+        - theory
+      
       #Adding a contur option is equivalent to running contur with the equivalent flag.
       #contur_options:
        #- use-searches
@@ -327,16 +340,18 @@ Rules:
        # YODA_filename: "./runpoint_0017.yoda"
 
   - capability: LHC_measurements_LogLike
-    function: Contur_LHC_measurements_LogLike
+    function: Multi_Contur_LHC_measurements_LogLike_single
+    options:
+      Use_as_likelihood: ConturTheory
+
+  - capability: LHC_measurements_LogLike_Multi
+    function: Multi_Contur_LHC_measurements_LogLike_all
 
   - capability: LHC_measurements_LogLike_perPool
-    function: Contur_LHC_measurements_LogLike_perPool
+    function: Multi_Contur_LHC_measurements_LogLike_perPool
 
   - capability: LHC_measurements_histotags_perPool
-    function: Contur_LHC_measurements_histotags_perPool
-
-  
-
+    function: Multi_Contur_LHC_measurements_histotags_perPool
 
 # Set the names of key log files
 

@@ -59,6 +59,11 @@ BE_NAMESPACE
     return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
   }
 
+  //std::vector<Contur_output> Multi_Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string> &contur_yaml_args);
+  
+
+
+
   Contur_output Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
   {
     //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT

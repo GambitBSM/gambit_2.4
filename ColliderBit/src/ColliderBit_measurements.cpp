@@ -143,15 +143,15 @@ namespace Gambit
             {
               #ifdef COLLIDERBIT_DEBUG
                 std::cout << "Summary data from rivet:\n\tAnalyses used: ";
-                for (auto analysis : ah.analysisNames()){
+                for (auto analysis : ah->analysisNames()){
                     std::cout << analysis << ", ";
                 }
-                std::cout << "\n\tBeam IDs are " << ah.beamIds().first << ", " << ah.beamIds().second;
-                std::cout << "\n\tXS: " << ah.nominalCrossSection();
-                std::cout << "\n\tRunName: " << ah.runName();
-                std::cout << "\n\tSqrtS: " << ah.sqrtS();
+                std::cout << "\n\tBeam IDs are " << ah->beamIds().first << ", " << ah->beamIds().second;
+                std::cout << "\n\tXS: " << ah->nominalCrossSection();
+                std::cout << "\n\tRunName: " << ah->runName();
+                std::cout << "\n\tSqrtS: " << ah->sqrtS();
                 std::cout << "\n\tList of available analyses: ";
-                for (auto analysis : ah.stdAnalysisNames()){
+                for (auto analysis : ah->stdAnalysisNames()){
                     std::cout << analysis << ", ";
                 }
                 std::cout << std::flush;
@@ -260,13 +260,13 @@ namespace Gambit
       void Contur_LHC_measurements_from_stream(Contur_output &result)
       {
         static std::vector<Contur_output> results;
-      
+
         using namespace Pipes::Contur_LHC_measurements_from_stream;
         if (*Loop::iteration == BASE_INIT)
         {
           results.clear();
         }
-        if (*Loop::iteration == COLLIDER_FINALIZE)
+        else if (*Loop::iteration == COLLIDER_FINALIZE)
         {
           Contur_output temp_result;
           std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
@@ -289,7 +289,7 @@ namespace Gambit
           results.push_back(temp_result);
 
           #ifdef COLLIDERBIT_DEBUG
-            std::cout << "\n\nSINGLE COLLIDER OBTAINED: ";
+            std::cout << "\n\nSINGLE COLLIDER CCONTUR OBTAINED: ";
             temp_result.print_Contur_output_debug();
           #endif
         }
@@ -304,8 +304,76 @@ namespace Gambit
             }
           }
           #ifdef COLLIDERBIT_DEBUG
-            std::cout << "\n\nFINAL RESULT OBTAINED: ";
+            std::cout << "\n\nFINAL RESULT CONTUR OBTAINED: ";
             result.print_Contur_output_debug();
+          #endif
+        }
+      }
+
+      void Multi_Contur_LHC_measurements_from_stream(Multi_Contur_output &result)
+      {
+
+        using namespace Pipes::Multi_Contur_LHC_measurements_from_stream;
+        static std::vector<Multi_Contur_output> results;
+        
+        if (*Loop::iteration == BASE_INIT)
+        {
+          results.clear();
+        }
+        else if (*Loop::iteration == COLLIDER_FINALIZE)
+        {
+          Multi_Contur_output temp_result;
+          std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
+
+          //Get the names of the contur instances we want to run.
+          static const std::vector<string> contur_names = runOptions->getValueOrDef<std::vector<std::string>>({"Contur"}, "Contur_names");
+
+          //Check that rivet actually ran. If not, produce an empty Contur_output object.
+          bool Rivet_ran;
+          if (yodastream == nullptr){
+            Rivet_ran = false;
+          } else Rivet_ran = true;
+
+          //Now we need to loop over the different Contur settings:
+
+
+
+          for (std::string contur_instance : contur_names){
+            std::shared_ptr<std::ostringstream> yodastreamcopy = yodastream;
+            if (Rivet_ran){
+              std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), contur_instance);
+              convert_yaml_options_for_contur(yaml_contur_options);
+              #pragma omp critical
+              {
+                ///Call contur
+                temp_result[contur_instance] = BEreq::Contur_Measurements(std::move(yodastreamcopy), yaml_contur_options);
+              } 
+            } else {
+              //Case rivet failed to run:
+              temp_result[contur_instance] = Contur_output();
+            }
+          }
+
+          results.push_back(temp_result);
+
+          #ifdef COLLIDERBIT_DEBUG
+            std::cout << "\n\nSINGLE COLLIDER CONTUR OBTAINED: ";
+            print_Multi_Contur_output_debug(temp_result);
+          #endif
+        }
+        else if (*Loop::iteration == BASE_FINALIZE){
+          if(results.size() == 0){
+            result = Multi_Contur_output{};
+          }
+          else {
+            result = results[0];
+            for(size_t i = 1; i < results.size(); ++i){
+              result = Gambit::merge_multi_contur_outputs(result, results[i]);
+            }
+          }
+          #ifdef COLLIDERBIT_DEBUG
+            std::cout << "\n\nFINAL RESULT CONTUR OBTAINED: ";
+            print_Multi_Contur_output_debug(result);
           #endif
         }
       }
@@ -338,6 +406,24 @@ namespace Gambit
         result = contur_likelihood_object.LLR;
       }
 
+      void Multi_Contur_LHC_measurements_LogLike_all(map_str_dbl &result)
+      {
+        using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_all;
+        Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+        
+        for (auto Contur_name : contur_likelihood_object){
+          result[Contur_name.first + "_LLR"] = Contur_name.second.LLR;
+        }
+      }
+
+      void Multi_Contur_LHC_measurements_LogLike_single(double &result)
+      {
+        using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_single;
+        Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+        static const std::string which_as_LLR = runOptions->getValueOrDef<str>("Contur", "Use_as_likelihood");
+        result = contur_likelihood_object[which_as_LLR].LLR;    
+      }
+
       void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
@@ -345,6 +431,24 @@ namespace Gambit
         summary_line << "LHC Contur LogLikes per pool: ";
         result = (*Dep::LHC_measurements).pool_LLR;
 
+        for( auto const& entry : result){
+          summary_line << entry.first << ":" << entry.second << ", ";
+        }
+        logger() << LogTags::debug << summary_line.str() << EOM;
+      }
+
+      void Multi_Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
+      {
+        result.clear();
+        using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_perPool;
+        std::stringstream summary_line;
+        summary_line << "LHC Contur LogLikes per pool: ";
+        Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+        for (const auto& contur_output_instance : contur_likelihood_object){
+          for (auto const& pool_LLR_entry : contur_output_instance.second.pool_LLR){
+            result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
+          }
+        }
         for( auto const& entry : result){
           summary_line << entry.first << ":" << entry.second << ", ";
         }
@@ -362,6 +466,25 @@ namespace Gambit
           summary_line << entry.first << ":" << entry.second << ", ";
         }
         
+        logger() << LogTags::debug << summary_line.str() << EOM;
+      }
+
+      void Multi_Contur_LHC_measurements_histotags_perPool(map_str_str &result)
+      {
+        result.clear();
+        using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_perPool;
+        std::stringstream summary_line;
+        summary_line << "LHC Contur LogLikes per pool: ";
+
+        Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+        for (const auto& contur_output_instance : contur_likelihood_object){
+          for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags){
+            result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
+          }
+        }
+        for( auto const& entry : result){
+          summary_line << entry.first << ":" << entry.second << ", ";
+        }
         logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
