@@ -72,8 +72,14 @@
       
     };
 
+    //For running Contur multiple times with different settings.
+    typedef std::map<std::string, Contur_output> Multi_Contur_output;
+
     //Helper function
     Contur_output merge_contur_outputs(const Contur_output& output1, const Contur_output& output2);
+    Multi_Contur_output merge_multi_contur_outputs(const Multi_Contur_output& output1, const Multi_Contur_output& output2);
+    
+    void print_Multi_Contur_output_debug(const Multi_Contur_output& multi_contur_out, std::ostream& outstream = std::cout);
 
   }
 #endif
