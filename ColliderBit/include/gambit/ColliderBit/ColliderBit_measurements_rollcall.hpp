@@ -118,6 +118,11 @@
       START_FUNCTION(map_str_str)
       DEPENDENCY(LHC_measurements, Contur_output)
       #undef FUNCTION
+
+      #define FUNCTION Multi_Contur_LHC_measurements_histotags_perPool
+      START_FUNCTION(map_str_str)
+      DEPENDENCY(LHC_measurements, Multi_Contur_output)
+      #undef FUNCTION
     #undef CAPABILITY
 
   #endif

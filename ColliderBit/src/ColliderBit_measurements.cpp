@@ -341,7 +341,7 @@ namespace Gambit
           for (std::string contur_instance : contur_names){
             std::shared_ptr<std::ostringstream> yodastreamcopy = yodastream;
             if (Rivet_ran){
-              std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), contur_instance);
+              static const std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), contur_instance);
               convert_yaml_options_for_contur(yaml_contur_options);
               #pragma omp critical
               {
@@ -420,11 +420,8 @@ namespace Gambit
       {
         using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_single;
         Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
-
-        for (auto Contur_name : contur_likelihood_object){
-          result = Contur_name.second.LLR;
-          return;
-        }
+        static const std::string which_as_LLR = runOptions->getValueOrDef<str>("Contur", "Use_as_likelihood");
+        result = contur_likelihood_object[which_as_LLR].LLR;    
       }
 
       void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
@@ -469,6 +466,25 @@ namespace Gambit
           summary_line << entry.first << ":" << entry.second << ", ";
         }
         
+        logger() << LogTags::debug << summary_line.str() << EOM;
+      }
+
+      void Multi_Contur_LHC_measurements_histotags_perPool(map_str_str &result)
+      {
+        result.clear();
+        using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_perPool;
+        std::stringstream summary_line;
+        summary_line << "LHC Contur LogLikes per pool: ";
+
+        Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
+        for (const auto& contur_output_instance : contur_likelihood_object){
+          for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags){
+            result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
+          }
+        }
+        for( auto const& entry : result){
+          summary_line << entry.first << ":" << entry.second << ", ";
+        }
         logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
