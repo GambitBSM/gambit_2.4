@@ -341,7 +341,7 @@ namespace Gambit
           for (std::string contur_instance : contur_names){
             std::shared_ptr<std::ostringstream> yodastreamcopy = yodastream;
             if (Rivet_ran){
-              static const std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), contur_instance);
+              std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), contur_instance);
               convert_yaml_options_for_contur(yaml_contur_options);
               #pragma omp critical
               {
