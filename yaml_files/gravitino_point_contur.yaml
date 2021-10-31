@@ -389,8 +389,8 @@ Rules:
     options:
       silenceLoop: false
       Pythia_SUSY_LHC_13TeV_EWonly:
-        min_nEvents: 10000
-        max_nEvents: 10000
+        min_nEvents: 1000
+        max_nEvents: 1000
         events_between_convergence_checks: 100000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: false
@@ -632,6 +632,9 @@ Rules:
 
   - capability: LHC_measurements_LogLike
     function: Contur_LHC_measurements_LogLike
+
+  - capability: LHC_measurements_LogLike_perPool
+    function: Contur_LHC_measurements_LogLike_perPool
 
 
 # Set the names of key log files
