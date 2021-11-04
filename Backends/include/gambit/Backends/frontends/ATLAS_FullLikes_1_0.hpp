@@ -25,7 +25,7 @@ LOAD_LIBRARY
 
 #ifdef HAVE_PYBIND11
 
-  BE_FUNCTION(FullLikeBackend, double, (PyDict&), "FullLikeBackend", "ATLAS_FullLikeBackend")
+  BE_FUNCTION(FullLikeBackend, double, (PyDict&,const str&), "FullLikeBackend", "ATLAS_FullLikeBackend")
   BE_FUNCTION(FullLikeRead, int, (str&), "ReadJsonFiles", "ATLAS_ReadJsonFiles")
 
 

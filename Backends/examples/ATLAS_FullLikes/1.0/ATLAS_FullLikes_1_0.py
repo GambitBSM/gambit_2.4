@@ -19,8 +19,11 @@ Required:
   - python >= v3.6 + pyhf
 Outputs:
   - Loglike (s+b) - Loglike (b) 
-todo:
+todo/Notes:
   - Calculating the loglike gives a pyhf Runtime warning about an invalid value inside of the calculation (may be unavoidable)
+  - Double Check that this works in the case of multiple analyses (needs more than 1 analysis using it)
+  - metadata is specific to the analysis (but makes no difference to the result). Only needs to be something like with right format/number of characters.
+    Decide on some standard values to put there.
 """
 
 import pyhf as pyhf
@@ -30,54 +33,65 @@ import jsonschema
 import numpy as np
 pyhf.set_backend("numpy")
 
-ws = None
-channelsample_dict = None
-Nbindict = None
+#channelsample_dict -> Nsamplesdict
 
+# Store global background data and info about number/organisation of JSON channels
+ws = {}
+Nsamplesdict = {}
+Nbindict = {}
+
+# Function to Read in background JSON files and store this in ws dictionary
 def ReadJsonFiles(AnalysisName):
-    # global workspace
     global ws
-    global channelsample_dict
+    global Nsamplesdict
     global Nbindict
+    
+    # Try to open the analysis bkg json file
     try:
       with open('Backends/examples/ATLAS_FullLikes/1.0/Analyses/' + AnalysisName + '/BkgOnly.json','r') as bkg:
         workspace = json.load(bkg)
 
-        # Finding the corresponding Data entry for a given signal region.
-        i = 0
-        channelsample_dict = {}
-        for channel in workspace["channels"]:
-          channelsample_dict[channel["name"]] = (i,len(channel["samples"]))
-          i = i+1
+        # Create empty dictionaries for the analysis
+        Nsamplesdict[AnalysisName] = {}
+        Nbindict[AnalysisName] = {}
 
-      Nbindict = {}
+        # Finding the location to add patch for a given signal region.
+        for i,channel in enumerate(workspace["channels"]):
+          Nsamplesdict[AnalysisName][channel["name"]] = (i,len(channel["samples"]))
+
+      # Count how many bins exist for a given data entry
       for channel in workspace["observations"]:
-        Nbindict[channel["name"]] = len(channel["data"])
+        Nbindict[AnalysisName][channel["name"]] = len(channel["data"])
 
+      # Load json scheme
       with open('Backends/examples/ATLAS_FullLikes/1.0/workspace.json','r') as wk:
         schema = json.load(wk)
 
-      # Validate the workspace against a scheme
-      jsonschema.validate(instance=workspace, schema=schema)
-      ws = pyhf.Workspace(workspace)
+      # Validate the workspace against a scheme (only needed for testing new bkg files)
+      #jsonschema.validate(instance=workspace, schema=schema)
+      
+      # Store the bkg info in a pyhf workspace
+      ws[AnalysisName] = pyhf.Workspace(workspace)
 
     except:
       return(1)
 
     return(0)
 
-def FullLikeBackend(mydict):
+# Evaluate a Likelihood for a given analysis and set of signal counts
+def FullLikeBackend(mydict,AnalysisName):
   # Creating the json patch
   data = {}
   
   # metadata must meet requirement in json scheme
+  # These aren't used in the calculation, but need to match the right format.
   data['metadata'] = {
       "description": "signal patchset for ColliderBit Analysis",
       "digests": {
               "sha256": "2563672e1a165384faf49f1431e921d88c9c07ec10f150d5045576564f98f820"
           },
       "labels": [
-              "comenergy"
+              "somenumber" # TODO: This doesn't matter what we choose, so what should we pick?
           ],
           "references": {
               "hepdata": "ins1755298"
@@ -90,28 +104,25 @@ def FullLikeBackend(mydict):
   Signal = {}
       
   # Add in the signal data to a patch
-  for key,value in channelsample_dict.items():
+  for key,value in Nsamplesdict[AnalysisName].items():
     Signal[str(value[0])+"_"+str(value[1])] = []
-    for i in range(Nbindict[key]):
-      #TODO Debugging prints
-      print(key+"_"+str(i))
-      print(mydict[key+"_"+str(i)])
+    for i in range(Nbindict[AnalysisName][key]):
       Signal[str(value[0])+"_"+str(value[1])].append(mydict[key+"_"+str(i)])
 
   data['patches'].append({
           "metadata":
               {
               "name": "SignalData",
-              "values": [13.0]
+              "values": [0.0]
               },})
   
 
   data['patches'][0]['patch'] = []
 
   # First calculating the LogLike for background only, by adding in a patch with a data entry of zero.
-  for key,value in channelsample_dict.items():
+  for key,value in Nsamplesdict[AnalysisName].items():
     BKG = []
-    for i in range(Nbindict[key]):
+    for i in range(Nbindict[AnalysisName][key]):
       BKG.append(0.0)
   
     data['patches'][0]['patch'].append(
@@ -138,11 +149,11 @@ def FullLikeBackend(mydict):
                   }
               },)
   PatchJson = pyhf.patchset.PatchSet(data)
-  model = ws.model(patches=PatchJson)
-  bestfit_pars, twice_nll_b = pyhf.infer.mle.fixed_poi_fit(1.,ws.data(model),model, return_fitted_val=True)
+  model = ws[AnalysisName].model(patches=PatchJson)
+  bestfit_pars, twice_nll_b = pyhf.infer.mle.fixed_poi_fit(1.,ws[AnalysisName].data(model),model, return_fitted_val=True)
   
   # Appending for each separate path
-  for key,value in channelsample_dict.items():
+  for key,value in Nsamplesdict[AnalysisName].items():
     data['patches'][0]['patch'].append(
               {
                   "op": "add",
@@ -169,8 +180,8 @@ def FullLikeBackend(mydict):
 
   # Patching the background data and setting the model
   PatchJson = pyhf.patchset.PatchSet(data)
-  model = ws.model(patches=PatchJson)
-  bestfit_pars, twice_nll_sb = pyhf.infer.mle.fixed_poi_fit(1.,ws.data(model),model, return_fitted_val=True)
+  model = ws[AnalysisName].model(patches=PatchJson)
+  bestfit_pars, twice_nll_sb = pyhf.infer.mle.fixed_poi_fit(1.,ws[AnalysisName].data(model),model, return_fitted_val=True)
 
   dll = (-0.5*twice_nll_sb) - (-0.5*twice_nll_b)
 

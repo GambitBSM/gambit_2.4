@@ -548,7 +548,7 @@ namespace Gambit
 	    
           }
 
-          ana_dll = BEreq::ATLAS_FullLikeBackend(mydict);
+          ana_dll = BEreq::ATLAS_FullLikeBackend(mydict,ananame);
           // Store Result
           result[ananame].combination_sr_label = "all";
           result[ananame].combination_sr_index = -1;

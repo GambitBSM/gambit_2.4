@@ -287,7 +287,7 @@
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
-    BACKEND_REQ(ATLAS_FullLikeBackend, (ATLAS_FullLikes), double, (PyDict&))
+    BACKEND_REQ(ATLAS_FullLikeBackend, (ATLAS_FullLikes), double, (PyDict&,const str&))
     #undef FUNCTION
   #undef CAPABILITY
 

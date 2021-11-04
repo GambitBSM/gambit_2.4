@@ -71,13 +71,13 @@ namespace Gambit
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
 
-        // Check analyses that use the FullLikes backend actually exist in this backend TODO: Currently just cout rather than throw error.
+        // Check analyses that use the FullLikes backend actually exist in this backend 
         std::vector<str> analysesFullLikes = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
         for (str& analysis : analysesFullLikes)
         {
           int FullLikes = BEreq::ATLAS_ReadJsonFiles(analysis);
           if (FullLikes) {
-            cout << "HEY THERE. You are trying to use ATLAS full likes even though I can't find the background data files for the anaysis: " << analysis << endl;
+            ColliderBit_error().raise(LOCAL_INFO,"Cannot find analysis background data file for ATLAS FullLikes backend");
           }
         }
 
