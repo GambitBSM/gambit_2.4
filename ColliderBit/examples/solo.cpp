@@ -22,9 +22,13 @@
 #define NULIKE_VERSION "1.0.7"
 #define NULIKE_SAFE_VERSION 1_0_7
 
+#define FULLLIKES_VERSION "1.0"
+#define FULLLIKES_SAFE_VERSION 1_0
+
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
 using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
+using namespace CAT(Backends::ATLAS_FullLikes_,FULLLIKES_SAFE_VERSION)::Functown;
 
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
@@ -43,6 +47,9 @@ int main(int argc, char* argv[])
 
     // Make sure that nulike is present.
     if (not Backends::backendInfo().works[str("nulike")+NULIKE_VERSION]) backend_error().raise(LOCAL_INFO, str("nulike ")+NULIKE_VERSION+" is missing!");
+
+    // Make sure that ATLAS FullLikes is present.
+    if (not Backends::backendInfo().works[str("ATLAS_FullLikes") + FULLLIKES_VERSION]) backend_error().raise(LOCAL_INFO, str("ATLAS_FullLikes")+FULLLIKES_VERSION" is missing!");
 
     // Print the banner (if you could call it that)
     cout << endl;
@@ -79,6 +86,8 @@ int main(int argc, char* argv[])
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
+    std::vector<str> FullLikes_analyses = settings.getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
+    
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
@@ -109,6 +118,9 @@ int main(int argc, char* argv[])
     CBS["max_nEvents"] = (long long)(1000000000);
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
+    
+    // Pass the list of analyses using the ATLAS FullLikes backend.
+    operateLHCLoop.setOption<std::vector<str> >("FullLikesAnalyses",FullLikes_analyses);
 
     // Pass the filename and the jet pt cutoff to the LHEF/HepMC reader function
     getEvent.setOption<str>((event_file_is_LHEF ? "lhef_filename" : "hepmc_filename"), event_filename);
@@ -132,6 +144,7 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.setOption<int>("covariance_nsamples_start", settings.getValue<int>("covariance_nsamples_start"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_abs", settings.getValue<double>("covariance_marg_convthres_abs"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_rel", settings.getValue<double>("covariance_marg_convthres_rel"));
+    calc_LHC_LogLikes.setOption<std::vector<str> >("FullLikesAnalyses",FullLikes_analyses);
 
     // Resolve ColliderBit dependencies and backend requirements
     calc_combined_LHC_LogLike.resolveDependency(&get_LHC_LogLike_per_analysis);
@@ -140,6 +153,8 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.resolveDependency(&CollectAnalyses);
     calc_LHC_LogLikes.resolveDependency(&operateLHCLoop);
     calc_LHC_LogLikes.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
+    operateLHCLoop.resolveBackendReq(&FullLikeRead);
+    calc_LHC_LogLikes.resolveBackendReq(&FullLikeBackend);
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);

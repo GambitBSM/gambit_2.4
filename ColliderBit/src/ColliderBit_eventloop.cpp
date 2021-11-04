@@ -66,18 +66,20 @@ namespace Gambit
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
+      static std::vector<str> analysesFullLikes;
       if (first)
       {
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
 
-        // Check analyses that use the FullLikes backend actually exist in this backend 
-        std::vector<str> analysesFullLikes = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
+        // Check analyses that use the FullLikes backend actually exist in this backend.
+        analysesFullLikes = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
+        
         for (str& analysis : analysesFullLikes)
         {
-          int FullLikes = BEreq::ATLAS_ReadJsonFiles(analysis);
-          if (FullLikes) {
-            ColliderBit_error().raise(LOCAL_INFO,"Cannot find analysis background data file for ATLAS FullLikes backend");
+          int FullLikes_err = BEreq::ATLAS_ReadJsonFiles(analysis);
+          if (FullLikes_err) {
+            ColliderBit_error().raise(LOCAL_INFO,"Requested ATLAS FullLikes backend for analysis " + analysis + ", but cannot find background JSON file.");
           }
         }
 
