@@ -33,8 +33,6 @@ import jsonschema
 import numpy as np
 pyhf.set_backend("numpy")
 
-#channelsample_dict -> Nsamplesdict
-
 # Store global background data and info about number/organisation of JSON channels
 ws = {}
 Nsamplesdict = {}
