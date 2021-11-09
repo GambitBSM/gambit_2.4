@@ -433,6 +433,8 @@ namespace Gambit
         const std::string ananame = adata.analysis_name;
         const size_t nSR = adata.size();
         const bool has_covar = adata.srcov.rows() > 0;
+        const bool has_FullLikes = adata.hasFullLikes();
+        const bool use_FullLikes = runOptions->getValueOrDef<bool>(false, "use_FullLikes");
 
         #ifdef COLLIDERBIT_DEBUG
           std::streamsize stream_precision = cout.precision();  // get current precision
@@ -526,29 +528,31 @@ namespace Gambit
         std::vector<str> analysesFullLikes = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
 
         // Check if analysis is to use ATLAS Full Likelihood backend
-        bool is_FullLikes = false;
-        for (auto& analysis : analysesFullLikes)
+        // If the json hasn't been read in, read it in 
+        bool FullLikes_jsonread = BEreq::FullLikes_FileExists(ananame);
+        if (has_FullLikes && !FullLikes_jsonread)
         {
-          if (analysis==ananame) {
-            is_FullLikes=true;
-            break;
+          if (BEreq::FullLikes_ReadIn(ananame,adata.bkgjson_path) != 0)
+          {
+            ColliderBit_error().raise(LOCAL_INFO,"Error: ATLAS FullLikes Failed to Read in BKG JSON file for analysis: " + ananame);
           }
         }
-
-        if (is_FullLikes)
+        
+        // If this Analysis uses ATLAS FullLikes backend, 
+        if (has_FullLikes && use_FullLikes)
         {
 
           //@todo: Do we need to do some form of check that pybind is defined?
-          pybind11::dict mydict;
+          pybind11::dict SRsignal;
 
           for (size_t SR = 0; SR < nSR; ++SR)
           {
             pybind11::str SRName = adata[SR].sr_label;
-            mydict[SRName] = adata[SR].n_sig_scaled;
+            SRsignal[SRName] = adata[SR].n_sig_scaled;
 	    
           }
 
-          ana_dll = BEreq::ATLAS_FullLikeBackend(mydict,ananame);
+          ana_dll = BEreq::FullLikes_Evaluate(SRsignal,ananame);
           // Store Result
           result[ananame].combination_sr_label = "all";
           result[ananame].combination_sr_index = -1;

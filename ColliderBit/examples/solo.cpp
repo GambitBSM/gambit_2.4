@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
-    std::vector<str> FullLikes_analyses = settings.getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
+    bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
     
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
@@ -119,9 +119,6 @@ int main(int argc, char* argv[])
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
     
-    // Pass the list of analyses using the ATLAS FullLikes backend.
-    operateLHCLoop.setOption<std::vector<str> >("FullLikesAnalyses",FullLikes_analyses);
-
     // Pass the filename and the jet pt cutoff to the LHEF/HepMC reader function
     getEvent.setOption<str>((event_file_is_LHEF ? "lhef_filename" : "hepmc_filename"), event_filename);
     getEvent.setOption<double>("jet_pt_min", jet_pt_min);
@@ -144,7 +141,7 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.setOption<int>("covariance_nsamples_start", settings.getValue<int>("covariance_nsamples_start"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_abs", settings.getValue<double>("covariance_marg_convthres_abs"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_rel", settings.getValue<double>("covariance_marg_convthres_rel"));
-    calc_LHC_LogLikes.setOption<std::vector<str> >("FullLikesAnalyses",FullLikes_analyses);
+    calc_LHC_LogLikes.setOption<bool>("use_FullLikes",use_FullLikes);
 
     // Resolve ColliderBit dependencies and backend requirements
     calc_combined_LHC_LogLike.resolveDependency(&get_LHC_LogLike_per_analysis);
@@ -153,8 +150,9 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.resolveDependency(&CollectAnalyses);
     calc_LHC_LogLikes.resolveDependency(&operateLHCLoop);
     calc_LHC_LogLikes.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
-    operateLHCLoop.resolveBackendReq(&FullLikeRead);
-    calc_LHC_LogLikes.resolveBackendReq(&FullLikeBackend);
+    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_FileExists);
+    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_ReadIn);
+    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_Evaluate);
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);
