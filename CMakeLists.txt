@@ -575,6 +575,12 @@ endif()
 # Add the main gambit sources and identify which modules are to be included.
 include(cmake/gambit.cmake)
 
+# Add backends and scanners
+include(cmake/externals.cmake)
+
+# Reprocess the ditch set into a comma-separated list again
+string (REPLACE ";" "," itch_with_commas "${itch}")
+
 # Identify the different harvester scripts
 set(MODULE_HARVESTER ${PROJECT_SOURCE_DIR}/Elements/scripts/module_harvester.py)
 set(BACKEND_HARVESTER ${PROJECT_SOURCE_DIR}/Backends/scripts/backend_harvester.py)
@@ -636,9 +642,6 @@ execute_process(RESULT_VARIABLE result COMMAND ${PYTHON_EXECUTABLE} ${update_cma
 check_result(${result} ${update_cmakelists})
 message("${Yellow}-- Updating GAMBIT module, backend, and printer CMake files - done.${ColourReset}")
 
-# Add backends and scanners
-include(cmake/externals.cmake)
-
 # Add GAMBIT subdirectories.
 add_subdirectory(Logs)
 add_subdirectory(Utils)
@@ -656,6 +659,10 @@ set(GAMBIT_ALL_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:
 foreach(bit ${GAMBIT_BITS})
   add_subdirectory(${bit})
   set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
+  # Add dependencies that need to be built before any bit
+  foreach(dep ${MODULE_DEPENDENCIES})
+    add_dependencies(${bit} ${dep})
+  endforeach()
 endforeach()
 
 # If ColliderBit is in use, make the collider_harvest step a dependency of ColliderBit
@@ -668,6 +675,10 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # If HepMC is in use, make it a dependency of ColliderBit
   if(NOT EXCLUDE_HEPMC)
     add_dependencies(ColliderBit hepmc)
+  endif()
+  # If YODA is in use, make it a dependency of ColliderBit
+  if(NOT EXCLUDE_YODA)
+    add_dependencies(ColliderBit yoda)
   endif()
 endif()
 

@@ -55,6 +55,7 @@ namespace Gambit
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
+      F(ATLAS_13TeV_2BoostedBosons_139invfb)         \
       F(ATLAS_13TeV_0LEP_13invfb)                    \
       F(ATLAS_13TeV_0LEP_36invfb)                    \
       F(ATLAS_13TeV_0LEP_139invfb)                   \
@@ -133,7 +134,14 @@ namespace Gambit
       F(CMS_13TeV_MultiLEP_Full_2SSLep_36invfb)      \
       F(CMS_13TeV_MultiLEP_Full_3Lep_36invfb)        \
       F(CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb) \
+      F(CMS_13TeV_MultiLEP_137invfb)                 \
       F(CMS_13TeV_MONOJET_36invfb)                   \
+      F(CMS_13TeV_MultiLEP_137invfb)                 \
+      F(CMS_13TeV_MultiLEP_2LEP_137invfb)            \
+      F(CMS_13TeV_MultiLEP_3LEP_137invfb)            \
+      F(CMS_13TeV_MultiLEP_3LEPTau_137invfb)         \
+      F(CMS_13TeV_MultiLEP_4LEP_137invfb)            \
+      F(CMS_13TeV_MultiLEP_4LEPTau_137invfb)         \
       F(CMS_8TeV_1LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_2LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_MultiLEP_20invfb)                   \

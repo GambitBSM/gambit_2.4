@@ -464,7 +464,6 @@ namespace Gambit
 
       if(*Loop::iteration == XSEC_CALCULATION)
       {
-
         // Get a copy of the SLHA1 spectrum that we can modify
         SLHAstruct slha(*Dep::SLHA1Spectrum);
 

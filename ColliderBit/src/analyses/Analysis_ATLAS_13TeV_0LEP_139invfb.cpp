@@ -7,6 +7,8 @@
 #include "Eigen/Eigen"
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
+// #define CHECK_CUTFLOW
+
 namespace Gambit {
   namespace ColliderBit {
 

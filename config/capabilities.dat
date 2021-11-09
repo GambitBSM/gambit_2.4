@@ -1,4 +1,3 @@
-# GAMBIT central capabilities description database
 #
 # GAMBIT will parse this file and try to match the entries
 # to the capabilities it has registered. If there are any
@@ -128,13 +127,13 @@ LibSecond_1_2_init: |
    Initialize the Python testing LibSecond backend, version 1.2.
 
 LibThird_1_0_init: |
-   Initialize the Python package testing LibThird backend, version 1.0.
+   Initialize the Python testing LibThird backend, version 1.0.
 
 LibThird_1_1_init: |
-   Initialize the Python package testing LibThird backend, version 1.1.
+   Initialize the Python testing LibThird backend, version 1.1.
 
 LibThird_1_2_init: |
-   Initialize the Python package testing LibThird backend, version 1.2.
+   Initialize the Python testing LibThird backend, version 1.2.
 
 initialize_capability: |
    Tester function for the initialization of backends.
@@ -181,7 +180,7 @@ SomeDouble: |
 SomeInt: |
    Example integer in libfirst and friends.
 
-SomeOtherInt: |
+someOtherInt: |
    Another example integer; in libthird.
 
 funcBE: |
@@ -1222,9 +1221,6 @@ sigma_SD_n: |
 
 DarkMatter_ID: |
    Contains string ID to identify dark matter particle.
-
-DarkMatterConj_ID: |
-   Contains string ID to identify the conjugate to the dark matter particle.
 
 RD_spectrum: |
    Contains degrees of freedom and masses of all (co)-annihilating
@@ -3182,12 +3178,28 @@ chargino_plus_1_decay_rates : |
 
 chargino_plus_1_decay_rates_SH : |
    Decays of the chargino+ 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
 
 chargino_plus_1_decay_rates_smallsplit : |
    Decays of the chargino+ 1 at small chargino--neutralino mass splittings.
+   Not including decays to gravitinos.
+
+chargino_plus_1_decay_rates_SH_or_smallsplit : |
+   Decays of the chargino+ 1, either calculated using SUSY-HIT or by DecayBit 
+   in the case of small chargino--neutralino mass splittings. Not including decays to gravitinos.
+
+chargino_plus_1_decay_rates_gravitino : |
+   Decays of the chargino+ 1 to gravitinos.
 
 chargino_plus_2_decay_rates : |
    Decays of the chargino+ 2.
+
+chargino_plus_2_decay_rates_SH : |
+   Decays of the chargino+ 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+chargino_plus_2_decay_rates_gravitino : |
+   Decays of the chargino+ 2 to gravitinos.
 
 mu_minus_decay_rates : |
   All decays of the μ- lepton.
@@ -3210,14 +3222,42 @@ rho1450_decay_rates : |
 neutralino_1_decay_rates : |
    Decays of the neutralino 1.
 
+neutralino_1_decay_rates_SH : |
+   Decays of the neutralino 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_1_decay_rates_gravitino : |
+   Decays of the neutralino 1 to gravitinos.
+
 neutralino_2_decay_rates : |
    Decays of the neutralino 2.
+
+neutralino_2_decay_rates_SH : |
+   Decays of the neutralino 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_2_decay_rates_gravitino : |
+   Decays of the neutralino 2 to gravitinos.
 
 neutralino_3_decay_rates : |
    Decays of the neutralino 3.
 
+neutralino_3_decay_rates_SH : |
+   Decays of the neutralino 3 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_3_decay_rates_gravitino : |
+   Decays of the neutralino 3 to gravitinos.
+
 neutralino_4_decay_rates : |
    Decays of the neutralino 4.
+
+neutralino_4_decay_rates_SH : |
+   Decays of the neutralino 4 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_4_decay_rates_gravitino : |
+   Decays of the neutralino 4 to gravitinos.
 
 SLHA1_violation: |
    Checks if the first or second generation left-right mixing exceeds the specified tolerance (which means that SLHA1 is an invalid format for this model point).
@@ -4127,6 +4167,144 @@ NUHM2_parameters: |
 
 CMSSM_parameters: |
    Parameters for the model CMSSM (see ./gambit CMSSM)
+
+MSSM10atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM10atQ_lightgravitino (see ./gambit MSSM10atQ_lightgravitino)
+
+MSSM10atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM10atQ_mA_lightgravitino (see ./gambit MSSM10atQ_mA_lightgravitino)
+
+MSSM10batQ_lightgravitino_parameters: |
+   Parameters for the model MSSM10batQ_lightgravitino (see ./gambit MSSM10batQ_lightgravitino)
+
+MSSM10batQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM10batQ_mA_lightgravitino (see ./gambit MSSM10batQ_mA_lightgravitino)
+
+MSSM10catQ_lightgravitino_parameters: |
+   Parameters for the model MSSM10catQ_lightgravitino (see ./gambit MSSM10catQ_lightgravitino)
+
+MSSM10catQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM10catQ_mA_lightgravitino (see ./gambit MSSM10catQ_mA_lightgravitino)
+
+MSSM11atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM11atQ_lightgravitino (see ./gambit MSSM11atQ_lightgravitino)
+
+MSSM11atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM11atQ_mA_lightgravitino (see ./gambit MSSM11atQ_mA_lightgravitino)
+
+MSSM15atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM15atQ_lightgravitino (see ./gambit MSSM15atQ_lightgravitino)
+
+MSSM15atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM15atQ_mA_lightgravitino (see ./gambit MSSM15atQ_mA_lightgravitino)
+
+MSSM16atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM16atQ_lightgravitino (see ./gambit MSSM16atQ_lightgravitino)
+
+MSSM16atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM16atQ_mA_lightgravitino (see ./gambit MSSM16atQ_mA_lightgravitino)
+
+MSSM19atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM19atQ_lightgravitino (see ./gambit MSSM19atQ_lightgravitino)
+
+MSSM19atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM19atQ_mA_lightgravitino (see ./gambit MSSM19atQ_mA_lightgravitino)
+
+MSSM20atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMGUT_lightgravitino (see ./gambit MSSM20atMGUT_lightgravitino)
+
+MSSM20atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMGUT_mA_lightgravitino (see ./gambit MSSM20atMGUT_mA_lightgravitino)
+
+MSSM20atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMSUSY_lightgravitino (see ./gambit MSSM20atMSUSY_lightgravitino)
+
+MSSM20atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMSUSY_mA_lightgravitino (see ./gambit MSSM20atMSUSY_mA_lightgravitino)
+
+MSSM20atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM20atQ_lightgravitino (see ./gambit MSSM20atQ_lightgravitino)
+
+MSSM20atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM20atQ_mA_lightgravitino (see ./gambit MSSM20atQ_mA_lightgravitino)
+
+MSSM24atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM24atQ_lightgravitino (see ./gambit MSSM24atQ_lightgravitino)
+
+MSSM24atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM24atQ_mA_lightgravitino (see ./gambit MSSM24atQ_mA_lightgravitino)
+
+MSSM25atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMGUT_lightgravitino (see ./gambit MSSM25atMGUT_lightgravitino)
+
+MSSM25atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMGUT_mA_lightgravitino (see ./gambit MSSM25atMGUT_mA_lightgravitino)
+
+MSSM25atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMSUSY_lightgravitino (see ./gambit MSSM25atMSUSY_lightgravitino)
+
+MSSM25atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMSUSY_mA_lightgravitino (see ./gambit MSSM25atMSUSY_mA_lightgravitino)
+
+MSSM25atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM25atQ_lightgravitino (see ./gambit MSSM25atQ_lightgravitino)
+
+MSSM25atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM25atQ_mA_lightgravitino (see ./gambit MSSM25atQ_mA_lightgravitino)
+
+MSSM30atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMGUT_lightgravitino (see ./gambit MSSM30atMGUT_lightgravitino)
+
+MSSM30atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMGUT_mA_lightgravitino (see ./gambit MSSM30atMGUT_mA_lightgravitino)
+
+MSSM30atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMSUSY_lightgravitino (see ./gambit MSSM30atMSUSY_lightgravitino)
+
+MSSM30atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMSUSY_mA_lightgravitino (see ./gambit MSSM30atMSUSY_mA_lightgravitino)
+
+MSSM30atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM30atQ_lightgravitino (see ./gambit MSSM30atQ_lightgravitino)
+
+MSSM30atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM30atQ_mA_lightgravitino (see ./gambit MSSM30atQ_mA_lightgravitino)
+
+MSSM63atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMGUT_lightgravitino (see ./gambit MSSM63atMGUT_lightgravitino)
+
+MSSM63atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMGUT_mA_lightgravitino (see ./gambit MSSM63atMGUT_mA_lightgravitino)
+
+MSSM63atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMSUSY_lightgravitino (see ./gambit MSSM63atMSUSY_lightgravitino)
+
+MSSM63atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMSUSY_mA_lightgravitino (see ./gambit MSSM63atMSUSY_mA_lightgravitino)
+
+MSSM63atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM63atQ_lightgravitino (see ./gambit MSSM63atQ_lightgravitino)
+
+MSSM63atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM63atQ_mA_lightgravitino (see ./gambit MSSM63atQ_mA_lightgravitino)
+
+MSSM7atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM7atQ_lightgravitino (see ./gambit MSSM7atQ_lightgravitino)
+
+MSSM7atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM7atQ_mA_lightgravitino (see ./gambit MSSM7atQ_mA_lightgravitino)
+
+MSSM9atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM9atQ_lightgravitino (see ./gambit MSSM9atQ_lightgravitino)
+
+MSSM9atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM9atQ_mA_lightgravitino (see ./gambit MSSM9atQ_mA_lightgravitino)
+
+MSSM9batQ_lightgravitino_parameters: |
+   Parameters for the model MSSM9batQ_lightgravitino (see ./gambit MSSM9batQ_lightgravitino)
+
+MSSM9batQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM9batQ_mA_lightgravitino (see ./gambit MSSM9batQ_mA_lightgravitino)
 
 NormalDist_parameters: |
    Parameters for the model NormalDist (see ./gambit NormalDist)
@@ -5636,12 +5814,35 @@ varNames: |
   CalcHEP's internal list of variable names.
 
 #------------------------
-#  Rivet capabilites
+#  Rivet & Contur capabilites
 #-----------------------
 
-Rivet_3_0_0_init: |
+Rivet_3_1_4_init: |
   Initialise Rivet backend
 
+Rivet_measurements: |
+  Run's rivet on current hepmc event. Creates output YODA object on COLLIDER_FINALISE
+
+addAnalysisLibPath: |
+  Wrapper for Rivet's addaAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
+
+Contur_2_1_1_init: |
+  Initialise Contur backend
+
+Contur_GetAnalyses: |
+  Wrapper for Contur's static_db.getAnalyses(). Gets a string vector of all the analyses known to this version of Contur for a given beam energy, e.g. "13TeV".
+
+LHC_measurements: |
+  Produces a Contur_output object. Typically will require some form of yoda input to run contur on.
+
+LHC_measurements_LogLike: |
+   Extracts the LLR from a Contur_output object (including factor -2 correction for GAMBIT).
+
+LHC_measurements_LogLike_perPool: |
+  Extracts a map_str_dbl containing each pool and its individual LLR contribution.
+
+LHC_measurements_histotags_perPool: |
+  Extracts the name, as a string, of the histogram(s) that provide exclusion for each bin. Useless except for single param points.
 
 #---------------------
 # DirecDM capabilities
@@ -5696,46 +5897,32 @@ pass_spectrum_to_vevacious: |
 
 gaussian: |
   Multi-dimensional Gaussian centered at 0.5 with diagonal covariances of 0.1^2.
-
 rosenbrock: |
   Multi-dimensional generalization of 2d Rosenbrock function. See https://en.wikipedia.org/wiki/Rosenbrock_function
-
 himmelblau: |
   Two-dimensional Himmelblau function. See https://en.wikipedia.org/wiki/Himmelblau%27s_function
-
 mccormick: |
   Two-dimensional McCormick function.
-
 ackley: |
   Multi-dimensional Ackely function. See https://en.wikipedia.org/wiki/Ackley_function
-
 eggbox: |
   Multi-dimensional eggbox function. Test problem 2 from https://arxiv.org/abs/1306.2144
-
 rastrigin: |
   Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function 
-
 beale: |
   Two-dimensional Beale function.
-
 shells: |
   Multi-dimensional Gausian shells. Test problem 1 from https://arxiv.org/abs/1306.2144
-
 styblinski_tang: |
   Multi-dimensional Styblinski-Tang function.
-
 easom: |
   Two-dimensional Easom function.
-
 tf1: |
   Analytic function 1 from https://arxiv.org/abs/2101.04525
-
 tf2: |
   Analytic function 2 from https://arxiv.org/abs/2101.04525
-
 tf3: |
   Analytic function 3 from https://arxiv.org/abs/2101.04525
-
 tf4: |
   Analytic function 4 from https://arxiv.org/abs/2101.04525
 
