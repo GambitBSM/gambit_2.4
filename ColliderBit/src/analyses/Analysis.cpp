@@ -112,6 +112,12 @@ namespace Gambit
     /// Add the given result to the internal results list.
     void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
 
+    /// Set the path to the FullLikes BKG file
+    void Analysis::set_bkgjson(const std::string& bkgpath)
+    { 
+      _results.bkgjson_path = bkgpath;
+    }
+
     /// Set the covariance matrix, expressing SR correlations
     void Analysis::set_covariance(const Eigen::MatrixXd& srcov) { _results.srcov = srcov; }
 

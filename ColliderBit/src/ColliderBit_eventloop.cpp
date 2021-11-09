@@ -72,17 +72,6 @@ namespace Gambit
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
 
-        // Check analyses that use the FullLikes backend actually exist in this backend.
-        analysesFullLikes = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "FullLikesAnalyses");
-        
-        for (str& analysis : analysesFullLikes)
-        {
-          int FullLikes_err = BEreq::ATLAS_ReadJsonFiles(analysis);
-          if (FullLikes_err) {
-            ColliderBit_error().raise(LOCAL_INFO,"Requested ATLAS FullLikes backend for analysis " + analysis + ", but cannot find background JSON file.");
-          }
-        }
-
         // Retrieve all the names of all entries in the yaml options node.
         std::vector<str> vec = runOptions->getNames();
         // Step though the names, and accept only those with a "min_nEvents" sub-entry as colliders.

@@ -55,6 +55,9 @@ namespace Gambit
         Cutflows _cutflows;
       #endif
 
+      // Path to location of BKG JSON file //TODO: Check after
+      std::string bkgjson_path = "data/blah.json";
+
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
@@ -64,6 +67,7 @@ namespace Gambit
         analysis_specific_reset();
         set_analysis_name("ATLAS_13TeV_1Lep2b_139invfb");
         set_luminosity(139.);
+        set_bkgjson("Backends/examples/ATLAS_FullLikes/1.0/Analyses/ATLAS_13TeV_1Lep2b_139invfb/BkgOnly.json");
 
         #ifdef CHECK_CUTFLOW
           // Book Cutflows
@@ -420,7 +424,7 @@ namespace Gambit
       }
 
       void collect_results() { 
-        //This is if not running ATLAS_FullLikes. 
+        //This data is used if not running ATLAS_FullLikes. 
         add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred

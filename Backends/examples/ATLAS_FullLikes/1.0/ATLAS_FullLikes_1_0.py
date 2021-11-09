@@ -22,7 +22,7 @@ Outputs:
 todo/Notes:
   - Calculating the loglike gives a pyhf Runtime warning about an invalid value inside of the calculation (may be unavoidable)
   - Double Check that this works in the case of multiple analyses (needs more than 1 analysis using it)
-  - metadata is specific to the analysis (but makes no difference to the result). Only needs to be something like with right format/number of characters.
+  - metadata is specific to the analysis (but makes no difference to the result). Only needs to be something with right format/number of characters.
     Decide on some standard values to put there.
 """
 
@@ -33,22 +33,48 @@ import jsonschema
 import numpy as np
 pyhf.set_backend("numpy")
 
-#channelsample_dict -> Nsamplesdict
-
 # Store global background data and info about number/organisation of JSON channels
 ws = {}
 Nsamplesdict = {}
 Nbindict = {}
 
-# Function to Read in background JSON files and store this in ws dictionary
-def ReadJsonFiles(AnalysisName):
+# Check whether this a particular analysis has been initialised
+def FileExists(AnalysisName):
+    global ws
+
+    if AnalysisName in ws.keys():
+        return True
+    else:
+        return False
+
+
+# Resets the contents for a given analysis
+# TODO: This is not currently being used
+def Reset(AnalysisName):
     global ws
     global Nsamplesdict
     global Nbindict
     
+    del ws[AnalysisName]
+    del Nsamplesdict[AnalysisName]
+    del Nbindict[AnalysisName]
+    return 0
+
+
+# Read in background JSON files and store this in ws dictionary
+def ReadIn(AnalysisName,bkgpath):
+    global ws
+    global Nsamplesdict
+    global Nbindict
+    
+    # First check that it hasn't already been loaded
+    if FileExists(AnalysisName):
+        print("FullLikes Error: Analysis ",AnalysisName," has been loaded twice")
+        return(-1)
+    
     # Try to open the analysis bkg json file
     try:
-      with open('Backends/examples/ATLAS_FullLikes/1.0/Analyses/' + AnalysisName + '/BkgOnly.json','r') as bkg:
+      with open(bkgpath,'r') as bkg:
         workspace = json.load(bkg)
 
         # Create empty dictionaries for the analysis
@@ -78,8 +104,9 @@ def ReadJsonFiles(AnalysisName):
 
     return(0)
 
+
 # Evaluate a Likelihood for a given analysis and set of signal counts
-def FullLikeBackend(mydict,AnalysisName):
+def Evaluate(mydict,AnalysisName):
   # Creating the json patch
   data = {}
   

@@ -25,8 +25,10 @@ LOAD_LIBRARY
 
 #ifdef HAVE_PYBIND11
 
-  BE_FUNCTION(FullLikeBackend, double, (PyDict&,const str&), "FullLikeBackend", "ATLAS_FullLikeBackend")
-  BE_FUNCTION(FullLikeRead, int, (str&), "ReadJsonFiles", "ATLAS_ReadJsonFiles")
+  BE_FUNCTION(FullLikes_Evaluate, double, (PyDict&,const str&), "Evaluate", "FullLikes_Evaluate")
+  BE_FUNCTION(FullLikes_ReadIn, int, (const str&,const str&), "ReadIn", "FullLikes_ReadIn")
+  BE_FUNCTION(FullLikes_FileExists,bool,(const str&),"FileExists","FullLikes_FileExists")
+  BE_FUNCTION(FullLikes_Reset,int,(const str&),"Reset","FullLikes_Reset") //TODO: Chris Chang. This is currently not used.
 
 
 #endif
