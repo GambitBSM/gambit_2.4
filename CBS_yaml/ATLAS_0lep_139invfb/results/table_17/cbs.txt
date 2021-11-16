@@ -1,0 +1,59 @@
+4j-1000 cut-flow:
+                                   Count    A_cumu    A_incr
+                                  6075.4      100%        - 
+Pass Pre-sel + MET + pT1 + meff   2562.0       42%       42%
+Pass Njet >= 2                    2557.4       42%      100%
+Pass Cleaning                     2504.4       41%       98%
+Pass Njet > x + pT1               1961.7       32%       78%
+Pass Dphi(j123,MET)min            1961.7       32%      100%
+Pass Dphi(j4+,MET)min             1617.4       27%       82%
+Pass pTx                           725.8       12%       45%
+Pass |eta_x|                       642.4       11%       89%
+Pass Aplanarity                    479.5        8%       75%
+Pass MET/sqrt(HT)                  178.4        3%       37%
+Pass m_eff(incl)                   177.8        3%      100%
+
+4j-2200 cut-flow:
+                                   Count    A_cumu    A_incr
+                                  6075.4      100%        - 
+Pass Pre-sel + MET + pT1 + meff   2562.0       42%       42%
+Pass Njet >= 2                    2557.4       42%      100%
+Pass Cleaning                     2504.4       41%       98%
+Pass Njet > x + pT1               1961.7       32%       78%
+Pass Dphi(j123,MET)min            1961.7       32%      100%
+Pass Dphi(j4+,MET)min             1617.4       27%       82%
+Pass pTx                           725.8       12%       45%
+Pass |eta_x|                       642.4       11%       89%
+Pass Aplanarity                    479.5        8%       75%
+Pass MET/sqrt(HT)                  178.4        3%       37%
+Pass m_eff(incl)                    22.2        0%       12%
+
+4j-3400 cut-flow:
+                                   Count    A_cumu    A_incr
+                                  6075.4      100%        - 
+Pass Pre-sel + MET + pT1 + meff   2562.0       42%       42%
+Pass Njet >= 2                    2557.4       42%      100%
+Pass Cleaning                     2504.4       41%       98%
+Pass Njet > x + pT1               1961.7       32%       78%
+Pass Dphi(j123,MET)min            1961.7       32%      100%
+Pass Dphi(j4+,MET)min             1617.4       27%       82%
+Pass pTx                           725.8       12%       45%
+Pass |eta_x|                       642.4       11%       89%
+Pass Aplanarity                    479.5        8%       75%
+Pass MET/sqrt(HT)                  440.2        7%       92%
+Pass m_eff(incl)                     1.5        0%        0%
+
+
+
+
+
+SRCOUNTS:
+882  458  65  1463  183  12  520  209  50  2  
+
+
+Read and analysed 50000 events from HepMC file.
+
+
+
+
+

@@ -60,7 +60,7 @@ Rules:
     function: getNextSLHAFileNameAndContent
     options:
       SLHA_filenames:
-        - ../CBS_yaml/ATLAS_8TeV_2LEPEW_20invfb/ATLAS_8TeV_2LEPEW_20invfb_figure_47_c350_n0_param_card.dat
+        - CBS_yaml/ATLAS_8TeV_2LEPEW_20invfb/ATLAS_8TeV_2LEPEW_20invfb_figure_47_c350_n0_param_card.dat
 
   # List the SLHA file entries that should be stored in the GAMBIT output.
   # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
@@ -93,8 +93,8 @@ Rules:
     function: generateEventPythia
     module: ColliderBit
     options:
-      drop_HepMC2_file: false
-      drop_HepMC3_file: true
+      drop_HepMC2_file: true
+      drop_HepMC3_file: false
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
@@ -103,8 +103,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_8TeV_SUSY:
-        min_nEvents: 100000
-        max_nEvents: 400000
+        min_nEvents: 50000
+        max_nEvents: 100000
 #        min_nEvents: 1000
 #        max_nEvents: 1000
         events_between_convergence_checks: 100000

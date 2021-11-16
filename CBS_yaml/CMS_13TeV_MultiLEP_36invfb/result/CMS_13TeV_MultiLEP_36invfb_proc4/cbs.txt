@@ -1,0 +1,13 @@
+All events	50000
+4 leptons	5242
+Low mass veto	5198
+Bjet veto	5151
+$E_{T}^{miss} > 100 GeV$	164
+
+
+
+16.8 pb * 35.9 fb−1 * 0.01
+
+
+
+19.782336

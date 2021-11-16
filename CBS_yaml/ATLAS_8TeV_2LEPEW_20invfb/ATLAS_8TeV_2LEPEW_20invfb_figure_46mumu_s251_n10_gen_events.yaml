@@ -93,8 +93,8 @@ Rules:
     function: generateEventPythia
     module: ColliderBit
     options:
-      drop_HepMC2_file: false
-      drop_HepMC3_file: true 
+      drop_HepMC2_file: true
+      drop_HepMC3_file: false
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.

@@ -1,0 +1,10 @@
+All events	50000
+3 leptons	1493
+Low mass \& conversion veto	1413
+Bjet veto	1405
+$E_{T}^{miss} > 50 GeV$	931
+$m_{T2} < 100 GeV$	875
+$m_{ll} < 75 GeV$	798
+
+
+0.78 * 35.9 * 1000 / 50000. * 798 = 446.9119

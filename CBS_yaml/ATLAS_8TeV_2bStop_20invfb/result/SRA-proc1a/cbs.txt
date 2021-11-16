@@ -1,0 +1,39 @@
+
+Read and analysed 50000 events from HepMC file.
+
+Analysis details:
+
+  ATLAS_8TeV_2bStop_20invfb: 
+    Signal region SRA15 (SR index 0):
+      Observed events: 102
+      SM prediction: 94 +/- 13
+      Signal prediction: 93.6498 +/- 1.79499
+      Log-likelihood: -12.1713
+    Signal region SRA20 (SR index 1):
+      Observed events: 48
+      SM prediction: 39 +/- 6
+      Signal prediction: 77.2387 +/- 1.63015
+      Log-likelihood: -19.5159
+    Signal region SRA25 (SR index 2):
+      Observed events: 14
+      SM prediction: 15.8 +/- 2.8
+      Signal prediction: 58.7289 +/- 1.42146
+      Log-likelihood: -33.8802
+    Signal region SRA30 (SR index 3):
+      Observed events: 7
+      SM prediction: 5.9 +/- 1.1
+      Signal prediction: 39.7031 +/- 1.16875
+      Log-likelihood: -24.4902
+    Signal region SRA35 (SR index 4):
+      Observed events: 3
+      SM prediction: 2.5 +/- 0.6
+      Signal prediction: 23.4985 +/- 0.899143
+      Log-likelihood: -16.0246
+    Signal region SRB (SR index 5):
+      Observed events: 65
+      SM prediction: 64 +/- 10
+      Signal prediction: 5.88322 +/- 0.449901
+      Log-likelihood: -0.0685742
+    Selected signal region: SRA25
+    Total log-likelihood for analysis:-33.8802
+

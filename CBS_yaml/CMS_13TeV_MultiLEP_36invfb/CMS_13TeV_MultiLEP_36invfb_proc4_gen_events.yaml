@@ -60,7 +60,7 @@ Rules:
     function: getNextSLHAFileNameAndContent
     options:
       SLHA_filenames:
-        - ../CBS_yaml/CMS_13TeV_MultiLEP_36invfb/CMS_13TeV_MultiLEP_36invfb_Table4_100_1.slha
+        - CBS_yaml/CMS_13TeV_MultiLEP_36invfb/CMS_13TeV_MultiLEP_36invfb_Table4_100_1.slha
 
   # List the SLHA file entries that should be stored in the GAMBIT output.
   # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
@@ -94,7 +94,7 @@ Rules:
     module: ColliderBit
     options:
       drop_HepMC2_file: true
-      drop_HepMC3_file: true
+      # drop_HepMC3_file: true
       # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
@@ -138,14 +138,16 @@ Rules:
           - PartonLevel:FSR = on
           - HadronLevel:all = on
           - SUSY:all = off
-          #- SUSY:qqbar2chi+-chi0 = on
           - SUSY:qqbar2chi0chi0 = on
-          - SUSY:idVecA = 1000022
-          - SUSY:idVecB = 1000022
-          #- SUSY:idA = 10000023
-          #- SUSY:idB = 10000024
+          - SUSY:idVecA = 1000023
+          - SUSY:idVecB = 1000023
+          #- SUSY:qqbar2chi+-chi0 = on
+          #- SUSY:idVecA = 1000023
+          #- SUSY:idVecB = 1000024
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
+          - 23:onMode = off
+          - 23:onIfAny = 11 13 15
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
