@@ -24,7 +24,9 @@ using namespace std;
 #include "gambit/ColliderBit/lhef2heputils.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
+#include "gambit/Utils/begin_ignore_warnings_hepmc.hpp"
 #include "HepMC3/LHEF.h"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 namespace Gambit
 {
@@ -33,9 +35,9 @@ namespace Gambit
   {
 
     /// A nested function that reads in Les Houches Event files and converts them to HEPUtils::Event format
-    void getLHEvent(HEPUtils::Event& result)
+    void getLHEvent_HEPUtils(HEPUtils::Event& result)
     {
-      using namespace Pipes::getLHEvent;
+      using namespace Pipes::getLHEvent_HEPUtils;
 
       result.clear();
 

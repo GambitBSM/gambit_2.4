@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     // Choose the event file reader according to file format
     if (debug) cout << "Reading " << (event_file_is_LHEF ? "LHEF" : "HepMC") << " file: " << event_filename << endl;
-    auto& getEvent = (event_file_is_LHEF ? getLHEvent : getHepMCEvent);
+    auto& getEvent = (event_file_is_LHEF ? getLHEvent_HEPUtils : getHepMCEvent_HEPUtils);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
@@ -218,11 +218,7 @@ int main(int argc, char* argv[])
         summary_line << "      Observed events: " << srData.n_obs << endl;
         summary_line << "      SM prediction: " << srData.n_bkg << " +/- " << combined_bg_uncertainty << endl;
         summary_line << "      Signal prediction: " << srData.n_sig_scaled << " +/- " << combined_s_uncertainty << endl;
-        auto loglike_it = analysis_loglikes.sr_loglikes.find(srData.sr_label);
-        if (loglike_it != analysis_loglikes.sr_loglikes.end())
-        {
-          summary_line << "      Log-likelihood: " << loglike_it->second << endl;
-        }
+        summary_line << "      Log-likelihood: " << analysis_loglikes.sr_loglikes.at(sr_index) << endl;
       }
       summary_line << "    Selected signal region: " << analysis_loglikes.combination_sr_label << endl;
       summary_line << "    Total log-likelihood for analysis:" << analysis_loglikes.combination_loglike << endl << endl;

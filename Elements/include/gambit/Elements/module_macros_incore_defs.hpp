@@ -48,6 +48,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Jul
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #ifndef __module_macros_incore_defs_hpp__
@@ -63,6 +67,7 @@
 #include "gambit/Elements/module_macros_common.hpp"
 #include "gambit/Elements/safety_bucket.hpp"
 #include "gambit/Elements/ini_functions.hpp"
+#include "gambit/Elements/elements_extras.hpp"
 #include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
@@ -103,7 +108,8 @@
 #else
   #define CORE_START_MODULE_COMMON(MODULE)                                     \
           CORE_START_MODULE_COMMON_MAIN(MODULE)                                \
-          const int module_registered = register_module(STRINGIFY(MODULE));
+          const int module_registered =                                        \
+            register_module(STRINGIFY(MODULE), SAFE_STRINGIFY(REFERENCE));
 #endif
 
 /// Redirection of \link START_MODULE() START_MODULE\endlink when invoked from

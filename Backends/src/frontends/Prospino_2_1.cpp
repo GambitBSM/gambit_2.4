@@ -17,8 +17,7 @@
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/Prospino_2_1.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
-
+#include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/version.hpp"
 
 #define BACKEND_DEBUG 0
@@ -28,7 +27,8 @@
 BE_NAMESPACE
 {
   // One giant map initializer:
-  static const std::map<PID_pair, prospino_settings> PID_pairs_to_prospino_settings {
+  static const std::map<PID_pair, prospino_settings> PID_pairs_to_prospino_settings
+  {
     //
     // Prospino settings: inlo, isq_ng_in, icoll_in, energy_in, i_error_in, finalState, ipart1, ipart2, isquark1_in, isquark2_in
     // gg
@@ -188,8 +188,6 @@ BE_NAMESPACE
 {
   Farray<Fdouble,0,99> process_specific_lowmass_mods(Farray<Fdouble,0,99> lowmass_in, const PID_pair& pid_pair, int& trust_level)
   {
-    cerr << "DEBUG: process_specific_lowmass_mods: pid_pair = " << pid_pair.str() << endl;
-
     // Copy input array to output array
     Farray<Fdouble,0,99> lowmass_out(lowmass_in);
 
@@ -271,13 +269,8 @@ BE_NAMESPACE
       int sign_mass_pid1 = lowmass_out(pid1_index) < 0 ? -1 : 1;
       int sign_mass_pid2 = lowmass_out(pid2_index) < 0 ? -1 : 1;
       
-      cerr << "DEBUG: Adjusting masses for " << abs_pid1 << " and " << abs_pid2 << endl;
-      cerr << "DEBUG: Masses before: " << lowmass_out(pid1_index) << " and " << lowmass_out(pid2_index) << endl;
-
       lowmass_out(pid1_index) = sign_mass_pid1 * (abs(lowmass_out(pid1_index)) + 0.5 * abs(delta_m));
       lowmass_out(pid2_index) = sign_mass_pid2 * (abs(lowmass_out(pid2_index)) + 0.5 * abs(delta_m));
-
-      cerr << "DEBUG: Masses after: " << lowmass_out(pid1_index) << " and " << lowmass_out(pid2_index) << endl;
 
       // Setting trust_level = 0, since we're in the region were we can't really trust the result
       trust_level = 0;
@@ -317,7 +310,7 @@ BE_INI_FUNCTION
     std::string prospino_dir = Backends::backendInfo().path_dir(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));
     Fstring<500> prospino_dir_in = prospino_dir.c_str();
     try{ prospino_gb_init(prospino_dir_in); }
-    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
   }
   scan_level = false;
 
@@ -553,7 +546,7 @@ BE_NAMESPACE
                     ps.final_state_in, ps.ipart1_in, ps.ipart2_in, ps.isquark1_in, ps.isquark2_in,
                     unimass, lowmass_mod, uu_in, vv_in, bw_in, mst_in, msb_in, msl_in);
     }
-    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
 
     // Fill the result map with the content of prospino_result
     map_str_dbl result;
@@ -566,8 +559,6 @@ BE_NAMESPACE
     result["NLO_ms[pb]"] = prospino_result(6);
 
     result["trust_level"] = static_cast<double>(trust_level);
-
-    cerr << "DEBUG: trust_level = " << trust_level << endl;
 
     return result;
   }

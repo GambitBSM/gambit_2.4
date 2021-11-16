@@ -1,13 +1,14 @@
 #ifndef __abstract_GAMBIT_hepmc_writer_Pythia_8_212_h__
 #define __abstract_GAMBIT_hepmc_writer_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <string>
 #include "wrapper_Pythia_decl.h"
-#include <cstddef>
-#include <iostream>
+#include "HepMC3/GenEvent.h"
 
 #include "identification.hpp"
 
@@ -26,6 +27,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 virtual void write_event_HepMC3__BOSS(Pythia8::Abstract_Pythia*) =0;
     
                 virtual void write_event_HepMC2__BOSS(Pythia8::Abstract_Pythia*) =0;
+    
+                virtual void convert_to_HepMC_event__BOSS(Pythia8::Abstract_Pythia*, ::HepMC3::GenEvent&) =0;
     
             public:
                 virtual void pointer_assign__BOSS(Abstract_GAMBIT_hepmc_writer*) =0;

@@ -37,7 +37,8 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
-///  \date 2019 Sep
+///  \date 2019 Sep, Oct
+///  \date 2002 Apr
 ///
 ///  *********************************************
 
@@ -55,7 +56,7 @@ namespace Gambit
 
     /// Drop a HepMC file for the event
     #ifndef EXCLUDE_HEPMC
-      template<typename PythiaT>
+      template<typename PythiaT, typename hepmc_writerT>
       void dropHepMCEventPy8Collider(const PythiaT* Pythia, const safe_ptr<Options>& runOptions)
       {
         // Write event to HepMC file
@@ -63,7 +64,7 @@ namespace Gambit
         static const bool drop_HepMC3_file = runOptions->getValueOrDef<bool>(false, "drop_HepMC3_file");
         if (drop_HepMC2_file or drop_HepMC3_file)
         {
-          thread_local Pythia_default::Pythia8::GAMBIT_hepmc_writer hepmc_writer;
+          thread_local hepmc_writerT hepmc_writer;
           thread_local bool first = true;
 
           if (first)
@@ -85,19 +86,15 @@ namespace Gambit
     #endif
 
     /// Generate a hard scattering event with Pythia
-    template<typename PythiaT, typename EventT>
-    void generateEventPy8Collider(HEPUtils::Event& event,
+    template<typename PythiaT, typename EventT, typename hepmc_writerT>
+    void generateEventPy8Collider(EventT& pythia_event,
                                   const MCLoopInfo& RunMC,
-                                  const Py8Collider<PythiaT,EventT>& HardScatteringSim,
-                                  const EventWeighterFunctionType& EventWeighterFunction,
+                                  const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
                                   const int iteration,
                                   void(*wrapup)(),
                                   const safe_ptr<Options>& runOptions)
     {
       static int nFailedEvents;
-      thread_local EventT pythia_event;
-      static const double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
-
 
       // If the event loop has not been entered yet, reset the counter for the number of failed events
       if (iteration == BASE_INIT)
@@ -113,9 +110,8 @@ namespace Gambit
       // If in any other special iteration, do nothing
       if (iteration < BASE_INIT) return;
 
-      // Reset the Pythia and HEPUtils events
+      // Reset the Pythia event
       pythia_event.clear();
-      event.clear();
 
       // Attempt (possibly repeatedly) to generate an event
       while(nFailedEvents <= RunMC.current_maxFailedEvents())
@@ -129,7 +125,7 @@ namespace Gambit
           HardScatteringSim.nextEvent(pythia_event);
           break;
         }
-        catch (typename Py8Collider<PythiaT,EventT>::EventGenerationError& e)
+        catch (typename Py8Collider<PythiaT,EventT,hepmc_writerT>::EventGenerationError& e)
         {
           #ifdef COLLIDERBIT_DEBUG
           cerr << DEBUG_PREFIX << "Py8Collider::EventGenerationError caught in generateEventPy8Collider. Check the ColliderBit log for event details." << endl;
@@ -160,9 +156,30 @@ namespace Gambit
       }
 
       #ifndef EXCLUDE_HEPMC
-        dropHepMCEventPy8Collider<PythiaT>(HardScatteringSim.pythia(), runOptions);
+        dropHepMCEventPy8Collider<PythiaT,hepmc_writerT>(HardScatteringSim.pythia(), runOptions);
       #endif
 
+    }
+
+    /// Generate a hard scattering event with Pythia and convert it to HEPUtils::Event
+    template<typename PythiaT, typename EventT, typename hepmc_writerT>
+    void convertEventToHEPUtilsPy8Collider(HEPUtils::Event& event,
+                                  const EventT &pythia_event,
+                                  const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
+                                  const EventWeighterFunctionType& EventWeighterFunction,
+                                  const int iteration,
+                                  void(*wrapup)(),
+                                  const safe_ptr<Options>& runOptions)
+ 
+    {
+
+      // If in any other special iteration, do nothing
+      if (iteration <= BASE_INIT) return;
+
+      // Clear the HEPUtils event
+      event.clear();
+
+      static const double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
 
       // Attempt to convert the Pythia event to a HEPUtils event
       try
@@ -176,7 +193,7 @@ namespace Gambit
       catch (Gambit::exception& e)
       {
         #ifdef COLLIDERBIT_DEBUG
-          cerr << DEBUG_PREFIX << "Gambit::exception caught during event conversion in generateEventPy8Collider. Check the ColliderBit log for details." << endl;
+          cout << DEBUG_PREFIX << "Gambit::exception caught during event conversion in convertEventToHEPUtilsPy8Collider. Check the ColliderBit log for details." << endl;
         #endif
 
         #pragma omp critical (event_conversion_error)
@@ -184,10 +201,10 @@ namespace Gambit
           // Store Pythia event record in the logs
           std::stringstream ss;
           pythia_event.list(ss, 1);
-          logger() << LogTags::debug << "Gambit::exception caught in generateEventPy8Collider. Pythia record for event that failed:\n" << ss.str() << EOM;
+          logger() << LogTags::debug << "Gambit::exception caught in convetEventToHEPUtilsPy8Collider. Pythia record for event that failed:\n" << ss.str() << EOM;
         }
 
-        str errmsg = "Bad point: generateEventPy8Collider caught the following runtime error: ";
+        str errmsg = "Bad point: convertEventToHEPUtilsPy8Collider caught the following runtime error: ";
         errmsg    += e.what();
         piped_invalid_point.request(errmsg);
         wrapup();
@@ -198,16 +215,113 @@ namespace Gambit
       EventWeighterFunction(event, &HardScatteringSim);
     }
 
+    #ifndef EXCLUDE_HEPMC
+      /// Generate a hard scattering event with Pythia and convert it to HepMC event
+      template<typename PythiaT, typename EventT, typename hepmc_writerT>
+      void convertEventToHepMCPy8Collider(HepMC3::GenEvent& event,
+                                    const EventT &pythia_event,
+                                    const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
+                                    const int iteration,
+                                    void(*wrapup)())
+      {
+
+        // If in any other special iteration, do nothing
+        if (iteration <= BASE_INIT) return;
+
+        // Clear the HepMC event
+        event.clear();
+
+        // Attempt to convert the Pythia event to a HepMC event
+        try
+        {
+          thread_local hepmc_writerT hepmc_writer;
+          thread_local bool first = true;
+
+          if (first)
+          {
+            hepmc_writer.init("", false, false);
+            first = false;
+          }
+
+          hepmc_writer.convert_to_HepMC_event(const_cast<PythiaT*>(HardScatteringSim.pythia()), event);
+        }
+        // No good.
+        catch (Gambit::exception& e)
+        {
+          #ifdef COLLIDERBIT_DEBUG
+            cout << DEBUG_PREFIX << "Gambit::exception caught during event conversion in convertEventToHepMCPy8Collider. Check the ColliderBit log for details." << endl;
+          #endif
+
+          #pragma omp critical (event_conversion_error)
+          {
+            // Store Pythia event record in the logs
+            std::stringstream ss;
+            pythia_event.list(ss, 1);
+            logger() << LogTags::debug << "Gambit::exception caught in convertEventToHepMCPy8Collider. Pythia record for event that failed:\n" << ss.str() << EOM;
+          }
+
+          str errmsg = "Bad point: convertEventToHepMCPy8Collider caught the following runtime error: ";
+          errmsg    += e.what();
+          piped_invalid_point.request(errmsg);
+          wrapup();
+          return;
+        }
+
+      }
+    #endif
+
+
     /// Generate a hard scattering event with a specific Pythia,
-    #define GET_PYTHIA_EVENT(NAME)                               \
-    void NAME(HEPUtils::Event& result)                           \
+//    #define GET_PYTHIA_EVENT_3(NAME, PYTHIA_EVENT_TYPE, HEPMC)   \
+
+    #define GET_PYTHIA_EVENT(NAME, PYTHIA_EVENT_TYPE)            \
+    void NAME(PYTHIA_EVENT_TYPE &result)                         \
     {                                                            \
       using namespace Pipes::NAME;                               \
       generateEventPy8Collider(result, *Dep::RunMC,              \
-       *Dep::HardScatteringSim, *Dep::EventWeighterFunction,     \
-       *Loop::iteration, Loop::wrapup,runOptions);               \
-    }
+       *Dep::HardScatteringSim, *Loop::iteration,                \
+       Loop::wrapup, runOptions);                                \
+                                                                 \
+    }                                                            \
+                                                                 \
+    void CAT(NAME,_HEPUtils)(HEPUtils::Event& result)            \
+    {                                                            \
+      using namespace Pipes::CAT(NAME,_HEPUtils);                \
+      convertEventToHEPUtilsPy8Collider(result,                  \
+       *Dep::HardScatteringEvent, *Dep::HardScatteringSim,       \
+       *Dep::EventWeighterFunction, *Loop::iteration,            \
+       Loop::wrapup, runOptions);                                \
+    }                                                            \
+                                                                 \
+    IF_NOT_DEFINED(EXCLUDE_HEPMC,                                \
+        void CAT(NAME,_HepMC)(HepMC3::GenEvent& result)          \
+        {                                                        \
+          using namespace Pipes::CAT(NAME,_HepMC);               \
+          convertEventToHepMCPy8Collider(result,                 \
+           *Dep::HardScatteringEvent, *Dep::HardScatteringSim,   \
+           *Loop::iteration, Loop::wrapup);                      \
+        }                                                        \
+    )
+
+//    #define GET_PYTHIA_EVENT_2(NAME, PYTHIA_EVENT_TYPE)          \
+      GET_PYTHIA_EVENT_3(NAME, PYTHIA_EVENT_TYPE, WITHOUT_HEPMC)
+
+//    #define GET_PYTHIA_EVENT(...)  VARARG(GET_PYTHIA_EVENT, __VA_ARGS__)
 
   }
+
+/*
+    IF_NOT_DEFINED(EXCLUDE_HEPMC,                                \
+      BOOST_PP_IIF(HEPMC,                                        \
+        void CAT(NAME,_HepMC)(HepMC3::GenEvent& result)          \
+        {                                                        \
+          using namespace Pipes::CAT(NAME,_HepMC);               \
+          convertEventToHepMCPy8Collider(result,                 \
+           *Dep::HardScatteringEvent, *Dep::HardScatteringSim,   \
+           Loop::wrapup);                                        \
+        }                                                        \
+      ,)                                                         \
+    )
+*/
 
 }

@@ -2,7 +2,8 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "Eigen/Eigen"
+
+// #define CHECK_CUTFLOW
 
 namespace Gambit {
   namespace ColliderBit {
@@ -221,13 +222,15 @@ namespace Gambit {
 
 
         // Cutflow printout
-        // const double sf = 137*crossSection()/femtobarn/sumOfWeights();
-        // _cutflows.scale(sf);
-        cout << "\nCUTFLOWS:\n" << _cutflow << "\n" << endl;
-        cout << "\nSRCOUNTS:\n";
-        // Note: The sum() call below gives the raw event count. Use weight_sum() for the sum of event weights.
-        for (auto& pair : _counters) cout << pair.second.sum() << "  ";
-        cout << "\n" << endl;
+        #ifdef CHECK_CUTFLOW
+          // const double sf = 137*crossSection()/femtobarn/sumOfWeights();
+          // _cutflows.scale(sf);
+          cout << "\nCUTFLOWS:\n" << _cutflow << "\n" << endl;
+          cout << "\nSRCOUNTS:\n";
+          // Note: The sum() call below gives the raw event count. Use weight_sum() for the sum of event weights.
+          for (auto& pair : _counters) cout << pair.second.sum() << "  ";
+          cout << "\n" << endl;
+        #endif
       }
 
 
