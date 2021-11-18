@@ -3,7 +3,10 @@
 ///  \date 2019 June
 ///  *********************************************
 
-// Based on http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-19-008/index.html
+// Based on: 
+// - http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-19-008/index.html
+// - http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-19-008/index.html
+
 // Search for physics beyond the standard model in events with two same-sign leptons or at least three leptons and jets in proton-proton collisions at 13 TeV
 
 // Note:
