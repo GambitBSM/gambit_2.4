@@ -301,16 +301,17 @@ namespace Gambit {
 
         // RT4
         // Only used in aj regions -> use |jet eta| < 2.5
-        double RT4 = 0.;
-        if(jets25.size() > 3){
+        double RT4 = 1.;
+        if(jets25.size() > 3)
+        {
           RT4 = jets25[0]->pT() + jets25[1]->pT() + jets25[2]->pT() + jets25[3]->pT();
+          double denom=0.;
+          for(const HEPUtils::Jet* jet : jets25)
+          {
+            denom += jet->pT();
+          }
+          RT4 = RT4 / denom;
         }
-        double denom=0.;
-        for(const HEPUtils::Jet* jet : jets25){
-          denom += jet->pT();
-        }
-        RT4=RT4/denom;
-
 
 
         // All variables are now done
