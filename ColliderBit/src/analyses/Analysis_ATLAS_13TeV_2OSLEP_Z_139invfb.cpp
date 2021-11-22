@@ -118,7 +118,7 @@ namespace Gambit
         //  _test2++;
 
         // Initialize cutflow
-        for(int i=0; i<6; i++)
+        for(int i=0; i<_cutflow.size(); i++)
           _cutflow[i].fillinit();
 
         // Electron candidates are reconstructed from isolated electromagnetic calorimeter energy deposits matched to ID tracks and are required to have |η| < 2.47, a transverse momentum pT > 4.5 GeV, and to pass the “LooseAndBLayer” requirement in arXiv: 1902.04655 [hep-ex].
