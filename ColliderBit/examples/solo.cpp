@@ -12,6 +12,10 @@
 ///  (p.scott@imperial.ac.uk)
 ///  \date May 2019
 ///
+///  \author Tomek Procter
+///  (t.procter.1@research.gla.ac.uk)
+///  \date November 2021
+///
 ///  *********************************************
 
 #include "gambit/Elements/standalone_module.hpp"
@@ -19,8 +23,8 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
 
-#define NULIKE_VERSION "1.0.7"
-#define NULIKE_SAFE_VERSION 1_0_7
+#define NULIKE_VERSION "1.0.9"
+#define NULIKE_SAFE_VERSION 1_0_9
 
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
@@ -108,7 +112,7 @@ int main(int argc, char* argv[])
     CBS["min_nEvents"] = (long long)(1000);
     CBS["max_nEvents"] = (long long)(1000000000);
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
-    operateLHCLoop.setOption<bool>("silenceLoop", not debug);
+    //operateLHCLoop.setOption<bool>("silenceLoop", not debug);//DEBUG ONLY-UNCOMMENT LATER
 
     // Pass the filename and the jet pt cutoff to the LHEF/HepMC reader function
     getEvent.setOption<str>((event_file_is_LHEF ? "lhef_filename" : "hepmc_filename"), event_filename);
@@ -134,7 +138,7 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_rel", settings.getValue<double>("covariance_marg_convthres_rel"));
 
     // Resolve ColliderBit dependencies and backend requirements
-    calc_combined_LHC_LogLike.resolveDependency(&get_LHC_LogLike_per_analysis);
+    calc_combined_LHC_LogLike.resolveDependency(&calc_LHC_LogLikes);
     calc_combined_LHC_LogLike.resolveDependency(&operateLHCLoop);
     get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes);
     calc_LHC_LogLikes.resolveDependency(&CollectAnalyses);
@@ -191,7 +195,7 @@ int main(int argc, char* argv[])
     operateLHCLoop.setNestedList(nested_functions);
 
     // Call the initialisation function for nulike
-    nulike_1_0_7_init.reset_and_calculate();
+    nulike_1_0_9_init.reset_and_calculate();
 
     // Run the detector sim and selected analyses on all the events read in.
     operateLHCLoop.reset_and_calculate();
