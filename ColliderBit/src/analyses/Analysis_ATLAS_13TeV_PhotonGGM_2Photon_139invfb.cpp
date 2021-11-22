@@ -26,12 +26,6 @@ using namespace std;
 ///
 /// @author Anders Kvellestad
 ///
-/// Known issues:
-///
-/// 1) Photon isolation requirement is missing
-/// 2) They use a bizarre HT definition where they don't apply overlap removal
-///    between photons and jets. This might not work for us, since jets won't be
-///    made by photons in our events.
 ///
 ///
 
