@@ -34,7 +34,7 @@ namespace Gambit
   namespace ColliderBit 
   {
 
-    class Analysis_ATLAS_13TeV_PhotonGGM_2Photon_139invfb : public Analysis
+    class Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb : public Analysis
     {
     protected:
 
@@ -51,9 +51,9 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_ATLAS_13TeV_PhotonGGM_2Photon_139invfb() 
+      Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb() 
       {
-        set_analysis_name("ATLAS_13TeV_PhotonGGM_2Photon_139invfb");
+        set_analysis_name("ATLAS_13TeV_PhotonGGM_1Photon_139invfb");
         set_luminosity(139.);
       }
 
@@ -217,8 +217,8 @@ namespace Gambit
       /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
       void combine(const Analysis* other)
       {
-        const Analysis_ATLAS_13TeV_PhotonGGM_2Photon_139invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_13TeV_PhotonGGM_2Photon_139invfb*>(other);
+        const Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb* specificOther
+          = dynamic_cast<const Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb*>(other);
 
         for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
@@ -245,7 +245,7 @@ namespace Gambit
     };
 
     // Factory function
-    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_PhotonGGM_2Photon_139invfb)
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)
 
 
   }
