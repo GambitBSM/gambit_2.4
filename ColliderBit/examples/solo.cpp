@@ -29,24 +29,23 @@
 
 #define RIVET_VERSION "3.1.4"
 #define RIVET_SAFE_VERSION 3_1_4
-
 #define CONTUR_VERSION "2.1.1"
 #define CONTUR_SAFE_VERSION 2_1_1
 
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
 using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
-
+#ifndef EXCLUDE_YODA
 using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
+#endif
 
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
 {
 
-  // try
-  // {
-
+  try
+  {
     // Check the number of command line arguments
     if (argc < 2)
     {
@@ -91,26 +90,6 @@ int main(int argc, char* argv[])
       throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
     }
 
-    //Check if Rivet&Contur enabled.
-    bool withRivet;
-    bool withContur;
-    Options rivet_settings, contur_settings;
-    if (infile["rivet-settings"]) {
-      withRivet = true;
-      rivet_settings = Options(infile["rivet-settings"]);
-    } else {withRivet = false;}
-    if (infile["contur-settings"]) {
-      withContur = true;
-      contur_settings = Options(infile["contur-settings"]);
-    } else {withContur = false;}
-    //Need both enabled
-    if (withContur && !withRivet){
-      throw std::runtime_error("Can't run contur without rivet. Try adding a rivet-settings section to your yaml-file. Quitting...");
-    }
-    else if (!withContur && withRivet){
-      throw std::runtime_error("Can't run rivet without contur. Try adding a contur-settings section to your yaml-file. Quitting...");
-    }
-    std::cout << withContur << "\t" << withRivet << std::endl;
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
@@ -123,6 +102,50 @@ int main(int argc, char* argv[])
                                 || Gambit::Utils::endsWith(event_filename, ".hepmc3") );
     if (not event_file_is_LHEF and not event_file_is_HepMC)
      throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .lhe or .hepmc.");
+
+    //Check if Rivet&Contur requested and/or enabled then extract options from yaml
+    bool withRivet;
+    bool withContur;
+    #ifdef EXCLUDE_YODA
+    withRivet = false; withContur = false;
+    if (infile["rivet-settings"] || infile["contur-settings"]){
+      throw std::runtime_error("Running Rivet and Contur requires GAMBIT/CBS to be built with YODA. Quitting...");
+    }
+    #else
+    Options rivet_settings;
+    std::vector<std::string> contur_options;
+    try{
+      if (infile["rivet-settings"]) {
+        withRivet = true;
+        rivet_settings = Options(infile["rivet-settings"]);
+      } else {withRivet = false;}
+      if (infile["contur-settings"]) {
+        withContur = true;
+        contur_options = infile["contur-settings"].as<std::vector<std::string>>();
+      } else {withContur = false;}
+      //Need both enabled
+      if (withContur && !withRivet){
+        throw std::runtime_error("Can't run contur without rivet. Try adding a rivet-settings section to your yaml-file. Quitting...");
+      }
+      else if (!withContur && withRivet){
+        throw std::runtime_error("Can't run rivet without contur. Try adding a contur-settings section to your yaml-file. Quitting...");
+      }
+      else if (withContur && withRivet){
+        if (!event_file_is_HepMC){
+          throw std::runtime_error("Rivet requires data in HepMC format. Quitting...");
+        } else {
+        //Ok, we're good to go with Rivet and Contur,
+        //TODO: Proper citation message?
+        std::cout << "\nUsing RIVET " << RIVET_VERSION << " and CONTUR " <<
+          CONTUR_VERSION << " on this run.\n";
+        }
+      }
+    }
+    catch (YAML::Exception &e)
+    {
+      throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
+    }
+    #endif
 
     // Choose the event file reader according to file format
     if (debug) cout << "Reading " << (event_file_is_LHEF ? "LHEF" : "HepMC") << " file: " << event_filename << endl;
@@ -145,13 +168,11 @@ int main(int argc, char* argv[])
     CBS["min_nEvents"] = (long long)(1000);
     CBS["max_nEvents"] = (long long)(1000000000);
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
-    //operateLHCLoop.setOption<bool>("silenceLoop", not debug);//DEBUG ONLY-UNCOMMENT LATER
+    operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 
     // Pass the filename and the jet pt cutoff to the LHEF/HepMC reader function
     getEvent.setOption<str>((event_file_is_LHEF ? "lhef_filename" : "hepmc_filename"), event_filename);
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
-
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
 
     // Pass options to the cross-section function
     if (settings.hasKey("cross_section_pb"))
@@ -167,15 +188,13 @@ int main(int argc, char* argv[])
       else { getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
     }
 
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
-
     // Pass options to the likelihood function
     //TODO @TP: I can't see any actual code that uses these. Are they redundant? Do they need to be updated to new names?
     calc_LHC_LogLikes.setOption<int>("covariance_nsamples_start", settings.getValue<int>("covariance_nsamples_start"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_abs", settings.getValue<double>("covariance_marg_convthres_abs"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_rel", settings.getValue<double>("covariance_marg_convthres_rel"));
 
-    //if Rivet/Contur, se rivet/contur options
+    //if Rivet/Contur, set rivet/contur options
     if (withRivet){
       Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValue<bool>("drop_YODA_file"));
       Rivet_measurements.setOption<bool>("runningStandalone", true);
@@ -183,9 +202,9 @@ int main(int argc, char* argv[])
                                                 rivet_settings.getValue<std::vector<std::string>>("analyses"));
       Rivet_measurements.setOption<std::vector<std::string>>("exclude_analyses",
                                                 rivet_settings.getValue<std::vector<std::string>>("exclude_analyses"));
+      std::vector<std::string> contur_options = infile["contur-settings"].as<std::vector<std::string>>();
+      Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);                                             
     }
-
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
 
     // Resolve ColliderBit dependencies and backend requirements
     convertEvent.resolveDependency(&getEvent);
@@ -213,14 +232,17 @@ int main(int argc, char* argv[])
     smearEventCMS.resolveDependency(&convertEvent);
     copyEvent.resolveDependency(&getBuckFastIdentity);
     copyEvent.resolveDependency(&convertEvent);
-    //If using Rivet, resolve rivet dependencies:
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+    //If using Rivet/Contur, resolve rivet/contur dependencies:
     if (withRivet){
       Rivet_measurements.resolveDependency(&getEvent);
       Rivet_measurements.resolveBackendReq(&Contur_get_analyses_from_beam);
-    }
 
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+      Contur_LHC_measurements_from_stream.resolveDependency(&Rivet_measurements);
+      Contur_LHC_measurements_from_stream.resolveBackendReq(&Contur_LogLike_from_stream);
+      Contur_LHC_measurements_LogLike.resolveDependency(&Contur_LHC_measurements_from_stream);
+      Contur_LHC_measurements_LogLike_perPool.resolveDependency(&Contur_LHC_measurements_from_stream);
+      Contur_LHC_measurements_histotags_perPool.resolveDependency(&Contur_LHC_measurements_from_stream);
+    }
 
     // Resolve loop manager for ColliderBit event loop
     getEvent.resolveLoopManager(&operateLHCLoop);
@@ -253,20 +275,23 @@ int main(int argc, char* argv[])
                                                                   &runATLASAnalyses,
                                                                   &runCMSAnalyses,
                                                                   &runIdentityAnalyses);                                                            
-    //if using contur and rivet: add contur&rivet functions:
+    //if using contur and rivet:
     if (withRivet){
       Rivet_measurements.resolveLoopManager(&operateLHCLoop);
+      Contur_LHC_measurements_from_stream.resolveLoopManager(&operateLHCLoop);
 
       nested_functions.push_back(&Rivet_measurements);
+      nested_functions.push_back(&Contur_LHC_measurements_from_stream);
     }
 
     operateLHCLoop.setNestedList(nested_functions);
 
-    // Call the initialisation function for nulike
-    //TODO @TP: There should be checks for rivet and contur.
+    // Call the initialisation function for backends
     CAT_3(nulike_,NULIKE_SAFE_VERSION,_init).reset_and_calculate();
-    CAT_3(Contur_, CONTUR_SAFE_VERSION,_init).reset_and_calculate();
-    CAT_3(Rivet_, RIVET_SAFE_VERSION,_init).reset_and_calculate();
+    if (withRivet){
+      CAT_3(Contur_, CONTUR_SAFE_VERSION,_init).reset_and_calculate();
+      CAT_3(Rivet_, RIVET_SAFE_VERSION,_init).reset_and_calculate();
+    }
 
     // Run the detector sim and selected analyses on all the events read in.
     operateLHCLoop.reset_and_calculate();
@@ -274,9 +299,11 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.reset_and_calculate();
     get_LHC_LogLike_per_analysis.reset_and_calculate();
     calc_combined_LHC_LogLike.reset_and_calculate();
-
-
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+    if (withContur){
+      Contur_LHC_measurements_LogLike.reset_and_calculate();
+      Contur_LHC_measurements_LogLike_perPool.reset_and_calculate();
+      Contur_LHC_measurements_histotags_perPool.reset_and_calculate();
+    }
 
     // Retrieve and print the predicted + observed counts and likelihoods for the individual SRs and analyses, as well as the total likelihood.
     int n_events = operateLHCLoop(0).event_count.at("CBS");
@@ -301,23 +328,35 @@ int main(int argc, char* argv[])
       summary_line << "    Selected signal region: " << analysis_loglikes.combination_sr_label << endl;
       summary_line << "    Total log-likelihood for analysis:" << analysis_loglikes.combination_loglike << endl << endl;
     }
+    if (withContur){
+      summary_line << "\nContur results:" << std::endl;
+      summary_line << "Total Contur Log-Likelihood: " << Contur_LHC_measurements_LogLike(0) << std::endl;
+      map_str_dbl pool_LLRs = Contur_LHC_measurements_LogLike_perPool(0);
+      map_str_str pool_info = Contur_LHC_measurements_histotags_perPool(0);
+      for (const auto & pool : pool_LLRs){
+        summary_line << "\tPool " << pool.first << ":" << "\n\t\tLog-likelihood: " <<
+          pool.second << "\n\t\tDominant measurement: " << pool_info[pool.first] << std::endl;
+      }
+    }
     double loglike = calc_combined_LHC_LogLike(0);
 
     cout.precision(5);
     cout << endl;
     cout << "Read and analysed " << n_events << " events from " << (event_file_is_LHEF ? "LHE" : "HepMC") << " file." << endl << endl;
     cout << "Analysis details:" << endl << endl << summary_line.str() << endl;
-    cout << std::scientific << "Total combined ATLAS+CMS log-likelihood: " << loglike << endl;
+    //TODO: Mention LHCb as rivet can include an LHCb pool?
+    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":"") <<
+        "log-likelihood: " << loglike << endl;
     cout << endl;
 
     // No more to see here folks, go home.
     return 0;
-  // }
+  }
 
-  // catch (std::exception& e)
-  // {
-  //   cerr << "CBS has exited with fatal exception: " << e.what() << endl;
-  // }
+  catch (std::exception& e)
+  {
+    cerr << "CBS has exited with fatal exception: " << e.what() << endl;
+  }
 
   // Finished, but an exception was raised.
   return 1;
