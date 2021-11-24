@@ -252,9 +252,7 @@ int main(int argc, char* argv[])
                                                                   &copyEvent,
                                                                   &runATLASAnalyses,
                                                                   &runCMSAnalyses,
-                                                                  &runIdentityAnalyses);
-
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;                                                                  
+                                                                  &runIdentityAnalyses);                                                            
     //if using contur and rivet: add contur&rivet functions:
     if (withRivet){
       Rivet_measurements.resolveLoopManager(&operateLHCLoop);
@@ -262,15 +260,13 @@ int main(int argc, char* argv[])
       nested_functions.push_back(&Rivet_measurements);
     }
 
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
-
     operateLHCLoop.setNestedList(nested_functions);
 
     // Call the initialisation function for nulike
-    //TODO @TP: These should use the version numbers defined at top of file.
-    nulike_1_0_9_init.reset_and_calculate();
-    Contur_2_1_1_init.reset_and_calculate();
-    Rivet_3_1_4_init.reset_and_calculate();
+    //TODO @TP: There should be checks for rivet and contur.
+    CAT_3(nulike_,NULIKE_SAFE_VERSION,_init).reset_and_calculate();
+    CAT_3(Contur_, CONTUR_SAFE_VERSION,_init).reset_and_calculate();
+    CAT_3(Rivet_, RIVET_SAFE_VERSION,_init).reset_and_calculate();
 
     // Run the detector sim and selected analyses on all the events read in.
     operateLHCLoop.reset_and_calculate();
