@@ -22,20 +22,30 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
+//#include "gambit/Backends/backend_rollcall.hpp"
 
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
+
+#define RIVET_VERSION "3.1.4"
+#define RIVET_SAFE_VERSION 3_1_4
+
+#define CONTUR_VERSION "2.1.1"
+#define CONTUR_SAFE_VERSION 2_1_1
 
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
 using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
 
+using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
+using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
+
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
 {
 
-  try
-  {
+  // try
+  // {
 
     // Check the number of command line arguments
     if (argc < 2)
@@ -81,6 +91,27 @@ int main(int argc, char* argv[])
       throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
     }
 
+    //Check if Rivet&Contur enabled.
+    bool withRivet;
+    bool withContur;
+    Options rivet_settings, contur_settings;
+    if (infile["rivet-settings"]) {
+      withRivet = true;
+      rivet_settings = Options(infile["rivet-settings"]);
+    } else {withRivet = false;}
+    if (infile["contur-settings"]) {
+      withContur = true;
+      contur_settings = Options(infile["contur-settings"]);
+    } else {withContur = false;}
+    //Need both enabled
+    if (withContur && !withRivet){
+      throw std::runtime_error("Can't run contur without rivet. Try adding a rivet-settings section to your yaml-file. Quitting...");
+    }
+    else if (!withContur && withRivet){
+      throw std::runtime_error("Can't run rivet without contur. Try adding a contur-settings section to your yaml-file. Quitting...");
+    }
+    std::cout << withContur << "\t" << withRivet << std::endl;
+
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
@@ -95,7 +126,9 @@ int main(int argc, char* argv[])
 
     // Choose the event file reader according to file format
     if (debug) cout << "Reading " << (event_file_is_LHEF ? "LHEF" : "HepMC") << " file: " << event_filename << endl;
-    auto& getEvent = (event_file_is_LHEF ? getLHEvent_HEPUtils : getHepMCEvent_HEPUtils);
+    //auto& getEvent = (event_file_is_LHEF ? getLHEvent_HEPUtils : getHepMCEvent);
+    auto& getEvent = getHepMCEvent;
+    auto& convertEvent = convertHepMCEvent_HEPUtils;
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
@@ -116,7 +149,9 @@ int main(int argc, char* argv[])
 
     // Pass the filename and the jet pt cutoff to the LHEF/HepMC reader function
     getEvent.setOption<str>((event_file_is_LHEF ? "lhef_filename" : "hepmc_filename"), event_filename);
-    getEvent.setOption<double>("jet_pt_min", jet_pt_min);
+    convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
+
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
 
     // Pass options to the cross-section function
     if (settings.hasKey("cross_section_pb"))
@@ -132,12 +167,28 @@ int main(int argc, char* argv[])
       else { getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
     }
 
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+
     // Pass options to the likelihood function
+    //TODO @TP: I can't see any actual code that uses these. Are they redundant? Do they need to be updated to new names?
     calc_LHC_LogLikes.setOption<int>("covariance_nsamples_start", settings.getValue<int>("covariance_nsamples_start"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_abs", settings.getValue<double>("covariance_marg_convthres_abs"));
     calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_rel", settings.getValue<double>("covariance_marg_convthres_rel"));
 
+    //if Rivet/Contur, se rivet/contur options
+    if (withRivet){
+      Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValue<bool>("drop_YODA_file"));
+      Rivet_measurements.setOption<bool>("runningStandalone", true);
+      Rivet_measurements.setOption<std::vector<std::string>>("analyses",
+                                                rivet_settings.getValue<std::vector<std::string>>("analyses"));
+      Rivet_measurements.setOption<std::vector<std::string>>("exclude_analyses",
+                                                rivet_settings.getValue<std::vector<std::string>>("exclude_analyses"));
+    }
+
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+
     // Resolve ColliderBit dependencies and backend requirements
+    convertEvent.resolveDependency(&getEvent);
     calc_combined_LHC_LogLike.resolveDependency(&calc_LHC_LogLikes);
     calc_combined_LHC_LogLike.resolveDependency(&operateLHCLoop);
     get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes);
@@ -157,14 +208,23 @@ int main(int argc, char* argv[])
     getCMSAnalysisContainer.resolveDependency(&getYAMLCrossSection);
     getIdentityAnalysisContainer.resolveDependency(&getYAMLCrossSection);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
-    smearEventATLAS.resolveDependency(&getEvent);
+    smearEventATLAS.resolveDependency(&convertEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
-    smearEventCMS.resolveDependency(&getEvent);
+    smearEventCMS.resolveDependency(&convertEvent);
     copyEvent.resolveDependency(&getBuckFastIdentity);
-    copyEvent.resolveDependency(&getEvent);
+    copyEvent.resolveDependency(&convertEvent);
+    //If using Rivet, resolve rivet dependencies:
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+    if (withRivet){
+      Rivet_measurements.resolveDependency(&getEvent);
+      Rivet_measurements.resolveBackendReq(&Contur_get_analyses_from_beam);
+    }
+
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
 
     // Resolve loop manager for ColliderBit event loop
     getEvent.resolveLoopManager(&operateLHCLoop);
+    convertEvent.resolveLoopManager(&operateLHCLoop);
     getBuckFastATLAS.resolveLoopManager(&operateLHCLoop);
     getBuckFastCMS.resolveLoopManager(&operateLHCLoop);
     getBuckFastIdentity.resolveLoopManager(&operateLHCLoop);
@@ -179,6 +239,7 @@ int main(int argc, char* argv[])
     runCMSAnalyses.resolveLoopManager(&operateLHCLoop);
     runIdentityAnalyses.resolveLoopManager(&operateLHCLoop);
     std::vector<functor*> nested_functions = initVector<functor*>(&getEvent,
+                                                                  &convertEvent,
                                                                   &getBuckFastATLAS,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
@@ -192,10 +253,24 @@ int main(int argc, char* argv[])
                                                                   &runATLASAnalyses,
                                                                   &runCMSAnalyses,
                                                                   &runIdentityAnalyses);
+
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;                                                                  
+    //if using contur and rivet: add contur&rivet functions:
+    if (withRivet){
+      Rivet_measurements.resolveLoopManager(&operateLHCLoop);
+
+      nested_functions.push_back(&Rivet_measurements);
+    }
+
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+
     operateLHCLoop.setNestedList(nested_functions);
 
     // Call the initialisation function for nulike
+    //TODO @TP: These should use the version numbers defined at top of file.
     nulike_1_0_9_init.reset_and_calculate();
+    Contur_2_1_1_init.reset_and_calculate();
+    Rivet_3_1_4_init.reset_and_calculate();
 
     // Run the detector sim and selected analyses on all the events read in.
     operateLHCLoop.reset_and_calculate();
@@ -203,6 +278,9 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.reset_and_calculate();
     get_LHC_LogLike_per_analysis.reset_and_calculate();
     calc_combined_LHC_LogLike.reset_and_calculate();
+
+
+    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
 
     // Retrieve and print the predicted + observed counts and likelihoods for the individual SRs and analyses, as well as the total likelihood.
     int n_events = operateLHCLoop(0).event_count.at("CBS");
@@ -238,12 +316,12 @@ int main(int argc, char* argv[])
 
     // No more to see here folks, go home.
     return 0;
-  }
+  // }
 
-  catch (std::exception& e)
-  {
-    cerr << "CBS has exited with fatal exception: " << e.what() << endl;
-  }
+  // catch (std::exception& e)
+  // {
+  //   cerr << "CBS has exited with fatal exception: " << e.what() << endl;
+  // }
 
   // Finished, but an exception was raised.
   return 1;

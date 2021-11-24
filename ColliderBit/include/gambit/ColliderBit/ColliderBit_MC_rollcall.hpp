@@ -31,6 +31,10 @@
 ///          (a.kvellestad@imperial.ac.uk)
 ///  \date 2019 Sep
 ///
+/// \author Tomasz Procter
+///          (t.procter.1@research.gla.ac.uk)
+/// \date 2021 November
+///
 ///  *********************************************
 
 #pragma once
@@ -540,6 +544,13 @@
       /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
       #define FUNCTION getHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      #define FUNCTION convertHepMCEvent_HEPUtils
+      START_FUNCTION(HEPUtils::Event)
+      DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 

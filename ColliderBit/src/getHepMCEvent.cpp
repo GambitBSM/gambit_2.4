@@ -204,6 +204,27 @@ namespace Gambit
  
     }
 
+    void convertHepMCEvent_HEPUtils(HEPUtils::Event &result)
+    {
+      using namespace Pipes::convertHepMCEvent_HEPUtils;
+
+      //Don't do anything on special iterations: you'll just end up dereferencing a nullptr
+      if (*Loop::iteration < 0) return;
+
+      //HepMC Event should just be sitting waiting for us.
+      HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+
+      //Get yaml options required for conversion
+      const static double antiktR = runOptions->getValueOrDef<double>(0.4, "antiktR");
+      const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
+
+      //Set the weight
+      result.set_weight(ge.weight());
+
+      //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
+      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, antiktR, jet_pt_min);
+    }
+
   }
 }
 
