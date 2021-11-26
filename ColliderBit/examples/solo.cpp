@@ -109,12 +109,6 @@ int main(int argc, char* argv[])
     //Check if Rivet&Contur requested and/or enabled then extract options from yaml
     bool withRivet;
     bool withContur;
-    #ifdef EXCLUDE_YODA
-    withRivet = false; withContur = false;
-    if (infile["rivet-settings"] || infile["contur-settings"]){
-      throw std::runtime_error("Running Rivet and Contur requires GAMBIT/CBS to be built with YODA. Quitting...");
-    }
-    #else
     Options rivet_settings;
     std::vector<std::string> contur_options;
     try{
@@ -155,7 +149,6 @@ int main(int argc, char* argv[])
     {
       throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
     }
-    #endif
 
     // Choose the event file reader according to file format
     if (debug) cout << "Reading " << (event_file_is_LHEF ? "LHEF" : "HepMC") << " file: " << event_filename << endl;
