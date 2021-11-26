@@ -35,10 +35,8 @@
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
 using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
-#ifndef EXCLUDE_YODA
 using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
-#endif
 
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
@@ -56,6 +54,11 @@ int main(int argc, char* argv[])
 
     // Make sure that nulike is present.
     if (not Backends::backendInfo().works[str("nulike")+NULIKE_VERSION]) backend_error().raise(LOCAL_INFO, str("nulike ")+NULIKE_VERSION+" is missing!");
+    //Check if Rivet and Contur are there: permit runs without that don't ask for them:
+    bool conturWorks = true;
+    bool rivetWorks = true;
+    if (not Backends::backendInfo().works[str("Contur")+CONTUR_VERSION]) { conturWorks = false;}
+    if (not Backends::backendInfo().works[str("Rivet")+RIVET_VERSION]) { rivetWorks = false;}
 
     // Print the banner (if you could call it that)
     cout << endl;
@@ -119,16 +122,23 @@ int main(int argc, char* argv[])
         withRivet = true;
         rivet_settings = Options(infile["rivet-settings"]);
       } else {withRivet = false;}
+      //Todo: Should we just assume contur with no options if rivet settings are specified and Contur not?
       if (infile["contur-settings"]) {
         withContur = true;
         contur_options = infile["contur-settings"].as<std::vector<std::string>>();
       } else {withContur = false;}
-      //Need both enabled
+      //Throw out cases where things won't work, with informative errors:
       if (withContur && !withRivet){
         throw std::runtime_error("Can't run contur without rivet. Try adding a rivet-settings section to your yaml-file. Quitting...");
       }
       else if (!withContur && withRivet){
         throw std::runtime_error("Can't run rivet without contur. Try adding a contur-settings section to your yaml-file. Quitting...");
+      }
+      else if (withContur && !conturWorks){
+        backend_error().raise(LOCAL_INFO, str("yaml file requests contur, but Contur ")+CONTUR_VERSION+" is missing!");
+      }
+      else if (withContur && !conturWorks){
+        backend_error().raise(LOCAL_INFO, str("yaml file requests rivet, but Rivet ")+RIVET_VERSION+" is missing!");
       }
       else if (withContur && withRivet){
         if (!event_file_is_HepMC){
