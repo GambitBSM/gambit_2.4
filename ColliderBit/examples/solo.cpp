@@ -42,7 +42,7 @@ using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 //TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
 template <typename Tsetting>
 bool apply_setting_if_present(const std::string &setting, Options& settings, Gambit::module_functor<ColliderBit::map_str_AnalysisLogLikes> &the_functor){
-  if (settings.hasKey(setting) || true){
+  if (settings.hasKey(setting)){
     the_functor.setOption<Tsetting>(setting, settings.getValue<Tsetting>(setting));
     return true;
   }
@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
     bool calc_noerr_loglikes = apply_setting_if_present<bool>("calc_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
     bool calc_expected_loglikes= apply_setting_if_present<bool>("calc_expected_loglikes", settings, calc_LHC_LogLikes);//Default false
     bool calc_expected_noerr_loglikes = apply_setting_if_present<bool>("calc_expected_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
-    bool calc_scaled_signal_loglikes = apply_setting_if_present<bool>("calc_scaled_signal_loglikes", settings, calc_LHC_LogLikes);//Default false
+    bool calc_scaledsignal_loglikes = apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, calc_LHC_LogLikes);//Default false
     apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes);//Default 1.0
 
     //if Rivet/Contur, set rivet/contur options
@@ -356,6 +356,10 @@ int main(int argc, char* argv[])
         summary_line << "      SM prediction: " << srData.n_bkg << " +/- " << combined_bg_uncertainty << endl;
         summary_line << "      Signal prediction: " << srData.n_sig_scaled << " +/- " << combined_s_uncertainty << endl;
         summary_line << "      Log-likelihood: " << analysis_loglikes.sr_loglikes.at(sr_index) << endl;
+        if (calc_noerr_loglikes) {summary_line << "      No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("noerr").at(sr_index);}
+        if (calc_expected_loglikes) {summary_line << "\n      Expected Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected").at(sr_index);}
+        if (calc_expected_noerr_loglikes) {summary_line << "\n      Expected No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected_noerr").at(sr_index);}
+        if (calc_scaledsignal_loglikes) {summary_line << "\n      Scaled Signal Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("scaledsignal").at(sr_index) << std::endl;}
       }
       summary_line << "    Selected signal region: " << analysis_loglikes.combination_sr_label << endl;
       summary_line << "    Total log-likelihood for analysis:" << analysis_loglikes.combination_loglike << endl << endl;
