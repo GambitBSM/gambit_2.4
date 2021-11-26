@@ -39,10 +39,11 @@ using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
 //Helper function to check if setting in CBS yaml and then set it
-template <typename settingT, typename functorT>
-bool apply_setting_if_present(const std::string& setting, const Options& settings, functorT& functor){
-  if settings.hasKey(setting){
-    functor.setOption<settingT>(setting, settings.getValue<settingT>(setting);)
+//TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
+template <typename Tsetting>
+bool apply_setting_if_present(const std::string &setting, Options& settings, Gambit::module_functor<ColliderBit::map_str_AnalysisLogLikes> &the_functor){
+  if (settings.hasKey(setting) || true){
+    the_functor.setOption<Tsetting>(setting, settings.getValue<Tsetting>(setting));
     return true;
   }
   return false;
@@ -51,7 +52,6 @@ bool apply_setting_if_present(const std::string& setting, const Options& setting
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
 {
-
   try
   {
     // Check the number of command line arguments
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
       else if (withContur && !conturWorks){
         backend_error().raise(LOCAL_INFO, str("yaml file requests contur, but Contur ")+CONTUR_VERSION+" is missing!");
       }
-      else if (withContur && !conturWorks){
+      else if (withRivet && !rivetWorks){
         backend_error().raise(LOCAL_INFO, str("yaml file requests rivet, but Rivet ")+RIVET_VERSION+" is missing!");
       }
       else if (withContur && withRivet){
@@ -376,7 +376,7 @@ int main(int argc, char* argv[])
     cout << endl;
     cout << "Read and analysed " << n_events << " events from " << (event_file_is_LHEF ? "LHE" : "HepMC") << " file." << endl << endl;
     cout << "Analysis details:" << endl << endl << summary_line.str() << endl;
-    //TODO: Mention LHCb as rivet can include an LHCb pool?
+    //TODO: Mention LHCb as contur can include an LHCb pool?
     cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":"") <<
         "log-likelihood: " << loglike << endl;
     cout << endl;
