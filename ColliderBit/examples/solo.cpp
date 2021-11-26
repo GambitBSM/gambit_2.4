@@ -38,6 +38,16 @@ using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
+//Helper function to check if setting in CBS yaml and then set it
+template <typename settingT, typename functorT>
+bool apply_setting_if_present(const std::string& setting, const Options& settings, functorT& functor){
+  if settings.hasKey(setting){
+    functor.setOption<settingT>(setting, settings.getValue<settingT>(setting);)
+    return true;
+  }
+  return false;
+}
+
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
 {
@@ -192,19 +202,38 @@ int main(int argc, char* argv[])
     }
 
     // Pass options to the likelihood function
-    //TODO @TP: I can't see any actual code that uses these. Are they redundant? Do they need to be updated to new names?
-    calc_LHC_LogLikes.setOption<int>("covariance_nsamples_start", settings.getValue<int>("covariance_nsamples_start"));
-    calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_abs", settings.getValue<double>("covariance_marg_convthres_abs"));
-    calc_LHC_LogLikes.setOption<double>("covariance_marg_convthres_rel", settings.getValue<double>("covariance_marg_convthres_rel"));
+    //ToDo: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
+    //ColliderBit can then fall back to its defaults if nothing is supplied.
+    apply_setting_if_present<bool>("use_covariances", settings, calc_LHC_LogLikes);//Default true
+    apply_setting_if_present<bool>("use_marginalising", settings, calc_LHC_LogLikes);//Default False
+    apply_setting_if_present<bool>("combine_SRs_without_covariances", settings, calc_LHC_LogLikes);//Default False
+
+    apply_setting_if_present<double>("nuisance_prof_initstep", settings, calc_LHC_LogLikes);//Default 0.1
+    apply_setting_if_present<double>("nuisance_prof_convtol", settings, calc_LHC_LogLikes);//Default 0.01
+    apply_setting_if_present<int>("nuisance_prof_maxsteps", settings, calc_LHC_LogLikes);//Default 10000
+    apply_setting_if_present<double>("nuisance_prof_convacc", settings, calc_LHC_LogLikes);//Default 0.01
+    apply_setting_if_present<double>("nuisance_prof_simplexsize", settings, calc_LHC_LogLikes);//Default 1e-5
+    apply_setting_if_present<int>("nuisance_prof_method", settings, calc_LHC_LogLikes);//Default 6
+
+    apply_setting_if_present<double>("nuisance_marg_convthres_abs", settings, calc_LHC_LogLikes);//Default 0.05
+    apply_setting_if_present<double>("nuisance_marg_convthres_rel", settings, calc_LHC_LogLikes);//Default 0.05
+    apply_setting_if_present<long>("nuisance_marg_nsamples_start", settings, calc_LHC_LogLikes);//Default 1000000
+    apply_setting_if_present<bool>("nuisance_marg_nulike1sr", settings, calc_LHC_LogLikes);//Default true
+
+    bool calc_noerr_loglikes = apply_setting_if_present<bool>("calc_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
+    bool calc_expected_loglikes= apply_setting_if_present<bool>("calc_expected_loglikes", settings, calc_LHC_LogLikes);//Default false
+    bool calc_expected_noerr_loglikes = apply_setting_if_present<bool>("calc_expected_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
+    bool calc_scaled_signal_loglikes = apply_setting_if_present<bool>("calc_scaled_signal_loglikes", settings, calc_LHC_LogLikes);//Default false
+    apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes);//Default 1.0
 
     //if Rivet/Contur, set rivet/contur options
     if (withRivet){
-      Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValue<bool>("drop_YODA_file"));
+      Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValueOrDef<bool>(true, "drop_YODA_file"));
       Rivet_measurements.setOption<bool>("runningStandalone", true);
       Rivet_measurements.setOption<std::vector<std::string>>("analyses",
                                                 rivet_settings.getValue<std::vector<std::string>>("analyses"));
       Rivet_measurements.setOption<std::vector<std::string>>("exclude_analyses",
-                                                rivet_settings.getValue<std::vector<std::string>>("exclude_analyses"));
+                                                rivet_settings.getValueOrDef<std::vector<std::string>>({},"exclude_analyses"));
       std::vector<std::string> contur_options = infile["contur-settings"].as<std::vector<std::string>>();
       Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);                                             
     }
