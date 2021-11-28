@@ -109,12 +109,11 @@ int main(int argc, char* argv[])
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
-    bool event_file_is_LHEF = Gambit::Utils::endsWith(event_filename, ".lhe");
     bool event_file_is_HepMC = (   Gambit::Utils::endsWith(event_filename, ".hepmc")
                                 || Gambit::Utils::endsWith(event_filename, ".hepmc2")
                                 || Gambit::Utils::endsWith(event_filename, ".hepmc3") );
-    if (not event_file_is_LHEF and not event_file_is_HepMC)
-     throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .lhe or .hepmc.");
+    if (not event_file_is_HepMC)
+     throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
 
     //Check if Rivet&Contur requested and/or enabled then extract options from yaml
     bool withRivet;
@@ -145,14 +144,10 @@ int main(int argc, char* argv[])
         backend_error().raise(LOCAL_INFO, str("yaml file requests rivet, but Rivet ")+RIVET_VERSION+" is missing!");
       }
       else if (withContur && withRivet){
-        if (!event_file_is_HepMC){
-          throw std::runtime_error("Rivet requires data in HepMC format. Quitting...");
-        } else {
         //Ok, we're good to go with Rivet and Contur,
         //TODO: Proper citation message?
         std::cout << "\nUsing RIVET " << RIVET_VERSION << " and CONTUR " <<
           CONTUR_VERSION << " on this run.\n";
-        }
       }
     }
     catch (YAML::Exception &e)
@@ -161,8 +156,7 @@ int main(int argc, char* argv[])
     }
 
     // Choose the event file reader according to file format
-    if (debug) cout << "Reading " << (event_file_is_LHEF ? "LHEF" : "HepMC") << " file: " << event_filename << endl;
-    //auto& getEvent = (event_file_is_LHEF ? getLHEvent_HEPUtils : getHepMCEvent);
+    if (debug) cout << "Reading HepMC" << " file: " << event_filename << endl;
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
 
@@ -183,8 +177,8 @@ int main(int argc, char* argv[])
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 
-    // Pass the filename and the jet pt cutoff to the LHEF/HepMC reader function
-    getEvent.setOption<str>((event_file_is_LHEF ? "lhef_filename" : "hepmc_filename"), event_filename);
+    // Pass the filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
+    getEvent.setOption<str>("hepmc_filename", event_filename);
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
 
     // Pass options to the cross-section function
@@ -378,7 +372,7 @@ int main(int argc, char* argv[])
 
     cout.precision(5);
     cout << endl;
-    cout << "Read and analysed " << n_events << " events from " << (event_file_is_LHEF ? "LHE" : "HepMC") << " file." << endl << endl;
+    cout << "Read and analysed " << n_events << " events from HepMC file." << endl << endl;
     cout << "Analysis details:" << endl << endl << summary_line.str() << endl;
     //TODO: Mention LHCb as contur can include an LHCb pool?
     cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":"") <<
