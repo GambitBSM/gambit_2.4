@@ -375,7 +375,7 @@ int main(int argc, char* argv[])
     cout << "Read and analysed " << n_events << " events from HepMC file." << endl << endl;
     cout << "Analysis details:" << endl << endl << summary_line.str() << endl;
     //TODO: Mention LHCb as contur can include an LHCb pool?
-    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":"") <<
+    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ") <<
         "log-likelihood: " << loglike << endl;
     cout << endl;
 
