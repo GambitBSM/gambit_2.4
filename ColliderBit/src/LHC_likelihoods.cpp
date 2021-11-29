@@ -333,7 +333,7 @@ namespace Gambit
       static const double CONVERGENCE_TOLERANCE_ABS = runOptions->getValueOrDef<double>(0.05, "nuisance_marg_convthres_abs");
       static const double CONVERGENCE_TOLERANCE_REL = runOptions->getValueOrDef<double>(0.05, "nuisance_marg_convthres_rel");
       static const size_t NSAMPLE_INPUT = runOptions->getValueOrDef<size_t>(100000, "nuisance_marg_nsamples_start");
-      static const bool   NULIKE1SR = runOptions->getValueOrDef<bool>(false, "nuisance_marg_nulike1sr");
+      static const bool   NULIKE1SR = runOptions->getValueOrDef<bool>(true, "nuisance_marg_nulike1sr");
 
       // Optionally use nulike's more careful 1D marginalisation for one-SR cases
       if (NULIKE1SR && nSR == 1) return marg_loglike_nulike1sr(n_preds, n_obss, sqrtevals);

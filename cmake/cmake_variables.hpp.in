@@ -64,6 +64,9 @@
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
 
+/// Leave out yoda
+#cmakedefine EXCLUDE_YODA 1
+
 /// Leave out HepMC
 #cmakedefine EXCLUDE_HEPMC 1
 
