@@ -55,9 +55,6 @@ namespace Gambit
         Cutflows _cutflows;
       #endif
 
-      // Path to location of BKG JSON file //TODO: Check after
-      std::string bkgjson_path = "data/blah.json";
-
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
@@ -67,7 +64,7 @@ namespace Gambit
         analysis_specific_reset();
         set_analysis_name("ATLAS_13TeV_1Lep2b_139invfb");
         set_luminosity(139.);
-        set_bkgjson("Backends/examples/ATLAS_FullLikes/1.0/Analyses/ATLAS_13TeV_1Lep2b_139invfb/BkgOnly.json");
+        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_13TeV_1Lep2b_139invfb_bkgonly.json");
 
         #ifdef CHECK_CUTFLOW
           // Book Cutflows

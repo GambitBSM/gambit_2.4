@@ -18,6 +18,10 @@
 ///  \date   2015 Apr
 ///  \date   2016 Mar
 ///
+///  \author Jeriek Van den Abeele
+///          (jeriekvda@fys.uio.no)
+///  \date 2018 Sep
+///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
 ///  \date   2019 Mar
@@ -47,13 +51,14 @@ namespace Gambit
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
   const double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
   const double s2cm = 2.99792458e10;                            // cm per s
-  const double m_planck = 1.220910e19;                          // Planck mass (GeV)
+  const double m_planck = 1.220910e19;                          // Planck mass (GeV) 
   const double m_planck_red = m_planck/sqrt(8.0*pi);            // reduced Planck mass (GeV)
   const double atomic_mass_unit = 0.931494028;                  // atomic mass unit (GeV/c^2)
   const double m_proton_amu = 1.00727646688;                    // proton mass (amu)
   const double m_neutron_amu = 1.0086649156;                    // neutron mass (amu)
   const double m_proton = m_proton_amu * atomic_mass_unit;      // proton mass (GeV/c^2)
   const double m_neutron = m_neutron_amu * atomic_mass_unit;    // neutron mass (GeV/c^2)
+  const double m_deuteron = 1.87561294257;                      // deuteron mass (GeV/c^2)
   const double m_electron = 0.5109989461e-3;                    // electron mass (GeV/c^2)
   const double alpha_EM = 7.2973525664e-3;                      // fine structure constant
 

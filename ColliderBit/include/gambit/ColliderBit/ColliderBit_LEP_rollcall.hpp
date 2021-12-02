@@ -39,9 +39,11 @@
 
   ///////////// LEP limits ////////////////////////
 
+  #define MSSM30etal (MSSM30atQ, MSSM30atMGUT, NUHM2, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+
   // CoM energy 207GeV
   // LEP production cross sections and uncertainties: neutralinos
-  QUICK_FUNCTION(ColliderBit, LEP207_xsec_chi00_11, NEW_CAPABILITY, LEP207_SLHA1_convention_xsec_chi00_11, triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
+  QUICK_FUNCTION(ColliderBit, LEP207_xsec_chi00_11, NEW_CAPABILITY, LEP207_SLHA1_convention_xsec_chi00_11, triplet<double>, MSSM30etal, (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
 
   // CoM energy 208GeV
   // LEP production cross sections and uncertainties: selectrons
@@ -195,11 +197,12 @@
   QUICK_FUNCTION(ColliderBit, L3_Chargino_All_Channels_LLike, NEW_CAPABILITY, L3_Chargino_All_Channels_Conservative_LLike, double, (MSSM30atQ, MSSM30atMGUT, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chipm_11, triplet<double>), (LEP188_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
   QUICK_FUNCTION(ColliderBit, L3_Chargino_Leptonic_LLike, NEW_CAPABILITY, L3_Chargino_Leptonic_Conservative_LLike, double, (MSSM30atQ, MSSM30atMGUT, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chipm_11, triplet<double>), (LEP188_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
   // OPAL Mass Eigeninos
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_Hadronic_LLike, NEW_CAPABILITY, OPAL_Chargino_Hadronic_Conservative_LLike, double, (MSSM30atQ, MSSM30atMGUT, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_SemiLeptonic_LLike, NEW_CAPABILITY, OPAL_Chargino_SemiLeptonic_Conservative_LLike, double, (MSSM30atQ, MSSM30atMGUT, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_Leptonic_LLike, NEW_CAPABILITY, OPAL_Chargino_Leptonic_Conservative_LLike, double, (MSSM30atQ, MSSM30atMGUT, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_All_Channels_LLike, NEW_CAPABILITY, OPAL_Chargino_All_Channels_Conservative_LLike, double, (MSSM30atQ, MSSM30atMGUT, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, OPAL_Degenerate_Chargino_LLike, NEW_CAPABILITY, OPAL_Degenerate_Chargino_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>))
+  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_Hadronic_LLike, NEW_CAPABILITY, OPAL_Chargino_Hadronic_Conservative_LLike, double, MSSM30etal, (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
+  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_SemiLeptonic_LLike, NEW_CAPABILITY, OPAL_Chargino_SemiLeptonic_Conservative_LLike, double, MSSM30etal, (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
+  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_Leptonic_LLike, NEW_CAPABILITY, OPAL_Chargino_Leptonic_Conservative_LLike, double, MSSM30etal, (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
+  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_All_Channels_LLike, NEW_CAPABILITY, OPAL_Chargino_All_Channels_Conservative_LLike, double, MSSM30etal, (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
+  QUICK_FUNCTION(ColliderBit, OPAL_Degenerate_Chargino_LLike, NEW_CAPABILITY, OPAL_Degenerate_Chargino_Conservative_LLike, double, MSSM30etal, (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>))
+
   // Due to the nature of the analysis details in the OPAL paper, we can't tell
   // which of the following two limits is appropriate for our use. Thus, we will
   // be conservative and choose only the weaker of the two limits.

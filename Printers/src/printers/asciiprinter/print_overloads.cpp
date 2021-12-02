@@ -101,6 +101,22 @@ namespace Gambit
       addtobuffer(vdvalue,names,IDcode,thread,pointID);
     }
 
+    void asciiPrinter::_print(map_str_str const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
+    {
+      std::vector<std::string> names;
+      std::vector<double> vdvalue;
+      names.reserve(value.size());
+      vdvalue.reserve(value.size());
+      for (map_str_str::const_iterator it = value.begin(); it != value.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first<<": "<<it->second;
+        names.push_back( ss.str() );
+        vdvalue.push_back(0);
+      }
+      addtobuffer(vdvalue,names,IDcode,thread,pointID);
+    }
+
     void asciiPrinter::_print(map_intpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
       std::vector<std::string> channels;
@@ -122,7 +138,6 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, triplet<double>)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
-      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings_fermionic_HP)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
     #endif

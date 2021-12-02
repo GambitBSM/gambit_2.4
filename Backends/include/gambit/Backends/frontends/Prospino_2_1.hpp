@@ -21,12 +21,13 @@
 #define BACKENDLANG Fortran
 #define VERSION 2.1
 #define SAFE_VERSION 2_1
+#define REFERENCE Beenakker:1996ed
 
 // Load it
 LOAD_LIBRARY
 
-BE_ALLOW_MODELS(MSSM63atQ_mA,MSSM63atMGUT_mA)
-
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
+BE_ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT_mA_lightgravitino)
 
 // Import functions
 

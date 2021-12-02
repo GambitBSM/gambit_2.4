@@ -27,9 +27,10 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'Pythia'
-gambit_backend_version = '8.212'
-gambit_base_namespace  = ''
+gambit_backend_name      = 'Pythia'
+gambit_backend_version   = '8.212'
+gambit_backend_reference = 'Sjostrand:2014zea'
+gambit_base_namespace    = ''
 
 
 # ~~~~~ Information about the external code ~~~~~
@@ -117,8 +118,16 @@ indent = 4
 #   known_classes = {"SomeNamespace::KnownClassOne" : "path_to_header/KnownClassOne.hpp",
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
-known_classes = {"SLHAea::Coll" : "SLHAea/slhaea.h"}
+known_classes = {
+  "SLHAea::Coll" : "SLHAea/slhaea.h",
+  "HepMC3::GenEvent" : "HepMC3/GenEvent.h"
+}
 
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 

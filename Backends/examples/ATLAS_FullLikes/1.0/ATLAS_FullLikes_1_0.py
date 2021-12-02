@@ -11,6 +11,10 @@
 #  **************************************
 
 """
+Based on:
+- https://cds.cern.ch/record/2684863
+- pyhf: https://github.com/scikit-hep/pyhf
+
 This takes the signal data that will be output by ColliderBit and patches the 
 background data. It then uses pyhf to find the LogLike. Python 3.6 or greater required (needed for pyhf more recent versions).
 Required:

@@ -27,9 +27,10 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'gm2calc'
-gambit_backend_version = '1.3.0'
-gambit_base_namespace  = ''
+gambit_backend_name      = 'gm2calc'
+gambit_backend_version   = '1.3.0'
+gambit_backend_reference = 'Athron:2015rva'
+gambit_base_namespace    = ''
 
 
 # ~~~~~ Information about the external code ~~~~~
@@ -104,6 +105,11 @@ known_classes = {
     "Eigen::Array" : "<Eigen/Core>",
 }
 
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 
@@ -111,12 +117,10 @@ known_classes = {
 # the BOSS-generated headers in GAMBIT.
 
 pragmas_begin = [
-    '#pragma GCC diagnostic push',
-    '#pragma GCC diagnostic ignored "-Wdeprecated-declarations"',
+    '#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"', # Contains pragmas to suppress warnings from Eigen
 ]
 
 pragmas_end = [
-    '#pragma GCC diagnostic pop'
+    '#include "gambit/Utils/end_ignore_warnings.hpp"', # Restores the warning settings
 ]
-
 

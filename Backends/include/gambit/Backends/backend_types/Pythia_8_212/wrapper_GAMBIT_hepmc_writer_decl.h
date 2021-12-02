@@ -2,11 +2,12 @@
 #define __wrapper_GAMBIT_hepmc_writer_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_GAMBIT_hepmc_writer.h"
-#include <string>
 #include "wrapper_Pythia_decl.h"
+#include "HepMC3/GenEvent.h"
 
 #include "identification.hpp"
 
@@ -21,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_GAMBIT_hepmc_writer* (*__factory0)();
+                static Abstract_GAMBIT_hepmc_writer* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -33,13 +34,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void write_event_HepMC2(Pythia8::Pythia* pythia);
         
+                void convert_to_HepMC_event(Pythia8::Pythia* pythia, ::HepMC3::GenEvent& event);
+        
         
                 // Wrappers for original constructors: 
             public:
                 GAMBIT_hepmc_writer();
         
                 // Special pointer-based constructor: 
-                GAMBIT_hepmc_writer(Pythia8::Abstract_GAMBIT_hepmc_writer* in);
+                GAMBIT_hepmc_writer(Abstract_GAMBIT_hepmc_writer* in);
         
                 // Copy constructor: 
                 GAMBIT_hepmc_writer(const GAMBIT_hepmc_writer& in);
@@ -51,7 +54,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~GAMBIT_hepmc_writer();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_GAMBIT_hepmc_writer* get_BEptr() const;
+                Abstract_GAMBIT_hepmc_writer* get_BEptr() const;
         
         };
     }

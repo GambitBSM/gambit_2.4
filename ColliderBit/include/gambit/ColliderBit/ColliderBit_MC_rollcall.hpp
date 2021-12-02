@@ -48,7 +48,12 @@
   START_CAPABILITY
     #define FUNCTION operateLHCLoop
     START_FUNCTION(MCLoopInfo, CAN_MANAGE_LOOPS)
-    MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
+    #undef FUNCTION
+
+    // Make a dummy MCLoopInfo object for interpolated yield "colliders"
+    #define FUNCTION InterpolatedMCInfo
+    START_FUNCTION(MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -90,20 +95,20 @@
     #undef FUNCTION
 
     /// A function that assigns a total cross-sections to a given SLHA input file
-    /// (for model CB_SLHA_file_model)
+    /// (for model ColliderBit_SLHA_file_model)
     #define FUNCTION getYAMLCrossSection_SLHA
     START_FUNCTION(xsec_container)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    ALLOW_MODELS(CB_SLHA_file_model)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model)
     DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
     #undef FUNCTION
 
     /// A function that assigns a total cross-sections directly from the scan parameters
-    /// (for models CB_SLHA_simpmod_scan_model and CB_SLHA_scan_model)
+    /// for model ColliderBit_SLHA_scan_model
     #define FUNCTION getYAMLCrossSection_param
     START_FUNCTION(xsec_container)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    ALLOW_MODELS(CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
+    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -192,6 +197,19 @@
   #undef CAPABILITY
   /// @}
 
+  /// A consistency check that ensures that if each event is weighted
+  /// by a process-level cross-section from an external calculator, then
+  /// the total cross-section is taken from the event generator
+  #define CAPABILITY CrossSectionConsistencyCheck
+  START_CAPABILITY
+    #define FUNCTION doCrossSectionConsistencyCheck
+    START_FUNCTION(bool)
+    // NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(TotalCrossSection, xsec_container)
+    DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
   /// Lists of analyses to run
   /// @{
@@ -261,11 +279,45 @@
   START_CAPABILITY
     #define FUNCTION CollectAnalyses
     START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(CrossSectionConsistencyCheck, bool)
     DEPENDENCY(ATLASAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(CMSAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(IdentityAnalysisNumbers, AnalysisDataPointers)
     #undef FUNCTION
+
+    #define FUNCTION DMEFT_results_profiled
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(AllAnalysisNumbersUnmodified, AnalysisDataPointers)
+    DEPENDENCY(DMEFT_profiled_LHC_nuisance_params, map_str_dbl)
+    DEPENDENCY(DMEFT_spectrum, Spectrum)
+    ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+
+    #define FUNCTION DMEFT_results_cutoff
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(AllAnalysisNumbersUnmodified, AnalysisDataPointers)
+    DEPENDENCY(DMEFT_spectrum, Spectrum)
+    ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
   #undef CAPABILITY
+
+  #define CAPABILITY AllAnalysisNumbersUnmodified
+    #define FUNCTION DMEFT_results
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(DMEFT_spectrum, Spectrum)
+    ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DMEFT_profiled_LHC_nuisance_params
+    #define FUNCTION calc_DMEFT_profiled_LHC_nuisance_params
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbersUnmodified, AnalysisDataPointers)
+    DEPENDENCY(DMEFT_spectrum, Spectrum)
+    ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
   /// Extract the signal predictions and uncertainties for all analyses
   #define CAPABILITY LHC_signals
@@ -310,6 +362,7 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+
   /// Extract the labels for the SRs used in the analysis loglikes
   #define CAPABILITY LHC_LogLike_SR_labels
   START_CAPABILITY
@@ -333,7 +386,7 @@
   START_CAPABILITY
     #define FUNCTION calc_combined_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(LHC_LogLike_per_analysis, map_str_dbl)
+    DEPENDENCY(LHC_LogLikes, map_str_AnalysisLogLikes)
     DEPENDENCY(RunMC, MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
@@ -476,13 +529,19 @@
     #ifndef EXCLUDE_HEPMC
 
       /// A nested function that reads in Les Houches Event files and converts them to HEPUtils::Event format
-      #define FUNCTION getLHEvent
+      #define FUNCTION getLHEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 
-      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      /// A nested function that reads in HepMC event files
       #define FUNCTION getHepMCEvent
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      #define FUNCTION getHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION

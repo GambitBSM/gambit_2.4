@@ -20,6 +20,8 @@
 #define BACKENDLANG Python3
 #define VERSION 1.0
 #define SAFE_VERSION 1_0
+#define REFERENCE ATL-PHYS-PUB-2019-029,pyhf,pyhf_joss
+
 
 LOAD_LIBRARY
 
