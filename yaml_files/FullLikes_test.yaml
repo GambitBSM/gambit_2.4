@@ -112,13 +112,10 @@ Rules:
     function: getYAMLCrossSection_param
 
 
-  # Generate evens (don't read LH event files)
+  # Choose where to get scattering events from
   - capability: HardScatteringEvent
-    function: generateEventPythia
-    module: ColliderBit
-    options:
-      drop_HepMC_file: false
-      # Warning: the HepMC files can quickly become very large... (20 events take ~1MB)
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
@@ -176,7 +173,7 @@ Rules:
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
-      use_FullLikes: true
+      use_full_likelihoods: true
       use_covariances: false
       combine_SRs_without_covariances: false
       covariance_marg_convthres_abs: 0.05
