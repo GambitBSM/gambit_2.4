@@ -137,6 +137,7 @@ namespace Gambit
       bool use_covar;
       bool use_marg;
       bool combine_nocovar_SRs;
+      bool use_fulllikes;
     };
 
 
@@ -149,7 +150,7 @@ namespace Gambit
     // =========== Forward declarations ===========
 
     /// Forward declaration of funtion in LHC_likelihoods
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, const std::string);
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, const std::string);
 
     /// Forward declarations of functions in this file
     void fill_analysis_info_map();
@@ -824,7 +825,7 @@ namespace Gambit
       for (AnalysisData& adata : temp_adata_vec)
       {
         signal_modifier_function(adata, fpars->lambda, *a);
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar, fpars->combine_nocovar_SRs, "");
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
@@ -870,6 +871,8 @@ namespace Gambit
       static const bool use_marg = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "use_marginalising");
       // Use the naive sum of SR loglikes for analyses without known correlations?
       static const bool combine_nocovar_SRs = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+      // These LHC likelihoods don't use the ATLAS full likelihood system
+      static const bool use_fulllikes = false;
 
       // Clear previous result map
       result.clear();
@@ -904,6 +907,7 @@ namespace Gambit
       fpars.use_covar = use_covar;
       fpars.use_marg = use_marg;
       fpars.combine_nocovar_SRs = combine_nocovar_SRs;
+      fpars.use_fulllikes = use_fulllikes;
 
       // Create a variable to store the best-fit loglike
       double minus_loglike_bestfit = 50000.;

@@ -47,8 +47,8 @@ namespace Gambit
         {"SRZ1B", EventCounter("SRZ1B")},
         {"SRZ2A", EventCounter("SRZ2A")},
         {"SRZ2B", EventCounter("SRZ2B")},
-        {"SRh1A", EventCounter("SRh1A")},
-        {"SRh1B", EventCounter("SRh1B")},
+//        {"SRh1A", EventCounter("SRh1A")},
+//        {"SRh1B", EventCounter("SRh1B")},
       };
 
        vector<Cutflow> _cutflow;
@@ -86,14 +86,15 @@ namespace Gambit
         vector<str> SRZ1B = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 5", "MET > 150 GeV", "pTll > 150 GeV", "Leading b-tagged jet pT > 100 GeV"};
         vector<str> SRZ2A = {"Trigger", "Third leading lepton pT < 20 GeV", "|mll - mZ| < 15 GeV", "Leading jet pT > 150 GeV", "MET > 200 GeV", "pTll < 50 GeV"};
         vector<str> SRZ2B = {"Trigger", "Third leading lepton pT < 60 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "MET > 350 GeV", "pTll > 150 GeV"};
-        vector<str> SRh1A = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 4", "S > 12"};
-        vector<str> SRh1B = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 6", "S > 7"};
+//        vector<str> SRh1A = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 4", "S > 12"};
+//        vector<str> SRh1B = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 6", "S > 7"};
         _cutflow = { Cutflow(cutflow_name, SRZ1A),
                      Cutflow(cutflow_name, SRZ1B),
                      Cutflow(cutflow_name, SRZ2A),
                      Cutflow(cutflow_name, SRZ2B),
-                     Cutflow(cutflow_name, SRh1A),
-                     Cutflow(cutflow_name, SRh1B) };
+//                     Cutflow(cutflow_name, SRh1A),
+//                     Cutflow(cutflow_name, SRh1B)
+         };
         //_test = {0,0,0,0,0};
         //_test2 = 0;
 
@@ -105,7 +106,6 @@ namespace Gambit
         // Baseline objects
         vector<const HEPUtils::Particle*> baselineElectrons;
         vector<const HEPUtils::Particle*> baselineMuons;
-        vector<const HEPUtils::Particle*> baselineTaus;
         vector<const HEPUtils::Jet*> baselineJets;
         vector<const HEPUtils::Jet*> baselineBJets;
         vector<const HEPUtils::Jet*> baselineNonBJets;
@@ -118,7 +118,7 @@ namespace Gambit
         //  _test2++;
 
         // Initialize cutflow
-        for(int i=0; i<6; i++)
+        for(int i=0; i<_cutflow.size(); i++)
           _cutflow[i].fillinit();
 
         // Electron candidates are reconstructed from isolated electromagnetic calorimeter energy deposits matched to ID tracks and are required to have |η| < 2.47, a transverse momentum pT > 4.5 GeV, and to pass the “LooseAndBLayer” requirement in arXiv: 1902.04655 [hep-ex].
@@ -139,7 +139,7 @@ namespace Gambit
 
         // Apply muon efficiency
         // Missing: "Medium" muon ID criteria
-        ATLAS::applyMuonEff(baselineMuons);
+        ATLAS::applyMuonEffR2(baselineMuons);
 
         // Missing: transverse and longitudinal impact parameter cuts
 
@@ -178,7 +178,8 @@ namespace Gambit
         // Find b-jets
         // Copied from ATLAS_13TeV_3b_24invfb
         double btag = 0.77; double cmisstag = 1/16.; double misstag = 1./113.;
-        for (const HEPUtils::Jet* jet : baselineJets) {
+        for (const HEPUtils::Jet* jet : baselineJets)
+        {
           // Tag
           if( jet->btag() && random_bool(btag) ) baselineBJets.push_back(jet);
           // Misstag c-jet
@@ -404,27 +405,24 @@ namespace Gambit
         // Object-based MET significance     >12      >7    // done
 
         // SRh1A
-        if (SRhpreselection &&
-           nSignalJets >= 4 && signalJets.at(3)->pT() > 60. &&
-           met_significance > 12.
-           )
-          _counters.at("SRh1A").add_event(event);
+//        if (SRhpreselection &&
+//           nSignalJets >= 4 && signalJets.at(3)->pT() > 60. &&
+//           met_significance > 12.
+//           )
+//          _counters.at("SRh1A").add_event(event);
 
         // SRh1B
-        if (SRhpreselection &&
-            nSignalJets >= 6 && signalJets.at(5)->pT() > 60. &&
-            met_significance > 7.
-           )
-          _counters.at("SRh1B").add_event(event);
+//        if (SRhpreselection &&
+//            nSignalJets >= 6 && signalJets.at(5)->pT() > 60. &&
+//            met_significance > 7.
+//           )
+//          _counters.at("SRh1B").add_event(event);
 
         // Cutflows
 
         // Fill cutflow with preselection trigger as defined by ATLAS, for SRZ signal regions
         //if(nSignalLeptons >= 3) _test[0]++;
-        //if(nSignalLeptons >= 3 && nSignalJets >= 3 && signalJets.at(2)->pT() > 30.) _test[1]++;
-        //if(nSignalLeptons >= 3 && nSignalJets >= 3 && signalJets.at(2)->pT() > 30. && met > 50.) _test[2]++;
-        //if(nSignalLeptons >= 3 && nSignalJets >= 3 && signalJets.at(2)->pT() > 30. && met > 50. && signalLeptons.at(0)->pT() > 40.) _test[3]++;
-        //if(nSignalLeptons >= 3 && nSignalJets >= 3 && signalJets.at(2)->pT() > 30. && met > 50. && signalLeptons.at(0)->pT() > 40. && signalLeptons.at(1)->pT() > 20.) _test[4]++;
+        //if(baselineElectrons.size() + baselineMuons.size() >= 3) _test[1]++;
         if(nSignalLeptons >= 3 && nSignalJets >= 3 && signalJets.at(2)->pT() > 30. && met > 50. && signalLeptons.at(0)->pT() > 40. && signalLeptons.at(1)->pT() > 20.)
         {
           // 1
@@ -516,51 +514,51 @@ namespace Gambit
         }
 
         // Fill cutflow with preselection trigger as defined by ATLAS, for SRh signal aregions
-        if (nSignalLeptons == 1 and nBaselineLeptons > 1 and nSignalJets >= 4 and signalJets.at(3)->pT() > 30. and nSignalBJets >= 3 and signalBJets.at(2)->pT() > 30.)
-        {
-          _cutflow[4].fill(1);
-          _cutflow[5].fill(1);
-
-          // 1
-          if (nSignalBJets >= 4 and signalBJets.at(3)->pT() > 30.)
-          {
-            _cutflow[4].fill(2);
-            _cutflow[5].fill(2);
-
-            // 2
-            if (nhcand >= 1)
-            {
-              _cutflow[4].fill(3);
-              _cutflow[5].fill(3);
-
-              // 3
-              if (mT > 150.)
-              {
-                _cutflow[4].fill(4);
-                _cutflow[5].fill(4);
-
-                // 4, SRh1A
-                if (nSignalJets >= 4 and signalJets.at(3)->pT() > 60.)
-                {
-                  _cutflow[4].fill(5);
-
-                  // 5
-                  if (met_significance > 12.)
-                    _cutflow[4].fill(6);
-                }
-                // 4, SRh1B
-                if (nSignalJets >= 6 and signalJets.at(3)->pT() > 60.)
-                {
-                  _cutflow[5].fill(5); 
-
-                  // 5
-                  if (met_significance > 7.)
-                    _cutflow[5].fill(6);
-                }
-              }
-            }
-          }
-        } 
+//        if (nSignalLeptons == 1 and nBaselineLeptons > 1 and nSignalJets >= 4 and signalJets.at(3)->pT() > 30. and nSignalBJets >= 3 and signalBJets.at(2)->pT() > 30.)
+//        {
+//          _cutflow[4].fill(1);
+//          _cutflow[5].fill(1);
+//
+//          // 1
+//          if (nSignalBJets >= 4 and signalBJets.at(3)->pT() > 30.)
+//          {
+//            _cutflow[4].fill(2);
+//            _cutflow[5].fill(2);
+//
+//            // 2
+//            if (nhcand >= 1)
+//            {
+//              _cutflow[4].fill(3);
+//              _cutflow[5].fill(3);
+//
+//              // 3
+//              if (mT > 150.)
+//              {
+//                _cutflow[4].fill(4);
+//                _cutflow[5].fill(4);
+//
+//                // 4, SRh1A
+//                if (nSignalJets >= 4 and signalJets.at(3)->pT() > 60.)
+//                {
+//                  _cutflow[4].fill(5);
+//
+//                  // 5
+//                  if (met_significance > 12.)
+//                    _cutflow[4].fill(6);
+//                }
+//                // 4, SRh1B
+//                if (nSignalJets >= 6 and signalJets.at(3)->pT() > 60.)
+//                {
+//                  _cutflow[5].fill(5); 
+//
+//                  // 5
+//                  if (met_significance > 7.)
+//                    _cutflow[5].fill(6);
+//                }
+//              }
+//            }
+//          }
+//        } 
  
       }
 
@@ -581,17 +579,14 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRZ1B"), 14., {12.1, 2.0}));
         add_result(SignalRegionData(_counters.at("SRZ2A"), 3., {5.6, 1.6}));
         add_result(SignalRegionData(_counters.at("SRZ2B"), 6., {5.5, 0.9}));
-        add_result(SignalRegionData(_counters.at("SRh1A"), 11., {17., 3.}));
-        add_result(SignalRegionData(_counters.at("SRh1B"), 24., {19., 5.}));
+//        add_result(SignalRegionData(_counters.at("SRh1A"), 11., {17., 3.}));
+//        add_result(SignalRegionData(_counters.at("SRh1B"), 24., {19., 5.}));
 
         #ifdef CHECK_CUTFLOW
           cout << _cutflow << endl;
           //cout << "n signal leptons before = " << _test2 << endl;
           //cout << "n signal leptons = " << _test[0] << endl;
-          //cout << "n signal jets (pT > 30) = " << _test[1] << endl;
-          //cout << "met = " << _test[2] << endl;
-          //cout << "leading lepton pT > 40 = " << _test[3] << endl;
-          //cout << "subleading lepton pT > 20 = " << _test[4] << endl;
+          //cout << "n baseline leptons = " << _test[1] << endl;
         #endif
 
 

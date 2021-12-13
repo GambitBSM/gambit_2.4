@@ -32,9 +32,13 @@
 #define CONTUR_VERSION "2.1.1"
 #define CONTUR_SAFE_VERSION 2_1_1
 
+#define FULLLIKES_VERSION "1.0"
+#define FULLLIKES_SAFE_VERSION 1_0
+
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
 using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
+using namespace CAT(Backends::ATLAS_FullLikes_,FULLLIKES_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
@@ -69,6 +73,9 @@ int main(int argc, char* argv[])
     bool rivetWorks = true;
     if (not Backends::backendInfo().works[str("Contur")+CONTUR_VERSION]) { conturWorks = false;}
     if (not Backends::backendInfo().works[str("Rivet")+RIVET_VERSION]) { rivetWorks = false;}
+
+    // Make sure that ATLAS FullLikes is present.
+    if (not Backends::backendInfo().works[str("ATLAS_FullLikes") + FULLLIKES_VERSION]) backend_error().raise(LOCAL_INFO, str("ATLAS_FullLikes")+FULLLIKES_VERSION" is missing!");
 
     // Print the banner (if you could call it that)
     cout << endl;
@@ -106,6 +113,8 @@ int main(int argc, char* argv[])
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
+    bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
+    
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
@@ -220,6 +229,8 @@ int main(int argc, char* argv[])
     bool calc_scaledsignal_loglikes = apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, calc_LHC_LogLikes);//Default false
     apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes);//Default 1.0
 
+    calc_LHC_LogLikes.setOption<bool>("use_FullLikes",use_FullLikes);
+
     //if Rivet/Contur, set rivet/contur options
     if (withRivet){
       Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValueOrDef<bool>(true, "drop_YODA_file"));
@@ -231,6 +242,7 @@ int main(int argc, char* argv[])
       std::vector<std::string> contur_options = infile["contur-settings"].as<std::vector<std::string>>();
       Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);                                             
     }
+    
 
     // Resolve ColliderBit dependencies and backend requirements
     convertEvent.resolveDependency(&getEvent);
@@ -240,6 +252,9 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.resolveDependency(&CollectAnalyses);
     calc_LHC_LogLikes.resolveDependency(&operateLHCLoop);
     calc_LHC_LogLikes.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
+    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_FileExists);
+    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_ReadIn);
+    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_Evaluate);
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);

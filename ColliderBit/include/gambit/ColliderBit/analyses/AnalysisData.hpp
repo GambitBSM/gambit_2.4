@@ -161,8 +161,8 @@ namespace Gambit
       ///
       /// If corrs is a null matrix (the default), this AnalysisData is to be interpreted as having no correlation
       /// information, and hence the likelihood calculation should use the single best-expected-limit SR.
-      AnalysisData(const std::vector<SignalRegionData>& srds, const Eigen::MatrixXd& cov=Eigen::MatrixXd())
-        : srdata(srds), srcov(cov)
+      AnalysisData(const std::vector<SignalRegionData>& srds, const Eigen::MatrixXd& cov=Eigen::MatrixXd(),const std::string path="")
+        : srdata(srds), srcov(cov), bkgjson_path(path)
       {
         check();
       }
@@ -178,6 +178,7 @@ namespace Gambit
           sr.n_sig_MC_sys = 0;
         }
         srcov = Eigen::MatrixXd();
+        bkgjson_path = "";
       }
 
       /// Number of analyses
@@ -195,6 +196,12 @@ namespace Gambit
       {
         // check(); // bjf> This was wrong! Needs to be !=, not ==
         return srcov.rows() != 0;
+      }
+      
+      /// Is there non-null correlation data?
+      bool hasFullLikes() const
+      {
+        return (!bkgjson_path.empty());
       }
 
       /// @brief Add a SignalRegionData
@@ -233,7 +240,7 @@ namespace Gambit
 
       /// Analysis name
       std::string analysis_name;
-
+      
       /// Access the i'th signal region's data
       SignalRegionData& operator[] (size_t i) { return srdata[i]; }
       /// Access the i'th signal region's data (const)
@@ -253,6 +260,9 @@ namespace Gambit
 
       /// Optional covariance matrix between SRs (0x0 null matrix = no correlation info)
       Eigen::MatrixXd srcov;
+      
+      /// FullLikes bkg json file path realtive to the GAMBIT directory
+      std::string bkgjson_path;
 
     };
 
