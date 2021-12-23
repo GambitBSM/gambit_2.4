@@ -2203,8 +2203,6 @@ namespace Gambit
       const Spectrum& spec = *Dep::MSSM_spectrum;
       const LSP lsp(spec);
 
-      // _Anders
-
       const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
       const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
