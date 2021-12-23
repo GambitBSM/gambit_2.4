@@ -2203,6 +2203,8 @@ namespace Gambit
       const Spectrum& spec = *Dep::MSSM_spectrum;
       const LSP lsp(spec);
 
+      // _Anders
+
       const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
       const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
@@ -2244,12 +2246,18 @@ namespace Gambit
       totalBR += decays.at("~chi+_1").BF(lsp.name, "e+", "nu_e");
       totalBR += decays.at("~chi+_1").BF(lsp.name, "mu+", "nu_mu");
       totalBR += decays.at("~chi+_1").BF(lsp.name, "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_1").BF(snue, "e+")
-               * decays.at(snue).BF(lsp.name, "nu_e");
-      totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-               * decays.at(snumu).BF(lsp.name, "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-               * decays.at(snutau).BF(lsp.name, "nu_tau");
+
+      // We don't have sneutrino --> gravitino + neutrino decays
+      if (lsp.pdg != 1000039)
+      {
+        totalBR += decays.at("~chi+_1").BF(snue, "e+")
+                 * decays.at(snue).BF(lsp.name, "nu_e");
+        totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
+                 * decays.at(snumu).BF(lsp.name, "nu_mu");
+        totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
+                 * decays.at(snutau).BF(lsp.name, "nu_tau");
+      }
+
       xsecWithError.upper *= totalBR;
       xsecWithError.central *= totalBR;
       xsecWithError.lower *= totalBR;
@@ -2289,12 +2297,18 @@ namespace Gambit
       totalBR += decays.at("~chi+_2").BF(lsp.name, "e+", "nu_e");
       totalBR += decays.at("~chi+_2").BF(lsp.name, "mu+", "nu_mu");
       totalBR += decays.at("~chi+_2").BF(lsp.name, "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_2").BF(snue, "e+")
-               * decays.at(snue).BF(lsp.name, "nu_e");
-      totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-               * decays.at(snumu).BF(lsp.name, "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-               * decays.at(snutau).BF(lsp.name, "nu_tau");
+
+      // We don't have sneutrino --> gravitino + neutrino decays
+      if (lsp.pdg != 1000039)
+      {
+        totalBR += decays.at("~chi+_2").BF(snue, "e+")
+                 * decays.at(snue).BF(lsp.name, "nu_e");
+        totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
+                 * decays.at(snumu).BF(lsp.name, "nu_mu");
+        totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
+                 * decays.at(snutau).BF(lsp.name, "nu_tau");
+      }
+
       xsecWithError.upper *= totalBR;
       xsecWithError.central *= totalBR;
       xsecWithError.lower *= totalBR;
@@ -2374,12 +2388,18 @@ namespace Gambit
       totalBR += decays.at("~chi+_1").BF(lsp.name, "e+", "nu_e");
       totalBR += decays.at("~chi+_1").BF(lsp.name, "mu+", "nu_mu");
       totalBR += decays.at("~chi+_1").BF(lsp.name, "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_1").BF(snue, "e+")
-               * decays.at(snue).BF(lsp.name, "nu_e");
-      totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-               * decays.at(snumu).BF(lsp.name, "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-               * decays.at(snutau).BF(lsp.name, "nu_tau");
+
+      // We don't have sneutrino --> gravitino + neutrino decays
+      if (lsp.pdg != 1000039)
+      {
+        totalBR += decays.at("~chi+_1").BF(snue, "e+")
+                 * decays.at(snue).BF(lsp.name, "nu_e");
+        totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
+                 * decays.at(snumu).BF(lsp.name, "nu_mu");
+        totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
+                 * decays.at(snutau).BF(lsp.name, "nu_tau");
+      }
+
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
@@ -2408,12 +2428,18 @@ namespace Gambit
       totalBR += decays.at("~chi+_2").BF(lsp.name, "e+", "nu_e");
       totalBR += decays.at("~chi+_2").BF(lsp.name, "mu+", "nu_mu");
       totalBR += decays.at("~chi+_2").BF(lsp.name, "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_2").BF(snue, "e+")
-               * decays.at(snue).BF(lsp.name, "nu_e");
-      totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-               * decays.at(snumu).BF(lsp.name, "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-               * decays.at(snutau).BF(lsp.name, "nu_tau");
+
+      // We don't have sneutrino --> gravitino + neutrino decays
+      if (lsp.pdg != 1000039)
+      {
+        totalBR += decays.at("~chi+_2").BF(snue, "e+")
+                 * decays.at(snue).BF(lsp.name, "nu_e");
+        totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
+                 * decays.at(snumu).BF(lsp.name, "nu_mu");
+        totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
+                 * decays.at(snutau).BF(lsp.name, "nu_tau");
+      }
+
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
@@ -2519,12 +2545,18 @@ namespace Gambit
       totalBR += decays.at("~chi+_1").BF(lsp.name, "e+", "nu_e");
       totalBR += decays.at("~chi+_1").BF(lsp.name, "mu+", "nu_mu");
       totalBR += decays.at("~chi+_1").BF(lsp.name, "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_1").BF(snue, "e+")
-               * decays.at(snue).BF(lsp.name, "nu_e");
-      totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-               * decays.at(snumu).BF(lsp.name, "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-               * decays.at(snutau).BF(lsp.name, "nu_tau");
+
+      // We don't have sneutrino --> gravitino + neutrino decays
+      if (lsp.pdg != 1000039)
+      {
+        totalBR += decays.at("~chi+_1").BF(snue, "e+")
+                 * decays.at(snue).BF(lsp.name, "nu_e");
+        totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
+                 * decays.at(snumu).BF(lsp.name, "nu_mu");
+        totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
+                 * decays.at(snutau).BF(lsp.name, "nu_tau");
+      }
+
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
@@ -2550,12 +2582,18 @@ namespace Gambit
       totalBR += decays.at("~chi+_2").BF(lsp.name, "e+", "nu_e");
       totalBR += decays.at("~chi+_2").BF(lsp.name, "mu+", "nu_mu");
       totalBR += decays.at("~chi+_2").BF(lsp.name, "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_2").BF(snue, "e+")
-               * decays.at(snue).BF(lsp.name, "nu_e");
-      totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-               * decays.at(snumu).BF(lsp.name, "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-               * decays.at(snutau).BF(lsp.name, "nu_tau");
+
+      // We don't have sneutrino --> gravitino + neutrino decays
+      if (lsp.pdg != 1000039)
+      {
+        totalBR += decays.at("~chi+_2").BF(snue, "e+")
+                 * decays.at(snue).BF(lsp.name, "nu_e");
+        totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
+                 * decays.at(snumu).BF(lsp.name, "nu_mu");
+        totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
+                 * decays.at(snutau).BF(lsp.name, "nu_tau");
+      }
+
       xsecWithError.upper *= pow(totalBR, 2);
       xsecWithError.central *= pow(totalBR, 2);
       xsecWithError.lower *= pow(totalBR, 2);
