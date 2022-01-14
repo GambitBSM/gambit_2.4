@@ -117,7 +117,7 @@ string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${it
 # otherwise it seems to get it wrong.  Also, we need to add versions of python
 # greater than 3.3 manually, for compatibility with CMake 2.8.12.
 # If pybind11 is ditched, do not worry about PythonLibs
-set(Python_ADDITIONAL_VERSIONS 3.6 3.7 3.8 3.9) #For now Removing Python 3.4 and 3.5 as they do have correct pyhf version TODO: Make cmake check this and disable ATLAS likelihoods if not
+set(Python_ADDITIONAL_VERSIONS 3.6 3.7 3.8 3.9)
 # If both FORCE_PYTHON2 and FORCE_PYTHON3 are set, throw error
 if (FORCE_PYTHON2 AND FORCE_PYTHON3)
   message(FATAL_ERROR "Two different versions of python requested. Switch either FORCE_PYTHON2 or FORCE_PYTHON3 off.")
