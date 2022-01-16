@@ -158,24 +158,27 @@ endif()
 # ATLAS_FullLikes
 set(name "ATLAS_FullLikes")
 set(ver "1.0")
+set(dl "no-download-url")
 set(ditch_if_absent "Python")
 set(required_modules "pyhf")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/examples/${name}/${ver}")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(examples_dir "${PROJECT_SOURCE_DIR}/Backends/examples/${name}/${ver}")
 check_ditch_status(${name} ${ver} "none" ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
   if(modules_missing_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    ExternalProject_Add(${name}_${ver}
+      DOWNLOAD_COMMAND ""
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      PATCH_COMMAND ""
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ${CMAKE_COMMAND} -E copy_directory ${examples_dir} ${dir}
+      INSTALL_COMMAND ""
+    )
   endif()
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ""
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-  )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

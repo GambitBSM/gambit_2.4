@@ -182,7 +182,7 @@ libMathematicaTest:
 #   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
 
 ATLAS_FullLikes:
-  1.0:       ./Backends/examples/ATLAS_FullLikes/1.0/ATLAS_FullLikes_1_0.py
+  1.0:       ./Backends/installed/ATLAS_FullLikes/1.0/ATLAS_FullLikes_1_0.py
 
 simple_xs:
   1.0:       ./Backends/examples/simple_xs/1.0/simple_xs.py
