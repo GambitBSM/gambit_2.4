@@ -365,10 +365,10 @@ int main(int argc, char* argv[])
         summary_line << "      SM prediction: " << srData.n_bkg << " +/- " << combined_bg_uncertainty << endl;
         summary_line << "      Signal prediction: " << srData.n_sig_scaled << " +/- " << combined_s_uncertainty << endl;
         summary_line << "      Log-likelihood: " << analysis_loglikes.sr_loglikes.at(sr_index) << endl;
-        if (calc_noerr_loglikes) {summary_line << "      No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("noerr").at(sr_index);}
-        if (calc_expected_loglikes) {summary_line << "\n      Expected Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected").at(sr_index);}
-        if (calc_expected_noerr_loglikes) {summary_line << "\n      Expected No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected_noerr").at(sr_index);}
-        if (calc_scaledsignal_loglikes) {summary_line << "\n      Scaled Signal Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("scaledsignal").at(sr_index) << std::endl;}
+        if (calc_noerr_loglikes) {summary_line << "      No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("noerr").at(sr_index) << "\n";}
+        if (calc_expected_loglikes) {summary_line << "      Expected Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected").at(sr_index) << "\n";}
+        if (calc_expected_noerr_loglikes) {summary_line << "      Expected No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected_noerr").at(sr_index) << "\n";}
+        if (calc_scaledsignal_loglikes) {summary_line << "      Scaled Signal Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("scaledsignal").at(sr_index) << std::endl;}
       }
       summary_line << "    Selected signal region: " << analysis_loglikes.combination_sr_label << endl;
       summary_line << "    Total log-likelihood for analysis:" << analysis_loglikes.combination_loglike << endl << endl;
