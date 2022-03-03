@@ -15,7 +15,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Rivet_3_1_4.hpp"
+#include "gambit/Backends/frontends/Rivet_3_1_5.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
 
@@ -26,7 +26,7 @@ BE_INI_FUNCTION
   if (scan_level)
   {
     std::string rivet_analyses_dir = std::string(GAMBIT_DIR)+
-        "/Backends/installed/rivet/3.1.4/analyses";
+        "/Backends/installed/rivet/3.1.5/analyses";
 
     //Check if the rivet_analyses_dir if it actually exists: if it 
     //doesn't then installation probably hasn't installed properly.

@@ -1,5 +1,5 @@
-#ifndef __loaded_types_Rivet_3_1_4_hpp__
-#define __loaded_types_Rivet_3_1_4_hpp__ 1
+#ifndef __loaded_types_Rivet_3_1_5_hpp__
+#define __loaded_types_Rivet_3_1_5_hpp__ 1
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
@@ -9,7 +9,7 @@
 #pragma GCC diagnostic pop
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
-#define Rivet_3_1_4_all_data \
+#define Rivet_3_1_5_all_data \
   (( /*class*/(Rivet)(AnalysisHandler),    /*constructors*/(("Factory_AnalysisHandler_0__BOSS_1",(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&))) (("Factory_AnalysisHandler_1__BOSS_2",())) )) \
 
 // If the default version has been loaded, set it as default.
@@ -20,4 +20,4 @@
 // Undefine macros to avoid conflict with other backends.
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __loaded_types_Rivet_3_1_4_hpp__ */
+#endif /* __loaded_types_Rivet_3_1_5_hpp__ */

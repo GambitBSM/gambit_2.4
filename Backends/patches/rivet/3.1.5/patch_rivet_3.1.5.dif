@@ -1,6 +1,6 @@
-diff -rupN Rivet-3.1.4/Makefile.in ../installed/rivet/3.1.4/Makefile.in
---- Rivet-3.1.4/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.4/Makefile.in	2021-07-09 15:06:26.872373007 +0200
+diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
+--- Rivet-3.1.5/Makefile.in	2021-04-01 13:22:11.000000000 +0200
++++ ../installed/rivet/3.1.5/Makefile.in	2021-07-09 15:06:26.872373007 +0200
 @@ -455,6 +455,17 @@ pkgconfigdir = $(libdir)/pkgconfig
  dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
@@ -19,9 +19,9 @@ diff -rupN Rivet-3.1.4/Makefile.in ../installed/rivet/3.1.4/Makefile.in
  
  .SUFFIXES:
  am--refresh: Makefile
-diff -rupN Rivet-3.1.4/include/Rivet/Makefile.in ../installed/rivet/3.1.4/include/Rivet/Makefile.in
---- Rivet-3.1.4/include/Rivet/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.4/include/Rivet/Makefile.in	2021-07-09 15:06:26.872373007 +0200
+diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/include/Rivet/Makefile.in
+--- Rivet-3.1.5/include/Rivet/Makefile.in	2021-04-01 13:22:11.000000000 +0200
++++ ../installed/rivet/3.1.5/include/Rivet/Makefile.in	2021-07-09 15:06:26.872373007 +0200
 @@ -381,6 +381,7 @@ nobase_dist_noinst_HEADERS = Tools/osdir
  	Math/eigen3/README.md
  
@@ -44,20 +44,20 @@ diff -rupN Rivet-3.1.4/include/Rivet/Makefile.in ../installed/rivet/3.1.4/includ
 +        ../gambit/Backends/wrappertypedefs.hh \
 +        ../gambit/Backends/function_return_utils.hpp \
 +        ../gambit/Utils/cats.hpp \
-+        ../backend_types/Rivet_3.1.4/identification.hpp \
-+        ../backend_types/Rivet_3.1.4/forward_decls_abstract_classes.hh \
-+        ../backend_types/Rivet_3.1.4/forward_decls_wrapper_classes.hh \
-+        ../backend_types/Rivet_3.1.4/abstract_AnalysisHandler.hh \
-+        ../backend_types/Rivet_3.1.4/wrapper_AnalysisHandler.hh \
-+        ../backend_types/Rivet_3.1.4/wrapper_AnalysisHandler_decl.hh \
-+        ../backend_types/Rivet_3.1.4/wrapper_AnalysisHandler_def.hh
++        ../backend_types/Rivet_3.1.5/identification.hpp \
++        ../backend_types/Rivet_3.1.5/forward_decls_abstract_classes.hh \
++        ../backend_types/Rivet_3.1.5/forward_decls_wrapper_classes.hh \
++        ../backend_types/Rivet_3.1.5/abstract_AnalysisHandler.hh \
++        ../backend_types/Rivet_3.1.5/wrapper_AnalysisHandler.hh \
++        ../backend_types/Rivet_3.1.5/wrapper_AnalysisHandler_decl.hh \
++        ../backend_types/Rivet_3.1.5/wrapper_AnalysisHandler_def.hh
 +
  all: all-am
  
  .SUFFIXES:
-diff -rupN Rivet-3.1.4/src/Core/Makefile.in ../installed/rivet/3.1.4/src/Core/Makefile.in
---- Rivet-3.1.4/src/Core/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.4/src/Core/Makefile.in	2021-07-09 15:32:29.946626870 +0200
+diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Makefile.in
+--- Rivet-3.1.5/src/Core/Makefile.in	2021-04-01 13:22:11.000000000 +0200
++++ ../installed/rivet/3.1.5/src/Core/Makefile.in	2021-07-09 15:32:29.946626870 +0200
 @@ -110,6 +110,7 @@ CONFIG_CLEAN_VPATH_FILES =
  LTLIBRARIES = $(noinst_LTLIBRARIES)
  libRivetCore_la_DEPENDENCIES =  \
@@ -155,9 +155,9 @@ diff -rupN Rivet-3.1.4/src/Core/Makefile.in ../installed/rivet/3.1.4/src/Core/Ma
  mostlyclean-libtool:
  	-rm -f *.lo
  
-diff -rupN Rivet-3.1.4/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.4/include/Rivet/AnalysisHandler.hh
---- Rivet-3.1.4/include/Rivet/AnalysisHandler.hh  2021-03-29 14:15:18.000000000 +0200
-+++ ../installed/rivet/3.1.4/include/Rivet/AnalysisHandler.hh 2021-06-18 16:05:58.062283178 +0200
+diff -rupN Rivet-3.1.5/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh
+--- Rivet-3.1.5/include/Rivet/AnalysisHandler.hh  2021-03-29 14:15:18.000000000 +0200
++++ ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh 2021-06-18 16:05:58.062283178 +0200
 @@ -27,10 +27,10 @@ namespace Rivet {
      AnalysisHandler(const string& runname="");
 
@@ -181,9 +181,9 @@ diff -rupN Rivet-3.1.4/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.4
 
      /// @brief Configure the AnalysisObject dump rate and destination.
      ///
-diff -rupN Rivet-3.1.4/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.4/include/Rivet/Tools/RivetHepMC.hh
---- Rivet-3.1.4/include/Rivet/Tools/RivetHepMC.hh	2020-04-07 16:43:14.000000000 +0200
-+++ ../installed/rivet/3.1.4/include/Rivet/Tools/RivetHepMC.hh	2021-07-09 15:06:26.876373011 +0200
+diff -rupN Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh
+--- Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh	2020-04-07 16:43:14.000000000 +0200
++++ ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh	2021-07-09 15:06:26.876373011 +0200
 @@ -8,7 +8,7 @@
  #include <valarray>
  
@@ -212,9 +212,9 @@ diff -rupN Rivet-3.1.4/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.
  
  
  namespace Rivet {
-diff -rupN Rivet-3.1.4/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.4/src/Core/AnalysisHandler.c
---- Rivet-3.1.4/src/Core/AnalysisHandler.cc	2021-04-05 21:02:55.000000000 +0200
-+++ ../installed/rivet/3.1.4/src/Core/AnalysisHandler.cc	2021-07-09 15:06:26.876373011 +0200
+diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/Core/AnalysisHandler.c
+--- Rivet-3.1.5/src/Core/AnalysisHandler.cc	2021-04-05 21:02:55.000000000 +0200
++++ ../installed/rivet/3.1.5/src/Core/AnalysisHandler.cc	2021-07-09 15:06:26.876373011 +0200
 @@ -121,7 +121,8 @@ namespace Rivet {
      if (num_anas_requested > 0 && analysisNames().empty()) {
        MSG_ERROR("All analyses were incompatible with the first event's beams\n"
@@ -238,9 +238,9 @@ diff -rupN Rivet-3.1.4/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.4/src/
  
    string AnalysisHandler::runName() const {
      return _runname;
-diff -rupN Rivet-3.1.4/analyses/Makefile.in ../installed/rivet/3.1.4/analyses/Makefile.in
---- Rivet-3.1.4/analyses/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.4/analyses/Makefile.in	2021-07-09 15:06:26.876373011 +0200
+diff -rupN Rivet-3.1.5/analyses/Makefile.in ../installed/rivet/3.1.5/analyses/Makefile.in
+--- Rivet-3.1.5/analyses/Makefile.in	2021-04-01 13:22:11.000000000 +0200
++++ ../installed/rivet/3.1.5/analyses/Makefile.in	2021-07-09 15:06:26.876373011 +0200
 @@ -569,7 +569,8 @@ uninstall-am: uninstall-local
  @ENABLE_ANALYSES_TRUE@	mkdir -p $(builddir)/data
  @ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/plugin*; do $(LN_S) -f $${pdir}/*.{info,plot,yoda*} $(builddir)/data; done

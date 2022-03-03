@@ -1,5 +1,5 @@
-#ifndef __wrapper_AnalysisHandler_decl_Rivet_3_1_4_hh__
-#define __wrapper_AnalysisHandler_decl_Rivet_3_1_4_hh__
+#ifndef __wrapper_AnalysisHandler_decl_Rivet_3_1_5_hh__
+#define __wrapper_AnalysisHandler_decl_Rivet_3_1_5_hh__
 
 #include <cstddef>
 #include <string>
@@ -133,7 +133,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void dump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period);
       
-            void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, bool equiv);
+            void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& matches, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& unmatches, bool equiv);
+      
+            void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& matches, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& unmatches);
+      
+            void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& matches);
       
             void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts);
       
@@ -170,4 +174,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_AnalysisHandler_decl_Rivet_3_1_4_hh__ */
+#endif /* __wrapper_AnalysisHandler_decl_Rivet_3_1_5_hh__ */

@@ -1,5 +1,5 @@
-#ifndef __abstract_AnalysisHandler_Rivet_3_1_4_hh__
-#define __abstract_AnalysisHandler_Rivet_3_1_4_hh__
+#ifndef __abstract_AnalysisHandler_Rivet_3_1_5_hh__
+#define __abstract_AnalysisHandler_Rivet_3_1_5_hh__
 
 #include <cstddef>
 #include <iostream>
@@ -126,7 +126,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void dump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&, int) =0;
    
-            virtual void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, bool) =0;
+            virtual void mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, bool) =0;
+   
+            virtual void mergeYodas__BOSS(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&) =0;
+   
+            virtual void mergeYodas__BOSS(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&) =0;
    
             virtual void mergeYodas__BOSS(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >&) =0;
    
@@ -186,4 +190,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 #include "gambit/Backends/backend_undefs.hpp"
 
 
-#endif /* __abstract_AnalysisHandler_Rivet_3_1_4_hh__ */
+#endif /* __abstract_AnalysisHandler_Rivet_3_1_5_hh__ */
