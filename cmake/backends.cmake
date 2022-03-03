@@ -835,12 +835,12 @@ set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURC
 # - Setup HepMC-specific additions
 option(PYTHIA_WITH_HEPMC "Pythia is compiled with HepMC" ON)
 if(EXCLUDE_HEPMC)
-  set(pythia_depends_on "")
+  set(pythia_depends_on "castxml")
   set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_nohepmc.dif")
   set(EXTRA_CONFIG "")
   set(BOSS_suffix "nohepmc")
 else()
-  set(pythia_depends_on "hepmc")
+  set(pythia_depends_on "hepmc;castxml")
   set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
   set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_LIB} -Wl,-rpath ${HEPMC_LIB} -lHepMC3")
@@ -852,7 +852,6 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
     DEPENDS ${pythia_depends_on}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -1362,25 +1361,6 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
-# Minuit2
-set(name "minuit2")
-set(ver "5.34.14")
-set(md5 "7fc00378a2ed1f731b719d4837d62d6a")
-set(dl "http://seal.web.cern.ch/seal/MathLibs/5_34_14/Minuit2/Minuit2-5.34.14.tar.gz")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-    ExternalProject_Add(${name}_${ver}
-            DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-            SOURCE_DIR ${dir}
-            BUILD_IN_SOURCE 1
-            CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=-fPIC ./configure --prefix=${dir} --disable-openmp --with-pic
-            BUILD_COMMAND ${MAKE_PARALLEL}
-            INSTALL_COMMAND ${MAKE_PARALLEL} install
-            )
-    add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-endif()
-
 # phc
 set(name "phc")
 set(ver "2.4.58")
@@ -1445,12 +1425,12 @@ set(md5 "none") # Keep none for now because there is no tagged release of vevaci
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(Minuit_name "minuit2")
-set(Minuit_lib_name "Minuit2")
-set(Minuit_ver "5.34.14")
+set(Minuit_ver "6.23.01")
+set(Minuit_lib_name "libminuit2")
 set(phc_ver "2.4.58")
 set(hom4ps_ver "2.0")
-set(Minuit_include "${PROJECT_SOURCE_DIR}/Backends/installed/${Minuit_name}/${Minuit_ver}/include/")
-set(Minuit_lib "${PROJECT_SOURCE_DIR}/Backends/installed/${Minuit_name}/${Minuit_ver}/lib/")
+set(Minuit_include "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/inc/")
+set(Minuit_lib "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/lib/")
 set(VPP_CMAKE_FLAGS -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
 set(VPP_FLAGS "${BACKEND_CXX_FLAGS} -Wno-unused-local-typedefs -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
 set_compiler_warning("no-unused-parameter" VPP_FLAGS)
@@ -1465,6 +1445,7 @@ if(NOT ditched_${name}_${ver})
           DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
           SOURCE_DIR ${dir}
           BUILD_IN_SOURCE 1
+          PATCH_COMMAND patch -p1 < ${patchdir}/patch_${name}_${ver}.dif
           UPDATE_COMMAND  sed ${dashi} -e "${BOSSregex}" ${dir}/CMakeLists.txt
           CONFIGURE_COMMAND ${CMAKE_COMMAND} ${VPP_CMAKE_FLAGS} ${dir}
           BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_CXX_COMPILER} CCFLAGS=${VPP_FLAGS} MINUITLIBDIR=${Minuit_lib} MINUITLIBNAME=${Minuit_lib_name} VevaciousPlusPlus-lib
