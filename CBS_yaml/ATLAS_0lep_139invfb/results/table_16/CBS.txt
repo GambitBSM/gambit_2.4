@@ -1,0 +1,105 @@
+2j-1600 cut-flow:
+                                   Count    A_cumu    A_incr
+                                  2543.1      100%        - 
+Pass Pre-sel + MET + pT1 + meff   1763.0       69%       69%
+Pass Njet >= 2                    1741.2       68%       99%
+Pass Cleaning                     1706.7       67%       98%
+Pass Njet > x + pT1               1672.7       66%       98%
+Pass Dphi(j123,MET)min            1490.7       59%       89%
+Pass Dphi(j4+,MET)min             1422.0       56%       95%
+Pass pTx                           909.7       36%       64%
+Pass |eta_x|                       888.9       35%       98%
+Pass Aplanarity                    888.9       35%      100%
+Pass MET/sqrt(HT)                  595.2       23%       67%
+Pass m_eff(incl)                   403.5       16%       68%
+
+2j-2200 cut-flow:
+                                   Count    A_cumu    A_incr
+                                  2543.1      100%        - 
+Pass Pre-sel + MET + pT1 + meff   1763.0       69%       69%
+Pass Njet >= 2                    1741.2       68%       99%
+Pass Cleaning                     1706.7       67%       98%
+Pass Dphi(j123,MET)min            1706.7       67%      100%
+Pass Dphi(j4+,MET)min             1664.4       65%       98%
+Pass pT1                           541.9       21%       33%
+Pass |eta_x|                       541.9       21%      100%
+Pass MET/sqrt(HT)                  357.1       14%       66%
+Pass m_eff(incl)                   105.6        4%       30%
+
+2j-2800 cut-flow:
+                                   Count    A_cumu    A_incr
+                                  2543.1      100%        - 
+Pass Pre-sel + MET + pT1 + meff   1763.0       69%       69%
+Pass Njet >= 2                    1741.2       68%       99%
+Pass Cleaning                     1706.7       67%       98%
+Pass Njet > x + pT1               1672.7       66%       98%
+Pass Dphi(j123,MET)min            1490.7       59%       89%
+Pass Dphi(j4+,MET)min             1422.0       56%       95%
+Pass pTx                           909.7       36%       64%
+Pass |eta_x|                       690.3       27%       76%
+Pass Aplanarity                    690.3       27%      100%
+Pass MET/sqrt(HT)                  461.8       18%       67%
+Pass m_eff(incl)                    15.4        1%        3%
+
+Read and analysed 50000 events from HepMC file.
+
+Analysis details:
+
+  ATLAS_13TeV_0LEP_139invfb: 
+    Signal region 2j-1600 (SR index 0):
+      Observed events: 2111
+      SM prediction: 2190 +/- 130
+      Signal prediction: 21.6391 +/- 0.242937
+      Log-likelihood: -0.102182
+    Signal region 2j-2200 (SR index 1):
+      Observed events: 971
+      SM prediction: 980 +/- 50
+      Signal prediction: 5.6648 +/- 0.124299
+      Log-likelihood: -0.019292
+    Signal region 2j-2800 (SR index 2):
+      Observed events: 78
+      SM prediction: 87 +/- 8
+      Signal prediction: 0.8264 +/- 0.0474755
+      Log-likelihood: -0.0527963
+    Signal region 4j-1000 (SR index 3):
+      Observed events: 535
+      SM prediction: 536 +/- 31
+      Signal prediction: 3.41742 +/- 0.0965436
+      Log-likelihood: -0.00618313
+    Signal region 4j-2200 (SR index 4):
+      Observed events: 60
+      SM prediction: 60 +/- 5
+      Signal prediction: 1.27369 +/- 0.0589395
+      Log-likelihood: -0.00947554
+    Signal region 4j-3400 (SR index 5):
+      Observed events: 4
+      SM prediction: 5.7 +/- 1
+      Signal prediction: 0.0790944 +/- 0.0146875
+      Log-likelihood: -0.0212545
+    Signal region 5j-1600 (SR index 6):
+      Observed events: 320
+      SM prediction: 319 +/- 19
+      Signal prediction: 2.06191 +/- 0.0749909
+      Log-likelihood: -9.29754e-05
+    Signal region 6j-1000 (SR index 7):
+      Observed events: 25
+      SM prediction: 21 +/- 2.9
+      Signal prediction: 0.240011 +/- 0.0255852
+      Log-likelihood: 0.030442
+    Signal region 6j-2200 (SR index 8):
+      Observed events: 5
+      SM prediction: 4.6 +/- 1
+      Signal prediction: 0.150007 +/- 0.0202269
+      Log-likelihood: 0.00851325
+    Signal region 6j-3400 (SR index 9):
+      Observed events: 0
+      SM prediction: 0.8 +/- 0.4
+      Signal prediction: 0.013637 +/- 0.00609864
+      Log-likelihood: -0.0136184
+    Selected signal region: 2j-1600
+    Total log-likelihood for analysis:-0.102182
+
+
+Total combined ATLAS+CMS log-likelihood: -1.02182e-01
+
+

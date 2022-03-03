@@ -26,8 +26,9 @@
 ///  \date 2020 Apr
 ///
 ///  \author Tomek Procter
-///           (tsp116@ic.ac.uk)
+///           (t.procter.1@research.gla.ac.uk)
 ///  \date 2019 October
+///  \date 2021 November
 ///
 ///  \author Yang Zhang
 ///           (tsp116@ic.ac.uk)
@@ -126,10 +127,11 @@ namespace Gambit
       // Initialize the reader on the first iteration
       if (iteration == BASE_INIT)
       {
-        if (HepMC_file_version == 2)
+        if (HepMC_file_version == 2){
           HepMCio = new HepMC3::ReaderAsciiHepMC2(HepMC_filename);
-        else
+        } else {
           HepMCio = new HepMC3::ReaderAscii(HepMC_filename);
+        }
       }
 
       // Delete the reader in the last iteration
@@ -162,7 +164,6 @@ namespace Gambit
       }
       if (not event_retrieved) halt();
 
-
    }
     /// A nested function that reads in HepMC event files
     void getHepMCEvent(HepMC3::GenEvent& result)
@@ -192,12 +193,36 @@ namespace Gambit
       HepMC3::GenEvent ge;
       readHepMCEvent(ge, HepMC_filename, *Dep::RunMC, *Loop::iteration, Loop::halt);
 
+      //We need to not do anything else on special iterations, where an event has not actually been extracted:
+      if (*Loop::iteration < 0) return;
+      
       //Set the weight
       result.set_weight(ge.weight());
 
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
       Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, antiktR, jet_pt_min);
  
+    }
+
+    void convertHepMCEvent_HEPUtils(HEPUtils::Event &result)
+    {
+      using namespace Pipes::convertHepMCEvent_HEPUtils;
+
+      //Don't do anything on special iterations: you'll just end up dereferencing a nullptr
+      if (*Loop::iteration < 0) return;
+
+      //HepMC Event should just be sitting waiting for us.
+      HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+
+      //Get yaml options required for conversion
+      const static double antiktR = runOptions->getValueOrDef<double>(0.4, "antiktR");
+      const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
+
+      //Set the weight
+      result.set_weight(ge.weight());
+
+      //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
+      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, antiktR, jet_pt_min);
     }
 
   }

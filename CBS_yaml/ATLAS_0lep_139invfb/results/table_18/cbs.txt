@@ -1,0 +1,64 @@
+5j-1600 cut-flow:
+                                    Count    A_cumu    A_incr
+                                  21939.7      100%        - 
+Pass Pre-sel + MET + pT1 + meff    6101.0       28%       28%
+Pass Njet >= 2                     6101.0       28%      100%
+Pass Cleaning                      5968.9       27%       98%
+Pass Njet > x + pT1                 474.3        2%        8%
+Pass Dphi(j123,MET)min              474.3        2%      100%
+Pass Dphi(j4+,MET)min               371.7        2%       78%
+Pass pTx                            371.7        2%      100%
+Pass |eta_x|                        371.7        2%      100%
+Pass Aplanarity                     371.7        2%      100%
+Pass MET/sqrt(HT)                   149.2        1%       40%
+Pass m_eff(incl)                    147.9        1%       99%
+
+6j-1000 cut-flow:
+                                    Count    A_cumu    A_incr
+                                  21939.7      100%        - 
+Pass Pre-sel + MET + pT1 + meff    6101.0       28%       28%
+Pass Njet >= 2                     6101.0       28%      100%
+Pass Cleaning                      5968.9       27%       98%
+Pass Njet > x + pT1                4330.9       20%       73%
+Pass Dphi(j123,MET)min             4330.9       20%      100%
+Pass Dphi(j4+,MET)min              3602.1       16%       83%
+Pass pTx                           2041.7        9%       57%
+Pass |eta_x|                       1708.7        8%       84%
+Pass Aplanarity                    1113.7        5%       65%
+Pass MET/sqrt(HT)                   289.6        1%       26%
+Pass m_eff(incl)                    289.6        1%      100%
+
+6j-2200 cut-flow:
+                                    Count    A_cumu    A_incr
+                                  21939.7      100%        - 
+Pass Pre-sel + MET + pT1 + meff    6101.0       28%       28%
+Pass Njet >= 2                     6101.0       28%      100%
+Pass Cleaning                      5968.9       27%       98%
+Pass Njet > x + pT1                4330.9       20%       73%
+Pass Dphi(j123,MET)min             4330.9       20%      100%
+Pass Dphi(j4+,MET)min              3602.1       16%       83%
+Pass pTx                           2041.7        9%       57%
+Pass |eta_x|                       1708.7        8%       84%
+Pass Aplanarity                    1113.7        5%       65%
+Pass MET/sqrt(HT)                   289.6        1%       26%
+Pass m_eff(incl)                     50.5        0%       17%
+
+6j-3400 cut-flow:
+                                    Count    A_cumu    A_incr
+                                  21939.7      100%        - 
+Pass Pre-sel + MET + pT1 + meff    6101.0       28%       28%
+Pass Njet >= 2                     6101.0       28%      100%
+Pass Cleaning                      5968.9       27%       98%
+Pass Njet > x + pT1                4330.9       20%       73%
+Pass Dphi(j123,MET)min             4330.9       20%      100%
+Pass Dphi(j4+,MET)min              3602.1       16%       83%
+Pass pTx                           2041.7        9%       57%
+Pass |eta_x|                       1708.7        8%       84%
+Pass Aplanarity                    1113.7        5%       65%
+Pass MET/sqrt(HT)                   932.0        4%       84%
+Pass m_eff(incl)                      5.3        0%        1%
+
+
+
+SRCOUNTS:
+665  258  41  1742  210  16  337  660  115  12  

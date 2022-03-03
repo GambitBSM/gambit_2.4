@@ -1,0 +1,28 @@
+#An example CBS yaml file
+#Tomasz Procter (t.procter.1@research.gla.ac.uk), Nov 2021
+#Adapted from earlier examples by Pat Scott (May 2019), Yang Zhang (Jun 2020)
+
+#List analyses
+analyses:
+  - ATLAS_13TeV_0LEP_139invfb
+#CBS Settings
+settings:
+  debug: true
+  seed: 1337
+  event_file: GAMBIT_collider_events.omp_thread_0.hepmc2
+  cross_section_fb: 0.981077
+  cross_section_fractional_uncert: 0.318422
+  events_between_convergence_checks: 100000
+  target_fractional_uncert: 0.02
+  halt_when_systematic_dominated: true
+  all_analyses_must_converge: true
+  all_SR_must_converge: true
+  use_covariances: false
+  combine_SRs_without_covariances: false
+  nuisance_marg_convthres_abs: 0.05
+  nuisance_marg_convthres_rel: 0.05
+  nuisance_marg_nsamples_start: 100000
+  # calc_noerr_loglikes: true 
+  # calc_expected_loglikes: true
+  # calc_expected_noerr_loglikes: true 
+  # calc_scaledsignal_loglikes: true

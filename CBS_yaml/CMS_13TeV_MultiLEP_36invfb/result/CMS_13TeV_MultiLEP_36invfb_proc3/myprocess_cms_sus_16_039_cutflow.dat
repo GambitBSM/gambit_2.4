@@ -1,0 +1,43 @@
+# cms
+# cms pss sus-16-039
+# 3 leptons
+# sqrt(s) = 13 TeV
+# int(L) = 35.9fb^-1
+
+Inputfile:
+XSect:           46 fb
+ Error:          0 fb
+MCEvents:        50000
+ SumOfWeights:   50000
+ SumOfWeights2:  50000
+ NormEvents:     1651.4
+
+Cut                                        Sum_W  Sum_W2  Acc      N_Norm    
+CutFlow_0_Start                            50000  50000   1        1651.4    
+CutFlow_2l_a_2tight_e_mu                   5911   5911    0.11822  195.229   
+CutFlow_2l_b_same_sign                     2787   2787    0.05574  92.049    
+CutFlow_2l_c_3th_l_veto                    2388   2388    0.04776  78.8709   
+CutFlow_2l_d_low_mass_veto                 2362   2362    0.04724  78.0121   
+CutFlow_2l_e_bj_veto                       2320   2320    0.0464   76.625    
+CutFlow_2l_f_MET_60                        2182   2182    0.04364  72.0671   
+CutFlow_2l_g_ISR_jet                       1939   1939    0.03878  64.0413   
+CutFlow_2l_h_MT_100                        438    438     0.00876  14.4663   
+CutFlow_2l_i_PTll_100                      171    171     0.00342  5.64779   
+CutFlow_4l_a_4tight_l                      32     32      0.00064  1.0569    
+CutFlow_4l_b_low_mass_veto                 29     29      0.00058  0.957812  
+CutFlow_4l_c_bjet_veto                     29     29      0.00058  0.957812  
+CutFlow_4l_e_MET_100                       26     26      0.00052  0.858728  
+CutFlow_t1_3l_a_3tight_l                   1534   1534    0.03068  50.665    
+CutFlow_t1_3l_b_4th_l_veto                 1529   1529    0.03058  50.4998   
+CutFlow_t1_3l_c_conversions_low_mass_veto  1401   1401    0.02802  46.2722   
+CutFlow_t1_3l_d_bjet_veto                  1366   1366    0.02732  45.1162   
+CutFlow_t1_3l_e_MET_50                     1316   1316    0.02632  43.4648   
+CutFlow_t1_3l_f_MT_100                     1057   1057    0.02114  34.9106   
+CutFlow_t1_3l_g_Mll_GT_75                  155    155     0.0031   5.11934   
+CutFlow_t2_3l_a_3tight_l                   139    139     0.00278  4.59089   
+CutFlow_t2_3l_b_4th_l_veto                 112    112     0.00224  3.69914   
+CutFlow_t2_3l_c_conversions_low_mass_veto  111    111     0.00222  3.66611   
+CutFlow_t2_3l_d_bjet_veto                  105    105     0.0021   3.46794   
+CutFlow_t2_3l_e_MET_50                     103    103     0.00206  3.40188   
+CutFlow_t2_3l_f_MT2_100                    46     46      0.00092  1.51929   
+CutFlow_t2_3l_g_Mll_LT_75                  23     23      0.00046  0.759644  

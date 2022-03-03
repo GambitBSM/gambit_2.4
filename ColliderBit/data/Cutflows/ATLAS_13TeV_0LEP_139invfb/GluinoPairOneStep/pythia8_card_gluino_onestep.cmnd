@@ -1,0 +1,63 @@
+! main89ckkwl.cmnd
+
+! Specify statistics parameters.
+Main:numberOfEvents         = 1000000  ! number of events generated
+! Tell Pythia that LHEF input is used
+Beams:frameType             = 4
+
+! Specify merging parameters for CKKW-L, UMEPS, UNLOPS.
+Merging:TMS                 = 350.0                  ! merging scale value (squark mass divided by 4 )
+Merging:Process = pp>{go,1000021}{go,-1000021} ! process definition
+Merging:nJetMax             = 2         ! maximal number of additional LO jets
+TimeShower:pTmaxMatch       = 1
+SpaceShower:pTmaxMatch      = 1
+
+! Set renormalisation / factorisation scales of the 2->2 process
+!Merging:muFac               = 91.188
+!Merging:muRen               = 91.188
+!Merging:muFacInME           = 91.188
+!Merging:muRenInME           = 91.188
+
+Tune:ee = 7 
+Tune:pp = 21
+
+! Use same PDFs / alpha_s value as in ME calculation (not necessary!)
+!PDF:pSet                  = LHAPDF5:CT10.LHgrid
+PDF:pSet                  = 13
+SpaceShower:alphaSvalue   = 0.140
+TimeShower:alphaSvalue    = 0.127
+
+! Do not include rapidity ordering (not necessary!)
+SpaceShower:rapidityOrder = on
+SpaceShower:pT0Ref = 1.56
+SpaceShower:pTmaxFudge = 0.91
+SpaceShower:pTdampFudge = 1.05
+TimeShower:alphaSvalue = 0.127
+BeamRemnants:primordialKThard = 1.88
+MultipartonInteractions:pT0Ref = 2.09
+MultipartonInteractions:alphaSvalue = 0.126
+ColourReconnection:range  = 1.71
+
+Main:timesAllowErrors = 5000
+6:m0 = 172.5
+23:m0 = 91.1876
+23:mWidth = 2.4952
+24:m0 = 80.399
+24:mWidth = 2.085
+StandardModel:sin2thetaW = 0.23113
+StandardModel:sin2thetaWbar = 0.23146
+ParticleDecays:limitTau0 = on
+ParticleDecays:tau0Max = 10.0
+
+! Be more forgiving with momentum mismatches.
+Check:epTolErr               = 2e-2
+
+! Subruns for CKKW-L merging.
+LHEFInputs:nSubruns       = 1
+Main:subrun               = 0
+Merging:doKTMerging = on
+Merging:mayRemoveDecayProducts = on
+Merging:ktType = 1
+Merging:Dparameter = 0.4
+Merging:nQuarksMerge = 4
+Beams:LHEF                = /home/yzha0133/work/CBS/ma5/MG5_aMC_v2_7_2/gogo_onestep_2j/Events/run_01/unweighted_events.lhe  ! put here path to LHE from MG5

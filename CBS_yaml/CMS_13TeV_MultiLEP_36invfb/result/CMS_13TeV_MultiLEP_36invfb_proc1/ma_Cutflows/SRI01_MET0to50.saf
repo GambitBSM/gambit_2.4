@@ -1,0 +1,54 @@
+<SAFheader>
+</SAFheader>
+
+<InitialCounter>
+"Initial number of events"      #
+50000           0               # nentries
+5.000000e+04    0.000000e+00    # sum of weights
+5.000000e+04    0.000000e+00    # sum of weights^2
+</InitialCounter>
+
+<Counter>
+"baseline_I"                    # 1st cut
+3199            0               # nentries
+3.199000e+03    0.000000e+00    # sum of weights
+3.199000e+03    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"4 tight leptons"               # 2st cut
+1               0               # nentries
+1.000000e+00    0.000000e+00    # sum of weights
+1.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"low-mass veto"                 # 3st cut
+1               0               # nentries
+1.000000e+00    0.000000e+00    # sum of weights
+1.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"b-jet veto"                    # 4st cut
+1               0               # nentries
+1.000000e+00    0.000000e+00    # sum of weights
+1.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"base_met"                      # 5st cut
+1               0               # nentries
+1.000000e+00    0.000000e+00    # sum of weights
+1.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"MET < 50 GeV"                  # 6st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<SAFfooter>
+</SAFfooter>

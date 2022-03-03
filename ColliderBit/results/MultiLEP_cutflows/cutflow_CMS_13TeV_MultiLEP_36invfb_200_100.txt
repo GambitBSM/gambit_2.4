@@ -1,0 +1,27 @@
+\begin{table}[H] 
+\caption{$\tilde{\chi}_{1}^{\pm}\tilde{\chi}_{2}^{0}$ decay via $W/Z$, $[\tilde{\chi}_{1}^{\pm}\tilde{\chi}_{2}^{0},\tilde{\chi}_{1}^{0}]: [200,100] [GeV]$} 
+\makebox[\linewidth]{ 
+\renewcommand{\arraystretch}{0.4} 
+\begin{tabular}{c c c c c} 
+\hline
+& CMS & GAMBIT & GAMBIT/CMS & $\sigma$-corrected GAMBIT/CMS \\ \hline
+$\sigma (pp\to \tilde{\chi}_{1}^{\pm}, \tilde{\chi}_{2}^{0})$ &1800 $fb$ &1800$fb$ &1 & 1\\ \hline
+\multicolumn{5}{c}{Expected events at 35.9 $fb^{-1}$} \\ \hline
+All events&3630&6.462e+04&17.8&17.8\\
+3 leptons&481.5&434.2&0.9019&0.9019\\
+Low mass \& conversions veto&463.7&408.4&0.8807&0.8807\\
+Bjet veto&456.7&403.2&0.883&0.883\\
+$E_{T}^{miss} > 50 GeV$&317&271.4&0.8562&0.8562\\
+$m_{T} > 100 GeV$&112&72.37&0.6464&0.6464\\
+$m_{ll} > 75 GeV$&103.5&65.91&0.6369&0.6369\\
+\hline \multicolumn{5}{c}{Percentage (\%)} \\ \hline
+All events&753.9&1.488e+04& - & -\\
+3 leptons&100&100& - & -\\
+Low mass \& conversions veto&96.31&94.05& - & -\\
+Bjet veto&94.85&92.86& - & -\\
+$E_{T}^{miss} > 50 GeV$&65.84&62.5& - & -\\
+$m_{T} > 100 GeV$&23.25&16.67& - & -\\
+$m_{ll} > 75 GeV$&21.49&15.18& - & -\\
+\end{tabular} 
+} 
+\end{table}

@@ -68,7 +68,11 @@ namespace Gambit {
                                          "pTx", "|eta_x|",
                                          "Aplanarity", "MET/sqrt(HT)", "m_eff(incl)",};
         _cutflows.addCutflow("2j-1600", cutnames);
-        _cutflows.addCutflow("2j-2200", cutnames);
+        _cutflows.addCutflow("2j-2200", {"Pre-sel + MET + pT1 + meff",
+                                         "Njet >= 2", "Cleaning",
+                                         "Dphi(j123,MET)min", "Dphi(j4+,MET)min",
+                                         "pT1", "|eta_x|",
+                                         "MET/sqrt(HT)", "m_eff(incl)",});
         _cutflows.addCutflow("2j-2800", cutnames);
         _cutflows.addCutflow("4j-1000", cutnames);
         _cutflows.addCutflow("4j-2200", cutnames);
@@ -241,17 +245,16 @@ namespace Gambit {
 
         // 2 jet regions
         if (nJets50 >= 2) {
-          if (_cutflows["2j-1600"].filltail({
+          if (_cutflows["2j-1600"].fillnext({
                 signalJets[0]->pT() > 250,
                 dphimin_123 > 0.8, dphimin_more > 0.4,
                 signalJets[1]->pT() > 250, etamax_2 < 2.0,
                 true, met_sqrtHT > 16, meff > 1600}, w)) _counters.at("2j-1600").add_event(event);
 
           if (_cutflows["2j-2200"].fillnext({
-                signalJets[0]->pT() > 600,
                 dphimin_123 > 0.4, dphimin_more > 0.2,
-                signalJets[1]->pT() >  50, etamax_2 < 2.8,
-                true, met_sqrtHT > 16, meff > 2200}, w)) _counters.at("2j-2200").add_event(event);
+                signalJets[0]->pT() > 600, etamax_2 < 2.8,
+                met_sqrtHT > 16, meff > 2200}, w)) _counters.at("2j-2200").add_event(event);
           if (_cutflows["2j-2800"].fillnext({
                 signalJets[0]->pT() > 250,
                 dphimin_123 > 0.8, dphimin_more > 0.4,

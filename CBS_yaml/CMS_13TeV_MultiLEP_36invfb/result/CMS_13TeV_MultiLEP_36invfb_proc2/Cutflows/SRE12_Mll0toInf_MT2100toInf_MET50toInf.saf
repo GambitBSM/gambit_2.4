@@ -1,0 +1,68 @@
+<SAFheader>
+</SAFheader>
+
+<InitialCounter>
+"Initial number of events"      #
+50000           0               # nentries
+5.000000e+04    0.000000e+00    # sum of weights
+5.000000e+04    0.000000e+00    # sum of weights^2
+</InitialCounter>
+
+<Counter>
+"baseline_E"                    # 1st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"3 tight leptons"               # 2st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"4th lepton veto"               # 3st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"low-mass veto"                 # 4st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"conversion veto"               # 5st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"b-jet veto"                    # 6st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"base_met"                      # 7st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<Counter>
+"MT2 >= 100 GeV"                # 8st cut
+0               0               # nentries
+0.000000e+00    0.000000e+00    # sum of weights
+0.000000e+00    0.000000e+00    # sum of weights^2
+</Counter>
+
+<SAFfooter>
+</SAFfooter>

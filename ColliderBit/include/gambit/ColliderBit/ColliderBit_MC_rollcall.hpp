@@ -31,6 +31,10 @@
 ///          (a.kvellestad@imperial.ac.uk)
 ///  \date 2019 Sep
 ///
+/// \author Tomasz Procter
+///          (t.procter.1@research.gla.ac.uk)
+/// \date 2021 November
+///
 ///  *********************************************
 
 #pragma once
@@ -338,6 +342,9 @@
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
+    BACKEND_REQ(FullLikes_Evaluate, (ATLAS_FullLikes), double, (PyDict&,const str&))
+    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
+    BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -540,6 +547,13 @@
       /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
       #define FUNCTION getHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      #define FUNCTION convertHepMCEvent_HEPUtils
+      START_FUNCTION(HEPUtils::Event)
+      DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 

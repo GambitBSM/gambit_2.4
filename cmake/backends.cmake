@@ -155,6 +155,34 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# ATLAS_FullLikes
+set(name "ATLAS_FullLikes")
+set(ver "1.0")
+set(dl "no-download-url")
+set(ditch_if_absent "Python")
+set(required_modules "pyhf")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(examples_dir "${PROJECT_SOURCE_DIR}/Backends/examples/${name}/${ver}")
+check_ditch_status(${name} ${ver} "none" ${ditch_if_absent})
+if(NOT ditched_${name}_${ver})
+  check_python_modules(${name} ${ver} ${required_modules})
+  if(modules_missing_${name}_${ver})
+    inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    ExternalProject_Add(${name}_${ver}
+      DOWNLOAD_COMMAND ""
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      PATCH_COMMAND ""
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ${CMAKE_COMMAND} -E copy_directory ${examples_dir} ${dir}
+      INSTALL_COMMAND ""
+    )
+  endif()
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
 # CaptnGeneral
 set(name "capgen")
 set(ver "2.1")
@@ -1703,9 +1731,9 @@ endif()
 
 # Rivet
 set(name "rivet")
-set(ver "3.1.4")
+set(ver "3.1.5")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-set(md5 "43ff4bcab2209d483417ed878d1e6483")
+set(md5 "7f3397b16386c0bfcb49420c2eb395b1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
@@ -1723,7 +1751,8 @@ set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
 set(Rivet_LD_FLAGS "-L${dir}/include/Rivet ${HEPMC_LDFLAGS}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-set(ditch_if_absent "HepMC;YODA")
+## Rivet needs to be compiled with c++14 or c++17, otherwise it will fail to compile
+set(ditch_if_absent "HepMC;YODA;c++14")
 ## If cython is not installed disable the python extension
 gambit_find_python_module(cython)
 if(PY_cython_FOUND)
@@ -1764,8 +1793,8 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
-set(Rivet_ver "3.1.4")
-set(ditch_if_absent "SQLITE3;YODA;HepMC")
+set(Rivet_ver "3.1.5")
+set(ditch_if_absent "SQLITE3;YODA;HepMC;Rivet")
 set(required_modules "cython;configobj;pandas;matplotlib")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})

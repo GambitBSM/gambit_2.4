@@ -1,0 +1,22 @@
+# cms
+# cms_1504_03198
+# 1 leptons, >=3 jets, >=1 b-jets, etmiss
+# sqrt(s) = 8 TeV
+# int(L) = 19.7 fb^-1
+
+Inputfile:
+XSect:           10 fb
+ Error:          0 fb
+MCEvents:        50000
+ SumOfWeights:   0.322833
+ SumOfWeights2:  2.08443e-06
+ NormEvents:     197
+
+Cut                  Sum_W       Sum_W2       Acc      N_Norm   
+CR1_MET_320          0.0547912   3.53769e-07  0.16972  33.4348  
+CR2_1_lepton         0.0111959   7.22879e-08  0.03468  6.83196  
+CR3_3_jets           0.010137    6.54509e-08  0.0314   6.1858   
+CR4_1_bjet           0.00798044  5.1527e-08   0.02472  4.86984  
+CR5_mTlepton_160     0.0064954   4.19386e-08  0.02012  3.96364  
+CR6_deltaj1j2_1dot2  0.00573997  3.70611e-08  0.01778  3.50266  
+CR7_mt2w_200         0.00424848  2.7431e-08   0.01316  2.59252  

@@ -446,16 +446,18 @@ namespace Gambit
 
 
 
-// _Anders start: -----------------------------------------------------
-
     /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
     void fill_analysis_loglikes(const AnalysisData& ana_data, 
                                 AnalysisLogLikes& ana_loglikes,
                                 bool use_marg,
                                 bool has_and_use_covar,
                                 bool combine_nocovar_SRs,
+                                bool has_and_use_fulllikes, 
                                 const std::string alt_loglike_key = "")
     {
+      // Access the pipe for calc_LHC_LogLikes to access the FullLikes backend
+      using namespace Pipes::calc_LHC_LogLikes;
+
       // Are we filling the standard loglike or an alternative one?
       bool fill_alt_loglike = false;
       if (!alt_loglike_key.empty()) fill_alt_loglike = true;
@@ -469,11 +471,47 @@ namespace Gambit
       // Get the analysis name
       const std::string ana_name = ana_data.analysis_name;
 
+      // Check if analysis is to use ATLAS Full Likelihood backend
+      // If the json hasn't been read in, read it in 
+      bool FullLikes_jsonread = BEreq::FullLikes_FileExists(ana_name);
+      if (has_and_use_fulllikes && !FullLikes_jsonread)
+      {
+        if (BEreq::FullLikes_ReadIn(ana_name,ana_data.bkgjson_path) != 0)
+        {
+          ColliderBit_error().raise(LOCAL_INFO,"Error: ATLAS FullLikes Failed to read in BKG JSON file for analysis: " + ana_name);
+        }
+      }
+
       // Delta log-likelihood variable
       double dll = NAN;
 
-      // Work out the total (delta) log likelihood for this analysis, with correlations as available/instructed
-      if (has_and_use_covar)
+      // Work out the total (delta) log likelihood for this analysis, with correlations/full likelihoods as available/instructed
+      if (has_and_use_fulllikes)  // Use ATLAS full likelihood?
+      {
+        //@todo: Do we need to do some form of check that pybind is defined?
+        pybind11::dict SRsignal;
+
+        for (size_t SR = 0; SR < nSR; ++SR)
+        {
+          pybind11::str SRName = ana_data[SR].sr_label;
+          SRsignal[SRName] = ana_data[SR].n_sig_scaled;
+        }
+
+        dll = BEreq::FullLikes_Evaluate(SRsignal,ana_name);
+
+        // Write result to the ana_loglikes reference
+        ana_loglikes.combination_sr_label = "all";
+        ana_loglikes.combination_sr_index = -1;
+        if (fill_alt_loglike)
+        {
+          ana_loglikes.alt_combination_loglikes.at(alt_loglike_key) = dll;
+        }
+        else
+        {
+          ana_loglikes.combination_loglike = dll;
+        }
+      }
+      else if (has_and_use_covar)  // Use SR covariance info?
       {
 
         // Check that we are indeed using the right function to compute the loglikes
@@ -553,7 +591,7 @@ namespace Gambit
           ana_loglikes.combination_loglike = dll;
         }
       }
-      else // NO SR-CORRELATION INFO, OR USER CHOSE NOT TO USE IT:
+      else // No ATLAS fulllikes and no SR covariance info (or user chose not to use this)
       { 
 
         // We either take the result from the SR *expected* to be most
@@ -822,6 +860,8 @@ namespace Gambit
         const std::string ana_name = ana_data.analysis_name;
         const size_t nSR = ana_data.size();
         const bool has_covar = ana_data.srcov.rows() > 0;
+        const bool has_fulllikes = ana_data.hasFullLikes();
+        const bool use_fulllikes = runOptions->getValueOrDef<bool>(false, "use_full_likelihoods");
 
         // Initialize the AnalysisLogLikes instance in the result map
         result[ana_name].initialize(ana_data, alt_loglike_keys);
@@ -832,12 +872,12 @@ namespace Gambit
         #ifdef COLLIDERBIT_DEBUG
         std::streamsize stream_precision = cout.precision();  // get current precision
         cout.precision(2);  // set precision
-        cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << "Will print content of " << ananame << " signal regions:" << endl;
-        for (size_t SR = 0; SR < adata.size(); ++SR)
+        cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << "Will print content of " << ana_name << " signal regions:" << endl;
+        for (size_t SR = 0; SR < ana_data.size(); ++SR)
         {
-          const SignalRegionData& srData = adata[SR];
+          const SignalRegionData& srData = ana_data[SR];
           cout << std::fixed << DEBUG_PREFIX
-                                 << "calc_LHC_LogLikes: " << ananame
+                                 << "calc_LHC_LogLikes: " << ana_name
                                  << ", " << srData.sr_label
                                  << ",  n_b = " << srData.n_bkg << " +/- " << srData.n_bkg_err
                                  << ",  n_obs = " << srData.n_obs
@@ -914,7 +954,7 @@ namespace Gambit
         // Now perform the actual loglikes compuations for this analysis
         // 
         // First do standard loglike calculation
-        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs);
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes);
 
         // Then do alternative loglike calculations:
         if (calc_noerr_loglikes)
@@ -926,7 +966,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "noerr");
         }
         if (calc_expected_loglikes)
         {
@@ -937,7 +977,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "expected");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "expected");
         }
         if (calc_expected_noerr_loglikes)
         {
@@ -950,7 +990,7 @@ namespace Gambit
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "expected_noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "expected_noerr");
         }
         if (calc_scaledsignal_loglikes)
         {
@@ -961,7 +1001,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, "scaledsignal");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "scaledsignal");
         }
 
       } // end analysis loop

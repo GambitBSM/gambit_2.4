@@ -1,0 +1,62 @@
+
+
+
+
+
+
+
+
+  event_file: n1n1_2j.hepmc
+  cross_section_fb: 10
+  cross_section_fractional_uncert: 0.318422
+
+
+
+
+
+Read and analysed 49855 events from HepMC file.
+
+Analysis details:
+
+  CMS_8TeV_MONOJET_20invfb: 
+    Signal region 250 (SR index 0):
+      Observed events: 52200
+      SM prediction: 51800 +/- 2000
+      Signal prediction: 21.4525 +/- 0.29115
+      Log-likelihood: 0.00206083
+    Signal region 300 (SR index 1):
+      Observed events: 19800
+      SM prediction: 19600 +/- 830
+      Signal prediction: 0 +/- 0
+      Log-likelihood: 0
+    Signal region 350 (SR index 2):
+      Observed events: 8320
+      SM prediction: 8190 +/- 400
+      Signal prediction: 15.8256 +/- 0.250068
+      Log-likelihood: 0.0114792
+    Signal region 400 (SR index 3):
+      Observed events: 3830
+      SM prediction: 3930 +/- 230
+      Signal prediction: 13.4429 +/- 0.230475
+      Log-likelihood: -0.0252856
+    Signal region 450 (SR index 4):
+      Observed events: 1830
+      SM prediction: 2050 +/- 150
+      Signal prediction: 11.155 +/- 0.209949
+      Log-likelihood: -0.103349
+    Signal region 500 (SR index 5):
+      Observed events: 934
+      SM prediction: 1040 +/- 100
+      Signal prediction: 9.28198 +/- 0.191513
+      Log-likelihood: -0.0938402
+    Signal region 550 (SR index 6):
+      Observed events: 519
+      SM prediction: 509 +/- 66
+      Signal prediction: 7.57495 +/- 0.173009
+      Log-likelihood: 0.00965472
+    Selected signal region: 550
+    Total log-likelihood for analysis:0.00965472
+
+
+Total combined ATLAS+CMS log-likelihood: 9.65472e-03
+

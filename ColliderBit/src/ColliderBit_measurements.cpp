@@ -70,13 +70,23 @@ namespace Gambit
             }
             ah = std::make_shared<AnalysisHandler>();
             studying_first_event = true;
-
-            YAML::Node colNode = runOptions->getValue<YAML::Node>(Dep::RunMC->current_collider());
-            Options colOptions(colNode);
-          
-            // Get analysis list from yaml file
-            std::vector<str> analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
-
+            
+            //Are we running in a standalone (i.e. CBS) or in GAMBIT proper
+            //This should be added manually
+            bool runningStandalone = runOptions->getValueOrDef<bool>(false, "runningStandalone");
+            std::vector<std::string> analyses, excluded_analyses;
+            
+            if (!runningStandalone){
+              YAML::Node colNode = runOptions->getValue<YAML::Node>(Dep::RunMC->current_collider());
+              Options colOptions(colNode);
+              analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
+              excluded_analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
+            }
+            else {
+              analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
+              excluded_analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
+            }
+           
             if(not analyses.size())
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet. This means an empty yoda file will be passed to Contur");
             // TODO: Add somewhere a check to make sure we only do LHC analyses
@@ -98,7 +108,6 @@ namespace Gambit
             //If the yaml file wants to exclude analyses, remove them
             //This feature was inspired by ATLAS_2016_I1469071, which is effectively
             //invalid for most BSM cases and can cause crashes.
-            std::vector<str> excluded_analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
             ah->removeAnalyses(excluded_analyses);
           
             //Write the utilised analyses to a file in yaml-like format
@@ -230,26 +239,26 @@ namespace Gambit
               }
             }
           }
-        else{
-          # pragma omp critical
-          {
-            // Get the HepMC event
-            HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-            // Save the old event number in case other bits of Gambit need it.
-            int old_events_analysed = ge.event_number();
-            // Set the Event number to a stream independent total so Rivet can
-            // make sense of things.
-            ge.set_event_number(++events_analysed);
-            try { ah->analyze(ge); }
-            catch(std::runtime_error &e)
+          else{
+            # pragma omp critical
             {
-              ColliderBit_error().raise(LOCAL_INFO, e.what());
+              // Get the HepMC event
+              HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+              // Save the old event number in case other bits of Gambit need it.
+              int old_events_analysed = ge.event_number();
+              // Set the Event number to a stream independent total so Rivet can
+              // make sense of things.
+              ge.set_event_number(++events_analysed);
+              try { ah->analyze(ge); }
+              catch(std::runtime_error &e)
+              {
+                ColliderBit_error().raise(LOCAL_INFO, e.what());
+              }
+              // Reset the old event number in case GAMBIT needs it elsewhere.
+              ge.set_event_number(old_events_analysed);
             }
-            // Reset the old event number in case GAMBIT needs it elsewhere.
-            ge.set_event_number(old_events_analysed);
           }
         }
-      }
       
       #endif //EXCLUDE_YODA
     #endif // EXCLUDE_HEPMC
