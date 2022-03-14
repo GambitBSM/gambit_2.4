@@ -2,7 +2,7 @@
 //  *********************************************
 ///  \file
 ///
-///  ScannerBit interface to PolyChord 1.17.1
+///  ScannerBit interface to PolyChord 1.20.1
 ///
 ///  Header file
 ///
@@ -24,8 +24,8 @@
 ///
 ///  *********************************************
 
-#ifndef __polychord_hpp__
-#define __polychord_hpp__
+#ifndef __polychord_1_20_1_hpp__
+#define __polychord_1_20_1_hpp__
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
 
