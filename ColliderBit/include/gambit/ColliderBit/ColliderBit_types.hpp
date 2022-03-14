@@ -71,7 +71,6 @@ namespace Gambit
   {
 
     /// @brief Container for data from multiple analyses and SRs
-    typedef std::vector<AnalysisData> AnalysisNumbers;
     typedef std::vector<AnalysisData*> AnalysisDataPointers;
 
     /// @brief Typedef for a string-to-AnalysisLogLikes map

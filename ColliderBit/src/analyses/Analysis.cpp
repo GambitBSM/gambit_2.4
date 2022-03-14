@@ -163,7 +163,7 @@ namespace Gambit
       assert(otherResults.size() == _results.size());
       for (size_t i = 0; i < _results.size(); ++i)
       {
-        _results[i].n_sig_MC += otherResults[i].n_sig_MC;
+        _results[i].combine_SR_MC_signal(otherResults[i]);
       }
       combine(other);
     }
