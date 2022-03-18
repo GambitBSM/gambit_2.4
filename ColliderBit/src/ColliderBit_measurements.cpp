@@ -408,6 +408,7 @@ namespace Gambit
         } 
       }
 
+      // Extracts the Likelihood from a Contur_output object
       void Contur_LHC_measurements_LogLike(double &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike;
@@ -415,6 +416,8 @@ namespace Gambit
         result = contur_likelihood_object.LLR;
       }
 
+      // Extracts a single likelihood from a map<string, Contur_output> based on options
+      // This is the likelihood that will actually be "used" by gambit
       void Multi_Contur_LHC_measurements_LogLike_all(map_str_dbl &result)
       {
         using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_all;
@@ -425,6 +428,7 @@ namespace Gambit
         }
       }
 
+      //Extracts the likelihood value for every set of contur settings from a map<string, Contur_output>
       void Multi_Contur_LHC_measurements_LogLike_single(double &result)
       {
         using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_single;
@@ -433,6 +437,7 @@ namespace Gambit
         result = contur_likelihood_object[which_as_LLR].LLR;    
       }
 
+      // Extracts the likelihood contribution from each contur pool from Contur_output
       void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
@@ -446,6 +451,7 @@ namespace Gambit
         logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
+      // Extracts the likelihood contribution from each contur pool in each run of contur from Map<string, Contur_output>
       void Multi_Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
       {
         result.clear();
@@ -464,6 +470,8 @@ namespace Gambit
         logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
+      // Debug only: Get the dominant bin/histogram/correlated set thereof for each Contur pool
+      // Note map_str_str will not print to hdf5! Use for ASCII debug only.
       void Contur_LHC_measurements_histotags_perPool(map_str_str &result)
       {
         using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
@@ -478,6 +486,8 @@ namespace Gambit
         logger() << LogTags::debug << summary_line.str() << EOM;
       }
 
+      // Debug only: Get the dominant bin/histogram/correlated set thereof for each Contur pool in each contur run
+      // Note map_str_str will not print to hdf5! Use for ASCII debug only.
       void Multi_Contur_LHC_measurements_histotags_perPool(map_str_str &result)
       {
         result.clear();
