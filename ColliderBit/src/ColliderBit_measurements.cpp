@@ -115,7 +115,7 @@ namespace Gambit
             //Only do this the first time contur is run.
             //TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER.
             // Should we account for this? E.g. By wiping the file in base_init.
-            const static bool output_used_analyses = runOptions->getValueOrDef<bool>(true, "drop_used_analyses");
+            const static bool output_used_analyses = runOptions->getValueOrDef<bool>(false, "drop_used_analyses");
             if (output_used_analyses){
               static bool analysis_file_opened = false;
               static std::map<std::string, bool> analyses_written_to_file_per_collider;
