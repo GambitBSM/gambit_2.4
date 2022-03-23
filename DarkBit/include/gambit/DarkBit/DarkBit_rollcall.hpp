@@ -101,6 +101,15 @@
 #define REFERENCE GAMBITDarkMatterWorkgroup:2017fax
 START_MODULE
 
+
+  #define CAPABILITY mass_double
+  START_CAPABILITY
+    #define FUNCTION doublingMass
+    START_FUNCTION(double)
+    BACKEND_REQ(add_here,(),double,(double&, double&))
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // DarkSUSY-specific initialisation functions ========================
 
   /// Make sure LocalHalo model is initialized in DarkSUSY5

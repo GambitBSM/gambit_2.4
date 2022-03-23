@@ -40,6 +40,7 @@ QUICK_FUNCTION(DarkBit, DD_couplings, OLD_CAPABILITY, DD_couplings_WIMP, DM_nucl
 QUICK_FUNCTION(DarkBit, WIMP_properties, OLD_CAPABILITY, WIMP_properties_WIMP, WIMPprops, (), (DarkMatter_ID, std::string), (DarkMatterConj_ID, std::string))
 
 
+
 void dump_array_to_file(const std::string & filename, const
     boost::multi_array<double, 2> & a, const std::vector<double> & x, const
     std::vector<double> & y)
@@ -61,6 +62,24 @@ void dump_array_to_file(const std::string & filename, const
   }
   file.close();
 }
+
+
+void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
+{
+  DarkMatter_ID_WIMP.reset_and_calculate();
+  WIMP_properties_WIMP.setOption<double>("mWIMP", mWIMP);
+  WIMP_properties_WIMP.reset_and_calculate();
+  mwimp_generic.reset_and_calculate();
+  TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
+  TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
+  TH_ProcessCatalog_WIMP.reset_and_calculate();
+  double mass = TH_ProcessCatalog_WIMP(0).getParticleProperty("WIMP").mass;
+  std::cout << mass << std::endl;
+  doublingMass.setOption<double>("mv",mass);
+  doublingMass.reset_and_calculate();
+  std::cout << doublingMass(0) << std::endl;
+  std::cout << "It works! :)" << std::endl;
+} 
 
 void dumpSpectrum(std::vector<std::string> filenames, double mWIMP, double sv, std::vector<double> brList, double mPhi = -1)
 {
@@ -112,7 +131,12 @@ namespace Gambit
 {
   namespace DarkBit
   {
-
+    void doublingMass(double& result )
+    {
+      using namespace Pipes::doublingMass;
+      double mv = runOptions->getValue<double>("mv");
+      result = BEreq::add_here(mv,mv);
+    }
     void TH_ProcessCatalog_WIMP(TH_ProcessCatalog& result)
     {
       using namespace Pipes::TH_ProcessCatalog_WIMP;
@@ -288,6 +312,7 @@ int main(int argc, char* argv[])
     std::cout << "      in <sigma v> / m_WIMP parameter space." << std::endl;
     std::cout << "  7: Outputs tables of direct detection likelihoods in sigma / m_WIMP parameter" << std::endl;
     std::cout << "      space." << std::endl;
+    std::cout << "  8: Check" << std::endl;
     std::cout << "  >=10: Outputs spectra of gamma rays, positrons, anti-protons and anti-deuterons from" << std::endl;
     std::cout << "        WIMP annihilation to phi phi_2. The mode value is m_phi while m_phi_2=100 GeV." << std::endl;
     std::cout << "        The output filenames are dPhi_dE_FCMC_(spectrum)_(mode).dat." << std::endl;
@@ -321,6 +346,8 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
 
     // ---- Initialize models ----
+
+    doublingMass.resolveBackendReq(Backends::pybe_1_0::c_add);
 
     // Initialize halo model
     ModelParameters* Halo_primary_parameters = Models::Halo_Einasto::Functown::primary_parameters.getcontentsPtr();
@@ -623,6 +650,13 @@ int main(int argc, char* argv[])
       if (mode==3) dumpSpectrum({"dPhi_dE3.dat"}, mass, sv, daFunk::vec<double>(0., 0., 0., 1., 0., 0., 0., 0.));
       if (mode==4) dumpSpectrum({"dPhi_dE4.dat"}, mass, sv, daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));
     }
+    
+    // CHECK-------------------::-------------;;---------------::-------------------::------------------;;--------------------
+    if (mode==8)
+    { 
+        uptownfunc(100.0,3-26,daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));    
+        
+    }
 
     // Generate gamma-ray spectra for various masses
     if (mode >= 10)
@@ -674,7 +708,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
           TH_ProcessCatalog_WIMP.setOption<double>("sv", sv_list[j]);
-          //std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
+          
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));
           TH_ProcessCatalog_WIMP.reset_and_calculate();
