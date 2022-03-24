@@ -62,8 +62,7 @@ FeynHiggs:
   2.11.2:      ./Backends/installed/feynhiggs/2.11.2/lib/libFH.so
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
-pybe:
-  1.0:         ./Backends/installed/pybe/1.0/
+
 
 # Work in progress:
 # Prospino:
