@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
 
     // ---- Initialize models ----
 
-    doublingMass.resolveBackendReq(Backends::pybe_1_0::c_add);
+    doublingMass.resolveBackendReq(&Backends::pybe_1_0::Functown::c_add);
 
     // Initialize halo model
     ModelParameters* Halo_primary_parameters = Models::Halo_Einasto::Functown::primary_parameters.getcontentsPtr();
