@@ -243,6 +243,9 @@ def main():
     cfg.include_paths = list(filter(None, cfg.include_paths))
     cfg.base_paths = list(filter(None, cfg.base_paths))
 
+    # Create a version of the load_functions list with no spaces, for safer comparisons
+    cfg.load_functions_no_spaces = [func_name.replace(" ", "") for func_name in cfg.load_functions]
+
 
     #
     # If types_header_flag is True: Load saved variables, parse factory function files and generate loaded_types.hpp
@@ -561,7 +564,7 @@ def main():
                     print('  ERROR: Unexpected error!')
                     raise
 
-                if func_name_long_templ_args in cfg.load_functions:
+                if func_name_long_templ_args.replace(" ", "") in cfg.load_functions_no_spaces:
 
                     is_loadable = not funcutils.ignoreFunction(el, limit_pointerness=True, print_warning=True)
 
