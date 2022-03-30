@@ -77,7 +77,6 @@ void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
   doublingMass.setOption<double>("mv",mass);
   doublingMass.reset_and_calculate();
   std::cout << doublingMass(0) << std::endl;
-  std::cout << "It works! :)" << std::endl;
   printPC.reset_and_calculate();
 } 
 
@@ -151,13 +150,18 @@ namespace Gambit
       BEreq::print_num(DM_mass, dummy);
       std::cout << "DM Annihilation:" << std::endl;
       TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
-      // const TH_Channel* channel = process.find(daFunk::vec<std::string>("gamma", "gamma"));
-      // TH_Channel* channel = process.channelList.begin();
-      // if (channel==NULL) {std::cout << "Did not find channel" << std::endl;}
-      // else {std::cout << process.isAnnihilation;}
-      std::cout << process.isAnnihilation;
-      // BEreq::print_process(process, dummy);
-
+      // std::cout << "Branching Ratios : " << Dep.TH_ProcessCatalog->brList;
+      // std::cout << process.isAnnihilation << std::endl;
+      for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
+      { 
+        std::vector<std::string> fs = it->finalStateIDs;
+        std::cout << "Final State IDs : " << fs << std::endl;
+        std::cout << "Cross-section : " ;
+        double rate = it->genRate->bind("v")->eval(0.);
+        BEreq::print_num(rate, dummy);
+        // std::cout << it->finalStateIDs << "   " << it->genRate->bind("v")->eval(0.) << std::endl;
+      }
+       std::cout << "It works! :)" << std::endl;
       result = 0;
     }
 
@@ -685,7 +689,7 @@ int main(int argc, char* argv[])
     // CHECK-------------------::-------------;;---------------::-------------------::------------------;;--------------------
     if (mode==8)
     { 
-        uptownfunc(100.0,3-26,daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));    
+        uptownfunc(100.0,3e-26,daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));    
         
     }
 
