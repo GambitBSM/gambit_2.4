@@ -63,7 +63,6 @@ void dump_array_to_file(const std::string & filename, const
   file.close();
 }
 
-
 void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
 {
   DarkMatter_ID_WIMP.reset_and_calculate();
@@ -79,6 +78,7 @@ void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
   doublingMass.reset_and_calculate();
   std::cout << doublingMass(0) << std::endl;
   std::cout << "It works! :)" << std::endl;
+  printPC.reset_and_calculate();
 } 
 
 void dumpSpectrum(std::vector<std::string> filenames, double mWIMP, double sv, std::vector<double> brList, double mPhi = -1)
@@ -137,6 +137,31 @@ namespace Gambit
       double mv = runOptions->getValue<double>("mv");
       result = BEreq::add_here(mv,mv);
     }
+
+
+    void printPC(double& result)
+    {
+      using namespace Pipes::printPC;
+      std::string DM_ID = Dep::WIMP_properties->name;
+      double dummy = 0;
+      double DM_mass = Dep::WIMP_properties->mass;
+      std::cout << "DM ID:" << std::endl;
+      BEreq::print_string(DM_ID, dummy);
+      std::cout << "DM mass:" << std::endl;
+      BEreq::print_num(DM_mass, dummy);
+      std::cout << "DM Annihilation:" << std::endl;
+      TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
+      // const TH_Channel* channel = process.find(daFunk::vec<std::string>("gamma", "gamma"));
+      // TH_Channel* channel = process.channelList.begin();
+      // if (channel==NULL) {std::cout << "Did not find channel" << std::endl;}
+      // else {std::cout << process.isAnnihilation;}
+      std::cout << process.isAnnihilation;
+      // BEreq::print_process(process, dummy);
+
+      result = 0;
+    }
+
+
     void TH_ProcessCatalog_WIMP(TH_ProcessCatalog& result)
     {
       using namespace Pipes::TH_ProcessCatalog_WIMP;
@@ -348,6 +373,12 @@ int main(int argc, char* argv[])
     // ---- Initialize models ----
 
     doublingMass.resolveBackendReq(&Backends::pybe_1_0::Functown::c_add);
+    printPC.resolveDependency(&WIMP_properties_WIMP);
+    printPC.resolveDependency(&TH_ProcessCatalog_WIMP);
+    printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_str);
+    printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_num);
+    // printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_process);
+    
 
     // Initialize halo model
     ModelParameters* Halo_primary_parameters = Models::Halo_Einasto::Functown::primary_parameters.getcontentsPtr();

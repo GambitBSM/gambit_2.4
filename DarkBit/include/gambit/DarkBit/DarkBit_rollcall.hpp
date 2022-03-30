@@ -101,12 +101,25 @@
 #define REFERENCE GAMBITDarkMatterWorkgroup:2017fax
 START_MODULE
 
-
+ // Doubles the given quantity
   #define CAPABILITY mass_double
   START_CAPABILITY
     #define FUNCTION doublingMass
     START_FUNCTION(double)
     BACKEND_REQ(add_here,(),double,(double&, double&))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ // Prints stuff
+  #define CAPABILITY printStuff
+  START_CAPABILITY
+    #define FUNCTION printPC
+    START_FUNCTION(double)
+    DEPENDENCY(WIMP_properties, WIMPprops)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+    BACKEND_REQ(print_string,(),void,(std::string&, double&))
+    BACKEND_REQ(print_num,(),void,(double&, double&))
+    // BACKEND_REQ(print_process,(),void,(TH_process&, double&))
     #undef FUNCTION
   #undef CAPABILITY
 
