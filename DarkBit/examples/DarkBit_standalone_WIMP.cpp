@@ -78,6 +78,7 @@ void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
   doublingMass.reset_and_calculate();
   std::cout << doublingMass(0) << std::endl;
   printPC.reset_and_calculate();
+  //pbar_flux.reset_and_calculate();
 } 
 
 void dumpSpectrum(std::vector<std::string> filenames, double mWIMP, double sv, std::vector<double> brList, double mPhi = -1)
@@ -137,7 +138,6 @@ namespace Gambit
       result = BEreq::add_here(mv,mv);
     }
 
-
     void printPC(double& result)
     {
       using namespace Pipes::printPC;
@@ -149,20 +149,40 @@ namespace Gambit
       std::cout << "DM mass:" << std::endl;
       BEreq::print_num(DM_mass, dummy);
       std::cout << "DM Annihilation:" << std::endl;
-      TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
-      // std::cout << "Branching Ratios : " << Dep.TH_ProcessCatalog->brList;
-      // std::cout << process.isAnnihilation << std::endl;
+      TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);   
       for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
       { 
         std::vector<std::string> fs = it->finalStateIDs;
         std::cout << "Final State IDs : " << fs << std::endl;
-        std::cout << "Cross-section : " ;
+        std::cout << "Cross-section : " << std::endl;
         double rate = it->genRate->bind("v")->eval(0.);
         BEreq::print_num(rate, dummy);
-        // std::cout << it->finalStateIDs << "   " << it->genRate->bind("v")->eval(0.) << std::endl;
       }
-       std::cout << "It works! :)" << std::endl;
+      std::cout << "It works! :)" << std::endl;
       result = 0;
+    }
+
+    void pbar_flux (std::vector<double>& result)
+    {
+      using namespace Pipes::pbar_flux;
+      std::string DM_ID = Dep::WIMP_properties->name;
+      double DM_mass = Dep::WIMP_properties->mass;
+      TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
+      map_str_dbl input;
+      double sv;
+      std::vector<std::string> fs;
+      std::string finalStates;
+      double rate;
+      for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
+      { 
+        fs = it->finalStateIDs;
+        finalStates = fs[0] + " " + fs[1];
+        rate = it->genRate->bind("v")->eval(0.);
+        input.insert({finalStates, rate});
+        sv += rate;
+      }
+      std::vector<double> flux = BEreq::antiproton_flux(DM_mass, sv, input);
+      result = flux;
     }
 
 
@@ -381,7 +401,9 @@ int main(int argc, char* argv[])
     printPC.resolveDependency(&TH_ProcessCatalog_WIMP);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_str);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_num);
-    // printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_process);
+    // pbar_flux.resolveDependency(&WIMP_properties_WIMP);
+    // pbar_flux.resolveDependency(&TH_ProcessCatalog_WIMP);
+    // pbar_flux.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_pbar_pred);
     
 
     // Initialize halo model
@@ -689,7 +711,7 @@ int main(int argc, char* argv[])
     // CHECK-------------------::-------------;;---------------::-------------------::------------------;;--------------------
     if (mode==8)
     { 
-        uptownfunc(100.0,3e-26,daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));    
+        uptownfunc(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));    
         
     }
 

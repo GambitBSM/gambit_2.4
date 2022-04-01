@@ -119,9 +119,20 @@ START_MODULE
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     BACKEND_REQ(print_string,(),void,(std::string&, double&))
     BACKEND_REQ(print_num,(),void,(double&, double&))
-    // BACKEND_REQ(print_process,(),void,(TH_process&, double&))
     #undef FUNCTION
   #undef CAPABILITY
+
+// Calculate pbar_flux
+  #define CAPABILITY pbar_flux
+  START_CAPABILITY
+    #define FUNCTION pbar_flux
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(WIMP_properties, WIMPprops)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+    BACKEND_REQ(antiproton_flux,(),std::vector<double>,(double&, double&, map_str_dbl&))
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
   // DarkSUSY-specific initialisation functions ========================
 

@@ -108,9 +108,13 @@ nulike:
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
+
 pybe:
   1.0:         ./Backends/installed/pybe/1.0/pybe.py
 
+pbarlike:
+  1.0:         ./Backends/installed/pbarlike/1.0/pbarlike.py
+  
 # Work in progress:
 # Rivet:
 #   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
