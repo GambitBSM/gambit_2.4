@@ -445,6 +445,63 @@ namespace Gambit
     }
 
 
+    /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
+    void fill_analysis_loglikes_full(const AnalysisData& ana_data, 
+                                AnalysisLogLikes& ana_loglikes,
+                                const std::string alt_loglike_key = "")
+    {
+      // Access the pipe for calc_LHC_LogLikes to access the FullLikes backend
+      using namespace Pipes::calc_LHC_LogLikes_full;
+
+      // Are we filling the standard loglike or an alternative one?
+      bool fill_alt_loglike = false;
+      if (!alt_loglike_key.empty()) fill_alt_loglike = true;
+
+      // Get number of signal regions
+      const size_t nSR = ana_data.size();
+
+      // Get the analysis name
+      const std::string ana_name = ana_data.analysis_name;
+
+      // Check if analysis is to use ATLAS Full Likelihood backend
+      // If the json hasn't been read in, read it in 
+      bool FullLikes_jsonread = BEreq::FullLikes_FileExists(ana_name);
+      if (!FullLikes_jsonread)
+      {
+        if (BEreq::FullLikes_ReadIn(ana_name,ana_data.bkgjson_path) != 0)
+        {
+          ColliderBit_error().raise(LOCAL_INFO,"Error: ATLAS FullLikes Failed to read in BKG JSON file for analysis: " + ana_name);
+        }
+      }
+
+      // Delta log-likelihood variable
+      double dll = NAN;
+
+      // Work out the total (delta) log likelihood for this analysis, with correlations/full likelihoods as available/instructed
+      //@todo: Do we need to do some form of check that pybind is defined?
+      pybind11::dict SRsignal;
+
+      for (size_t SR = 0; SR < nSR; ++SR)
+      {
+        pybind11::str SRName = ana_data[SR].sr_label;
+        SRsignal[SRName] = ana_data[SR].n_sig_scaled;
+      }
+
+      dll = BEreq::FullLikes_Evaluate(SRsignal,ana_name);
+
+      // Write result to the ana_loglikes reference
+      ana_loglikes.combination_sr_label = "all";
+      ana_loglikes.combination_sr_index = -1;
+      if (fill_alt_loglike)
+      {
+        ana_loglikes.alt_combination_loglikes.at(alt_loglike_key) = dll;
+      }
+      else
+      {
+        ana_loglikes.combination_loglike = dll;
+      }
+      
+    }
 
     /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
     void fill_analysis_loglikes(const AnalysisData& ana_data, 
@@ -452,7 +509,7 @@ namespace Gambit
                                 bool use_marg,
                                 bool has_and_use_covar,
                                 bool combine_nocovar_SRs,
-                                bool has_and_use_fulllikes, 
+                                bool has_and_use_fulllikes,
                                 const std::string alt_loglike_key = "")
     {
       // Access the pipe for calc_LHC_LogLikes to access the FullLikes backend
@@ -471,45 +528,13 @@ namespace Gambit
       // Get the analysis name
       const std::string ana_name = ana_data.analysis_name;
 
-      // Check if analysis is to use ATLAS Full Likelihood backend
-      // If the json hasn't been read in, read it in 
-      bool FullLikes_jsonread = BEreq::FullLikes_FileExists(ana_name);
-      if (has_and_use_fulllikes && !FullLikes_jsonread)
-      {
-        if (BEreq::FullLikes_ReadIn(ana_name,ana_data.bkgjson_path) != 0)
-        {
-          ColliderBit_error().raise(LOCAL_INFO,"Error: ATLAS FullLikes Failed to read in BKG JSON file for analysis: " + ana_name);
-        }
-      }
-
       // Delta log-likelihood variable
       double dll = NAN;
 
-      // Work out the total (delta) log likelihood for this analysis, with correlations/full likelihoods as available/instructed
-      if (has_and_use_fulllikes)  // Use ATLAS full likelihood?
+      // Work out the total (delta) log likelihood for this analysis, with correlations as available/instructed
+      if (has_and_use_fulllikes)
       {
-        //@todo: Do we need to do some form of check that pybind is defined?
-        pybind11::dict SRsignal;
-
-        for (size_t SR = 0; SR < nSR; ++SR)
-        {
-          pybind11::str SRName = ana_data[SR].sr_label;
-          SRsignal[SRName] = ana_data[SR].n_sig_scaled;
-        }
-
-        dll = BEreq::FullLikes_Evaluate(SRsignal,ana_name);
-
-        // Write result to the ana_loglikes reference
-        ana_loglikes.combination_sr_label = "all";
-        ana_loglikes.combination_sr_index = -1;
-        if (fill_alt_loglike)
-        {
-          ana_loglikes.alt_combination_loglikes.at(alt_loglike_key) = dll;
-        }
-        else
-        {
-          ana_loglikes.combination_loglike = dll;
-        }
+        fill_analysis_loglikes_full(ana_data,ana_loglikes,alt_loglike_key);
       }
       else if (has_and_use_covar)  // Use SR covariance info?
       {
@@ -591,7 +616,7 @@ namespace Gambit
           ana_loglikes.combination_loglike = dll;
         }
       }
-      else // No ATLAS fulllikes and no SR covariance info (or user chose not to use this)
+      else // No SR covariance info (or user chose not to use this)
       { 
 
         // We either take the result from the SR *expected* to be most
@@ -818,12 +843,13 @@ namespace Gambit
 
 
     /// Loop over all analyses and fill a map of AnalysisLogLikes objects
-    void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
+    void calc_LHC_LogLikes_common(map_str_AnalysisLogLikes& result, bool built_fulllikes)
     {
       static bool first = true;
 
       // Read options
       using namespace Pipes::calc_LHC_LogLikes;
+      
       // Use covariance matrices if available?
       static const bool use_covar = runOptions->getValueOrDef<bool>(true, "use_covariances");
       // Use the naive sum of SR loglikes when not using covariances?
@@ -862,6 +888,13 @@ namespace Gambit
         const bool has_covar = ana_data.srcov.rows() > 0;
         const bool has_fulllikes = ana_data.hasFullLikes();
         const bool use_fulllikes = runOptions->getValueOrDef<bool>(false, "use_full_likelihoods");
+        
+        // Throw an error if want to use full_likes but haven't built it
+        // TODO: Perhaps this could be thrown earlier
+        if (use_fulllikes && (!built_fulllikes))
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "FullLikes Backend is requested, but not built. Either run 'make ATLAS_FullLikes' or set 'use_full_likelihoods: false'");
+        }
 
         // Initialize the AnalysisLogLikes instance in the result map
         result[ana_name].initialize(ana_data, alt_loglike_keys);
@@ -954,7 +987,7 @@ namespace Gambit
         // Now perform the actual loglikes compuations for this analysis
         // 
         // First do standard loglike calculation
-        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes);
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes && built_fulllikes);
 
         // Then do alternative loglike calculations:
         if (calc_noerr_loglikes)
@@ -966,7 +999,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes && built_fulllikes,"noerr");
         }
         if (calc_expected_loglikes)
         {
@@ -977,7 +1010,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "expected");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes && built_fulllikes, "expected");
         }
         if (calc_expected_noerr_loglikes)
         {
@@ -990,7 +1023,7 @@ namespace Gambit
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "expected_noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes && built_fulllikes, "expected_noerr");
         }
         if (calc_scaledsignal_loglikes)
         {
@@ -1001,10 +1034,27 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes, "scaledsignal");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, use_fulllikes && has_fulllikes && built_fulllikes, "scaledsignal");
         }
 
       } // end analysis loop
+    }
+
+
+    /// Loop over all analyses and fill a map of AnalysisLogLikes objects
+    void calc_LHC_LogLikes_full(map_str_AnalysisLogLikes& result)
+    {
+      // Call the calc_LHC_LogLikes
+      bool built_fulllikes = true;
+      calc_LHC_LogLikes_common(result, built_fulllikes);
+    }
+
+    /// Loop over all analyses and fill a map of AnalysisLogLikes objects
+    void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
+    {
+      // Call the calc_LHC_LogLikes
+      bool built_fulllikes = false;
+      calc_LHC_LogLikes_common(result, built_fulllikes);
     }
 
 

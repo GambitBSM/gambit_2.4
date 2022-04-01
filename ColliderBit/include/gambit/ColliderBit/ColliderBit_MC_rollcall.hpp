@@ -335,7 +335,7 @@
   /// Calculate the log likelihood for each SR in each analysis using the analysis numbers
   #define CAPABILITY LHC_LogLikes
   START_CAPABILITY
-    #define FUNCTION calc_LHC_LogLikes
+    #define FUNCTION calc_LHC_LogLikes_full
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(RunMC, MCLoopInfo)
@@ -346,8 +346,17 @@
     BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
     BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
     #undef FUNCTION
+    
+    #define FUNCTION calc_LHC_LogLikes
+    START_FUNCTION(map_str_AnalysisLogLikes)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(RunMC, MCLoopInfo)
+    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
+    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
+    BACKEND_GROUP(lnlike_marg_poisson)
+    #undef FUNCTION
   #undef CAPABILITY
-
+  
   /// Extract the log likelihood for each SR to a simple map_str_dbl
   #define CAPABILITY LHC_LogLike_per_SR
   START_CAPABILITY
