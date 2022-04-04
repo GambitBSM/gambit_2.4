@@ -3,7 +3,8 @@ Parameters:
 
   # Dummy model to allow ColliderBit to perform a simple scan
   # by replacing entries in a SLHA file
-  CB_SLHA_simpmod_scan_model:
+  #CB_SLHA_simpmod_scan_model:
+  ColliderBit_SLHA_scan_model:
     m1:
       prior_type: none
     m2:
@@ -33,10 +34,10 @@ Scanner:
       plugin: raster
       like: LogLike
       parameters:
-        "CB_SLHA_simpmod_scan_model::m1": [100.0]
-        "CB_SLHA_simpmod_scan_model::m2": [1000.0]
-        "CB_SLHA_simpmod_scan_model::cross_section_fb": [4.5]
-        "CB_SLHA_simpmod_scan_model::cross_section_uncert_fb": [0.225]
+        "ColliderBit_SLHA_scan_model::m1": [100.0]
+        "ColliderBit_SLHA_scan_model::m2": [1000.0]
+        "ColliderBit_SLHA_scan_model::cross_section_fb": [4.5]
+        "ColliderBit_SLHA_scan_model::cross_section_uncert_fb": [0.225]
         
 Printer:
 
@@ -170,10 +171,14 @@ Rules:
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
+    # Choose not to use the FullLikes backend.
+    function: calc_LHC_LogLikes
+    # Choose to use the FullLikes backend when applicable
+    #function: calc_LHC_LogLikes_full
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
-      use_full_likelihoods: true
+      #use_full_likelihoods: true # This option is no longer used
       use_covariances: false
       combine_SRs_without_covariances: false
       covariance_marg_convthres_abs: 0.05
