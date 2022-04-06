@@ -10,13 +10,12 @@
     #include <pybind11/numpy.h>
     #include "gambit/Utils/end_ignore_warnings.hpp"
 
-    namespace py = pybind11;
-
     BE_INI_FUNCTION{}
     END_BE_INI_FUNCTION
 
     BE_NAMESPACE
     {
+        namespace py = pybind11;
         // double c_chi2(std::vector<double>& phi_pred, double& v)
         // {
         //     double ans = pbarlike.attr("chi2")(phi_pred).cast<double>();
