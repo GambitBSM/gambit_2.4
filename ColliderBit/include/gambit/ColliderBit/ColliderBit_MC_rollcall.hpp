@@ -335,6 +335,7 @@
   /// Calculate the log likelihood for each SR in each analysis using the analysis numbers
   #define CAPABILITY LHC_LogLikes
   START_CAPABILITY
+  
     #define FUNCTION calc_LHC_LogLikes_full
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
@@ -346,7 +347,7 @@
     BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
     BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
     #undef FUNCTION
-    
+  
     #define FUNCTION calc_LHC_LogLikes
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
