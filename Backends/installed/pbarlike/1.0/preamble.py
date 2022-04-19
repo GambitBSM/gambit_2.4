@@ -1,12 +1,29 @@
 # %% Imports and global variables
-import numpy as np
-from numba import njit
-import tensorflow as tf
-from iminuit import Minuit
+print("\033[32m Loading python backend - pbarlike 1.0")
+
+import os
+script_directory = os.path.dirname(__file__)
+
+import logging
+logging.disable(logging.WARNING)
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+import traceback
+try:
+    import numpy as np
+    from numba import njit
+    import tensorflow as tf
+    from iminuit import Minuit
+except Exception:
+    traceback.print_exc()
+else :
+    print("\033[32m Imported required python modules - numpy, numba.njit, tensorflow, iminuit.Minuit")
+
 
 import astropy.units as u
 import astropy.constants as con
 m_p = (( con.m_p * con.c**2).to(u.GeV)).value # Mass of proton in GeV (938.2720881604903 MeV)
+
 
 # %% Loading and preparing data
 # # Loading AMS Data for antiproton flux:
@@ -34,8 +51,9 @@ m_p = (( con.m_p * con.c**2).to(u.GeV)).value # Mass of proton in GeV (938.27208
 # $$ \frac{d \phi}{d R} \frac{d R}{d (E_k/A)} = \frac{d \phi}{d R} \frac{1}{R} (\frac{A}{Z})^2 \sqrt{( \frac{RA}{Z})^2 + m^2} $$
 
 # %%
+
 # Loading 7 year ams02_data which has columns as above :
-ams_data = np.genfromtxt('dependencies/pbar_ams02_7y.txt')
+ams_data = np.genfromtxt(script_directory+'/dependencies/pbar_ams02_7y.txt')
 
 # R - array with rigidity values in GV; outputs array of E_k in GeV
 def R_to_Ekin(R,z = -1, A = 1, m = m_p ):
@@ -60,21 +78,22 @@ phi_ams = np.array(flux_in_Ekin(phi_in_R,R_ams))
 # error_ams - (58,) array of error values of flux values measured at E_ams
 error_ams = np.array(flux_in_Ekin(error_R_ams,R_ams))
 
-
 # E_drn - (28,) array of KE per nucleon values at which sNet predicts flux values (same values at which training data are given to the sNet)
-E_drn = np.array(np.load('dependencies/E.npy'))
+E_drn = np.array(np.load(script_directory+'/dependencies/E.npy'))
+print("\033[32m Loaded and processed AMS-02 dataset")
 
 # Loading DMNet 
-DM_model = tf.keras.models.load_model('dependencies/DM_model_x.h5')
+DM_model = tf.keras.models.load_model(script_directory+'/dependencies/DM_model_x.h5')
 # Loading transformations for propagation parameters for DMNet
-DM_trafos =np.array(np.load('dependencies/DM_trafos_x.npy', allow_pickle = True))
+DM_trafos =np.array(np.load(script_directory+'/dependencies/DM_trafos_x.npy', allow_pickle = True))
 temp1 = np.array(DM_trafos[0,0])
 temp2 = np.array(DM_trafos[0,1])
 
 # Loading sNet
-S_model = tf.keras.models.load_model('dependencies/S_model.h5')
+S_model = tf.keras.models.load_model(script_directory+'/dependencies/S_model.h5')
 # Loading transformations for propagation parameters for sNet
-S_trafos = np.array(np.load('dependencies/S_trafos.npy', allow_pickle = True))
+S_trafos = np.array(np.load(script_directory+'/dependencies/S_trafos.npy', allow_pickle = True))
+print("\033[32m Loaded Dark Ray Net")
 
 # Loading priors
 mins_pp = np.array([1.2, 1.2, 2.3, 2.3, 1000, 0.1, 5e27, 0.2, 0, 0, 2])

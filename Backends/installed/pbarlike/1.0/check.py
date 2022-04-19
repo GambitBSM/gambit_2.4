@@ -12,6 +12,7 @@ pp = np.array([1.8, 1.79, 2.405, 2.357, 7.92e+03, 0.37, 2.05e+28, 0.419, 8.84, 0
 pbar_flux_pred = pbar_flux(m_DM,sv,bf)
 loglike = chi2(pbar_flux_pred)
 
+print("chi2 = ",loglike)
 
 
 

@@ -125,13 +125,24 @@ START_MODULE
 // Calculate pbar_flux
   #define CAPABILITY pbar_flux
   START_CAPABILITY
-    #define FUNCTION pbar_flux
+    #define FUNCTION pbarFlux
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     BACKEND_REQ(antiproton_flux,(),std::vector<double>,(double&, double&, map_str_dbl&))
+    BACKEND_REQ(pbar_log_likelihood,(),double,(std::vector<double>&, double&))
     #undef FUNCTION
   #undef CAPABILITY
+
+// // Calculate log_likelihood
+//   #define CAPABILITY ams_log_likelihood
+//   START_CAPABILITY
+//     #define FUNCTION amsLogLikelihood
+//     START_FUNCTION(double)
+//     DEPENDENCY(pbar_flux, std::vector<double>)
+//     BACKEND_REQ(pbar_log_likelihood,(),double,(std::vector<double>&, double&))
+//     #undef FUNCTION
+//   #undef CAPABILITY
 
 
   // DarkSUSY-specific initialisation functions ========================

@@ -72,13 +72,15 @@ void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
   TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
-  double mass = TH_ProcessCatalog_WIMP(0).getParticleProperty("WIMP").mass;
-  std::cout << mass << std::endl;
-  doublingMass.setOption<double>("mv",mass);
-  doublingMass.reset_and_calculate();
-  std::cout << doublingMass(0) << std::endl;
+  // double mass = TH_ProcessCatalog_WIMP(0).getParticleProperty("WIMP").mass;
+  // std::cout << mass << std::endl;
+  // doublingMass.setOption<double>("mv",mass);
+  // doublingMass.reset_and_calculate();
+  // std::cout << doublingMass(0) << std::endl;
   printPC.reset_and_calculate();
-  //pbar_flux.reset_and_calculate();
+  pbarFlux.reset_and_calculate();
+  // amsLogLikelihood.reset_and_calculate();
+  std::cout<< "The End" << std::endl;
 } 
 
 void dumpSpectrum(std::vector<std::string> filenames, double mWIMP, double sv, std::vector<double> brList, double mPhi = -1)
@@ -153,18 +155,18 @@ namespace Gambit
       for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
       { 
         std::vector<std::string> fs = it->finalStateIDs;
-        std::cout << "Final State IDs : " << fs << std::endl;
-        std::cout << "Cross-section : " << std::endl;
+        std::cout << "Annihilation Channel : " << fs << std::endl;
         double rate = it->genRate->bind("v")->eval(0.);
-        BEreq::print_num(rate, dummy);
+        std::cout << "Cross-section : " << rate << std::endl;
+
       }
-      std::cout << "It works! :)" << std::endl;
       result = 0;
     }
 
-    void pbar_flux (std::vector<double>& result)
+    void pbarFlux (std::vector<double>& result)
     {
-      using namespace Pipes::pbar_flux;
+      double dummy = 0;
+      using namespace Pipes::pbarFlux;
       std::string DM_ID = Dep::WIMP_properties->name;
       double DM_mass = Dep::WIMP_properties->mass;
       TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
@@ -182,8 +184,22 @@ namespace Gambit
         sv += rate;
       }
       std::vector<double> flux = BEreq::antiproton_flux(DM_mass, sv, input);
+      std::cout << "Simulated antiproton flux for the above specified model and channel: " << std::endl;
+      std::cout << flux << std::endl;
+      double chi2 = BEreq::pbar_log_likelihood(flux,dummy);
+      std::cout<< "AMS Log likelihood: " << chi2 << std::endl;
       result = flux;
     }
+
+
+    // void amsLogLikelihood(double& result)
+    // {
+    //   using namespace Pipes::amsLogLikelihood;
+    //   double dummy = 0;
+    //   std::vector<double> flux = Dep::pbar_flux; This won't work; we need to create a class/structure for the flux and include a member function that will fetch ////   the flux for us
+    //   double chi2 = BEreq::pbar_log_likelihood(flux,dummy);
+    //   result = chi2; 
+    // }
 
 
     void TH_ProcessCatalog_WIMP(TH_ProcessCatalog& result)
@@ -401,10 +417,12 @@ int main(int argc, char* argv[])
     printPC.resolveDependency(&TH_ProcessCatalog_WIMP);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_str);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_num);
-    // pbar_flux.resolveDependency(&WIMP_properties_WIMP);
-    // pbar_flux.resolveDependency(&TH_ProcessCatalog_WIMP);
-    // pbar_flux.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_pbar_pred);
-    
+    pbarFlux.resolveDependency(&WIMP_properties_WIMP);
+    pbarFlux.resolveDependency(&TH_ProcessCatalog_WIMP);
+    pbarFlux.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_pbar_pred);
+    pbarFlux.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_chi2);
+    // amsLogLikelihood.resolveDependency(&pbarFlux);
+    // amsLogLikelihood.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_chi2);
 
     // Initialize halo model
     ModelParameters* Halo_primary_parameters = Models::Halo_Einasto::Functown::primary_parameters.getcontentsPtr();

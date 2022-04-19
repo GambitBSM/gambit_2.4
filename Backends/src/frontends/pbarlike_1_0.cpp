@@ -16,11 +16,12 @@
     BE_NAMESPACE
     {
         namespace py = pybind11;
-        // double c_chi2(std::vector<double>& phi_pred, double& v)
-        // {
-        //     double ans = pbarlike.attr("chi2")(phi_pred).cast<double>();
-        //     return ans;
-        // }
+        double c_chi2(std::vector<double>& phi_pred, double& v)
+        {
+            py::array_t<double> phi = py::cast(phi_pred);
+            double ans = pbarlike.attr("chi2")(phi).cast<double>();
+            return ans;
+        }
 
         std::vector<double> c_pbar_pred(double& DM_mass, double& sv, map_str_dbl& channel_dict)
         {
