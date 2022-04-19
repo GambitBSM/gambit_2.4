@@ -63,7 +63,8 @@ void dump_array_to_file(const std::string & filename, const
   file.close();
 }
 
-void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
+
+void pybeCheck(double mWIMP, double sv, std::vector<double> brList)
 {
   DarkMatter_ID_WIMP.reset_and_calculate();
   WIMP_properties_WIMP.setOption<double>("mWIMP", mWIMP);
@@ -72,11 +73,22 @@ void uptownfunc(double mWIMP, double sv, std::vector<double> brList)
   TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
-  // double mass = TH_ProcessCatalog_WIMP(0).getParticleProperty("WIMP").mass;
-  // std::cout << mass << std::endl;
-  // doublingMass.setOption<double>("mv",mass);
-  // doublingMass.reset_and_calculate();
-  // std::cout << doublingMass(0) << std::endl;
+  printPC.reset_and_calculate();
+  double mass = TH_ProcessCatalog_WIMP(0).getParticleProperty("WIMP").mass;
+  doublingMass.setOption<double>("mv",mass);
+  doublingMass.reset_and_calculate();
+  std::cout << "Doubled DM mass: " << doublingMass(0) << std::endl;  
+}
+
+void pbarlikeCheck(double mWIMP, double sv, std::vector<double> brList)
+{
+  DarkMatter_ID_WIMP.reset_and_calculate();
+  WIMP_properties_WIMP.setOption<double>("mWIMP", mWIMP);
+  WIMP_properties_WIMP.reset_and_calculate();
+  mwimp_generic.reset_and_calculate();
+  TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
+  TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
+  TH_ProcessCatalog_WIMP.reset_and_calculate();
   printPC.reset_and_calculate();
   pbarFlux.reset_and_calculate();
   // amsLogLikelihood.reset_and_calculate();
@@ -409,6 +421,7 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
+    if (not Backends::backendInfo().works["pbarlike1.0"]) backend_error().raise(LOCAL_INFO, "pbarlike1.0 is missing!");
 
     // ---- Initialize models ----
 
@@ -729,9 +742,13 @@ int main(int argc, char* argv[])
     // CHECK-------------------::-------------;;---------------::-------------------::------------------;;--------------------
     if (mode==8)
     { 
-        uptownfunc(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));    
-        
+        pybeCheck(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));           
     }
+    if (mode==9)
+    { 
+        pbarlikeCheck(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));    
+    }
+
 
     // Generate gamma-ray spectra for various masses
     if (mode >= 10)

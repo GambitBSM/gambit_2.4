@@ -1,6 +1,7 @@
 # %% Imports and global variables
 print("\033[32m Loading python backend - pbarlike 1.0")
 
+import gc
 import os
 script_directory = os.path.dirname(__file__)
 
@@ -12,13 +13,16 @@ import traceback
 try:
     import numpy as np
     from numba import njit
-    import tensorflow as tf
+    from tensorflow import keras
     from iminuit import Minuit
 except Exception:
     traceback.print_exc()
 else :
     print("\033[32m Imported required python modules - numpy, numba.njit, tensorflow, iminuit.Minuit")
 
+import sys
+if not hasattr(sys, 'argv'):
+    sys.argv  = ['']
 
 import astropy.units as u
 import astropy.constants as con
@@ -83,14 +87,14 @@ E_drn = np.array(np.load(script_directory+'/dependencies/E.npy'))
 print("\033[32m Loaded and processed AMS-02 dataset")
 
 # Loading DMNet 
-DM_model = tf.keras.models.load_model(script_directory+'/dependencies/DM_model_x.h5')
+#DM_model = tf.keras.models.load_model(script_directory+'/dependencies/DM_model_x.h5')
 # Loading transformations for propagation parameters for DMNet
 DM_trafos =np.array(np.load(script_directory+'/dependencies/DM_trafos_x.npy', allow_pickle = True))
 temp1 = np.array(DM_trafos[0,0])
 temp2 = np.array(DM_trafos[0,1])
 
 # Loading sNet
-S_model = tf.keras.models.load_model(script_directory+'/dependencies/S_model.h5')
+#S_model = tf.keras.models.load_model(script_directory+'/dependencies/S_model.h5')
 # Loading transformations for propagation parameters for sNet
 S_trafos = np.array(np.load(script_directory+'/dependencies/S_trafos.npy', allow_pickle = True))
 print("\033[32m Loaded Dark Ray Net")

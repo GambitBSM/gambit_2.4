@@ -69,7 +69,14 @@ def DRN_output(DM_masses,br_fr,propagation_parameters):
     # E_dmnet - (n,40) array of kinetic energy(KE) per nucleon values at which network predicts output
     E_dmnet = x*DM_masses[:,None]
     # y_DM_x - (n,40) array of y values predicted by the DMNet for different x values; y(x) = log10(m^3 x phi(E))
-    y_DM_x = DM_model.predict([m_DM,bf,theta_prop])
+
+    DM_model = keras.models.load_model(script_directory+'/dependencies/DM_model_x.h5')
+    y_DM_x = DM_model([m_DM,bf,theta_prop])
+
+    keras.backend.clear_session()
+    del DM_model    
+    gc.collect()
+
     # phi_dmnet - (n,40) array of flux values predicted by the DMNet for different KE per nucleon values
     phi_dmnet = 10**(y_DM_x) / (DM_masses[:,None]**3 * x)
     # phi_DM_LIS - (n,28) array of flux values interpolated to obtain fluxes at the same KE per nucleon values as in E_drn so that it can
@@ -115,7 +122,14 @@ def CR_pbar_sim(propagation_parameters):
         # preprocessing propagation parameters
         theta_prop = (( propagation_parameters - (S_trafos[0])[:11])/(S_trafos[1])[:11])
         # y_CR - (28,) array of y values predicted by the sNet at different KE per nucleon values in E_drn ; y(E) = log10(E^2.7 phi(E))
-        y_CR = S_model.predict(theta_prop)
+
+        S_model = keras.models.load_model(script_directory+'/dependencies/S_model.h5')
+        y_CR = S_model(theta_prop)
+
+        keras.backend.clear_session()
+        del S_model
+        gc.collect()
+
         # phi_CR_LIS - (28,) array of flux values predicted by the sNet at different KE per nucleon values in E_drn
         phi_CR_LIS = 10**(y_CR)/E_drn**2.7
         return phi_CR_LIS
