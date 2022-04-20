@@ -450,13 +450,14 @@ namespace Gambit
 
     #ifdef HAVE_PYBIND11
       /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
+      template <typename T1,typename T2, typename T3>
       void fill_analysis_loglikes_full(const AnalysisData& ana_data, 
                                   AnalysisLogLikes& ana_loglikes,
+                                  T1 FullLikes_FileExists,
+                                  T2 FullLikes_ReadIn,
+                                  T3 FullLikes_Evaluate,
                                   const std::string alt_loglike_key = "")
       {
-        // Access the pipe for calc_LHC_LogLikes to access the FullLikes backend
-        using namespace Pipes::calc_LHC_LogLikes_full;
-
         // Are we filling the standard loglike or an alternative one?
         bool fill_alt_loglike = false;
         if (!alt_loglike_key.empty()) fill_alt_loglike = true;
@@ -469,10 +470,10 @@ namespace Gambit
 
         // Check if analysis is to use ATLAS Full Likelihood backend
         // If the json hasn't been read in, read it in 
-        bool FullLikes_jsonread = BEreq::FullLikes_FileExists(ana_name);
+        bool FullLikes_jsonread = (*FullLikes_FileExists)(ana_name); 
         if (!FullLikes_jsonread)
         {
-          if (BEreq::FullLikes_ReadIn(ana_name,ana_data.bkgjson_path) != 0)
+          if ((*FullLikes_ReadIn)(ana_name,ana_data.bkgjson_path) != 0)
           {
             ColliderBit_error().raise(LOCAL_INFO,"Error: ATLAS FullLikes Failed to read in BKG JSON file for analysis: " + ana_name);
           }
@@ -490,7 +491,7 @@ namespace Gambit
           SRsignal[SRName] = ana_data[SR].n_sig_scaled;
         }
 
-        dll = BEreq::FullLikes_Evaluate(SRsignal,ana_name);
+        dll = (*FullLikes_Evaluate)(SRsignal,ana_name);
 
         // Write result to the ana_loglikes reference
         ana_loglikes.combination_sr_label = "all";
@@ -505,6 +506,13 @@ namespace Gambit
         }
       
       }
+      
+      /// Throw an error if this is used when it shouldn't be
+      template <>
+      void fill_analysis_loglikes_full <std::nullptr_t,std::nullptr_t,std::nullptr_t> (const AnalysisData&, AnalysisLogLikes&,std::nullptr_t,std::nullptr_t, std::nullptr_t, const std::string)
+      {
+        ColliderBit_error().raise(LOCAL_INFO,"Error: Attempted to use nullptr to access FullLikes Backend function (It should never hit this error)");
+      }
     #endif
 
     /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
@@ -514,11 +522,11 @@ namespace Gambit
                                 bool has_and_use_covar,
                                 bool combine_nocovar_SRs,
                                 bool has_and_use_fulllikes,
+                                auto FullLikes_FileExists,
+                                auto FullLikes_ReadIn,
+                                auto FullLikes_Evaluate,
                                 const std::string alt_loglike_key = "")
     {
-      // Access the pipe for calc_LHC_LogLikes to access the FullLikes backend
-      using namespace Pipes::calc_LHC_LogLikes;
-
       // Are we filling the standard loglike or an alternative one?
       bool fill_alt_loglike = false;
       if (!alt_loglike_key.empty()) fill_alt_loglike = true;
@@ -540,7 +548,7 @@ namespace Gambit
       #ifdef HAVE_PYBIND11
         if (has_and_use_fulllikes)
         {
-          fill_analysis_loglikes_full(ana_data,ana_loglikes,alt_loglike_key);
+          fill_analysis_loglikes_full(ana_data,ana_loglikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate,alt_loglike_key);
         }
         else if (has_and_use_covar)  // Use SR covariance info?
       #else
@@ -855,17 +863,26 @@ namespace Gambit
     void calc_LHC_LogLikes_common(map_str_AnalysisLogLikes& result,
                                   bool use_fulllikes, 
                                   AnalysisDataPointers& ana,
-                                  bool use_covar,
-                                  bool combine_nocovar_SRs,
-                                  bool use_marg,
-                                  bool calc_noerr_loglikes,
-                                  bool calc_expected_loglikes,
-                                  bool calc_expected_noerr_loglikes,
-                                  bool calc_scaledsignal_loglikes,
-                                  double signal_scalefactor,
-                                  bool skip_calc)
+                                  const Options& runOptions,
+                                  bool skip_calc,
+                                  auto FullLikes_FileExists,
+                                  auto FullLikes_ReadIn,
+                                  auto FullLikes_Evaluate)
     {
       static bool first = true;
+
+      // Use covariance matrices if available?
+      static const bool use_covar = runOptions.getValueOrDef<bool>(true, "use_covariances");
+      // Use the naive sum of SR loglikes when not using covariances?
+      static const bool combine_nocovar_SRs = runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+      // Use marginalisation rather than profiling (probably less stable)?
+      static const bool use_marg = runOptions.getValueOrDef<bool>(false, "use_marginalising");
+      // Calculate various alternative loglikes?
+      static const bool calc_noerr_loglikes = runOptions.getValueOrDef<bool>(false, "calc_noerr_loglikes");
+      static const bool calc_expected_loglikes = runOptions.getValueOrDef<bool>(false, "calc_expected_loglikes");
+      static const bool calc_expected_noerr_loglikes = runOptions.getValueOrDef<bool>(false, "calc_expected_noerr_loglikes");
+      static const bool calc_scaledsignal_loglikes = runOptions.getValueOrDef<bool>(false, "calc_scaledsignal_loglikes");
+      static const double signal_scalefactor = runOptions.getValueOrDef<double>(1.0, "signal_scalefactor");
 
       // Create a list of keys for the alternative loglikes that are activated
       static std::vector<std::string> alt_loglike_keys;
@@ -977,7 +994,7 @@ namespace Gambit
         // Now perform the actual loglikes compuations for this analysis
         // 
         // First do standard loglike calculation
-        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes);
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate);
 
         // Then do alternative loglike calculations:
         if (calc_noerr_loglikes)
@@ -989,7 +1006,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,"noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes &&  use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate,"noerr");
         }
         if (calc_expected_loglikes)
         {
@@ -1000,7 +1017,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes, "expected");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected");
         }
         if (calc_expected_noerr_loglikes)
         {
@@ -1013,7 +1030,7 @@ namespace Gambit
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes, "expected_noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected_noerr");
         }
         if (calc_scaledsignal_loglikes)
         {
@@ -1024,7 +1041,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes, "scaledsignal");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "scaledsignal");
         }
 
       } // end analysis loop
@@ -1039,19 +1056,6 @@ namespace Gambit
       
       bool use_fulllikes = true;
       
-      // Use covariance matrices if available?
-      static const bool use_covar = runOptions->getValueOrDef<bool>(true, "use_covariances");
-      // Use the naive sum of SR loglikes when not using covariances?
-      static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
-      // Use marginalisation rather than profiling (probably less stable)?
-      static const bool use_marg = runOptions->getValueOrDef<bool>(false, "use_marginalising");
-      // Calculate various alternative loglikes?
-      static const bool calc_noerr_loglikes = runOptions->getValueOrDef<bool>(false, "calc_noerr_loglikes");
-      static const bool calc_expected_loglikes = runOptions->getValueOrDef<bool>(false, "calc_expected_loglikes");
-      static const bool calc_expected_noerr_loglikes = runOptions->getValueOrDef<bool>(false, "calc_expected_noerr_loglikes");
-      static const bool calc_scaledsignal_loglikes = runOptions->getValueOrDef<bool>(false, "calc_scaledsignal_loglikes");
-      static const double signal_scalefactor = runOptions->getValueOrDef<double>(1.0, "signal_scalefactor");
-
       // If no events have been generated (xsec veto) or too many events have
       // failed, short-circut the loop and return delta log-likelihood = 0 for
       // every SR in each analysis.
@@ -1059,42 +1063,25 @@ namespace Gambit
       /// @todo Needs more sophistication once we add analyses that don't use event generation.
       bool skip_calc = (not Dep::RunMC->event_gen_BYPASS && (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents) );
       
+      
+      // Get a pointer to the FullLikes backend functions.
+      auto FileExists = &BEreq::FullLikes_FileExists;
+      auto ReadIn = &BEreq::FullLikes_ReadIn;
+      auto Evaluate = &BEreq::FullLikes_Evaluate;
+      
       // Call the calc_LHC_LogLikes
-      calc_LHC_LogLikes_common(result,
-                               use_fulllikes,
-                               ana,
-                               use_covar,
-                               combine_nocovar_SRs,
-                               use_marg,
-                               calc_noerr_loglikes,
-                               calc_expected_loglikes,
-                               calc_expected_noerr_loglikes,
-                               calc_scaledsignal_loglikes,
-                               signal_scalefactor,
-                               skip_calc);
+      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, skip_calc, FileExists, ReadIn, Evaluate);
+                               
     }
 
-    /// Loop over all analyses and fill a map of AnalysisLogLikes objects
+    /// Loop over all analyses and fill a map of AnalysisLogLikes objectss
     void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
     {
       using namespace Pipes::calc_LHC_LogLikes;
       AnalysisDataPointers ana = *(Dep::AllAnalysisNumbers);
-    
+      
       bool use_fulllikes = false;
     
-      // Use covariance matrices if available?
-      static const bool use_covar = runOptions->getValueOrDef<bool>(true, "use_covariances");
-      // Use the naive sum of SR loglikes when not using covariances?
-      static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
-      // Use marginalisation rather than profiling (probably less stable)?
-      static const bool use_marg = runOptions->getValueOrDef<bool>(false, "use_marginalising");
-      // Calculate various alternative loglikes?
-      static const bool calc_noerr_loglikes = runOptions->getValueOrDef<bool>(false, "calc_noerr_loglikes");
-      static const bool calc_expected_loglikes = runOptions->getValueOrDef<bool>(false, "calc_expected_loglikes");
-      static const bool calc_expected_noerr_loglikes = runOptions->getValueOrDef<bool>(false, "calc_expected_noerr_loglikes");
-      static const bool calc_scaledsignal_loglikes = runOptions->getValueOrDef<bool>(false, "calc_scaledsignal_loglikes");
-      static const double signal_scalefactor = runOptions->getValueOrDef<double>(1.0, "signal_scalefactor");
-
       // If no events have been generated (xsec veto) or too many events have
       // failed, short-circut the loop and return delta log-likelihood = 0 for
       // every SR in each analysis.
@@ -1102,19 +1089,10 @@ namespace Gambit
       /// @todo Needs more sophistication once we add analyses that don't use event generation.
       bool skip_calc = (not Dep::RunMC->event_gen_BYPASS && (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents) );
       
+
       // Call the calc_LHC_LogLikes
-      calc_LHC_LogLikes_common(result,
-                               use_fulllikes,
-                               ana,
-                               use_covar,
-                               combine_nocovar_SRs,
-                               use_marg,
-                               calc_noerr_loglikes,
-                               calc_expected_loglikes,
-                               calc_expected_noerr_loglikes,
-                               calc_scaledsignal_loglikes,
-                               signal_scalefactor,
-                               skip_calc);
+      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, skip_calc, nullptr, nullptr, nullptr);
+      
     }
 
 

@@ -172,13 +172,12 @@ Rules:
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
     # Choose not to use the FullLikes backend.
-    function: calc_LHC_LogLikes
+    #function: calc_LHC_LogLikes
     # Choose to use the FullLikes backend when applicable
-    #function: calc_LHC_LogLikes_full
+    function: calc_LHC_LogLikes_full
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
-      #use_full_likelihoods: true # This option is no longer used
       use_covariances: false
       combine_SRs_without_covariances: false
       covariance_marg_convthres_abs: 0.05
