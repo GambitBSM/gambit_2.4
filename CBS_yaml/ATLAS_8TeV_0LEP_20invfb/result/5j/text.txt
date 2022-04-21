@@ -1,6 +1,0 @@
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__5j__i8__signal: 46.185117
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__5j__i8__signal_uncert: 1.5667228
-
-
-
-Note that the cross section I used is for 8 squarks, but ATLAS may use only 4 squarks according to their SLHA

@@ -1,7 +1,0 @@
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__2jl__i0__signal: 63.710657
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__2jl__i0__signal_uncert: 0.7406714
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__2jm__i1__signal: 42.054717
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__2jm__i1__signal_uncert: 0.60176495
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__2jt__i2__signal: 27.287346
-0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_8TeV_0LEP_20invfb__2jt__i2__signal_uncert: 0.48473031
-
