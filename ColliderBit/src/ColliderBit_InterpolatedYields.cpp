@@ -150,7 +150,8 @@ namespace Gambit
     // =========== Forward declarations ===========
 
     /// Forward declaration of funtion in LHC_likelihoods
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, const std::string);
+    // @todo Interpolation will not currently work with the FullLikes backend. None of the currently written interpolation analysis require this.
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, auto, auto, auto, const std::string);
 
     /// Forward declarations of functions in this file
     void fill_analysis_info_map();
@@ -825,7 +826,7 @@ namespace Gambit
       for (AnalysisData& adata : temp_adata_vec)
       {
         signal_modifier_function(adata, fpars->lambda, *a);
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes, "");
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes, nullptr, nullptr, nullptr, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
