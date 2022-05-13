@@ -12,7 +12,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import traceback
 try:
     import numpy as np
-    from numba import njit
+    # from numba import njit
     from tensorflow import keras
     from iminuit import Minuit
 except Exception:
@@ -58,6 +58,7 @@ m_p = (( con.m_p * con.c**2).to(u.GeV)).value # Mass of proton in GeV (938.27208
 
 # Loading 7 year ams02_data which has columns as above :
 ams_data = np.genfromtxt(script_directory+'/dependencies/pbar_ams02_7y.txt')
+theta_set = np.load(script_directory+'/dependencies/sample_prop_params.npy')
 
 # R - array with rigidity values in GV; outputs array of E_k in GeV
 def R_to_Ekin(R,z = -1, A = 1, m = m_p ):

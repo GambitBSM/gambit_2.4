@@ -20,7 +20,7 @@ from DRN_interface import *
 # V - solar modulation potential in giga volts 
 
 
-@njit
+
 def chi2(phi_pred):
     return np.sum((phi_ams - phi_pred)**2 / error_ams**2)
     
@@ -28,9 +28,7 @@ def solar_mod(phi_LIS, E_LIS, V, Z=-1., A=1., m=m_p ):
     # E_LIS_ams - (58,) array of KE per nucleon values at LIS which after solar modulation reduce to E_ams
     E_LIS_ams = E_ams + np.abs(Z)/A * V
     # phi_LIS_interp - (n,58) array of flux values interpolated to the above E values.
-    phi_LIS_interp = np.ones((len(phi_LIS),len(E_ams)))
-    for i in range(len(phi_LIS)):
-        phi_LIS_interp[i] = (np.interp(E_LIS_ams,E_LIS,phi_LIS[i]))
+    phi_LIS_interp = (np.interp(E_LIS_ams,E_LIS,phi_LIS))
     # phi_earth - (n,58) array of flux values simulated as that which is measured by AMS 02, i.e., flux after solar modulation
     phi_earth = phi_LIS_interp * (E_ams**2 + 2*E_ams*m)/(E_LIS_ams**2 + 2*E_LIS_ams*m)
     return phi_earth

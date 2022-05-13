@@ -16,19 +16,27 @@
     BE_NAMESPACE
     {
         namespace py = pybind11;
-        double c_chi2(std::vector<double>& phi_pred, double& v)
-        {
-            py::array_t<double> phi = py::cast(phi_pred);
-            double ans = pbarlike.attr("chi2")(phi).cast<double>();
-            return ans;
-        }
+        // double c_chi2(std::vector<double>& phi_pred, double& v)
+        // {
+        //     py::array_t<double> phi = py::cast(phi_pred);
+        //     double ans = pbarlike.attr("chi2")(phi).cast<double>();
+        //     return ans;
+        // }
 
-        std::vector<double> c_pbar_pred(double& DM_mass, double& sv, map_str_dbl& channel_dict)
+        // std::vector<std::vector<double>> c_pbar_pred(double& DM_mass, double& sv, map_str_dbl& channel_dict)
+        // {
+        //     pybind11::dict inputs = pybind11::cast(channel_dict);
+        //     py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs);
+        //     std::vector<std::vector<double>> pbar_pred = pbarlike.attr("pbar_flux")(DM_mass, sv, br_fr).cast<std::vector<std::vector<double>>>();
+        //     return pbar_pred;
+        // }
+        
+        std::vector<double> c_del_chi2(double& DM_mass, double& sv, map_str_dbl& channel_dict)
         {
             pybind11::dict inputs = pybind11::cast(channel_dict);
-            py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs);
-            std::vector<double> pbar_pred = pbarlike.attr("pbar_flux")(DM_mass, sv, br_fr).cast<std::vector<double>>();
-            return pbar_pred;
+            py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs); 
+            std::vector<double> del_chi2 = pbarlike.attr("delChi2")(DM_mass,sv,br_fr).cast<std::vector<double>>();
+            return del_chi2
         }
     }
     END_BE_NAMESPACE

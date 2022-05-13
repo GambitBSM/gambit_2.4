@@ -69,10 +69,10 @@ def DRN_output(DM_masses,br_fr,propagation_parameters):
     # E_dmnet - (n,40) array of kinetic energy(KE) per nucleon values at which network predicts output
     E_dmnet = x*DM_masses[:,None]
     # y_DM_x - (n,40) array of y values predicted by the DMNet for different x values; y(x) = log10(m^3 x phi(E))
-
+    
     DM_model = keras.models.load_model(script_directory+'/dependencies/DM_model_x.h5')
     y_DM_x = DM_model([m_DM,bf,theta_prop])
-
+    
     keras.backend.clear_session()
     del DM_model    
     gc.collect()

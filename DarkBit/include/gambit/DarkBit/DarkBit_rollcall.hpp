@@ -122,15 +122,14 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-// Calculate pbar_flux
-  #define CAPABILITY pbar_flux
+// Calculate pbar_del_chi2
+  #define CAPABILITY del_chi2
   START_CAPABILITY
-    #define FUNCTION pbarFlux
+    #define FUNCTION delChi2
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
-    BACKEND_REQ(antiproton_flux,(),std::vector<double>,(double&, double&, map_str_dbl&))
-    BACKEND_REQ(pbar_log_likelihood,(),double,(std::vector<double>&, double&))
+    BACKEND_REQ(pbar_del_chi2,(),std::vector<double>,(double&, double&, map_str_dbl&))
     #undef FUNCTION
   #undef CAPABILITY
 

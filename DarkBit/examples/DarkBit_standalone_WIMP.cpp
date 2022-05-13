@@ -175,7 +175,7 @@ namespace Gambit
       result = 0;
     }
 
-    void pbarFlux (std::vector<double>& result)
+    void delChi2 (std::vector<double>& result)
     {
       double dummy = 0;
       using namespace Pipes::pbarFlux;
@@ -195,12 +195,12 @@ namespace Gambit
         input.insert({finalStates, rate});
         sv += rate;
       }
-      std::vector<double> flux = BEreq::antiproton_flux(DM_mass, sv, input);
-      std::cout << "Simulated antiproton flux for the above specified model and channel: " << std::endl;
-      std::cout << flux << std::endl;
-      double chi2 = BEreq::pbar_log_likelihood(flux,dummy);
-      std::cout<< "AMS Log likelihood: " << chi2 << std::endl;
-      result = flux;
+      std::vector<double> del_chi2 = BEreq::pbar_del_chi2(DM_mass, sv, input);
+      std::cout << "Delta chi^2 (preference of DM over secondary pbar) for the above specified model and channel: " << std::endl;
+      std::cout << del_chi2 << std::endl;
+      // double chi2 = BEreq::pbar_log_likelihood(flux,dummy);
+      // std::cout<< "AMS Log likelihood: " << chi2 << std::endl;
+      result = del_chi2;
     }
 
 
@@ -430,10 +430,9 @@ int main(int argc, char* argv[])
     printPC.resolveDependency(&TH_ProcessCatalog_WIMP);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_str);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_num);
-    pbarFlux.resolveDependency(&WIMP_properties_WIMP);
-    pbarFlux.resolveDependency(&TH_ProcessCatalog_WIMP);
-    pbarFlux.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_pbar_pred);
-    pbarFlux.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_chi2);
+    delChi2.resolveDependency(&WIMP_properties_WIMP);
+    delChi2.resolveDependency(&TH_ProcessCatalog_WIMP);
+    delChi2.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_del_chi2);
     // amsLogLikelihood.resolveDependency(&pbarFlux);
     // amsLogLikelihood.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_chi2);
 
