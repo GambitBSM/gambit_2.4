@@ -36,7 +36,7 @@
             pybind11::dict inputs = pybind11::cast(channel_dict);
             py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs); 
             std::vector<double> del_chi2 = pbarlike.attr("delChi2")(DM_mass,sv,br_fr).cast<std::vector<double>>();
-            return del_chi2
+            return del_chi2;
         }
     }
     END_BE_NAMESPACE

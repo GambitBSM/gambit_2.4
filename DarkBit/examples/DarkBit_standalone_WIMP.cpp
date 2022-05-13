@@ -90,7 +90,7 @@ void pbarlikeCheck(double mWIMP, double sv, std::vector<double> brList)
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
   printPC.reset_and_calculate();
-  pbarFlux.reset_and_calculate();
+  delChi2.reset_and_calculate();
   // amsLogLikelihood.reset_and_calculate();
   std::cout<< "The End" << std::endl;
 } 
@@ -178,7 +178,7 @@ namespace Gambit
     void delChi2 (std::vector<double>& result)
     {
       double dummy = 0;
-      using namespace Pipes::pbarFlux;
+      using namespace Pipes::delChi2;
       std::string DM_ID = Dep::WIMP_properties->name;
       double DM_mass = Dep::WIMP_properties->mass;
       TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
@@ -421,7 +421,7 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
-    if (not Backends::backendInfo().works["pbarlike1.0"]) backend_error().raise(LOCAL_INFO, "pbarlike1.0 is missing!");
+    // if (not Backends::backendInfo().works["pbarlike1.0"]) backend_error().raise(LOCAL_INFO, "pbarlike1.0 is missing!");
 
     // ---- Initialize models ----
 
