@@ -2531,6 +2531,8 @@ namespace Gambit
 
       return metadata;
 
+    }
+
     // Resolve a dependency on backend classes
     void DependencyResolver::resolveVertexClassLoading(VertexID vertex)
     {
