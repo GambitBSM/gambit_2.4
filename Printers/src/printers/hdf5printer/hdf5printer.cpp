@@ -328,6 +328,7 @@ namespace Gambit
       options.setValue("type", "hdf5");
       options.setValue("file", tmp_comb_file);
       options.setValue("group", group);
+      options.setValue("metadata_group", metadata_group);
       return options;
     }
 
@@ -393,6 +394,15 @@ namespace Gambit
 
         // HDF5 group (virtual "folder") inside output file in which to store datasets
         group = options.getValueOrDef<std::string>("/","group");
+
+        // HDF5 group for metadata, must be different than the dataset group
+        metadata_group = options.getValueOrDef<std::string>("/metadata", "metadata_group");
+        if(group == metadata_group)
+        {
+          std::ostringstream errmsg;
+          errmsg<<"Metadata group name matches primary group name. Please change one of the two.";
+          printer_error().raise(LOCAL_INFO, errmsg.str());
+        }
 
         // Delete final target file (or group) if one with same name already exists? (and if we are restarting the run)
         // This is just for convenience during testing; by default datasets will simply be replaced in/added to
@@ -624,9 +634,13 @@ namespace Gambit
         // Open sub-group for RA datasets
         RA_group_id = HDF5::openGroup(file_id,group+"/RA");
 
+        // Open metadata group (or create it)
+        metadata_id = HDF5::openGroup(file_id, metadata_group);
+
         // Set the target dataset write location to the chosen group
         location_id = group_id;
         RA_location_id = RA_group_id;
+        metadata_location_id = metadata_id;
 
       }
       else
@@ -830,6 +844,7 @@ namespace Gambit
           it->second->finalise();
         }
         HDF5::closeGroup(group_id);
+        HDF5::closeGroup(metadata_id);
         HDF5::closeGroup(RA_group_id);
         HDF5::closeFile(file_id);
 
@@ -1604,6 +1619,11 @@ errmsg << "   sync_pos = " << sync_pos_plus1-1 << std::endl;
       {
         // no action required
       }
+    }
+
+    /// Print metadata directly to file
+    void HDF5Printer::_print_metadata(map_str_str datasets)
+    {
     }
 
     /// @}
