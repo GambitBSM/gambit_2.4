@@ -478,6 +478,7 @@ namespace Gambit
 
               // This might take a while; for debugging purposes we will time it.
               std::chrono::time_point<std::chrono::system_clock> start(std::chrono::system_clock::now());
+c
               prepare_and_combine_tmp_files();
               std::chrono::time_point<std::chrono::system_clock> end(std::chrono::system_clock::now());
               std::chrono::duration<double> time_taken = end - start;
@@ -525,12 +526,12 @@ namespace Gambit
             }
           } // end if(resume)
 
-          std::cout <<"Rank "<<myRank<<" resume flag? "<<get_resume()<<std::endl;
+          logger() << LogTags::printers << LogTags::info << "Rank " << myRank << " resume flag? " << get_resume() << EOM;
           if(get_resume())
           {
             //long highest = 0;
             /// Check if combined output file exists
-            std::cout <<"Rank "<<myRank<<": tmp_comb_file readable? "<<HDF5::checkFileReadable(tmp_comb_file)<<"(filename: "<<tmp_comb_file<<")"<<std::endl;
+            logger() << LogTags::printers << LogTags::info << "Rank " << myRank << ": tmp_comb_file readable? " << HDF5::checkFileReadable(tmp_comb_file) << "(filename: " << tmp_comb_file << ")" << EOM;
             if( HDF5::checkFileReadable(tmp_comb_file) )
             {
               logger() << LogTags::info << "Scanning existing temporary combined output file, to prepare for adding new data" << EOM;
@@ -1632,6 +1633,17 @@ errmsg << "   sync_pos = " << sync_pos_plus1-1 << std::endl;
     /// Print metadata directly to file
     void HDF5Printer::_print_metadata(map_str_str datasets)
     {
+
+      // Retrieve the buffer manager for buffers with this type
+      //auto& buffer_manager = get_mybuffermanager<T>(pointID,mpirank);
+
+      // Extract a buffer from the manager corresponding to this
+      //auto& selected_buffer = buffer_manager.get_buffer(IDcode, 0, label);
+
+      //PPIDpair ppid(pointID,mpirank);
+      // Write the data to the selected buffer ("just works" for simple numeric types)
+      //selected_buffer.append(value,ppid);
+
     }
 
     /// @}
