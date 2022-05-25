@@ -478,7 +478,6 @@ namespace Gambit
 
               // This might take a while; for debugging purposes we will time it.
               std::chrono::time_point<std::chrono::system_clock> start(std::chrono::system_clock::now());
-c
               prepare_and_combine_tmp_files();
               std::chrono::time_point<std::chrono::system_clock> end(std::chrono::system_clock::now());
               std::chrono::duration<double> time_taken = end - start;
@@ -535,7 +534,7 @@ c
             if( HDF5::checkFileReadable(tmp_comb_file) )
             {
               logger() << LogTags::info << "Scanning existing temporary combined output file, to prepare for adding new data" << EOM;
-            // Open HDF5 file
+              // Open HDF5 file
               file_id = HDF5::openFile(tmp_comb_file);
 
               // Check that group is readable
@@ -550,11 +549,23 @@ c
                 printer_error().raise(LOCAL_INFO, errmsg.str());
               }
 
+              // Check that metadata group is readable
+              if(not HDF5::checkGroupReadable(file_id, metadata_group, msg2))
+              {
+                // We are supposed to be resuming, but metadata group was not readable in the output file, so we can't.
+                std::ostringstream errmsg;
+                errmsg << "Error! GAMBIT is in resume mode, however the chosen output system (HDF5Printer) was unable to open the metadata group ("<<metadata_group<<") within the existing output file ("<<tmp_comb_file<<"). Resuming is therefore not possible; aborting run... (see below for IO error message)";
+                errmsg << std::endl << "(Strictly speaking we could allow the run to continue (if the scanner can find its necessary output files from the last run), however the printer output from that run is gone, so most likely the scan needs to start again).";
+                errmsg << std::endl << "IO error message: " << msg2;
+                printer_error().raise(LOCAL_INFO, errmsg.str());
+              }
+
               // Open requested group (creating it plus parents if needed)
               group_id = HDF5::openGroup(file_id,group);
 
               // Get previous highest pointID for our rank from the existing output file
               // Might take a while, so time it.
+              // TODO: Pretty sure this can be faster if taken from metadata, do that later
               std::chrono::time_point<std::chrono::system_clock> start(std::chrono::system_clock::now());
               //PPIDpair highest_PPID
               std::map<unsigned long, unsigned long long int> highest_PPIDs = get_highest_PPID_from_HDF5(group_id);
@@ -679,7 +690,7 @@ c
         // printer
         location_id = primary_printer->get_location();
         RA_location_id = primary_printer->get_RA_location();
-        //startpos = primary_printer->get_startpos(); // OBSOLETE
+        metadata_location_id = primary_printer->get_metadata_location();
       }
       // Now that communicator is set up, get its properties.
 #ifdef WITH_MPI
@@ -1126,6 +1137,17 @@ c
         printer_error().raise(LOCAL_INFO, errmsg.str());
       }
       return RA_location_id;
+    }
+
+    hid_t HDF5Printer::get_metadata_location() const
+    {
+      if(metadata_location_id==-1)
+      {
+        std::ostringstream errmsg;
+        errmsg << "Error! Tried to retrieve 'metadata_location_id' handle from HDF5Printer, but it is -1! This means the printer has not been set up correctly. This is a bug, please report it.";
+        printer_error().raise(LOCAL_INFO, errmsg.str());
+      }
+      return metadata_location_id;
     }
 
     /// Add a pointer to a new buffer to the global list for this printer
@@ -1634,15 +1656,21 @@ errmsg << "   sync_pos = " << sync_pos_plus1-1 << std::endl;
     void HDF5Printer::_print_metadata(map_str_str datasets)
     {
 
-      // Retrieve the buffer manager for buffers with this type
-      //auto& buffer_manager = get_mybuffermanager<T>(pointID,mpirank);
+      // Retrieve the buffer manager for metadata
+      //auto& buffer_manager = get_metadata_buffermanager(pointID,mpirank);
 
-      // Extract a buffer from the manager corresponding to this
-      //auto& selected_buffer = buffer_manager.get_buffer(IDcode, 0, label);
+      for(auto dset : datasets)
+      {
+        std::cout << dset.first << std::endl;
 
-      //PPIDpair ppid(pointID,mpirank);
-      // Write the data to the selected buffer ("just works" for simple numeric types)
-      //selected_buffer.append(value,ppid);
+
+        // Extract a buffer from the manager corresponding to this
+        //auto& selected_buffer = buffer_manager.get_buffer(IDcode, 0, label);
+
+        //PPIDpair ppid(pointID,mpirank);
+        // Write the data to the selected buffer ("just works" for simple numeric types)
+        //selected_buffer.append(value,ppid);
+      }
 
     }
 

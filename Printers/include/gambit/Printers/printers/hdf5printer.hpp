@@ -184,6 +184,7 @@ namespace Gambit
         /// Retrieve pointer to HDF5 location to which datasets are added
         hid_t get_location() const;
         hid_t get_RA_location() const;
+        hid_t get_metadata_location() const;
 
         /// Add a pointer to a new buffer to the global list
         void insert_buffer(VBIDpair& key, VertexBufferBase& newbuffer);
