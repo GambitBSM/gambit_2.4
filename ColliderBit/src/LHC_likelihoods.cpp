@@ -134,7 +134,12 @@ namespace Gambit
         // Then the Poisson bit (j = SR)
         /// @note We've dropped the log(n_obs!) terms, since they're expensive and cancel in computing DLL
         const double lambda_j = std::max(n_preds(j), 1e-3); //< manually avoid <= 0 rates
-        const double logfact_n_obs = 0; // gsl_sf_lngamma(n_obss(j) + 1); //< skipping log(n_obs!) computation
+
+        // Also include the constant log(n_obs!) computation (via Stirling's approx), 
+        // to avoid taking the difference of two very large numbers in the DLL.
+        // @todo Just compute the logfact_n_obs term for each SR once per scan
+        const double logfact_n_obs = (n_obss(j) > 0) ? n_obss(j) * log(n_obss(j)) - n_obss(j) : 0;  
+
         const double loglike_j = n_obss(j)*log(lambda_j) - lambda_j - logfact_n_obs;
 
         loglike_tot += loglike_j;
