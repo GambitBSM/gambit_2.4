@@ -24,6 +24,7 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Backends/backend_info.hpp"
+#include "gambit/Utils/util_functions.hpp"
 #include "gambit/Logs/logger.hpp"
 
 #ifdef HAVE_MATHEMATICA
@@ -31,7 +32,11 @@
 #endif
 
 #ifdef HAVE_PYBIND11
+
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/embed.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
+
 #endif
 
 #ifdef HAVE_LINK_H
@@ -359,6 +364,10 @@ namespace Gambit
       {
         loadLibrary_C_CXX_Fortran(be, ver, sv, with_BOSS);
       }
+      else if (lang == "DATA" or lang == "Data")
+      {
+        loadLibrary_data(be, ver, sv);
+      }
       else
       {
         std::ostringstream err;
@@ -378,6 +387,27 @@ namespace Gambit
     return 0;
   }
 
+  /// Load a data-only backend library.
+  void Backends::backend_info::loadLibrary_data(const str& be, const str& ver, const str& sv)
+  {
+    const str path = corrected_path(be,ver);
+    link_versions(be, ver, sv);
+    classloader[be+ver] = false;
+    needsMathematica[be+ver] = false;
+    needsPython[be+ver] = false;
+
+    if (Utils::file_exists(path))
+    {
+      logger() << "Succeeded in locating data library at " << path << "."
+               << LogTags::backends << LogTags::info << EOM;
+      works[be+ver] = true;
+    }
+    else
+    {
+      backend_warning().raise(LOCAL_INFO,"Failed to locate data library at " + path + ".");
+      works[be+ver] = false;
+    }
+  }
 
   /// Load a backend library written in C, C++ or Fortran.
   void Backends::backend_info::loadLibrary_C_CXX_Fortran(const str& be, const str& ver, const str& sv, bool with_BOSS)
@@ -475,12 +505,12 @@ namespace Gambit
       pHandle = WSOpenString(WSenv, WSTPflags.str().c_str(), &WSerrno);
       if(pHandle == NULL || WSerrno != WSEOK)
       {
-        err << "Unable to create link to the Kernel" << endl;
-        backend_warning().raise(LOCAL_INFO,err.str());
-        backend_warning().raise(LOCAL_INFO, WSErrorMessage(pHandle));
-        works[be+ver] = false;
-        WSNewPacket(pHandle);
-        return;
+        if(pHandle != NULL)
+        {
+          err << "Received the following error message from WSErrorMessage: \"" << WSErrorMessage(pHandle) << "\"" << endl;
+        }
+        err << "Failed to establish link with the Mathematica kernel. Make sure that Mathematica is working or rebuild GAMBIT without Mathematica support by using the CMake flag -Ditch=\"Mathematica\".";
+        backend_error().raise(LOCAL_INFO,err.str());
       }
 
       // Tell WSTP to load up the Mathematica package of the backend
@@ -573,6 +603,9 @@ namespace Gambit
       pybind11::object sys_path_insert = sys_path.attr("insert");
       sys_path_insert(0,path_dir(be, ver));
 
+      // Function to remove the location of the library after we attempted to load it.
+      pybind11::object sys_path_remove = sys_path.attr("remove");
+
       // Attempt to import the module
       const str name = lib_name(be, ver);
       pybind11::module* new_module;
@@ -586,6 +619,8 @@ namespace Gambit
             << "Python error was: " << e.what() << endl;
         backend_warning().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
+        // Remove the path to the backend from the Python system path
+        sys_path_remove(path_dir(be, ver));
         return;
       }
 
@@ -609,11 +644,12 @@ namespace Gambit
             << "Got: " << loaded_loc << " (expected: " << expected_loc << ")" << endl;
         backend_warning().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
+        // Remove the path to the backend from the Python system path
+        sys_path_remove(path_dir(be, ver));
         return;
       }
 
       // Remove the path to the backend from the Python system path
-      pybind11::object sys_path_remove = sys_path.attr("remove");
       sys_path_remove(path_dir(be, ver));
 
       logger() << "Succeeded in loading " << path << LogTags::backends << LogTags::info << EOM;

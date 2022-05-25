@@ -1,16 +1,16 @@
 #ifndef __abstract_SusyLesHouches_Pythia_8_212_h__
 #define __abstract_SusyLesHouches_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <istream>
+#include <map>
+#include <vector>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <string>
-#include <istream>
 #include "SLHAea/slhaea.h"
-#include <map>
-#include <vector>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -24,25 +24,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual int readFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, bool) =0;
+                virtual int readFile(::std::basic_string<char>, int, bool) =0;
     
-                virtual int readFile__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int) =0;
+                virtual int readFile__BOSS(::std::basic_string<char>, int) =0;
     
-                virtual int readFile__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual int readFile__BOSS(::std::basic_string<char>) =0;
     
                 virtual int readFile__BOSS() =0;
     
-                virtual int readFile(::std::basic_istream<char, std::char_traits<char> >&, int, bool) =0;
+                virtual int readFile(::std::basic_istream<char>&, int, bool) =0;
     
-                virtual int readFile__BOSS(::std::basic_istream<char, std::char_traits<char> >&, int) =0;
+                virtual int readFile__BOSS(::std::basic_istream<char>&, int) =0;
     
-                virtual int readFile__BOSS(::std::basic_istream<char, std::char_traits<char> >&) =0;
-    
-                virtual int readSLHAea(int, bool) =0;
-    
-                virtual int readSLHAea__BOSS(int) =0;
-    
-                virtual int readSLHAea__BOSS() =0;
+                virtual int readFile__BOSS(::std::basic_istream<char>&) =0;
     
                 virtual void setSLHAea(const ::SLHAea::Coll*) =0;
     
@@ -56,23 +50,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual int checkSpectrum() =0;
     
-                virtual std::basic_string<char, std::char_traits<char>, std::allocator<char> >& slhaFile_ref__BOSS() =0;
+                virtual std::basic_string<char>& slhaFile_ref__BOSS() =0;
     
-                virtual std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int> > >& decayIndices_ref__BOSS() =0;
+                virtual std::map<int, int>& decayIndices_ref__BOSS() =0;
     
-                virtual std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersName_ref__BOSS() =0;
+                virtual std::vector<std::basic_string<char>>& qnumbersName_ref__BOSS() =0;
     
-                virtual std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersAntiName_ref__BOSS() =0;
+                virtual std::vector<std::basic_string<char>>& qnumbersAntiName_ref__BOSS() =0;
     
                 virtual int verbose() =0;
     
                 virtual void verbose(int) =0;
     
-                virtual void message(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int) =0;
+                virtual void message(int, ::std::basic_string<char>, ::std::basic_string<char>, int) =0;
     
-                virtual void message__BOSS(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void message__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>) =0;
     
-                virtual void toLower(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) =0;
+                virtual void toLower(::std::basic_string<char>&) =0;
     
             public:
                 virtual void pointer_assign__BOSS(Abstract_SusyLesHouches*) =0;
