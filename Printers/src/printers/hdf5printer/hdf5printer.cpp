@@ -1655,23 +1655,14 @@ errmsg << "   sync_pos = " << sync_pos_plus1-1 << std::endl;
     /// Print metadata directly to file
     void HDF5Printer::_print_metadata(map_str_str datasets)
     {
-
-      // Retrieve the buffer manager for metadata
-      //auto& buffer_manager = get_metadata_buffermanager(pointID,mpirank);
-
       for(auto dset : datasets)
       {
-        std::cout << dset.first << std::endl;
+        DataSetInterfaceScalar<str,1> dataset(get_metadata_location(), dset.first, false, 'w');
+        dataset.reset_nextemptyslab();
+        str chunk[1] = {dset.second};
+        dataset.writenewchunk(chunk);
 
-
-        // Extract a buffer from the manager corresponding to this
-        //auto& selected_buffer = buffer_manager.get_buffer(IDcode, 0, label);
-
-        //PPIDpair ppid(pointID,mpirank);
-        // Write the data to the selected buffer ("just works" for simple numeric types)
-        //selected_buffer.append(value,ppid);
       }
-
     }
 
     /// @}

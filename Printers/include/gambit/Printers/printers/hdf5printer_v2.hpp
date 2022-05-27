@@ -1509,7 +1509,7 @@ namespace Gambit
         /// Report group in output HDF5 file of output datasets
         std::string get_groupname();
 
-        /// Report metdata group in HDF5 file
+        /// Report metadata group in HDF5 file
         std::string get_metadata_groupname();
 
         /// Report length of buffer for HDF5 output
