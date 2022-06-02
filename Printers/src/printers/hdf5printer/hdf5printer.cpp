@@ -1081,10 +1081,14 @@ namespace Gambit
       // If we set the second last flag 'true' then Greg's code will assume that a '_temp_combined' output file
       // exists, and it will crash if it doesn't. So we need to first check if such a file exists.
       bool combined_file_exists = Utils::file_exists(tmp_comb_file); // We already check this externally; pass in as flag?
-      std::cout<<"combined_file_exists? "<<combined_file_exists<<std::endl;
+      logger() << LogTags::printers << LogTags::info << "combined_file_exists? " << combined_file_exists << EOM;
+      if(not combined_file_exists)
+        std::cout << "Combined file NOT found, combining now..." << std::endl;
+      else
+        std::cout << "Combined file found, skipping combination" << std::endl;
       // Second last bool just tells the routine to delete the temporary files when it is done
       // Last flag, if false, tells routines to throw an error if any expected temporary file cannot be opened for any reason
-      HDF5::combine_hdf5_files(tmp_comb_file, finalfile, group, num, combined_file_exists, true, false);
+      HDF5::combine_hdf5_files(tmp_comb_file, finalfile, group, metadata_group, num, combined_file_exists, true, false);
 
       // This is just left the same as the combine_output_py version!
       if(finalcombine)
@@ -1661,7 +1665,7 @@ errmsg << "   sync_pos = " << sync_pos_plus1-1 << std::endl;
         dataset.reset_nextemptyslab();
         str chunk[1] = {dset.second};
         dataset.writenewchunk(chunk);
-
+        dataset.closeDataSet();
       }
     }
 
