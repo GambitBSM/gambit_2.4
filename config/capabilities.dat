@@ -6121,3 +6121,33 @@ trivial_7d_parameters: |
 
 trivial_10d_parameters: |
   Model parameters for the trivial 10D model
+
+#####  DMsimpVectorMedDiracDM model #####
+
+DMsimpVectorMedDiracDM_parameters: |
+    Parameters for the model DMsimpVectorMedDiracDM (see ./gambit DMsimpVectorMedDiracDM).
+
+Y1_decay_rates: |
+    All decay rates for particle Y1.
+
+DMsimpVectorMedDiracDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedDiracDM model.
+
+
+#####  DMsimpVectorMedMajoranaDM model #####
+
+DMsimpVectorMedMajoranaDM_parameters: |
+    Parameters for the model DMsimpVectorMedMajoranaDM (see ./gambit DMsimpVectorMedMajoranaDM).
+
+DMsimpVectorMedMajoranaDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedMajoranaDM model.
+
+
+#####  DMsimpVectorMedScalarDM model #####
+
+DMsimpVectorMedScalarDM_parameters: |
+    Parameters for the model DMsimpVectorMedScalarDM (see ./gambit DMsimpVectorMedScalarDM).
+
+DMsimpVectorMedScalarDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedScalarDM model.
+

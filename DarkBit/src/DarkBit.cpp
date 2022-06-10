@@ -92,6 +92,12 @@ namespace Gambit
         props.mass = *Param["m"];
       if(ModelInUse("MDM"))
         props.mass = Dep::MDM_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("DMsimpVectorMedDiracDM"))
+        props.mass = Dep::DMsimpVectorMedDiracDM_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("DMsimpVectorMedMajoranaDM"))
+        props.mass = Dep::DMsimpVectorMedMajoranaDM_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("DMsimpVectorMedScalarDM"))
+        props.mass = Dep::DMsimpVectorMedScalarDM_spectrum->get(Par::Pole_Mass, props.name);
       if(ModelInUse("DMEFT"))
         props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
     }
