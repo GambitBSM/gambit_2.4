@@ -31,11 +31,11 @@
         //     return pbar_pred;
         // }
         
-        std::vector<double> c_del_chi2(double& DM_mass, double& sv, map_str_dbl& channel_dict)
+        double c_del_chi2(double& DM_mass, map_str_dbl& channel_dict, double& sv, std::string& propagation_model)
         {
             pybind11::dict inputs = pybind11::cast(channel_dict);
-            py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs); 
-            std::vector<double> del_chi2 = pbarlike.attr("delChi2")(DM_mass,sv,br_fr).cast<std::vector<double>>();
+            //py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs); 
+            double del_chi2 = pbarlike.attr("pbarlike")(DM_mass,inputs,sv,propagation_model).cast<double>();
             return del_chi2;
         }
     }

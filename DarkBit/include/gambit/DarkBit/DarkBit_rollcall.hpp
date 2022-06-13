@@ -122,28 +122,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-// Calculate pbar_del_chi2
-  #define CAPABILITY del_chi2
-  START_CAPABILITY
-    #define FUNCTION delChi2
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(WIMP_properties, WIMPprops)
-    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
-    BACKEND_REQ(pbar_del_chi2,(),std::vector<double>,(double&, double&, map_str_dbl&))
-    #undef FUNCTION
-  #undef CAPABILITY
-
-// // Calculate log_likelihood
-//   #define CAPABILITY ams_log_likelihood
-//   START_CAPABILITY
-//     #define FUNCTION amsLogLikelihood
-//     START_FUNCTION(double)
-//     DEPENDENCY(pbar_flux, std::vector<double>)
-//     BACKEND_REQ(pbar_log_likelihood,(),double,(std::vector<double>&, double&))
-//     #undef FUNCTION
-//   #undef CAPABILITY
-
-
   // DarkSUSY-specific initialisation functions ========================
 
   /// Make sure LocalHalo model is initialized in DarkSUSY5
@@ -897,7 +875,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-
   // Anti-deuteron spectra =============================================
 
   #define CAPABILITY antideuteron_Yield
@@ -927,6 +904,19 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Antiproton likelihood ===============================================
+
+  #define CAPABILITY del_chi2
+  START_CAPABILITY
+    #define FUNCTION delChi2
+    START_FUNCTION(double)
+    DEPENDENCY(WIMP_properties, WIMPprops)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+    // DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+    // DEPENDENCY(RD_fraction, double)
+    BACKEND_REQ(pbar_del_chi2,(),double,(double&, map_str_dbl&, double&, std::string&))
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Gamma-ray likelihoods =============================================
 
