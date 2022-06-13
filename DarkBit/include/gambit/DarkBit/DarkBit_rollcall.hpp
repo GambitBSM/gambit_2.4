@@ -912,8 +912,8 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
-    // DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
-    // DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
     BACKEND_REQ(pbar_del_chi2,(),double,(double&, map_str_dbl&, double&, std::string&))
     #undef FUNCTION
   #undef CAPABILITY
