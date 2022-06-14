@@ -26,7 +26,7 @@
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2021 May
 ///
-///  \author Christopher Chang
+///  \author Chris Chang
 ///          (christopher.chang@uq.net.au)
 ///  \date 2022 June
 ///

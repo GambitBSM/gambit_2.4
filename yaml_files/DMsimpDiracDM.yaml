@@ -57,10 +57,10 @@ Printer:
 
   printer: hdf5
   options:
-    output_file: "DiracDM.hdf5"
+    output_file: "DMsimpDiracDM.hdf5"
     delete_file_on_restart: true
     buffer_length: 1000
-    group: "/DiracDM_Scan"
+    group: "/DMsimpDiracDM_Scan"
 
 
 Scanner:
@@ -281,7 +281,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e7
     model_invalid_for_lnlike_below_alt: -1e7
 
-  default_output_path: "runs/DiracDM/"
+  default_output_path: "runs/DMsimpDiracDM/"
 
   debug: true
 
