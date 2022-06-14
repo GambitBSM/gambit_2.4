@@ -3051,7 +3051,7 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
     
-    //////////// Majorana Simplified Model /////////////////////
+    //////////// Majorana DM Simplified Model /////////////////////
     void CH_DMsimpVectorMedMajoranaDM_Y1_decays(DecayTable::Entry& result)
     {
       using namespace Pipes::CH_DMsimpVectorMedMajoranaDM_Y1_decays;
