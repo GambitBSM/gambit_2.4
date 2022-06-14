@@ -118,6 +118,7 @@ START_MODULE
    #undef FUNCTION
   #undef CAPABILITY
 
+  /* TODO: this should be re-activated once RD and RDstar can be extracted from a future version of SuperIso using the check_nameobs function.
   #define CAPABILITY prediction_RDRDstar
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_RDRDstar
@@ -131,6 +132,7 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
    #undef FUNCTION
   #undef CAPABILITY
+  */
 
   #define CAPABILITY prediction_b2sgamma
   START_CAPABILITY
@@ -710,6 +712,8 @@ START_MODULE
    #undef FUNCTION
   #undef CAPABILITY
 
+  /* TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
+
   #define CAPABILITY prediction_RK_LHCb_1p1_6
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_RK_LHCb_1p1_6
@@ -751,6 +755,7 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
+  */
 
   // Observable: BR(B -> tau nu)
   #define CAPABILITY Btaunu
@@ -1263,17 +1268,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: Test Flavio
-  #define CAPABILITY Flavio_test
-  START_CAPABILITY
-    #define FUNCTION Flavio_test
-    START_FUNCTION(double)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC)
-    BACKEND_REQ(sm_prediction, (needs_flavio), double, (std::string) )
-    BACKEND_OPTION( (Flavio, 0.30.0), (needs_flavio) )
-    #undef FUNCTION
-  #undef CAPABILITY
-
   /// HEPLike LogLikelihood B -> tau nu
   #define CAPABILITY B2taunu_LogLikelihood
   START_CAPABILITY
@@ -1291,7 +1285,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(RD, double)
     DEPENDENCY(RDstar, double)
-    // TODO: Switch dependency as soon as SuperIso is ready for the "new" way.
+    // TODO: Switch dependency as soon as RD and RDstar can be extracted from a future version of SuperIso using the check_nameobs function.
     // DEPENDENCY(prediction_RDRDstar, flav_prediction)
     NEEDS_CLASSES_FROM(HepLike)
     #undef FUNCTION

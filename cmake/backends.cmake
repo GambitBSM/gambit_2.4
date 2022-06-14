@@ -424,16 +424,14 @@ endif()
 
 # HepLikedata
 set(name "heplikedata")
-set(ver "1.1")
-set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V1.1.zip")
+set(ver "1.2")
+set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "7f8f58c7425f822735776bbf3fe4a601")
+set(md5 "a198174600f56258e90c3d84b6e362bd")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    #DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    GIT_REPOSITORY https://github.com/KrakowHEPSoft/HEPLikeData.git
-    GIT_TAG origin/debug
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -445,18 +443,16 @@ endif()
 
 # HepLike
 set(name "heplike")
-set(ver "1.1")
-set(dl "https://github.com/KrakowHEPSoft/HEPLike/archive/V1.1.zip")
+set(ver "1.2")
+set(dl "https://github.com/KrakowHEPSoft/HEPLike/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "2e503a6da38ab440f38efd6e8a3a7c70")
+set(md5 "0854396f48f2257ad185064107d6f72f")
 set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS heplikedata
-    #DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    GIT_REPOSITORY https://github.com/KrakowHEPSoft/HEPLike.git
-    GIT_TAG origin/debug
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
@@ -495,29 +491,6 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
-endif()
-
-
-# Flavio
-set(name "flavio")
-set(ver "0.30.0")
-set(dl "https://www.physik.uzh.ch/~mchrzasz/Flavio/${name}-${ver}.tar.gz")
-set(md5 "d8f6a49be8ff509916ae1dc3f3b837f1")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
-    SOURCE_DIR ${dir}/flavio
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND cd flavio
-          COMMAND pip3 install -e .[plotting,sampling,testing] --user
-    INSTALL_COMMAND ""
-    )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #Experimental. Currently requires pip3 to be installed, but that is not checked for by cmake.
-  #set_as_default_version("backend" ${name} ${ver})
 endif()
 
 
@@ -1482,7 +1455,6 @@ set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
@@ -1514,7 +1486,6 @@ set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
