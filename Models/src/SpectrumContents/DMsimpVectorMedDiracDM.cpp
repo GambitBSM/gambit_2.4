@@ -31,7 +31,6 @@ namespace Gambit
     addParameter(Par::dimensionless, "gVXd", scalar, "DMINPUTS", 1);
     addParameter(Par::dimensionless, "gAXd", scalar, "DMINPUTS", 2);
     addParameter(Par::dimensionless, "gVq", scalar, "DMINPUTS", 3);
-    addParameter(Par::dimensionless, "gAq", scalar, "DMINPUTS", 4);
     addParameter(Par::mass1, "vev", scalar, "VEVS", 1);
     addParameter(Par::dimensionless, "g1", scalar, "GAUGE", 1);
     addParameter(Par::dimensionless, "g2", scalar, "GAUGE", 2);

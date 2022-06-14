@@ -87,15 +87,6 @@ M$Parameters = {
       OrderBlock       -> 4,
       TeX -> Subscript[g,Vq],
       Description -> "q-Y1 vector coupling",
-      Value -> 0.25 },     
-
- gAq == { 
-      ParameterType -> External,
-      InteractionOrder -> {DMV, 1},
-      BlockName -> DMINPUTS,
-      OrderBlock       -> 5,
-      TeX -> Subscript[g,Aq],
-      Description -> "q-Y1 Axial-vector coupling",
       Value -> 0.25 }
 
 
@@ -108,12 +99,12 @@ M$Parameters = {
 
 L1X := Xdbar.Ga[mu].(gVXd + gAXd Ga[5]).Xd Y1[mu];
       
-L1SM := dbar.Ga[mu].(gVq + gAq Ga[5]).d Y1[mu] +
-        ubar.Ga[mu].(gVq + gAq Ga[5]).u Y1[mu] +
-        sbar.Ga[mu].(gVq + gAq Ga[5]).s Y1[mu] +
-        cbar.Ga[mu].(gVq + gAq Ga[5]).c Y1[mu] +
-        bbar.Ga[mu].(gVq + gAq Ga[5]).b Y1[mu] +
-        tbar.Ga[mu].(gVq + gAq Ga[5]).t Y1[mu];
+L1SM := dbar.Ga[mu].(gVq).d Y1[mu] +
+        ubar.Ga[mu].(gVq).u Y1[mu] +
+        sbar.Ga[mu].(gVq).s Y1[mu] +
+        cbar.Ga[mu].(gVq).c Y1[mu] +
+        bbar.Ga[mu].(gVq).b Y1[mu] +
+        tbar.Ga[mu].(gVq).t Y1[mu];
 
 
 LDM := L1X + L1SM;

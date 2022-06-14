@@ -1212,7 +1212,7 @@ ColliderBit_SLHA_file_model: |
    dummy    - a dummy parameter, not used for anything
 
 DMsimpVectorMedDiracDM: |
-    DMsimpVectorMedDiracDM model, created by GUM, with parameters: gVXd, gAXd, gVq, gAq, MXd, MY1
+    DMsimpVectorMedDiracDM model, created by GUM, with parameters: gVXd, gAXd, gVq, MXd, MY1
 
 
 DMsimpVectorMedMajoranaDM: |

@@ -17,7 +17,6 @@ cabi           |0.227736     |Cabibbo angle                                     
 gVXd           |1.           |Xd-Y1 vector coupling                                                     |
 gAXd           |0.           |Xd-Y1 axial-vector coupling                                               |
 gVq            |0.25         |q-Y1 vector coupling                                                      |
-gAq            |0.25         |q-Y1 Axial-vector coupling                                                |
 GG             |1.21977796370|Strong coupling constant at the Z pole   This value will be ignored and ca|
 MZ             |91.1876      |Mass of G0.                                                               |
 Me             |0.000511     |Mass of e.                                                                |
