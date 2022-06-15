@@ -74,6 +74,7 @@ set(name "pippi")
 set(dir "${CMAKE_SOURCE_DIR}/${name}")
 ExternalProject_Add(get-${name}
   GIT_REPOSITORY https://github.com/patscott/pippi.git
+  GIT_TAG v2.2
   SOURCE_DIR ${dir}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -331,6 +332,7 @@ macro(inform_of_missing_modules name ver missing_with_commas)
   )
 endmacro()
 
+# Bring in the actual backends and scanners
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(cmake/scanners.cmake)
 endif()
