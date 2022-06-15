@@ -101,26 +101,26 @@
 #define REFERENCE GAMBITDarkMatterWorkgroup:2017fax
 START_MODULE
 
- // Doubles the given quantity
-  #define CAPABILITY mass_double
-  START_CAPABILITY
-    #define FUNCTION doublingMass
-    START_FUNCTION(double)
-    BACKEND_REQ(add_here,(),double,(double&, double&))
-    #undef FUNCTION
-  #undef CAPABILITY
+//  // Doubles the given quantity
+//   #define CAPABILITY mass_double
+//   START_CAPABILITY
+//     #define FUNCTION doublingMass
+//     START_FUNCTION(double)
+//     BACKEND_REQ(add_here,(),double,(double&, double&))
+//     #undef FUNCTION
+//   #undef CAPABILITY
 
- // Prints stuff
-  #define CAPABILITY printStuff
-  START_CAPABILITY
-    #define FUNCTION printPC
-    START_FUNCTION(double)
-    DEPENDENCY(WIMP_properties, WIMPprops)
-    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
-    BACKEND_REQ(print_string,(),void,(std::string&, double&))
-    BACKEND_REQ(print_num,(),void,(double&, double&))
-    #undef FUNCTION
-  #undef CAPABILITY
+//  // Prints stuff
+//   #define CAPABILITY printStuff
+//   START_CAPABILITY
+//     #define FUNCTION printPC
+//     START_FUNCTION(double)
+//     DEPENDENCY(WIMP_properties, WIMPprops)
+//     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+//     BACKEND_REQ(print_string,(),void,(std::string&, double&))
+//     BACKEND_REQ(print_num,(),void,(double&, double&))
+//     #undef FUNCTION
+//   #undef CAPABILITY
 
   // DarkSUSY-specific initialisation functions ========================
 
@@ -906,9 +906,21 @@ START_MODULE
 
   // Antiproton likelihood ===============================================
 
+  // #define CAPABILITY del_chi2
+  // START_CAPABILITY
+  //   #define FUNCTION delChi2
+  //   START_FUNCTION(double)
+  //   DEPENDENCY(WIMP_properties, WIMPprops)
+  //   DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+  //   // DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+  //   // DEPENDENCY(RD_fraction, double)
+  //   BACKEND_REQ(pbar_del_chi2,(),double,(double&, map_str_dbl&, double&, std::string&))
+  //   #undef FUNCTION
+  // #undef CAPABILITY
+
   #define CAPABILITY del_chi2
   START_CAPABILITY
-    #define FUNCTION delChi2
+    #define FUNCTION DelChi2
     START_FUNCTION(double)
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
