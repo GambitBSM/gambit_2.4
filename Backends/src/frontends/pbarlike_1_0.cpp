@@ -34,9 +34,11 @@
         double c_del_chi2(double& DM_mass, map_str_dbl& channel_dict, double& sv, std::string& propagation_model)
         {
             pybind11::dict inputs = pybind11::cast(channel_dict);
-            //py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs); 
+            py::array_t<double> br_fr = pbarlike.attr("br_fr")(inputs); 
             double del_chi2 = pbarlike.attr("pbarlike")(DM_mass,inputs,sv,propagation_model).cast<double>();
+            // pbarlike.attr("pbarlike")(100.,inputs,3e-26,"run1");
             return del_chi2;
+            // return 1.;
         }
     }
     END_BE_NAMESPACE

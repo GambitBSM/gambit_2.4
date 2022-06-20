@@ -13,7 +13,7 @@ pp_db = np.array([2.34, 2.28, 3.63e+28, -0.66, 0.52, -0.15, 3.83e+3, 0.4, 2.05e+
 pp_mns = np.array([ 2.34276385e+00,  2.27911723e+00,  3.89201119e+28, -6.09889613e-01,
         5.01982466e-01, -1.57519382e-01,  3.98278071e+03,  4.02670382e-01,
         2.54902724e+05,  3.67344838e+00])
-pm = 'run1'
+pm = "run1"
 prevent_extrapolation = False
 #%%
 # theta_prop,phi_DMCR,phi_CR = pbar_flux(m_DM,sv,bf,propagation_model,pp,marginalization)

@@ -33,6 +33,7 @@ def pbarlike(DM_mass, brfr, sigma_v = 10**(-25.5228), propagation_model='DIFF.BR
     DRN.preprocessing(DM_mass, bf, sigma_v, propagation_parameters)
     print('Normalized branching fractions: ',DRN.bf)
     print('\nPropagation model: ',DRN.propagation_model)
+    print('\n Rescaled cross-section: ', DRN.sv)
     phi_CR_LIS, phi_DM_LIS = DRN.LIS_sim()
     phi_CR, phi_DMCR = DRN.TOA_sim(phi_CR_LIS, phi_DM_LIS)
     del_chi2 = DRN.del_chi2(phi_CR, phi_DMCR)
