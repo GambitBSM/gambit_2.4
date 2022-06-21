@@ -2036,22 +2036,22 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# # pybe
-# set(name "pybe")
-# set(ver "1.0")
-# set(lib "libpybe")
-# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-# check_ditch_status(${name} ${ver} ${dir})
-# if(NOT ditched_${name}_${ver})
-#   ExternalProject_Add(${name}_${ver}
-#     SOURCE_DIR ${dir}
-#     BUILD_IN_SOURCE 1
-#     CONFIGURE_COMMAND ""
-#     BUILD_COMMAND ""
-#     INSTALL_COMMAND ""
-#   )
-#   set_as_default_version("backend" ${name} ${ver})
-# endif()
+# pybe
+set(name "pybe")
+set(ver "1.0")
+set(lib "libpybe")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # pbarlike
 set(name "pbarlike")

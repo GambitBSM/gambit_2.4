@@ -90,8 +90,8 @@ void pbarlikeCheck(double mWIMP, double sv, std::vector<double> brList,std::stri
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
   printPC.reset_and_calculate();
-  delChi2.setOption<std::string>("propagation_model",pm);
-  delChi2.reset_and_calculate();
+  DelChi2.setOption<std::string>("propagation_model",pm);
+  DelChi2.reset_and_calculate();
   // amsLogLikelihood.reset_and_calculate();
   std::cout<< "The End" << std::endl;
 } 
@@ -176,47 +176,36 @@ namespace Gambit
       result = 0;
     }
 
-    void delChi2 (double& result)
-    {
-      using namespace Pipes::delChi2;
-      double dummy = 0;
-      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
-      double rho0 = LocalHaloParameters.rho0;     
-      double rho0_eff = (*Dep::RD_fraction)*rho0/0.43;
-      std::string DM_ID = Dep::WIMP_properties->name;
-      double DM_mass = Dep::WIMP_properties->mass;
-      TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
-      map_str_dbl input;
-      double sv;
-      std::vector<std::string> fs;
-      std::string finalStates;
-      double rate;
-      for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
-      { 
-          fs = it->finalStateIDs;
-          finalStates = fs[0] + " " + fs[1];
-          rate = it->genRate->bind("v")->eval(0.);
-          rate = rate * rho0_eff * rho0_eff;
-          input.insert({finalStates, rate});
-          sv += rate;
-      }
-      std::string propagation_model = runOptions->getValue<std::string>("propagation_model");
-      double del_chi2 = BEreq::pbar_del_chi2(DM_mass, input, sv, propagation_model);
-      std::cout << "Delta chi^2 (preference of DM signal over background only) for the above specified model and channel: " << std::endl;
-      std::cout << del_chi2 << std::endl;
-      result = del_chi2;
-    }
-
-
-    // void amsLogLikelihood(double& result)
+    // void delChi2 (double& result)
     // {
-    //   using namespace Pipes::amsLogLikelihood;
+    //   using namespace Pipes::delChi2;
     //   double dummy = 0;
-    //   std::vector<double> flux = Dep::pbar_flux; This won't work; we need to create a class/structure for the flux and include a member function that will fetch ////   the flux for us
-    //   double chi2 = BEreq::pbar_log_likelihood(flux,dummy);
-    //   result = chi2; 
+    //   LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+    //   double rho0 = LocalHaloParameters.rho0;     
+    //   double rho0_eff = (*Dep::RD_fraction)*rho0/0.43;
+    //   std::string DM_ID = Dep::WIMP_properties->name;
+    //   double DM_mass = Dep::WIMP_properties->mass;
+    //   TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
+    //   map_str_dbl input;
+    //   double sv;
+    //   std::vector<std::string> fs;
+    //   std::string finalStates;
+    //   double rate;
+    //   for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
+    //   { 
+    //       fs = it->finalStateIDs;
+    //       finalStates = fs[0] + " " + fs[1];
+    //       rate = it->genRate->bind("v")->eval(0.);
+    //       rate = rate * rho0_eff * rho0_eff;
+    //       input.insert({finalStates, rate});
+    //       sv += rate;
+    //   }
+    //   std::string propagation_model = runOptions->getValue<std::string>("propagation_model");
+    //   double del_chi2 = BEreq::pbar_del_chi2(DM_mass, input, sv, propagation_model);
+    //   std::cout << "Delta chi^2 (preference of DM signal over background only) for the above specified model and channel: " << std::endl;
+    //   std::cout << del_chi2 << std::endl;
+    //   result = del_chi2;
     // }
-
 
     void TH_ProcessCatalog_WIMP(TH_ProcessCatalog& result)
     {
@@ -434,11 +423,11 @@ int main(int argc, char* argv[])
     printPC.resolveDependency(&TH_ProcessCatalog_WIMP);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_str);
     printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_num);
-    delChi2.resolveDependency(&WIMP_properties_WIMP);
-    delChi2.resolveDependency(&TH_ProcessCatalog_WIMP);
-    delChi2.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_del_chi2);
-    delChi2.resolveDependency(&ExtractLocalMaxwellianHalo);
-    delChi2.resolveDependency(&RD_fraction_one);
+    DelChi2.resolveDependency(&WIMP_properties_WIMP);
+    DelChi2.resolveDependency(&TH_ProcessCatalog_WIMP);
+    DelChi2.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_del_chi2);
+    DelChi2.resolveDependency(&ExtractLocalMaxwellianHalo);
+    DelChi2.resolveDependency(&RD_fraction_one);
     // amsLogLikelihood.resolveDependency(&pbarFlux);
     // amsLogLikelihood.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_chi2);
 
