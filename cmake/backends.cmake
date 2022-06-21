@@ -421,6 +421,24 @@ if(NOT ditched_${name}_${model}_${ver})
   set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
+# DMsimp_Data
+# This is the MonoJet and DiJet data associated with the simplified dark matter models.
+set(name "DMsimp_data")
+set(ver "1.0")
+set(dl "https://zenodo.org/record/6673185/files/DMsimp.zip")
+set(dir "${PROJECT_SOURCE_DIR}/ColliderBit/data/")
+set(md5 "2750fca20a3c96e76390113fe87c8685")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+endif()
 
 # HepLikedata
 set(name "heplikedata")
