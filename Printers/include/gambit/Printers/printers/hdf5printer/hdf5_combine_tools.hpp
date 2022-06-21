@@ -54,11 +54,26 @@ namespace Gambit
                 {
                     hid_t dataspace = H5Dget_space(dataset);
                     hssize_t dim_t = H5Sget_simple_extent_npoints(dataspace);
-                    std::vector<U> data(dim_t);
-                    H5Dread( dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
-                    vec = std::vector<T>(data.begin(), data.end());
+                    vec.resize(dim_t);
+                    H5Dread( dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)vec.data());
                     H5Sclose(dataspace);
                 }
+
+                template <typename U>
+                static void run(U, hid_t &dataset, std::vector <bool> &vec)
+                {
+                    hid_t dataspace = H5Dget_space(dataset);
+                    hssize_t dim_t = H5Sget_simple_extent_npoints(dataspace);
+                    std::vector<U> data(dim_t);
+                    H5Dread( dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
+                    vec = std::vector<bool>(data.begin(), data.end());
+                    H5Sclose(dataspace);
+                }
+
+                static void run(std::string, hid_t &, std::vector <bool> &)
+                { }
+
+
             };
 
             struct copy_hdf5

@@ -286,6 +286,7 @@ namespace Gambit
               , skip_unreadable(skip)
               , files(num,-1)
               , groups(num,-1)
+              , metadata_groups(num,-1)
               , aux_groups(num,-1)
               , file_names(file_names_in)
               , custom_mode(file_names.size()>0) // Running in mode which allows 'custom' filenames (for combining output from multiple runs)
@@ -413,10 +414,9 @@ namespace Gambit
                         // If there is no metadata group, skip it 
                         if(metadata_group_id >= 0)
                         {
-                          std::vector<std::string> metadata_names = get_dset_names(metadata_group_id);
-                          for (auto it = metadata_names.begin(), end = metadata_names.end(); it != end and metadata_group_id >= 0; ++it)
+                          std::vector<std::string> names = get_dset_names(metadata_group_id);
+                          for (auto it = names.begin(), end = names.end(); it != end and metadata_group_id >= 0; ++it)
                           {
-                            std::cout << "names = " << *it << std::endl;
                             // If the Date dataset exists, add it to the list if it's not there otherwise skip the metadata for this file
                             if(*it == "Date")
                             {
@@ -424,18 +424,7 @@ namespace Gambit
                               hid_t dataset  = HDF5::openDataset(metadata_group_id, *it, true); // Allow failure to open
                               if(dataset > 0)
                               {
-                                //Enter_HDF5<read_hdf5>(dataset, dates);
-                                hid_t dtype = H5Dget_type(dataset);
-                                std::cout << "dataset type = " << dtype << std::endl;
-                                hid_t type = H5Tget_native_type(dtype, H5T_DIR_DESCEND);
-                                std::cout << "native type = " << type << std::endl;
-                                std::cout << "string type = " << get_hdf5_data_type<std::string>::type() << std::endl;
-                                std::cout << "float type = " << get_hdf5_data_type<float>::type() << std::endl;
-                                std::cout << "dtype = ftype? " << H5Tequal(dtype, get_hdf5_data_type<float>::type()) << std::endl;
-                                std::cout << "type = ftype? " << H5Tequal(type, get_hdf5_data_type<float>::type()) << std::endl;
-                                std::cout << "dtype = stype? " << H5Tequal(dtype, get_hdf5_data_type<std::string>::type()) << std::endl;
-                                std::cout << "type = stype? " << H5Tequal(type, get_hdf5_data_type<std::string>::type()) << std::endl;
-
+                                Enter_HDF5<read_hdf5>(dataset, dates);
                                 HDF5::closeDataset(dataset);
                               }
                               for(auto date : dates)
