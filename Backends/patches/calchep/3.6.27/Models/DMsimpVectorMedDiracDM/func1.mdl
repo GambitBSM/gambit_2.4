@@ -198,22 +198,16 @@ x93x0          |-(cw*pow(sw,-1))                                                
 x94x0          |pow(sw,-2)                                                                                                     % W+   W+   W-   W-    coupling.
 x95x0          |1                                                                                                              % Y1   b~   b     coupling.
 x95x1          |gVq                                                                                                            % Y1   b~   b        coupling.
-x95x2          |gAq                                                                                                            % Y1   b~   b        coupling.
 x96x0          |1                                                                                                              % Y1   c~   c     coupling.
 x96x1          |gVq                                                                                                            % Y1   c~   c        coupling.
-x96x2          |gAq                                                                                                            % Y1   c~   c        coupling.
 x97x0          |1                                                                                                              % Y1   d~   d     coupling.
 x97x1          |gVq                                                                                                            % Y1   d~   d        coupling.
-x97x2          |gAq                                                                                                            % Y1   d~   d        coupling.
 x98x0          |1                                                                                                              % Y1   s~   s     coupling.
 x98x1          |gVq                                                                                                            % Y1   s~   s        coupling.
-x98x2          |gAq                                                                                                            % Y1   s~   s        coupling.
 x99x0          |1                                                                                                              % Y1   t~   t     coupling.
 x99x1          |gVq                                                                                                            % Y1   t~   t        coupling.
-x99x2          |gAq                                                                                                            % Y1   t~   t        coupling.
 x100x0         |1                                                                                                              % Y1   u~   u     coupling.
 x100x1         |gVq                                                                                                            % Y1   u~   u        coupling.
-x100x2         |gAq                                                                                                            % Y1   u~   u        coupling.
 x101x0         |1                                                                                                              % Y1   Xd~  Xd    coupling.
 x101x1         |gVXd                                                                                                           % Y1   Xd~  Xd       coupling.
 x101x2         |gAXd                                                                                                           % Y1   Xd~  Xd       coupling.

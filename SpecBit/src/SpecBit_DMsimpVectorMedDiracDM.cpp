@@ -51,7 +51,6 @@ namespace Gambit
       SLHAea_add(slha, "DMINPUTS", 1, *myPipe::Param["gVXd"]);
       SLHAea_add(slha, "DMINPUTS", 2, *myPipe::Param["gAXd"]);
       SLHAea_add(slha, "DMINPUTS", 3, *myPipe::Param["gVq"]);
-      SLHAea_add(slha, "DMINPUTS", 4, *myPipe::Param["gAq"]);
       double vev = 1. / sqrt(sqrt(2.)*sminputs.GF);
       double sqrt2v = pow(2.0,0.5)/vev;
       

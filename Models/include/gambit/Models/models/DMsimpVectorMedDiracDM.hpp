@@ -18,7 +18,7 @@
 #define MODEL DMsimpVectorMedDiracDM
   START_MODEL
 
-  DEFINEPARS(gVXd, gAXd, gVq, gAq, MXd, MY1)
+  DEFINEPARS(gVXd, gAXd, gVq, MXd, MY1)
 
 #undef MODEL
 

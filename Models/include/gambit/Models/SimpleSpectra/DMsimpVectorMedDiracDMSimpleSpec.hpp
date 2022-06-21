@@ -42,7 +42,6 @@ namespace Gambit
         double get_gVXd() const { return getdata("DMINPUTS",1); }
         double get_gAXd() const { return getdata("DMINPUTS",2); }
         double get_gVq() const { return getdata("DMINPUTS",3); }
-        double get_gAq() const { return getdata("DMINPUTS",4); }
         double get_vev() const { return getdata("VEVS",1); }
         double get_g1() const { return getdata("GAUGE",1); }
         double get_g2() const { return getdata("GAUGE",2); }
@@ -154,7 +153,6 @@ namespace Models
         getters[dimensionless].map0["gVXd"] =  &Model::get_gVXd;
         getters[dimensionless].map0["gAXd"] =  &Model::get_gAXd;
         getters[dimensionless].map0["gVq"] =  &Model::get_gVq;
-        getters[dimensionless].map0["gAq"] =  &Model::get_gAq;
         getters[mass1].map0["vev"] =  &Model::get_vev;
         getters[dimensionless].map0["g1"] =  &Model::get_g1;
         getters[dimensionless].map0["g2"] =  &Model::get_g2;

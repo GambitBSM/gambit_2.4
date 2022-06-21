@@ -27,7 +27,6 @@ Parameters:
     gVq:
       range: [0.01,1.0]
       prior_type: log
-    gAq: 0.0
     
   # NFW profile
   Halo_gNFW_rho0:
