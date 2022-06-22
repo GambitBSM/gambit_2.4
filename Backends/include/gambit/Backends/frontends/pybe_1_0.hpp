@@ -2,6 +2,8 @@
 #define BACKENDLANG Python
 #define VERSION 1.0
 #define SAFE_VERSION 1_0
+#define REFERENCE DarkRayNet:2021
+
 
 LOAD_LIBRARY
 

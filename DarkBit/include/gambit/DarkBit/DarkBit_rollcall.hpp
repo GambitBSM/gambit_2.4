@@ -926,7 +926,7 @@ START_MODULE
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
     DEPENDENCY(RD_fraction, double)
-    BACKEND_REQ(pbar_del_chi2,(),double,(double&, map_str_dbl&, double&, std::string&))
+    BACKEND_REQ(pbar_del_chi2,(),double,(double&, map_str_dbl&, double&, const std::string&))
     #undef FUNCTION
   #undef CAPABILITY
 

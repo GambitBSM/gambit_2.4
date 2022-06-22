@@ -146,35 +146,7 @@ namespace Gambit
 {
   namespace DarkBit
   {
-    void doublingMass(double& result )
-    {
-      using namespace Pipes::doublingMass;
-      double mv = runOptions->getValue<double>("mv");
-      result = BEreq::add_here(mv,mv);
-    }
-
-    void printPC(double& result)
-    {
-      using namespace Pipes::printPC;
-      std::string DM_ID = Dep::WIMP_properties->name;
-      double dummy = 0;
-      double DM_mass = Dep::WIMP_properties->mass;
-      std::cout << "DM ID:" << std::endl;
-      BEreq::print_string(DM_ID, dummy);
-      std::cout << "DM mass:" << std::endl;
-      BEreq::print_num(DM_mass, dummy);
-      std::cout << "DM Annihilation:" << std::endl;
-      TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);   
-      for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
-      { 
-        std::vector<std::string> fs = it->finalStateIDs;
-        std::cout << "Annihilation Channel : " << fs << std::endl;
-        double rate = it->genRate->bind("v")->eval(0.);
-        std::cout << "Cross-section : " << rate << std::endl;
-
-      }
-      result = 0;
-    }
+  
 
     // void delChi2 (double& result)
     // {

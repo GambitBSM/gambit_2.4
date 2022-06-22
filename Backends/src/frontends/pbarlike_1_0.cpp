@@ -17,7 +17,7 @@
     {
         namespace py = pybind11;
                 
-        double c_del_chi2(double& DM_mass, map_str_dbl& channel_dict, double& sv, std::string& propagation_model)
+        double c_del_chi2(double& DM_mass, map_str_dbl& channel_dict, double& sv, const std::string& propagation_model)
         {
             pybind11::dict inputs = pybind11::cast(channel_dict);
             double del_chi2 = pbarlike.attr("pbarlike")(DM_mass,inputs,sv,propagation_model).cast<double>();
