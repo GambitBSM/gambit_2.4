@@ -437,6 +437,7 @@ namespace Gambit
                               }
                               if(metadata_sizes[i] == 0)
                               {
+                                if(metadata_group_id>-1) HDF5::closeGroup(metadata_group_id);
                                 metadata_group_id = -1;
                               }
                             }
@@ -659,7 +660,7 @@ namespace Gambit
                               hid_t dataset  = HDF5::openDataset(old_metadata_group, *it, true); // Allow failure to open
                               if(dataset > 0)
                               {
-                                //Enter_HDF5<read_hdf5>(dataset, dates);
+                                Enter_HDF5<read_hdf5>(dataset, dates);
                                 HDF5::closeDataset(dataset);
                               }
                               unsigned long long old_metadata_size = 0;
@@ -673,6 +674,7 @@ namespace Gambit
                               }
                               if(old_metadata_size == 0)
                               {
+                                if(old_metadata_group>-1) HDF5::closeGroup(old_metadata_group);
                                 old_metadata_group = -1;
                               }
                             }
@@ -1314,6 +1316,7 @@ namespace Gambit
                         // Close files etc. associated with this batch
                         for (size_t file_i = 0, end = file_ids.size(); file_i < end; file_i++)
                         {
+                            if(datasets[file_i]>=0) HDF5::closeDataset(datasets[file_i]);
                             if(metadata_group_ids[file_i]>=0) HDF5::closeGroup(metadata_group_ids[file_i]);
                             if(file_ids[file_i]>=0)  HDF5::closeFile(file_ids[file_i]);
                         }
