@@ -874,7 +874,7 @@ if args.file:
             num = find_string(f, m, "backend_undefs.hpp")[1]
             amend_file(f, m, ch_head, num-2, reset_contents)
             num = find_string(f, m, "BE_FUNCTION")[1]
-            amend_file(f, m, "BE_ALLOW_MODELS({0})".format(gum.name), num-2,
+            amend_file(f, m, "BE_ALLOW_MODELS({0})\n".format(gum.name), num-2,
                        reset_contents)
         # micrOMEGAs
         if output_opts.mo:

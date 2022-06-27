@@ -25,7 +25,10 @@ LOAD_LIBRARY
 
 BE_ALLOW_MODELS(ScalarSingletDM_Z2)
 BE_ALLOW_MODELS(DMEFT)
-BE_ALLOW_MODELS(DMsimpVectorMedScalarDM)BE_ALLOW_MODELS(DMsimpVectorMedMajoranaDM)BE_ALLOW_MODELS(DMsimpVectorMedDiracDM)
+BE_ALLOW_MODELS(DMsimpVectorMedScalarDM)
+BE_ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+BE_ALLOW_MODELS(DMsimpVectorMedDiracDM)
+
 BE_FUNCTION(setModel, int, (char*, int), "setModel", "setModel")
 BE_FUNCTION(calcMainFunc, int, (), "calcMainFunc", "calcMainFunc")
 BE_FUNCTION(getMEcode, numout*, (int ,int, char*, char*, char*, char*), "getMEcode", "getMEcode")
