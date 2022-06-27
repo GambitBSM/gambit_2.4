@@ -359,8 +359,8 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Recast di-jet likelihoods for the DMsimp model
-  #define CAPABILITY Recast_Dijet_Likelihood_DMsimp
+  /// Di-jet likelihoods
+  #define CAPABILITY Dijet_Likelihood
     #define FUNCTION DiJet_Likelihood_DMsimpVectorMedScalarDM
     START_FUNCTION(double)
     DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
