@@ -546,8 +546,8 @@ AllAnalysisNumbersUnmodified: |
    of all analysis numbers before any subsequent modificiation, e.g. due to
    EFT validity constraints.
    
-Recast_Dijet_Likelihood_DMsimp: |
-   Interpolates dijet signal predictions for the DMsimp models and compares the
+Dijet_Likelihood: |
+   Interpolates dijet signal predictions and compares the
    cross-section scaled down by branching ratios to upper limits from a range of searches.
    Returns a log likelihood value.
 
