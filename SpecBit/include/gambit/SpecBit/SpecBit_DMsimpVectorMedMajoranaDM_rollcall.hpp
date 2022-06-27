@@ -10,6 +10,9 @@
 ///                                                
 ///  \author The GAMBIT Collaboration             
 ///  \date 03:27PM on June 07, 2022
+///
+///  \author Chris Chang
+///  \date Jun 2022
 ///                                                
 ///  ********************************************* 
 
