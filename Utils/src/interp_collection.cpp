@@ -449,6 +449,264 @@ namespace Gambit
     }
 
 
+    // 
+    // interp4d_collection class methods
+    // 
+
+    // Constructor
+    interp4d_collection::interp4d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in, bool allow_missing_points)
+    {
+      // Check if file exists.
+      if (not(Utils::file_exists(file_name_in)))
+      {
+        utils_error().raise(LOCAL_INFO, "ERROR! File '" + file_name_in + "' not found!");
+      }
+
+      // Read numerical values from data file.
+      ASCIItableReader tab(file_name_in);
+
+      // Check that there's more than 4 columns
+      if (tab.getncol() < 5)
+      {
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than five columns found in the input file '" + file_name_in + "'."); 
+      }
+
+      // Check that the number of columns matches the number of column names
+      if (colnames_in.size() != (size_t) tab.getncol())
+      {
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+      }
+
+      // Set whether to allow missing points in the interpolation grid
+      allow_missing_pts = allow_missing_points;
+
+      // Set the column names
+      tab.setcolnames(colnames_in);
+
+      // Save some names
+      collection_name = collection_name_in;
+      file_name = file_name_in;
+      x1_name = colnames_in.at(0);
+      x2_name = colnames_in.at(1);
+      x3_name = colnames_in.at(2);
+      x4_name = colnames_in.at(3);
+      interpolator_names = {colnames_in.begin() + 4, colnames_in.end()};
+
+      // Number of interpolators
+      n_interpolators = interpolator_names.size();
+
+      // Get unique entries of "xi" for the grid and grid size.
+      x1_vec = tab[x1_name];
+      x1_vec_unsorted = tab[x1_name];
+      sort(x1_vec.begin(), x1_vec.end());
+      x1_vec.erase(unique(x1_vec.begin(), x1_vec.end()), x1_vec.end());
+      int nx1 = x1_vec.size();
+      x1_min = x1_vec.front();
+      x1_max = x1_vec.back();
+
+      x2_vec = tab[x2_name];
+      x2_vec_unsorted = tab[x2_name];
+      sort(x2_vec.begin(), x2_vec.end());
+      x2_vec.erase(unique(x2_vec.begin(), x2_vec.end()), x2_vec.end());
+      int nx2 = x2_vec.size();
+      x2_min = x2_vec.front();
+      x2_max = x2_vec.back();
+      
+      x3_vec = tab[x3_name];
+      x3_vec_unsorted = tab[x3_name];
+      sort(x3_vec.begin(), x3_vec.end());
+      x3_vec.erase(unique(x3_vec.begin(), x3_vec.end()), x3_vec.end());
+      int nx3 = x3_vec.size();
+      x3_min = x3_vec.front();
+      x3_max = x3_vec.back();
+
+      x4_vec = tab[x4_name];
+      x4_vec_unsorted = tab[x4_name];
+      sort(x4_vec.begin(), x4_vec.end());
+      x4_vec.erase(unique(x4_vec.begin(), x4_vec.end()), x4_vec.end());
+      int nx4 = x4_vec.size();
+      x4_min = x4_vec.front();
+      x4_max = x4_vec.back();
+      
+      // Store the interpolation data to be used later
+      for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
+      {
+        std::string interp_name = interpolator_names[interp_index];
+        
+        int n_points = (tab[interp_name]).size();
+        
+        if (!allow_missing_pts && (nx1 * nx2 * nx3 * nx4 != n_points))
+        {
+          utils_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_points)+") does not agree with the number of unique 'x' and 'y' values ("+std::to_string(nx1)+" and "+std::to_string(nx2)+") for the interpolator '"+interp_name+"'.\n Check formatting of the file: '"+file_name_in+"'. This could be the case if the interpolation grid is missing points.");
+        }
+        
+        interp_data.push_back(tab[interp_name]);
+      }
+    }
+
+    // Destructor
+    interp4d_collection::~interp4d_collection() {}
+
+    // Just some forward declarations...
+    void InterpIter(int Ntemp,double xi_1,double xi_2,std::vector<double>& fi,double test);
+
+    // Evaluate a given interpolation
+    double interp4d_collection::eval(double x1,double x2,double x3,double x4, size_t interp_index)
+    {
+      double xi[] = {x1,x2,x3,x4}; 
+      std::vector<double> fi_values = interp_data[interp_index];
+      
+      // Determine upper and lower bounds
+      double xi_upper[] = {0.0,0.0,0.0,0.0};
+      double xi_lower[] = {0.0,0.0,0.0,0.0};
+      
+      // Determine edges (-1 to make sure it doesn't run over the last element)
+      for (size_t i=0;i<(x1_vec.size());i++)
+      {
+        // // In case of exact match
+        if (x1 == x1_vec[i])
+        {
+          xi_lower[0] = x1_vec[i];
+          xi_upper[0] = x1_vec[i];
+        }
+        // Otherwise bounds as normal
+        if (x1 > x1_vec[i] && x1 < x1_vec[i+1])
+        {
+          xi_lower[0] = x1_vec[i];
+          xi_upper[0] = x1_vec[i+1];
+        }
+        // End early if you have found all of the bounds
+        if (x1 < x1_vec[i] ) break;
+      }
+      
+      for (size_t i=0;i<(x2_vec.size());i++)
+      {
+        if (x2 == x2_vec[i])
+        {
+          xi_lower[1] = x2_vec[i];
+          xi_upper[1] = x2_vec[i];
+        }
+        if (x2 > x2_vec[i] && x2 < x2_vec[i+1])
+        {
+          xi_lower[1] = x2_vec[i];
+          xi_upper[1] = x2_vec[i+1];
+        }
+        if (x2 < x2_vec[i]) break;
+      }
+      
+      for (size_t i=0;i<(x3_vec.size());i++)
+      {
+        if (x3 == x3_vec[i])
+        {
+          xi_lower[2] = x3_vec[i];
+          xi_upper[2] = x3_vec[i];
+        }
+        if (x3 > x3_vec[i] && x3 < x3_vec[i+1])
+        {
+          xi_lower[2] = x3_vec[i];
+          xi_upper[2] = x3_vec[i+1];
+        }
+        if (x3 < x3_vec[i]) break;
+      }
+      
+      for (size_t i=0;i<(x4_vec.size());i++)
+      {
+        if (x4 == x4_vec[i])
+        {
+          xi_lower[3] = x4_vec[i];
+          xi_upper[3] = x4_vec[i];
+        }
+        if (x4 > x4_vec[i] && x4 < x4_vec[i+1])
+        {
+          xi_lower[3] = x4_vec[i];
+          xi_upper[3] = x4_vec[i+1];
+        }
+        if (x4 < x4_vec[i]) break;
+      }
+      
+      
+      // Find the corresponding function values
+      // Using a default value of -1 as this is assumed not a valid result
+      std::vector<double> fi = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
+      bool test_u[] = {false,false,false,false};
+      bool test_l[] = {false,false,false,false};
+
+      //Loop over all interp_data, and match value to coresponding value. 
+      for (size_t k=0;k<fi_values.size();k++)
+      {
+        // Reset Values
+        test_u[0] = false; test_u[1] = false; test_u[2] = false; test_u[3] = false;
+        test_l[0] = false; test_l[1] = false; test_l[2] = false; test_l[3] = false;
+          
+        // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
+        if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
+        else if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
+        else continue;
+          
+        if (x2_vec_unsorted[k]==xi_upper[1]) { test_u[1]=true;}
+        else if (x2_vec_unsorted[k]==xi_lower[1]) { test_l[1]=true;}
+        else continue;
+        
+        if (x3_vec_unsorted[k]==xi_upper[2]) { test_u[2]=true;}
+        else if (x3_vec_unsorted[k]==xi_lower[2]) { test_l[2]=true;}
+        else continue;
+        
+        if (x4_vec_unsorted[k]==xi_upper[3]) { test_u[3]=true;}
+        else if (x4_vec_unsorted[k]==xi_lower[3]) { test_l[3]=true;}
+        else continue;
+        
+        // Set the values of fi in the correct order
+        if (test_l[0] && test_l[1] && test_l[2] && test_l[3]) {fi[0] = fi_values[k];}
+        if (test_u[0] && test_l[1] && test_l[2] && test_l[3]) {fi[1] = fi_values[k];}
+        if (test_l[0] && test_u[1] && test_l[2] && test_l[3]) {fi[2] = fi_values[k];}
+        if (test_u[0] && test_u[1] && test_l[2] && test_l[3]) {fi[3] = fi_values[k];}
+        if (test_l[0] && test_l[1] && test_u[2] && test_l[3]) {fi[4] = fi_values[k];}
+        if (test_u[0] && test_l[1] && test_u[2] && test_l[3]) {fi[5] = fi_values[k];}
+        if (test_l[0] && test_u[1] && test_u[2] && test_l[3]) {fi[6] = fi_values[k];}
+        if (test_u[0] && test_u[1] && test_u[2] && test_l[3]) {fi[7] = fi_values[k];}
+        if (test_l[0] && test_l[1] && test_l[2] && test_u[3]) {fi[8] = fi_values[k];}
+        if (test_u[0] && test_l[1] && test_l[2] && test_u[3]) {fi[9] = fi_values[k];}
+        if (test_l[0] && test_u[1] && test_l[2] && test_u[3]) {fi[10] = fi_values[k];}
+        if (test_u[0] && test_u[1] && test_l[2] && test_u[3]) {fi[11] = fi_values[k];}
+        if (test_l[0] && test_l[1] && test_u[2] && test_u[3]) {fi[12] = fi_values[k];}
+        if (test_u[0] && test_l[1] && test_u[2] && test_u[3]) {fi[13] = fi_values[k];}
+        if (test_l[0] && test_u[1] && test_u[2] && test_u[3]) {fi[14] = fi_values[k];}
+        if (test_u[0] && test_u[1] && test_u[2] && test_u[3]) {fi[15] = fi_values[k];}
+        
+      }
+       
+      // If failed to find all points needed for interpolation, throw an error.
+      // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return 0
+      size_t index = 0;
+      while(index<16)
+      {
+        // Checking against a default value
+        if (fi[index]==-1.0)
+        {
+          if (allow_missing_pts)
+          {
+            return 0.0;
+          } else {
+            utils_error().raise(LOCAL_INFO, "ERROR! 4D Interpolation fails for this parameter point.");
+          }
+        }
+        index++;
+      }
+       
+      // Variables to track repetitions
+      int it = 0;
+      int itmax = 4;
+      
+      // Perform the actual Calculation
+      while (it < itmax)
+      {
+        InterpIter((itmax-it),xi_lower[it],xi_upper[it],fi,xi[it]);
+        it++;
+      }
+       
+      return fi[0];
+    }
+
 
     // 
     // interp5d_collection class methods
@@ -792,266 +1050,6 @@ namespace Gambit
     {
       return ((x1 >= x1_min) && (x1 <= x1_max) && (x2 >= x2_min) && (x2 <= x2_max) && (x3 >= x3_min) && (x3 <= x3_max) && (x4 >= x4_min) && (x4 <= x4_max)  && (x5 >= x5_min) && (x5 <= x5_max));
     }
-
-
-    // 
-    // interp4d_collection class methods
-    // 
-
-    // Constructor
-    interp4d_collection::interp4d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in, bool allow_missing_points)
-    {
-      // Check if file exists.
-      if (not(Utils::file_exists(file_name_in)))
-      {
-        utils_error().raise(LOCAL_INFO, "ERROR! File '" + file_name_in + "' not found!");
-      }
-
-      // Read numerical values from data file.
-      ASCIItableReader tab(file_name_in);
-
-      // Check that there's more than 4 columns
-      if (tab.getncol() < 5)
-      {
-        utils_error().raise(LOCAL_INFO, "ERROR! Less than five columns found in the input file '" + file_name_in + "'."); 
-      }
-
-      // Check that the number of columns matches the number of column names
-      if (colnames_in.size() != (size_t) tab.getncol())
-      {
-        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
-      }
-
-      // Set whether to allow missing points in the interpolation grid
-      allow_missing_pts = allow_missing_points;
-
-      // Set the column names
-      tab.setcolnames(colnames_in);
-
-      // Save some names
-      collection_name = collection_name_in;
-      file_name = file_name_in;
-      x1_name = colnames_in.at(0);
-      x2_name = colnames_in.at(1);
-      x3_name = colnames_in.at(2);
-      x4_name = colnames_in.at(3);
-      interpolator_names = {colnames_in.begin() + 4, colnames_in.end()};
-
-      // Number of interpolators
-      n_interpolators = interpolator_names.size();
-
-      // Get unique entries of "xi" for the grid and grid size.
-      x1_vec = tab[x1_name];
-      x1_vec_unsorted = tab[x1_name];
-      sort(x1_vec.begin(), x1_vec.end());
-      x1_vec.erase(unique(x1_vec.begin(), x1_vec.end()), x1_vec.end());
-      int nx1 = x1_vec.size();
-      x1_min = x1_vec.front();
-      x1_max = x1_vec.back();
-
-      x2_vec = tab[x2_name];
-      x2_vec_unsorted = tab[x2_name];
-      sort(x2_vec.begin(), x2_vec.end());
-      x2_vec.erase(unique(x2_vec.begin(), x2_vec.end()), x2_vec.end());
-      int nx2 = x2_vec.size();
-      x2_min = x2_vec.front();
-      x2_max = x2_vec.back();
-      
-      x3_vec = tab[x3_name];
-      x3_vec_unsorted = tab[x3_name];
-      sort(x3_vec.begin(), x3_vec.end());
-      x3_vec.erase(unique(x3_vec.begin(), x3_vec.end()), x3_vec.end());
-      int nx3 = x3_vec.size();
-      x3_min = x3_vec.front();
-      x3_max = x3_vec.back();
-
-      x4_vec = tab[x4_name];
-      x4_vec_unsorted = tab[x4_name];
-      sort(x4_vec.begin(), x4_vec.end());
-      x4_vec.erase(unique(x4_vec.begin(), x4_vec.end()), x4_vec.end());
-      int nx4 = x4_vec.size();
-      x4_min = x4_vec.front();
-      x4_max = x4_vec.back();
-      
-      // Store the interpolation data to be used later
-      for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
-      {
-        std::string interp_name = interpolator_names[interp_index];
-        
-        int n_points = (tab[interp_name]).size();
-        
-        if (!allow_missing_pts && (nx1 * nx2 * nx3 * nx4 != n_points))
-        {
-          utils_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_points)+") does not agree with the number of unique 'x' and 'y' values ("+std::to_string(nx1)+" and "+std::to_string(nx2)+") for the interpolator '"+interp_name+"'.\n Check formatting of the file: '"+file_name_in+"'. This could be the case if the interpolation grid is missing points.");
-        }
-        
-        interp_data.push_back(tab[interp_name]);
-      }
-    }
-
-    // Destructor
-    interp4d_collection::~interp4d_collection() {}
-
-    // Just some forward declarations...
-    void InterpIter(int Ntemp,double xi_1,double xi_2,std::vector<double>& fi,double test);
-
-    // Evaluate a given interpolation
-    double interp4d_collection::eval(double x1,double x2,double x3,double x4, size_t interp_index)
-    {
-      double xi[] = {x1,x2,x3,x4}; 
-      std::vector<double> fi_values = interp_data[interp_index];
-      
-      // Determine upper and lower bounds
-      double xi_upper[] = {0.0,0.0,0.0,0.0};
-      double xi_lower[] = {0.0,0.0,0.0,0.0};
-      
-      // Determine edges (-1 to make sure it doesn't run over the last element)
-      for (size_t i=0;i<(x1_vec.size());i++)
-      {
-        // // In case of exact match
-        if (x1 == x1_vec[i])
-        {
-          xi_lower[0] = x1_vec[i];
-          xi_upper[0] = x1_vec[i];
-        }
-        // Otherwise bounds as normal
-        if (x1 > x1_vec[i] && x1 < x1_vec[i+1])
-        {
-          xi_lower[0] = x1_vec[i];
-          xi_upper[0] = x1_vec[i+1];
-        }
-        // End early if you have found all of the bounds
-        if (x1 < x1_vec[i] ) break;
-      }
-      
-      for (size_t i=0;i<(x2_vec.size());i++)
-      {
-        if (x2 == x2_vec[i])
-        {
-          xi_lower[1] = x2_vec[i];
-          xi_upper[1] = x2_vec[i];
-        }
-        if (x2 > x2_vec[i] && x2 < x2_vec[i+1])
-        {
-          xi_lower[1] = x2_vec[i];
-          xi_upper[1] = x2_vec[i+1];
-        }
-        if (x2 < x2_vec[i]) break;
-      }
-      
-      for (size_t i=0;i<(x3_vec.size());i++)
-      {
-        if (x3 == x3_vec[i])
-        {
-          xi_lower[2] = x3_vec[i];
-          xi_upper[2] = x3_vec[i];
-        }
-        if (x3 > x3_vec[i] && x3 < x3_vec[i+1])
-        {
-          xi_lower[2] = x3_vec[i];
-          xi_upper[2] = x3_vec[i+1];
-        }
-        if (x3 < x3_vec[i]) break;
-      }
-      
-      for (size_t i=0;i<(x4_vec.size());i++)
-      {
-        if (x4 == x4_vec[i])
-        {
-          xi_lower[3] = x4_vec[i];
-          xi_upper[3] = x4_vec[i];
-        }
-        if (x4 > x4_vec[i] && x4 < x4_vec[i+1])
-        {
-          xi_lower[3] = x4_vec[i];
-          xi_upper[3] = x4_vec[i+1];
-        }
-        if (x4 < x4_vec[i]) break;
-      }
-      
-      
-      // Find the corresponding function values
-      // Using a default value of -1 as this is assumed not a valid result
-      std::vector<double> fi = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
-      bool test_u[] = {false,false,false,false};
-      bool test_l[] = {false,false,false,false};
-
-      //Loop over all interp_data, and match value to coresponding value. 
-      for (size_t k=0;k<fi_values.size();k++)
-      {
-        // Reset Values
-        test_u[0] = false; test_u[1] = false; test_u[2] = false; test_u[3] = false;
-        test_l[0] = false; test_l[1] = false; test_l[2] = false; test_l[3] = false;
-          
-        // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
-        if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
-        else if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
-        else continue;
-          
-        if (x2_vec_unsorted[k]==xi_upper[1]) { test_u[1]=true;}
-        else if (x2_vec_unsorted[k]==xi_lower[1]) { test_l[1]=true;}
-        else continue;
-        
-        if (x3_vec_unsorted[k]==xi_upper[2]) { test_u[2]=true;}
-        else if (x3_vec_unsorted[k]==xi_lower[2]) { test_l[2]=true;}
-        else continue;
-        
-        if (x4_vec_unsorted[k]==xi_upper[3]) { test_u[3]=true;}
-        else if (x4_vec_unsorted[k]==xi_lower[3]) { test_l[3]=true;}
-        else continue;
-        
-        // Set the values of fi in the correct order
-        if (test_l[0] && test_l[1] && test_l[2] && test_l[3]) {fi[0] = fi_values[k];}
-        if (test_u[0] && test_l[1] && test_l[2] && test_l[3]) {fi[1] = fi_values[k];}
-        if (test_l[0] && test_u[1] && test_l[2] && test_l[3]) {fi[2] = fi_values[k];}
-        if (test_u[0] && test_u[1] && test_l[2] && test_l[3]) {fi[3] = fi_values[k];}
-        if (test_l[0] && test_l[1] && test_u[2] && test_l[3]) {fi[4] = fi_values[k];}
-        if (test_u[0] && test_l[1] && test_u[2] && test_l[3]) {fi[5] = fi_values[k];}
-        if (test_l[0] && test_u[1] && test_u[2] && test_l[3]) {fi[6] = fi_values[k];}
-        if (test_u[0] && test_u[1] && test_u[2] && test_l[3]) {fi[7] = fi_values[k];}
-        if (test_l[0] && test_l[1] && test_l[2] && test_u[3]) {fi[8] = fi_values[k];}
-        if (test_u[0] && test_l[1] && test_l[2] && test_u[3]) {fi[9] = fi_values[k];}
-        if (test_l[0] && test_u[1] && test_l[2] && test_u[3]) {fi[10] = fi_values[k];}
-        if (test_u[0] && test_u[1] && test_l[2] && test_u[3]) {fi[11] = fi_values[k];}
-        if (test_l[0] && test_l[1] && test_u[2] && test_u[3]) {fi[12] = fi_values[k];}
-        if (test_u[0] && test_l[1] && test_u[2] && test_u[3]) {fi[13] = fi_values[k];}
-        if (test_l[0] && test_u[1] && test_u[2] && test_u[3]) {fi[14] = fi_values[k];}
-        if (test_u[0] && test_u[1] && test_u[2] && test_u[3]) {fi[15] = fi_values[k];}
-        
-      }
-       
-      // If failed to find all points needed for interpolation, throw an error.
-      // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return 0
-      size_t index = 0;
-      while(index<16)
-      {
-        // Checking against a default value
-        if (fi[index]==-1.0)
-        {
-          if (allow_missing_pts)
-          {
-            return 0.0;
-          } else {
-            utils_error().raise(LOCAL_INFO, "ERROR! 4D Interpolation fails for this parameter point.");
-          }
-        }
-        index++;
-      }
-       
-      // Variables to track repetitions
-      int it = 0;
-      int itmax = 4;
-      
-      // Perform the actual Calculation
-      while (it < itmax)
-      {
-        InterpIter((itmax-it),xi_lower[it],xi_upper[it],fi,xi[it]);
-        it++;
-      }
-       
-      return fi[0];
-    }
-
 
   }
 }

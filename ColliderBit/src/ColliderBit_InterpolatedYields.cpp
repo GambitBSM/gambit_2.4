@@ -94,8 +94,8 @@ namespace Gambit
         std::map<str,std::unique_ptr<Utils::interp2d_collection>> interp2d;
         
         // Maps containing 4D and 5D interpolators
-        std::map<str,std::unique_ptr<Utils::interp5d_collection>> interp5d;
         std::map<str,std::unique_ptr<Utils::interp4d_collection>> interp4d;
+        std::map<str,std::unique_ptr<Utils::interp5d_collection>> interp5d;
 
         // Helper functions
 
@@ -168,15 +168,16 @@ namespace Gambit
           return *interp2d.at(name);
         }
         
+        Utils::interp4d_collection& get_interp4d(str name) const
+        {
+          return *interp4d.at(name);
+        }
+        
         Utils::interp5d_collection& get_interp5d(str name) const
         {
           return *interp5d.at(name);
         }
         
-        Utils::interp4d_collection& get_interp4d(str name) const
-        {
-          return *interp4d.at(name);
-        }
     };
     
     /// A struct to contain parameters for the GSL optimiser target function
