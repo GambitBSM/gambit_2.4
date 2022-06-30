@@ -431,7 +431,7 @@ set(md5 "2750fca20a3c96e76390113fe87c8685")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
     SOURCE_DIR ${dir}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

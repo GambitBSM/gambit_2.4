@@ -1,5 +1,6 @@
 ##########################################################################
-## GAMBIT configuration for a diver scan of the Scalar DM Simplified model
+## GAMBIT configuration for a diver scan of the Simplified models
+## Three different models cna be scanned: Scalar, Dirac or Majorana DM
 ##########################################################################
 
 
@@ -11,14 +12,48 @@ Parameters:
   StandardModel_Higgs:
     mH: 125.09
 
-  DMsimpVectorMedScalarDM:
-    MXc:
+  # Scalar DM
+  #DMsimpVectorMedScalarDM:
+  #  MXc:
+  #    range: [50,10000]
+  #    prior_type: log
+  #  MY1:
+  #    range: [50,10000]
+  #    prior_type: log
+  #  gVXc:
+  #    range: [0.01,3.0]
+  #    prior_type: log
+  #  gVq:
+  #    range: [0.01,1.0]
+  #    prior_type: log
+
+  # Dirac Fermion DM
+  #DMsimpVectorMedDiracDM:
+  #  MXd:
+  #    range: [50,10000]
+  #    prior_type: log
+  #  MY1:
+  #    range: [50,10000]
+  #    prior_type: log
+  #  gVXd:
+  #    range: [0.01,3.0]
+  #    prior_type: log
+  #  gAXd:
+  #    range: [0.01,3.0]
+  #    prior_type: log
+  #  gVq:
+  #    range: [0.01,1.0]
+  #    prior_type: log
+
+  # Majorana Fermion DM
+  DMsimpVectorMedMajoranaDM:
+    MXm:
       range: [50,10000]
       prior_type: log
     MY1:
       range: [50,10000]
       prior_type: log
-    gVXc:
+    gAXm:
       range: [0.01,3.0]
       prior_type: log
     gVq:
@@ -50,18 +85,18 @@ Priors:
 Printer:
 
   #printer: cout
-  
+
   printer: hdf5
   options:
-    output_file: "DMsimpScalarDM.hdf5"
+    output_file: "DMsimpVectorMedMajoranaDM.hdf5"
     delete_file_on_restart: true
     buffer_length: 1000
-    group: "/DMsimpScalarDM"
+    group: "/DMsimpVectorMedMajoranaDM_Scan"
 
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: diver
 
   scanners:
 
@@ -73,13 +108,18 @@ Scanner:
     diver:
       plugin: diver
       like: LogLike
-      NP: 10000
+      NP: 50000
       verbosity: 1
       convthresh: 1E-6
 
 ObsLikes:
 
-    # LHC likelihoods
+  # Unitarity Bounds
+  - purpose: LogLike
+    #capability: Unitarity_Bound_DMsimpVectorMedDiracDM
+    capability: Unitarity_Bound_DMsimpVectorMedMajoranaDM
+
+  # LHC likelihoods
   - purpose:    LogLike
     capability: LHC_Combined_LogLike
     module:     ColliderBit
@@ -156,7 +196,7 @@ Rules:
 
   # Use LHC analyses based on fast interpolation rather than on-the-fly MC simulation
   - capability: RunMC
-    function: InterpolatedMCInfo 
+    function: InterpolatedMCInfo
     module: ColliderBit
     
   - capability: LHC_Combined_LogLike
@@ -177,14 +217,16 @@ Rules:
       nuisance_prof_initstep: 0.1
       nuisance_prof_convtol: 0.01
       nuisance_prof_maxsteps: 10000
-      nuisance_prof_convacc: 0.01
+      nuisance_prof_convacc: 1e-5
       nuisance_prof_simplexsize: 1e-5
       nuisance_prof_method: 5
       nuisance_prof_verbosity: 0
 
     # Signal yields for LHC analyses 
   - capability: AllAnalysisNumbers
-    function: DMsimpVectorMedScalarDM_results
+    #function: DMsimpVectorMedScalarDM_results
+    #function: DMsimpVectorMedDiracDM_results
+    function: DMsimpVectorMedMajoranaDM_results
     
   # Relic density likelihood
   - capability: lnL_oh2
@@ -273,7 +315,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e7
     model_invalid_for_lnlike_below_alt: -1e7
 
-  default_output_path: "runs/DMsimpScalarDM/"
+  default_output_path: "runs/DMsimpVectorMedMajoranaDM/"
 
-  debug: true
+  debug: false
 
