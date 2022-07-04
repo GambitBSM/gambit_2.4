@@ -49,6 +49,7 @@ namespace Gambit
     , mpiSize(1)
     , primary_printer(NULL)
     , column_record()
+    , next_metadataID(0)
     , max_buffer_length(options.getValueOrDef<std::size_t>(1,"buffer_length"))
     , buffer_info()
     , buffer_header()
@@ -167,13 +168,15 @@ namespace Gambit
             /* Execute SQL statement and iterate through results*/
             sqlite3_stmt *stmt;
             int rc = sqlite3_prepare_v2(get_db(), sql.str().c_str(), -1, &stmt, NULL);
-            if (rc != SQLITE_OK) {
+            if (rc != SQLITE_OK)
+            {
                 std::stringstream err;
                 err<<"Encountered SQLite error while preparing to retrieve previous pointIDs: "<<sqlite3_errmsg(get_db());
                 printer_error().raise(LOCAL_INFO, err.str());
             }
             int colcount=0;
-            while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+            while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+            {
                 my_highest_pointID = sqlite3_column_int64(stmt, 0);
                 colcount++;
                 if(colcount>1)
@@ -189,6 +192,38 @@ namespace Gambit
                 printer_error().raise(LOCAL_INFO, err.str());
             }
             sqlite3_finalize(stmt);
+
+            // Read off last metadata entry
+            std::stringstream sql2;
+            sql2 << "SELECT MAX(metadataID) FROM " << get_metadata_table_name() << ";";
+            sqlite3_stmt *stmt2;
+            rc = sqlite3_prepare_v2(get_db(), sql2.str().c_str(), -1, &stmt2, NULL);
+            if (rc != SQLITE_OK)
+            {
+                std::stringstream err;
+                err<<"Encountered SQLite error while preparing to retrieve previous metadataIDs: "<<sqlite3_errmsg(get_db());
+                printer_error().raise(LOCAL_INFO, err.str());
+            }
+            colcount=0;
+            while ((rc = sqlite3_step(stmt2)) == SQLITE_ROW)
+            {
+                next_metadataID = sqlite3_column_int64(stmt2, 0);
+                next_metadataID++;
+                colcount++;
+                if(colcount>1)
+                {
+                    std::stringstream err;
+                    err<<"SQLite statement to retrieve highest existing metadataID returned more than one result! This doesn't make sense, so there is probably a bug in the statement that was used. Statement was: "<<sql.str();
+                    printer_error().raise(LOCAL_INFO, err.str());
+                }
+            }
+            if (rc != SQLITE_DONE)
+            {
+                std::stringstream err;
+                err<<"Encountered SQLite error while retrieving previous pointIDs: "<<sqlite3_errmsg(get_db());
+                printer_error().raise(LOCAL_INFO, err.str());
+            }
+            sqlite3_finalize(stmt2);
 
             // Need to make sure no other processes start adding new stuff before everyone has figured out
             // their next unused pointID
@@ -245,23 +280,24 @@ namespace Gambit
       // Create columns first
       for (auto key_value : metadata)
       {
-        sql<<"ALTER TABLE "<<get_metadata_table_name();
-
+        str col_type;
         if (key_value.first == "YAML")
-          sql << " ADD COLUMN `YAML` LONGTEXT;";
+          col_type = "LONGTEXT";
         else
-          sql << " ADD COLUMN `" << key_value.first <<"` MEDIUMTEXT;";
+          col_type = "MEDIUMTEXT";
+
+        ensure_column_exists(get_metadata_table_name(), key_value.first, col_type);
       }
 
       // Now add date
-      sql << " INSERT INTO " << get_metadata_table_name() <<" (\nID,\n";
+      sql << " INSERT INTO " << get_metadata_table_name() <<" (\nmetadataID,\n";
       for(auto col_name_it=metadata.begin(); col_name_it!=metadata.end(); ++col_name_it)
       {
           sql<<"`"<< col_name_it->first <<"`"<<comma_unless_last(col_name_it,metadata)<<"\n";
       }
       sql << ") VALUES (\n";
-      size_t pairID = 0;
-      sql << pairID << ",";
+      size_t metadataID = next_metadataID;
+      sql << metadataID << ",";
       for(auto row_it=metadata.begin(); row_it!=metadata.end(); ++row_it)
       {
         sql << "\"" << row_it->second << "\"" << comma_unless_last(row_it,metadata);
@@ -336,7 +372,7 @@ namespace Gambit
         // Construct the SQLite3 statement
         std::stringstream sql;
         sql << "CREATE TABLE IF NOT EXISTS "<<name<<"("
-            << "ID   INT PRIMARY KEY NOT NULL);";
+            << "metadataID   INT PRIMARY KEY NOT NULL);";
 
         /* Execute SQL statement */
         submit_sql(LOCAL_INFO, sql.str());
@@ -347,7 +383,7 @@ namespace Gambit
 
 
     // Check that a table column exists with the correct type, and create it if needed
-    void SQLitePrinter::ensure_column_exists(const std::string& sql_col_name, const std::string& sql_col_type)
+    void SQLitePrinter::ensure_column_exists(const std::string& sql_table_name, const std::string& sql_col_name, const std::string& sql_col_type)
     {
         require_output_ready();
         auto it = column_record.find(sql_col_name);
@@ -362,7 +398,7 @@ namespace Gambit
             // the column already existed, and not some other reason.
 
             std::stringstream sql;
-            sql<<"ALTER TABLE "<<get_table_name()<<" ADD COLUMN `"<<sql_col_name<<"` "<<sql_col_type<<";";
+            sql<<"ALTER TABLE "<<sql_table_name<<" ADD COLUMN `"<<sql_col_name<<"` "<<sql_col_type<<";";
 
             /* Execute SQL statement */
             int rc;
@@ -375,7 +411,7 @@ namespace Gambit
                 // exists, but we better make sure.
 
                 std::stringstream sql2;
-                sql2<<"PRAGMA table_info("<<get_table_name()<<");";
+                sql2<<"PRAGMA table_info("<<sql_table_name<<");";
 
                 /* Execute SQL statement */
                 int rc2;
@@ -454,7 +490,7 @@ namespace Gambit
 
         // Make sure we have a record of this column existing in the output table
         // Create it if needed.
-        ensure_column_exists(col_name, col_type);
+        ensure_column_exists(get_table_name(), col_name, col_type);
 
         // Check if a row for this data exists in the transaction buffer
         auto buf_it=transaction_data_buffer.find(rowID);

@@ -107,6 +107,9 @@ namespace Gambit
         // Set to record whether table columns have been created
         std::map<std::string,std::string,Utils::ci_less> column_record;
 
+        // Last metadata ID
+        std::size_t next_metadataID;
+
         /// @{ Buffer variable
 
         std::size_t max_buffer_length;
@@ -131,7 +134,7 @@ namespace Gambit
         void make_metadata_table(const std::string&);
 
         // Check that a table column exists, and create it if needed
-        void ensure_column_exists(const std::string&, const std::string&);
+        void ensure_column_exists(const std::string&, const std::string&, const std::string&);
 
         // Create an SQL table insert operation for the current transaction_data_buffer
         // Modifies 'sql' stringstream in-place
