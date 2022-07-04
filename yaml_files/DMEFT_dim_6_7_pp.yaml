@@ -1,0 +1,152 @@
+###########################################################################################################################
+## GAMBIT configuration file for postprocessing of the DMEFT model
+###########################################################################################################################
+
+
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_postprocessing.yaml
+
+  StandardModel_Higgs:
+     mH:
+       prior_type: none
+
+  DMEFT:
+    mchi:
+      prior_type: none
+    Lambda:
+      prior_type: none
+    C51:
+      prior_type: none
+    C52:
+      prior_type: none
+    C61:
+      prior_type: none
+    C62:
+      prior_type: none
+    C63:
+      prior_type: none
+    C64:
+      prior_type: none
+    C71:
+      prior_type: none
+    C72:
+      prior_type: none
+    C73:
+      prior_type: none
+    C74:
+      prior_type: none
+    C75:
+      prior_type: none
+    C76:
+      prior_type: none
+    C77:
+      prior_type: none
+    C78:
+      prior_type: none
+    C79:
+      prior_type: none
+    C710:
+      prior_type: none
+    mtrunIN:
+      prior_type: none
+
+  Halo_gNFW_rho0:
+    rho0:
+      prior_type: none
+    v0:
+      prior_type: none
+    vesc:
+      prior_type: none
+    vrot:
+      prior_type: none
+    rs:
+      prior_type: none
+    r_sun:
+      prior_type: none
+    alpha:
+      prior_type: none
+    beta:
+      prior_type: none
+    gamma:
+      prior_type: none
+
+  #nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_postprocessing.yaml
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+Printer:
+
+  printer: cout
+  #options:
+    #output_file: "DMEFT_pp.hdf5"
+    #delete_file_on_restart: false
+    #buffer_length: 100
+    #group: "/DMEFT"
+
+Scanner:
+
+  use_scanner: postprocessor
+
+  scanners:
+
+    postprocessor:
+      plugin: postprocessor
+      like: LogLike
+      reweighted_like: LogLike
+      add_to_like: [LogLike]
+      permit_discard_old_likes: true
+      reader:
+        type: hdf5
+        file: "/scratc/work/sowmiya/DMEFT.hdf5"
+        group: "/DMEFT"
+
+ObsLikes:
+
+  # Add you own likelihood here
+  - capability: del_chi2
+    purpose: LogLike
+
+Rules:
+  - capability: del_chi2
+    function: DelChi2
+    dependencies:
+      - capability: RD_fraction
+        function: RD_fraction_one
+        module: DarkBit
+        
+  - capability: TH_ProcessCatalog
+    function: TH_ProcessCatalog_DMEFT
+    dependencies:
+      - capability: decay_rates
+        function: all_decays_from_SLHA
+        module: DecayBit
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+    print_invalid_points: false
+    debug: false
+
+  default_output_path: "runs/DMEFT_pp"
+
+  debug: false
+  print_timing_data: false
