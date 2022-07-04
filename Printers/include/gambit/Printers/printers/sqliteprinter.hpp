@@ -73,10 +73,7 @@ namespace Gambit
         #undef DECLARE_PRINT
 
         // Print metadata info to file
-        void _print_metadata(map_str_str)
-        {
-          // Do nothing
-        }
+        void _print_metadata(map_str_str);
 
         ///@}
 
@@ -131,6 +128,7 @@ namespace Gambit
 
         // Create results table
         void make_table(const std::string&);
+        void make_metadata_table(const std::string&);
 
         // Check that a table column exists, and create it if needed
         void ensure_column_exists(const std::string&, const std::string&);
