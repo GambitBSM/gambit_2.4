@@ -157,10 +157,7 @@ namespace Gambit
         #undef DECLARE_PRINT
 
         // Print metadata info to file
-        void _print_metadata(map_str_str)
-        {
-          // Do nothing
-        }
+        void _print_metadata(map_str_str);
 
         ///@}
 
@@ -179,10 +176,15 @@ namespace Gambit
         /// Info file (describes contents of output file, i.e. contents of columns)
         std::string info_file;
 
+        /// Metadata file
+        std::string metadata_file;
+
         /// Main output file stream
         std::ofstream my_fstream;
         /// "Info file" output stream
         std::ofstream info_fstream;
+        /// "Metadata file" output stream
+        std::ofstream metadata_fstream;
 
         /// Number of lines to store in buffer before printing
         unsigned int bufferlength;

@@ -2509,7 +2509,7 @@ namespace Gambit
               if(it->backend != "")    metadata[key+"::backend"] = it->backend;
               if(it->version != "")    metadata[key+"::version"] = it->version;
               if(it->options.getNames().size()) it->options.toMap(metadata, key+"::options");
-              
+
 
             }
           }
@@ -2525,7 +2525,7 @@ namespace Gambit
       Options(keyvalue).toMap(metadata,"KeyValue");
 
       // YAML file
-      ss.clear();
+      ss.str("");
       ss << boundIniFile->getYAMLNode();
       metadata["YAML"] = ss.str();
 
