@@ -197,16 +197,13 @@ namespace Gambit
       // Rule matches functor if the capability or module function
       // is present and they (and the module if given) match
       bool matches = false;
-      if (rule.capability != "")
+      if (not rule.capability.empty())
         matches = stringComp( rule.capability, f->capability() );
-      if (rule.function != "")
+      if (not rule.function.empty())
         matches = stringComp( rule.function, f->name() );
-      if (rule.module != "")
+      if (not rule.module.empty())
         matches = matches and stringComp( rule.module, f->origin());
       return matches;
-      //return ( stringComp( rule.function, (*f).name()) and
-      //         stringComp( rule.module, (*f).origin())
-      //       );
     }
 
 
@@ -2375,11 +2372,10 @@ namespace Gambit
       std::vector<Rule> unusedRules;
 
       const IniParser::ObservablesType & entries = boundIniFile->getRules();
-      for (IniParser::ObservablesType::const_iterator it =
-          entries.begin(); it != entries.end(); ++it)
+      for(IniParser::ObservableType entry : entries)
       {
         #ifdef DEPRES_DEBUG
-          std::cout << "checking rule with capability " << it->capability << std::endl;
+          std::cout << "checking rule with capability " << entry.capability << std::endl;
         #endif
         graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
         bool unused = true;
@@ -2388,10 +2384,10 @@ namespace Gambit
           // Check only for enabled functors
           if (masterGraph[*vi]->status() == 2)
           {
-            if ( matchesRules(masterGraph[*vi], Rule(*it)) )
+            if ( matchesRules(masterGraph[*vi], Rule(entry)) )
             {
               #ifdef DEPRES_DEBUG
-                std::cout << "rule for capability " << it->capability <<" used by vertex " << masterGraph[*vi]->capability() << std::endl;
+                std::cout << "rule for capability " << entry.capability <<" used by vertex " << masterGraph[*vi]->capability() << std::endl;
               #endif
               unused = false;
               continue;
@@ -2399,7 +2395,7 @@ namespace Gambit
           }
         }
         if (unused)
-          unusedRules.push_back(Rule(*it));
+          unusedRules.push_back(Rule(entry));
       }
 
       if(unusedRules.size() > 0)
@@ -2408,12 +2404,12 @@ namespace Gambit
         msg << "The following rules and options are not used in the current scan. Please remove them from  your yaml file to remove this warning." << endl;
         for(auto rule :unusedRules)
         {
-          if(rule.capability != "") msg << "  capability: " << rule.capability << endl;
-          if(rule.function != "")   msg << "  function: " << rule.function<< endl;
-          if(rule.module != "")     msg << "  module: " << rule.module << endl;
-          if(rule.type != "")       msg << "  type: " << rule.type << endl;
-          if(rule.backend != "")    msg << "  backend: " << rule.backend << endl;
-          if(rule.version != "")    msg << "  version: " << rule.version << endl;
+          if(not rule.capability.empty()) msg << "  capability: " << rule.capability << endl;
+          if(not rule.function.empty())   msg << "  function: " << rule.function<< endl;
+          if(not rule.module.empty())     msg << "  module: " << rule.module << endl;
+          if(not rule.type.empty())       msg << "  type: " << rule.type << endl;
+          if(not rule.backend.empty())    msg << "  backend: " << rule.backend << endl;
+          if(not rule.version.empty())    msg << "  version: " << rule.version << endl;
           if (rule.options.getNames().size() > 0)
           {
             msg << "  options:" << endl;
@@ -2468,22 +2464,29 @@ namespace Gambit
 
       // ObsLikes
       const IniParser::ObservablesType &obslikes = boundIniFile->getObservables();
-      for (IniParser::ObservablesType::const_iterator it =
-           obslikes.begin(); it != obslikes.end(); ++it)
+      for (IniParser::ObservableType obslike : obslikes)
       {
-        str key = "ObsLikes::" + it->capability;
-        metadata[key + "::capability"] = it->capability;
-        if(it->purpose != "")  metadata[key + "::purpose"] = it->purpose;
-        if(it->function != "") metadata[key + "::function"] = it->function;
-        if(it->type != "")     metadata[key + "::type"] = it->type;
-        if(it->module != "")   metadata[key + "::module"] = it->module;
-        //if(it->subcaps != "") {} // TODO Deal with subcaps
+        str key = "ObsLikes::" + obslike.capability;
+        metadata[key + "::capability"] = obslike.capability;
+        if(not obslike.purpose.empty())  metadata[key + "::purpose"] = obslike.purpose;
+        if(not obslike.function.empty()) metadata[key + "::function"] = obslike.function;
+        if(not obslike.type.empty())     metadata[key + "::type"] = obslike.type;
+        if(not obslike.module.empty())   metadata[key + "::module"] = obslike.module;
+        if(obslike.subcaps.size() and obslike.subcaps.IsSequence())
+        {
+          std::stringstream subcaps;
+          subcaps << "[";
+          for (auto subcap = obslike.subcaps.begin(); subcap != obslike.subcaps.end(); ++subcap)
+            subcaps << *subcap << ",";
+          subcaps << "]";
+          metadata[key + "::subcaps"] = subcaps.str();
+
+        }
       }
 
       // Used rules and options
       const IniParser::ObservablesType &rules = boundIniFile->getRules();
-      for (IniParser::ObservablesType::const_iterator it =
-          rules.begin(); it != rules.end(); ++it)
+      for (IniParser::ObservableType rule : rules)
       {
         graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
         for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
@@ -2491,26 +2494,24 @@ namespace Gambit
           // Check only for enabled functors
           if (masterGraph[*vi]->status() == 2)
           {
-            if (matchesRules(masterGraph[*vi], Rule(*it)))
+            if (matchesRules(masterGraph[*vi], Rule(rule)))
             {
               str key = "Rules";
-              if(it->capability != "")
+              if(not rule.capability.empty())
               {
-                key += "::" + it->capability;
-                metadata[key + "::capability"] = it->capability;
+                key += "::" + rule.capability;
+                metadata[key + "::capability"] = rule.capability;
               }
-              if(it->function != "")
+              if(not rule.function.empty())
               {
-                if (it->capability == "") key += "::" + it->function;
-                metadata[key+"::function"] = it->function;
+                if (not rule.capability.empty()) key += "::" + rule.function;
+                metadata[key+"::function"] = rule.function;
               }
-              if(it->module != "")     metadata[key+"::module"] = it->module;
-              if(it->type != "")       metadata[key+"::type"] = it->type;
-              if(it->backend != "")    metadata[key+"::backend"] = it->backend;
-              if(it->version != "")    metadata[key+"::version"] = it->version;
-              if(it->options.getNames().size()) it->options.toMap(metadata, key+"::options");
-
-
+              if(not rule.module.empty())     metadata[key+"::module"] = rule.module;
+              if(not rule.type.empty())       metadata[key+"::type"] = rule.type;
+              if(not rule.backend.empty())    metadata[key+"::backend"] = rule.backend;
+              if(not rule.version.empty())    metadata[key+"::version"] = rule.version;
+              if(rule.options.getNames().size()) rule.options.toMap(metadata, key+"::options");
             }
           }
         }

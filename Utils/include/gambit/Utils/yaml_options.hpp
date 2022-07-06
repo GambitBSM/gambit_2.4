@@ -155,7 +155,7 @@ namespace Gambit
         if (getNode(key).IsScalar())
         {
           return {getValue<TYPE>(key)};
-        } 
+        }
         else
         {
           return getValue<std::vector<TYPE>>(key);
@@ -278,32 +278,32 @@ namespace Gambit
       void toMap(map_str_str& map, str header = "") const
       {
         str head = header;
-        if(head != "") head += "::";
+        if(not head.empty()) head += "::";
 
-        for (YAML::const_iterator it = begin(); it != end(); it++)
+        for(auto node: *this)
         {
           str key;
-          if(it->first.IsScalar())
-            key = it->first.as<str>();
-          else if(it->first.IsSequence())
+          if(node.first.IsScalar())
+            key = node.first.as<str>();
+          else if(node.first.IsSequence())
           {
             key = "[";
-            for(size_t j=0; j<it->first.size()-1; ++j)
-              key += it->first[j].as<str>() + ",";
-            key += it->first[it->first.size()-1].as<str>() + "]";
+            for(size_t j=0; j<node.first.size()-1; ++j)
+              key += node.first[j].as<str>() + ",";
+            key += node.first[node.first.size()-1].as<str>() + "]";
           }
-          if(it->second.IsScalar())
-            map[head + key] = it->second.as<str>();
-          else if(it->second.IsMap())
-            Options(it->second).toMap(map, head + key);
-          else if(it->second.IsSequence())
+          if(node.second.IsScalar())
+            map[head + key] = node.second.as<str>();
+          else if(node.second.IsMap())
+            Options(node.second).toMap(map, head + key);
+          else if(node.second.IsSequence())
           {
             str val;
-            for(size_t j=0; j<it->second.size()-1; ++j)
+            for(size_t j=0; j<node.second.size()-1; ++j)
             {
-              val += it->second[j].as<str>() + ", "; 
+              val += node.second[j].as<str>() + ", ";
             }
-            val += it->second[it->second.size()-1].as<str>();
+            val += node.second[node.second.size()-1].as<str>();
             map[head + key] = val;
           }
           else
@@ -313,6 +313,7 @@ namespace Gambit
             utils_error().raise(LOCAL_INFO,os.str());
           }
         }
+
       }
 
     private:
