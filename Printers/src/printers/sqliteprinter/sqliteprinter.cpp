@@ -49,7 +49,8 @@ namespace Gambit
     , mpiSize(1)
     , primary_printer(NULL)
     , column_record()
-    , next_metadataID(0)
+    , lastMetadataID(0)
+    , lastPointID(nullpoint)
     , max_buffer_length(options.getValueOrDef<std::size_t>(1,"buffer_length"))
     , buffer_info()
     , buffer_header()
@@ -207,8 +208,8 @@ namespace Gambit
             colcount=0;
             while ((rc = sqlite3_step(stmt2)) == SQLITE_ROW)
             {
-                next_metadataID = sqlite3_column_int64(stmt2, 0);
-                next_metadataID++;
+                lastMetadataID = sqlite3_column_int64(stmt2, 0);
+                lastMetadataID++;
                 colcount++;
                 if(colcount>1)
                 {
@@ -252,6 +253,8 @@ namespace Gambit
         // This is needed by e.g. MultiNest to delete old weights and replace them
         // with new ones.
 
+        lastPointID = nullpoint;
+
         // Primary printers aren't allowed to delete stuff unless 'force' is set to true
         if((is_auxilliary_printer() or force) and (buffer_header.size()>0))
         {
@@ -289,14 +292,14 @@ namespace Gambit
         ensure_column_exists(get_metadata_table_name(), key_value.first, col_type);
       }
 
-      // Now add date
+      // Now add data
       sql << " INSERT INTO " << get_metadata_table_name() <<" (\nmetadataID,\n";
       for(auto col_name_it=metadata.begin(); col_name_it!=metadata.end(); ++col_name_it)
       {
           sql<<"`"<< col_name_it->first <<"`"<<comma_unless_last(col_name_it,metadata)<<"\n";
       }
       sql << ") VALUES (\n";
-      size_t metadataID = next_metadataID;
+      size_t metadataID = lastMetadataID;
       sql << metadataID << ",";
       for(auto row_it=metadata.begin(); row_it!=metadata.end(); ++row_it)
       {
@@ -326,8 +329,35 @@ namespace Gambit
 
     void SQLitePrinter::finalise(bool /*abnormal*/)
     {
-        // Dump buffer to disk. Nothing special needed for early shutdown.
-        dump_buffer();
+      // Dump buffer to disk. Nothing special needed for early shutdown.
+      dump_buffer();
+
+      // Add last point ID to metadata
+      std::stringstream ssPPID;
+      ssPPID << lastPointID;
+
+      std::stringstream sql;
+      ensure_column_exists(get_metadata_table_name(), "lastPointID", "MEDIUMTEXT");
+      sql << " UPDATE " << get_metadata_table_name() << " SET lastPointID = \"" << ssPPID.str() << "\" WHERE metadataID = " << lastMetadataID << ";\n";
+
+      /* Execute SQL statement */
+      int rc;
+      char *zErrMsg = 0;
+      // Need allow_fail=true for this case
+      rc = submit_sql(LOCAL_INFO, sql.str(), true, NULL, NULL, &zErrMsg);
+
+      if( rc != SQLITE_OK )
+      {
+        std::stringstream err;
+        err << "Failed to add metadata to output SQL table! The SQL error was: " << zErrMsg << std::endl;
+//#ifdef SQL_DEBUG
+        err << "The attempted SQL statement was:"<<std::endl;
+        err << sql.str() << std::endl;
+//#endif
+        sqlite3_free(zErrMsg);
+        printer_error().raise(LOCAL_INFO,err.str());
+      }
+
     }
 
     void SQLitePrinter::flush()
@@ -487,6 +517,9 @@ namespace Gambit
     {
         // Get the pairID for this rank/pointID combination
         std::size_t rowID = pairfunc(mpirank,pointID);
+
+        // Last point ID
+        lastPointID = PPIDpair(pointID,mpirank);
 
         // Make sure we have a record of this column existing in the output table
         // Create it if needed.

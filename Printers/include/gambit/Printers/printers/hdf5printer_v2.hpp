@@ -234,7 +234,7 @@ namespace Gambit
 
              return new_dset_size;
          }
-        
+
          /// Write a vector of data to disk at the target position
          std::size_t write_vector(const hid_t loc_id, const std::vector<T>& data, const std::size_t target_pos, const bool force=false)
          {
@@ -1200,7 +1200,7 @@ namespace Gambit
 
       public:
 
-        /// Constructor  
+        /// Constructor
         HDF5MasterBuffer(const std::string& filename, const std::string& groupname, const std::string& metadata_groupname, const bool sync, const std::size_t buffer_length
 #ifdef WITH_MPI
           , GMPI::Comm& comm
@@ -1271,7 +1271,7 @@ namespace Gambit
         void flush();
 
         /// Print metadata directly to disk
-        void print_metadata(std::map<std::string,std::string>);
+        void print_metadata(std::map<std::string,std::string>, bool);
 
         #ifdef WITH_MPI
         /// Gather all buffer data on a certain rank process
@@ -1375,7 +1375,7 @@ namespace Gambit
 
         /// Retrieve the metadata_id where the metadata should be created in the HDF5 file
         hid_t get_metadata_id();
- 
+
         /// Get next available position in the synchronised output datasets
         std::size_t get_next_free_position();
 
@@ -1569,6 +1569,9 @@ namespace Gambit
         std::size_t myRank;
         std::size_t mpiSize;
 
+        /// Last PPID pair printed
+        PPIDpair lastPointID;
+
 #ifdef WITH_MPI
         /// Gambit MPI communicator context for use within the hdf5 printer system
         GMPI::Comm myComm; // initially attaches to MPI_COMM_WORLD
@@ -1626,6 +1629,9 @@ namespace Gambit
         {
             // Forward the print information on to the master buffer manager object
             buffermaster.schedule_print<T>(value,label,mpirank,pointID);
+
+            // Update the last printed point ID
+            lastPointID = PPIDpair(pointID, mpirank);
         }
 
         template<typename T>

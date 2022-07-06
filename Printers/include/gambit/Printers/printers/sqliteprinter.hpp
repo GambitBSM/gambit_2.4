@@ -108,7 +108,10 @@ namespace Gambit
         std::map<std::string,std::string,Utils::ci_less> column_record;
 
         // Last metadata ID
-        std::size_t next_metadataID;
+        std::size_t lastMetadataID;
+
+        // Last point ID
+        PPIDpair lastPointID;
 
         /// @{ Buffer variable
 
