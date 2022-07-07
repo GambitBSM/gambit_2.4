@@ -182,8 +182,12 @@ Rules:
 
   - capability: pbar_logLike
     options:
+<<<<<<< HEAD
       function: lnL_pbarAMS02
       propagation_model: run1
+=======
+      PropagationModel: run1
+>>>>>>> efd3ffdbfa59b3bd177e725d32ce93986a770d8e
 
   # Relic density likelihood
   - capability: lnL_oh2

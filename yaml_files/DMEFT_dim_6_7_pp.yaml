@@ -71,7 +71,7 @@ Parameters:
     gamma:
       prior_type: none
 
-  #nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_postprocessing.yaml
+  nuclear_params_ChPT_sigmapiN: !import nuclear_params_ChPT_sigmapiN_postprocessing.yaml
 
 Priors:
 
@@ -100,7 +100,7 @@ Scanner:
       permit_discard_old_likes: true
       printer:
         type: hdf5
-        file: "~/Downloads/DMEFT_dim_6_7_capped_hard.hdf5"
+        file: "<path/to/sample>/DMEFT_dim_6_7_capped_hard.hdf5"
         group: "/DMEFT"
 
 ObsLikes:
