@@ -135,7 +135,7 @@ ObsLikes:
   - capability: IC79_loglike
     purpose: LogLike
 
-  - capability: del_chi2
+  - capability: pbar_logLike
     purpose: LogLike
 
   # # Cosmo likelihoods and observables
@@ -180,8 +180,9 @@ ObsLikes:
     
 Rules:
 
-  - capability: del_chi2
+  - capability: pbar_logLike
     options:
+      function: lnL_pbarAMS02
       propagation_model: run1
 
   # Relic density likelihood

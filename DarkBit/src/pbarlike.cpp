@@ -56,9 +56,9 @@ namespace Gambit
         }
         result = 0;
         }
-        void DelChi2 (double& result)
+        void lnL_pbarAMS02 (double& result)
         {
-        using namespace Pipes::DelChi2;
+        using namespace Pipes::lnL_pbarAMS02;
         double dummy = 0;
         LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
         double rho0 = LocalHaloParameters.rho0;     

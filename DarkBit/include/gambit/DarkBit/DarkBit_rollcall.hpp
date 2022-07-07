@@ -918,9 +918,9 @@ START_MODULE
   //   #undef FUNCTION
   // #undef CAPABILITY
 
-  #define CAPABILITY del_chi2
+  #define CAPABILITY pbar_logLike
   START_CAPABILITY
-    #define FUNCTION DelChi2
+    #define FUNCTION lnL_pbarAMS02
     START_FUNCTION(double)
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
