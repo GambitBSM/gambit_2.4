@@ -71,7 +71,7 @@ Parameters:
     gamma:
       prior_type: none
 
-  #nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_postprocessing.yaml
+  nuclear_params_ChPT_sigmapiN: !import nuclear_params_ChPT_sigmapiN_postprocessing.yaml
 
 Priors:
 
@@ -79,12 +79,12 @@ Priors:
 
 Printer:
 
-  printer: cout
-  #options:
-    #output_file: "DMEFT_pp.hdf5"
-    #delete_file_on_restart: false
-    #buffer_length: 100
-    #group: "/DMEFT"
+  printer: hdf5
+  options:
+    output_file: "DMEFT_pp.hdf5"
+    delete_file_on_restart: false
+    buffer_length: 100
+    group: "/DMEFT"
 
 Scanner:
 
@@ -100,7 +100,7 @@ Scanner:
       permit_discard_old_likes: true
       reader:
         type: hdf5
-        file: "/scratc/work/sowmiya/DMEFT.hdf5"
+        file: "/scratch/work/sowmiya/DMEFT.hdf5"
         group: "/DMEFT"
 
 ObsLikes:
@@ -110,8 +110,11 @@ ObsLikes:
     purpose: LogLike
 
 Rules:
-  - capability: del_chi2
+
+- capability: del_chi2
     function: DelChi2
+    options:
+      PropagationModel: run1
     dependencies:
       - capability: RD_fraction
         function: RD_fraction_one
@@ -130,7 +133,7 @@ Logger:
     [Default] : "default.log"
     [DecayBit] : "DecayBit.log"
     [PrecisionBit] : "PrecisionBit.log"
-    [ColliderBit] : "ColliderBit.log"
+   # [ColliderBit] : "ColliderBit.log"
     [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
 

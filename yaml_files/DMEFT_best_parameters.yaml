@@ -182,7 +182,7 @@ Rules:
 
   - capability: del_chi2
     options:
-      propagation_model: run1
+      PropagationModel: run1
 
   # Relic density likelihood
   - capability: lnL_oh2
