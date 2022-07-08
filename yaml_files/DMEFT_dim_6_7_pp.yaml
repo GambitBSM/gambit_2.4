@@ -71,7 +71,7 @@ Parameters:
     gamma:
       prior_type: none
 
-  nuclear_params_ChPT_sigmapiN: !import nuclear_params_ChPT_sigmapiN_postprocessing.yaml
+  # nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_postprocessing.yaml
 
 Priors:
 
@@ -79,6 +79,7 @@ Priors:
 
 Printer:
 
+  # printer : cout
   printer: hdf5
   options:
     output_file: "DMEFT_pp.hdf5"
@@ -98,9 +99,9 @@ Scanner:
       reweighted_like: LogLike
       add_to_like: [LogLike]
       permit_discard_old_likes: true
-      printer:
+      reader:
         type: hdf5
-        file: "<path/to/sample>/DMEFT_dim_6_7_capped_hard.hdf5"
+        file: "/scratch/work/sowmiya//DMEFTreduced.hdf5"
         group: "/DMEFT"
 
 ObsLikes:
@@ -112,6 +113,8 @@ ObsLikes:
 Rules:
   - capability: pbar_logLike
     function: lnL_pbarAMS02
+    options : 
+      PropagationModel : run1
     dependencies:
       - capability: RD_fraction
         function: RD_fraction_one
@@ -121,8 +124,10 @@ Rules:
     function: TH_ProcessCatalog_DMEFT
     dependencies:
       - capability: decay_rates
-        function: all_decays_from_SLHA
+        function: all_decays
         module: DecayBit
+        # option :
+        #   SLHA_decay_filenames : 
 Logger:
 
   redirection:
@@ -146,7 +151,7 @@ KeyValues:
     print_invalid_points: false
     debug: false
 
-  default_output_path: "runs/DMEFT_pp"
+  default_output_path: "/scratch/work/sowmiya/runs/DMEFT_pp"
 
   debug: false
   print_timing_data: false
