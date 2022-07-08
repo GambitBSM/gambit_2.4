@@ -68,10 +68,10 @@ namespace Gambit
         double DM_mass = Dep::WIMP_properties->mass;
         TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DMbar_ID);
         map_str_dbl input;
-        double sv;
+        double sv=0;
         std::vector<std::string> fs;
         std::string finalStates;
-        double rate;
+        double rate=0;
         for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
         { 
             fs = it->finalStateIDs;
