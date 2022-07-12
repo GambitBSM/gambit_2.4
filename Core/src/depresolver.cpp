@@ -2401,7 +2401,7 @@ namespace Gambit
       if(unusedRules.size() > 0)
       {
         std::stringstream msg;
-        msg << "The following rules and options are not used in the current scan. Please remove them from  your yaml file to remove this warning." << endl;
+        msg << "The following rules and options are not used in the current scan. This will not affect the results of the scan, but if you wish to avoid this warning you must remove all unused rules and options from the yaml file." << endl;
         for(auto rule :unusedRules)
         {
           if(not rule.capability.empty()) msg << "  capability: " << rule.capability << endl;
