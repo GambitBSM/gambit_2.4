@@ -2279,6 +2279,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -2303,6 +2304,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
+      DOWNLOAD_COMMAND ""
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ""

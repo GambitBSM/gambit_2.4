@@ -278,7 +278,9 @@ class DRNet:
     def del_chi2(self,phi_CR, phi_DMCR):
         chi2_CR = self.chi2(phi_CR)
         chi2_DMCR = self.chi2(phi_DMCR)
-        del_chi2 = -2 * np.log( 1/len(self.pp) * np.sum(np.exp((chi2_CR - chi2_DMCR)/2),axis=-1) )
+        Delta_chi2 = np.clip(chi2_CR - chi2_DMCR,  -500,500)
+        print("Delta_chi2:",Delta_chi2)
+        del_chi2 = np.log( 1/len(self.pp) * np.sum(np.exp(Delta_chi2/2),axis=-1) )
         return del_chi2
 
 
