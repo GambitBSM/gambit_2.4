@@ -297,7 +297,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND sed ${dashi} -e "s#function[[:space:]]*loglike_proto(Cube,n_dim,nPar,context)[[:space:]]*$#function loglike_proto(Cube,n_dim,nPar,context) bind(c)#g"
                                    -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
                                    ${mn_subdir}/cwrapper.f90
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${mn_subdir} ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
+    BUILD_COMMAND cd ${mn_subdir} && ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
@@ -307,8 +307,8 @@ endif()
 set(name "multinest")
 set(ver "3.11")
 set(lib "libnest3")
-set(md5 "ebaf960c348592a1b6e3a50b3794c357")
-set(dl "https://github.com/farhanferoz/MultiNest/archive/4b3709c6d659adbd62c85e3e95ff7eeb6e6617af.tar.gz")
+set(md5 "1a7af4d9c73f16b0038876c3857c5ff8")
+set(dl "https://github.com/farhanferoz/MultiNest/archive/cc616c17ed440fbff8d35937997c86256ed4d744.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
 set(mn_subdir "${dir}/MultiNest_v${ver}")
 set(mnSO_LINK "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
@@ -326,7 +326,6 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch -N ${mn_subdir}/posterior.F90 -i ${PROJECT_SOURCE_DIR}/ScannerBit/patches/${name}/${ver}/posterior.F90.patch
     CONFIGURE_COMMAND sed ${dashi} -e "s#nested.o[[:space:]]*$#nested.o cwrapper.o#g"
                                    -e "s#-o[[:space:]]*\\(\\$\\)(LIBS)[[:space:]]*\\$@[[:space:]]*\\$^#-o \\$\\(LIBS\\)\\$@ \\$^ ${mnLAPACK}#g"
                                    -e "s#default:#.NOTPARALLEL:${nl}${nl}default:#"
@@ -337,7 +336,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND sed ${dashi} -e "s#function[[:space:]]*loglike_proto(Cube,n_dim,nPar,context)[[:space:]]*$#function loglike_proto(Cube,n_dim,nPar,context) bind(c)#g"
                                    -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
                                    ${mn_subdir}/cwrapper.f90
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${mn_subdir} ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
+    BUILD_COMMAND cd ${mn_subdir} && ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
