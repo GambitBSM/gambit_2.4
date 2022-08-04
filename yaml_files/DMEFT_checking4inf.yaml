@@ -38,28 +38,27 @@ Parameters:
       BT10s: 0.0
       BT10up: 3.0
       Bc5m: -0.00051
-      Deltas: -0.034992158660217494
       DeltauDeltad: 0.44
       gA: 1.2756
       gTd: -0.204
-      gTs: -0.02699901132924156
       gTu: 0.784
       mG: 0.836
       mun: -1.913
       mup: 2.793
       mus: -0.036
-      rs2: -0.11500257772900023
-      sigmapiN: 0.05003942421492709
+      rs2: -0.10887482307124716
+      sigmapiN: 0.08496750768666844
       sigmas: 0.0529
+      Deltas: -0.05604329942511418
+      gTs: 0.01796701488350072
     DMEFT:
       C51: 0.0
       C52: 0.0
-      C61: 4.069774598324735e-09
-      C62: 0.2778534562729772
-      C63: -0.0514396866765523
-      C64: -0.024981018346489983
+      C61: 9.996014536871464e-05
+      C62: 0.00023861025942035553
+      C63: -0.7172520335716169
+      C64: 0.006271589476255545
       C71: 0.0
-      C710: 0.0
       C72: 0.0
       C73: 0.0
       C74: 0.0
@@ -68,19 +67,20 @@ Parameters:
       C77: 0.0
       C78: 0.0
       C79: 0.0
-      Lambda: 1121.1851622120087
-      mchi: 497.9272851918649
-      mtrunIN: 162.8654470077211
+      C710: 0.0
+      Lambda: 891.1276279487844
+      mchi: 32.10588889261069
+      mtrunIN: 161.0496103001669
     Halo_gNFW_rho0:
       alpha: 1.0
       beta: 3.0
       gamma: 1.0
       r_sun: 8.5
-      rho0: 0.3934095416
+      rho0: 0.6112927462632074
       rs: 20.0
-      v0: 240.00783630161663
-      vesc: 528.0028482
-      vrot: 240.00783630161663
+      v0: 234.68861342597083
+      vesc: 580.789968257641
+      vrot: 234.68861342597083
 Priors:
 
   # All the priors are simple for this scan, so they are specified directly in the Parameters section.
@@ -182,12 +182,8 @@ Rules:
 
   - capability: pbar_logLike
     options:
-<<<<<<< HEAD
       function: lnL_pbarAMS02
-      propagation_model: run1
-=======
       PropagationModel: run1
->>>>>>> efd3ffdbfa59b3bd177e725d32ce93986a770d8e
 
   # Relic density likelihood
   - capability: lnL_oh2

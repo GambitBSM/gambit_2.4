@@ -79,7 +79,6 @@ Priors:
 
 Printer:
 
-  # printer : cout
   printer: hdf5
   options:
     output_file: "DMEFT_pp.hdf5"
@@ -101,7 +100,7 @@ Scanner:
       permit_discard_old_likes: true
       reader:
         type: hdf5
-        file: "/scratch/work/sowmiya//DMEFTreduced.hdf5"
+        file: "<path_to_old_samples>/DMEFT.hdf5"
         group: "/DMEFT"
 
 ObsLikes:
@@ -126,8 +125,7 @@ Rules:
       - capability: decay_rates
         function: all_decays
         module: DecayBit
-        # option :
-        #   SLHA_decay_filenames : 
+        
 Logger:
 
   redirection:
@@ -151,7 +149,7 @@ KeyValues:
     print_invalid_points: false
     debug: false
 
-  default_output_path: "/scratch/work/sowmiya/runs/DMEFT_pp"
+  default_output_path: "runs/DMEFT_pp"
 
   debug: false
   print_timing_data: false
