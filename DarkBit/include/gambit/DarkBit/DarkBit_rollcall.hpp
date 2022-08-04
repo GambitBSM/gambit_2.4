@@ -319,6 +319,11 @@ START_MODULE
         DEPENDENCY(T_cmb, double)
     #undef FUNCTION
 
+    /// Get the RD from previous GAMBIT output via the postprocessor scanner
+    #define FUNCTION RD_from_postprocessor
+      START_FUNCTION(double)
+    #undef FUNCTION
+
 // TODO: Temporarily disabled until project is ready
 /*
     #define FUNCTION RD_oh2_SuperRenormHP
