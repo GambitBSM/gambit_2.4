@@ -97,7 +97,7 @@ namespace Gambit
         /// Retrieve/Set MPI rank (setting is useful for e.g. the postprocessor to re-print points from other ranks)
         int  getRank() {return rank;}
         void setRank(int r) {rank = r;}
-        
+
         // Retrieve and set the state of the 'printUnitcube' flag
         bool& get_printUnitcube() { return printUnitcube; }
         void set_printUnitcube(const bool& rflag) { printUnitcube = rflag; }

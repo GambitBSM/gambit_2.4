@@ -1076,7 +1076,7 @@ namespace Gambit
         mpiranks_valid.open_dataset(location_id);
         pointids      .open_dataset(location_id);
         pointids_valid.open_dataset(location_id);
-        
+
         std::size_t dset_length = mpiranks.get_dset_length();
         std::size_t Nchunks   = dset_length / HDF5_CHUNKLENGTH;
         std::size_t remainder = dset_length % HDF5_CHUNKLENGTH;
@@ -1171,7 +1171,6 @@ namespace Gambit
       set_resumescanID(resumescanID); //Set the last entry as resume scanID
     }
     
- 
  
     /// Report whether all the buffers are empty
     bool HDF5MasterBuffer::all_buffers_empty()
