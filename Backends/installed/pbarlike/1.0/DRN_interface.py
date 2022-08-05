@@ -4,7 +4,7 @@ from preamble import *
 #%% Helper functions
 
 class DRNet:
-    def __init__(self,prevent_extrapolation,propagation_model,propagation_parameters):
+    def __init__(self,propagation_parameters,propagation_model,prevent_extrapolation):
         self.pe = prevent_extrapolation
         model_options = ['run1', 'DIFF.BRK', 'INJ.BRK+vA']
         solar_modulation_options = {'run1':self.solar_mod_run1, 'DIFF.BRK':self.solar_mod_brk, 'INJ.BRK+vA':self.solar_mod_brk}
@@ -14,13 +14,13 @@ class DRNet:
             self.solar_modulation = solar_modulation_options[self.propagation_model]
         else:
             print()
-            print('The propagation model "%s" is not provided in this tool. It will be set to default (DIFF.BRK).'%model_name)
+            print('The propagation model "%s" is not provided in this tool. It will be set to default (DIFF.BRK).'%propagation_model)
             self.propagation_model = 'DIFF.BRK'
         self.load_deps()
         self.load_pp_data()
         self.preprocessing_prop_params(propagation_parameters)
         self.phi_CR_LIS = self.CR_sim()
-        self.phi_CR   = self.solar_modulation[self.propagation_model](self.phi_CR_LIS) 
+        self.phi_CR   = self.solar_modulation(self.phi_CR_LIS) 
         print('\n The simulation tool has been initiated. \n')
 
     def load_deps(self):
@@ -277,7 +277,7 @@ class DRNet:
 
     def TOA_sim(self, phi_CR_LIS, phi_DM_LIS):
         phi_LIS = phi_CR_LIS + phi_DM_LIS
-        phi_DMCR = self.solar_modulation[self.propagation_model](phi_LIS) 
+        phi_DMCR = self.solar_modulation(phi_LIS) 
         return self.phi_CR, phi_DMCR
     
     def del_chi2(self,phi_CR, phi_DMCR):

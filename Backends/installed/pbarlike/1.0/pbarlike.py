@@ -27,15 +27,17 @@ def br_fr(inputs, sigma_v=1):
         bf[0,keys_to_location[i]] += factorized_bf.get(i,0)
     return bf
 
-def DRN_initialization(prevent_extrapolation= False,propagation_model='DIFF.BRK',propagation_parameters):
-    DRN = DRNet(prevent_extrapolation,propagation_model,propagation_parameters)
+def DRN_initialization(propagation_parameters,propagation_model='DIFF.BRK', prevent_extrapolation= False):
+    propagation_parameters = np.array(propagation_parameters)
+    print('\nPropagation model: ',DRN.propagation_model)
+    print(propagation_parameters,propagation_model,prevent_extrapolation)
+    DRN = DRNet(propagation_parameters,propagation_model,prevent_extrapolation)
     return DRN
     
 def py_pbar_logLike_DRN(DRN, DM_mass, brfr, sigma_v = 10**(-25.5228)):
     bf = br_fr(brfr,sigma_v)
     DRN.preprocessing_DMparams(DM_mass, bf, sigma_v)
     print('Normalized branching fractions: ',DRN.bf)
-    print('\nPropagation model: ',DRN.propagation_model)
     print('\n Rescaled cross-section: ', DRN.sv)
     phi_CR_LIS, phi_DM_LIS = DRN.LIS_sim()
     phi_CR, phi_DMCR = DRN.TOA_sim(phi_CR_LIS, phi_DM_LIS)

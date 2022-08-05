@@ -2274,7 +2274,7 @@ endif()
 set(name "SimplePythonBackend")
 set(ver "1.0")
 set(lib "libSimplePythonBackend")
-set(dl "https://github.com/GambitBSM/gambit/blob/simple_python_backend/Backends/installed/SimplePythonBackend/1.0/SimplePythonBackend_1_0.tar.gz")
+set(dl "https://github.com/sowmiya-balan/AMS02antiprotonLikelihood/blob/main/SimplePythonBackend_1_0.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -2294,7 +2294,8 @@ endif()
 set(name "pbarlike")
 set(ver "1.0")
 set(lib "libpbarlike")
-# set(dl "https://github.com/GambitBSM/gambit/blob/simple_python_backend/Backends/installed/pbarlike/1.0/pbarlike_1_0.tar.gz")
+set(dl "https://github.com/sowmiya-balan/AMS02antiprotonLikelihood/archive/refs/heads/main.zip")
+set(md5 "b1634678385c8b694e9d0f2676bd0da8")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(required_modules "numpy,tensorflow,iminuit")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
@@ -2304,7 +2305,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ""
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ""
