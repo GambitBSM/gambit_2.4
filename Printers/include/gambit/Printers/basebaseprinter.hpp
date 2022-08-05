@@ -97,7 +97,7 @@ namespace Gambit
         /// Retrieve/Set MPI rank (setting is useful for e.g. the postprocessor to re-print points from other ranks)
         int  getRank() {return rank;}
         void setRank(int r) {rank = r;}
-
+        
         // Retrieve and set the state of the 'printUnitcube' flag
         bool& get_printUnitcube() { return printUnitcube; }
         void set_printUnitcube(const bool& rflag) { printUnitcube = rflag; }
@@ -114,6 +114,10 @@ namespace Gambit
 
         bool get_resume() { return resume; }
         void set_resume(bool rflag) { resume = rflag; }
+        
+        // Get the scan ID from a resumed run.
+        int prevscanID = -1;
+        int get_prevscanID() {return prevscanID;};
 
         /// Signal printer that scan is finished, and final output needs to be performed
         virtual void finalise(bool abnormal=false) = 0;

@@ -1337,7 +1337,10 @@ namespace Gambit
 
         /// Search the existing output and find the highest used pointIDs for each rank
         std::map<ulong, ulong> get_highest_PPIDs(const int mpisize);
-
+        
+        /// TODO: Chris Chang. A function to set the scanID
+        int previousscanID();
+        
         /// Open (and lock) output HDF5 file and obtain HDF5 handles
         void lock_and_open_file(const char access_type='w'); // read/write allowed by default
 
@@ -1477,6 +1480,9 @@ namespace Gambit
 
         /// Report length of buffer for HDF5 output
         std::size_t get_buffer_length();
+        
+        /// TODO: Chris Chang. My Attempt at adding a previous scanID. I want to call this from within the HDF5 printer
+        void set_resumescanID(int scanID) {prevscanID = scanID;}
 
         /// Base class virtual function overloads
         /// (the public virtual interface)
@@ -1564,7 +1570,10 @@ namespace Gambit
 
         /// Search the existing output and find the highest used pointIDs for each rank
         std::map<ulong, ulong> get_highest_PPIDs_from_HDF5();
-
+        
+        /// TODO: Chris Chang. A function to set the scanID
+        void previousscanID();
+        
         /// Check all datasets in a group for length inconsistencies
         /// and correct them if possible
         void check_consistency(bool attempt_repair);

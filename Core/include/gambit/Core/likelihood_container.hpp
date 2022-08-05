@@ -30,6 +30,10 @@
 ///          (anders.kvellestad@fys.uio.no
 ///  \date 2021 Feb
 ///
+///  \author Chris Chang
+///          (christopher.chang@uqconnect.edu.au)
+///  \date 2022 Aug
+///
 ///  *********************************************
 
 #ifndef __likelihood_container_hpp__
@@ -76,7 +80,7 @@ namespace Gambit
 
       /// Switch to print or not print invalid points to the output file
       bool print_invalid_points;
-
+      
       /// Disable printing for points with log likelihood below some value
       double disable_print_for_lnlike_below;
 
@@ -104,6 +108,13 @@ namespace Gambit
 
       /// Invalid Code printing ID
       const int invalidcodeID;
+      
+      /// scan ID
+      const int scancodeID;
+      int scancode;
+      
+      /// Switch to print scanID to the output file
+      bool print_scanID;
 
       /// Run in likelihood debug mode?
       bool debug;
@@ -123,6 +134,9 @@ namespace Gambit
 
       /// Use this to modify the total likelihood function before passing it to the scanner
       double purposeModifier(double lnlike);
+      
+      /// Set the scanID.
+      void set_scanID(IniParser::IniFile);
   };
 
   // Register the Likelihood Container as an available target function for ScannerBit.  The first argument

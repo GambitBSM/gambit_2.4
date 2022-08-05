@@ -1076,7 +1076,7 @@ namespace Gambit
         mpiranks_valid.open_dataset(location_id);
         pointids      .open_dataset(location_id);
         pointids_valid.open_dataset(location_id);
-
+        
         std::size_t dset_length = mpiranks.get_dset_length();
         std::size_t Nchunks   = dset_length / HDF5_CHUNKLENGTH;
         std::size_t remainder = dset_length % HDF5_CHUNKLENGTH;
@@ -1139,6 +1139,39 @@ namespace Gambit
 
         return highests;
     }
+ 
+    // Helper function to find the scanID of the last point printed to the previous output.
+    int HDF5MasterBuffer::previousscanID()
+    {
+      lock_and_open_file('r');
+      HDF5DataSet<int>     scanids      ("scanID");
+      
+      try {scanids.open_dataset(location_id);}
+      catch (...)
+      {
+        //If it fails to open, it probably doesn't exist in the output file. Return the default value.
+        return -1;
+      }
+      
+      std::size_t dset_length = scanids.get_dset_length();
+      std::size_t Nchunks   = dset_length / HDF5_CHUNKLENGTH;
+      std::size_t length = HDF5_CHUNKLENGTH;
+      
+      std::vector<int> resumescanID = scanids.get_chunk((Nchunks-1) * HDF5_CHUNKLENGTH,length);
+      scanids.close_dataset();
+      
+      close_and_unlock_file();
+      return resumescanID.back();
+    }
+ 
+    // Helper function to find the scanID of the last point printed to the previous output.
+    void HDF5Printer2::previousscanID()
+    {
+      int resumescanID = buffermaster.previousscanID();
+      set_resumescanID(resumescanID); //Set the last entry as resume scanID
+    }
+    
+ 
  
     /// Report whether all the buffers are empty
     bool HDF5MasterBuffer::all_buffers_empty()
@@ -1496,6 +1529,10 @@ namespace Gambit
                         }
 
                         logger() << LogTags::info << "Extracted highest pointID calculated on rank "<<myRank<<" process during previous scan (it was "<< highests <<") from combined output. Operation took "<<std::chrono::duration_cast<std::chrono::seconds>(time_taken).count()<<" seconds." << EOM;
+
+
+                        // Get the scanID from the resumed scan.
+                        previousscanID();
 
                     }
                     else

@@ -30,6 +30,10 @@
 ///          (anders.kvellestad@fys.uio.no
 ///  \date 2021 Feb
 ///
+///  \author Chris Chang
+///          (christopher.chang@uqconnect.edu.au)
+///  \date 2022 Aug
+///
 ///  *********************************************
 
 #include "gambit/Core/likelihood_container.hpp"
@@ -68,6 +72,8 @@ namespace Gambit
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
     invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
+    scancodeID(Printers::get_main_param_id("scanID")),
+    print_scanID(iniFile.getValueOrDef<bool>(true, "print_scanID")),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -81,6 +87,10 @@ namespace Gambit
     }
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
+    
+    // Set the ScanID
+    set_scanID(iniFile);
+    
     // Find subset of vertices that match requested purpose
     auto all_vertices = dependencyResolver.getObsLikeOrder();
     for (auto it = all_vertices.begin(); it != all_vertices.end(); ++it)
@@ -95,6 +105,27 @@ namespace Gambit
         aux_vertices.push_back(std::move(*it));
       }
     }
+  }
+
+  /// Work out what the scanID should be and set it
+  void Likelihood_Container::set_scanID(IniParser::IniFile inifile)
+  {
+    // Get the scanID from the yaml node.
+    int code = inifile.getValueOrDef<int>(-1, "scanID");
+    
+    // If code is supplied by user, use that
+    if (code != -1)
+    {
+      scancode = code;
+    // If resuming a previous scan, increment the scanID by 1. TODO: This is currently only applicable for the HDF5 printer.
+    } else if (printer.get_prevscanID() != -1) {
+      scancode = printer.get_prevscanID() + 1;
+    // Otherwise set as a default value, system time in milliseconds as an integer
+    } else {
+      int timenow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      scancode = timenow;
+    }
+    
   }
 
   /// Do the prior transformation and populate the parameter map
@@ -156,6 +187,12 @@ namespace Gambit
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
     logger() << LogTags::core << LogTags::debug << "Entered Likelihood_Container::main" << EOM;
+
+    // Print the scanID
+    if (print_scanID)
+    {
+      printer.print(scancode, "scanID", scancodeID, printer.getRank(), getPtID());
+    }
 
     double lnlike = 0;
     bool point_invalidated = false;
@@ -284,7 +321,7 @@ namespace Gambit
           compute_aux = false;
           point_invalidated = true;
           int rankinv = printer.getRank();
-          // If print_ivalid_points is false disable the printer
+          // If print_invalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
           printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());
