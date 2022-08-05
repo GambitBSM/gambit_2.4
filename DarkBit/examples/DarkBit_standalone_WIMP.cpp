@@ -66,7 +66,7 @@ void dump_array_to_file(const std::string & filename, const
 }
 
 
-void pybeCheck(double mWIMP, double sv, std::vector<double> brList)
+void SimplePythonBackendTest(double mWIMP, double sv, std::vector<double> brList)
 {
   DarkMatter_ID_WIMP.reset_and_calculate();
   WIMP_properties_WIMP.setOption<double>("mWIMP", mWIMP);
@@ -75,14 +75,14 @@ void pybeCheck(double mWIMP, double sv, std::vector<double> brList)
   TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
-  printPC.reset_and_calculate();
+  printProcessCatalog.reset_and_calculate();
   double mass = TH_ProcessCatalog_WIMP(0).getParticleProperty("WIMP").mass;
   doublingMass.setOption<double>("mv",mass);
   doublingMass.reset_and_calculate();
   std::cout << "Doubled DM mass: " << doublingMass(0) << std::endl;  
 }
 
-void pbarlikeCheck(double mWIMP, double sv, std::vector<double> brList,std::string pm)
+void pbarlikeTest(double mWIMP, double sv, std::vector<double> brList,std::string pm)
 {
   DarkMatter_ID_WIMP.reset_and_calculate();
   WIMP_properties_WIMP.setOption<double>("mWIMP", mWIMP);
@@ -91,10 +91,9 @@ void pbarlikeCheck(double mWIMP, double sv, std::vector<double> brList,std::stri
   TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
-  printPC.reset_and_calculate();
-  DelChi2.setOption<std::string>("propagation_model",pm);
-  DelChi2.reset_and_calculate();
-  // amsLogLikelihood.reset_and_calculate();
+  printProcessCatalog.reset_and_calculate();
+  lnL_pbarAMS02.setOption<std::string>("PropagationModel",pm);
+  lnL_pbarAMS02.reset_and_calculate();
   std::cout<< "The End" << std::endl;
 } 
 
@@ -148,39 +147,6 @@ namespace Gambit
 {
   namespace DarkBit
   {
-  
-
-    // void delChi2 (double& result)
-    // {
-    //   using namespace Pipes::delChi2;
-    //   double dummy = 0;
-    //   LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
-    //   double rho0 = LocalHaloParameters.rho0;     
-    //   double rho0_eff = (*Dep::RD_fraction)*rho0/0.43;
-    //   std::string DM_ID = Dep::WIMP_properties->name;
-    //   double DM_mass = Dep::WIMP_properties->mass;
-    //   TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DM_ID);
-    //   map_str_dbl input;
-    //   double sv;
-    //   std::vector<std::string> fs;
-    //   std::string finalStates;
-    //   double rate;
-    //   for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
-    //   { 
-    //       fs = it->finalStateIDs;
-    //       finalStates = fs[0] + " " + fs[1];
-    //       rate = it->genRate->bind("v")->eval(0.);
-    //       rate = rate * rho0_eff * rho0_eff;
-    //       input.insert({finalStates, rate});
-    //       sv += rate;
-    //   }
-    //   std::string propagation_model = runOptions->getValue<std::string>("propagation_model");
-    //   double del_chi2 = BEreq::pbar_del_chi2(DM_mass, input, sv, propagation_model);
-    //   std::cout << "Delta chi^2 (preference of DM signal over background only) for the above specified model and channel: " << std::endl;
-    //   std::cout << del_chi2 << std::endl;
-    //   result = del_chi2;
-    // }
-
     void TH_ProcessCatalog_WIMP(TH_ProcessCatalog& result)
     {
       using namespace Pipes::TH_ProcessCatalog_WIMP;
@@ -356,7 +322,8 @@ int main(int argc, char* argv[])
     std::cout << "      in <sigma v> / m_WIMP parameter space." << std::endl;
     std::cout << "  7: Outputs tables of direct detection likelihoods in sigma / m_WIMP parameter" << std::endl;
     std::cout << "      space." << std::endl;
-    std::cout << "  8: Check" << std::endl;
+    std::cout << "  8: Outputs basic attributes of the an example WIMP Process Catalog using python backend functions defined in 'SimplePythonBackend' " << std::endl;
+    std::cout << "  9: Outputs antiproton likelihood calculated using simulted flux from DarkRayNet and AMS02 data using the python backend 'pbarlike' " << std::endl;
     std::cout << "  >=10: Outputs spectra of gamma rays, positrons, anti-protons and anti-deuterons from" << std::endl;
     std::cout << "        WIMP annihilation to phi phi_2. The mode value is m_phi while m_phi_2=100 GeV." << std::endl;
     std::cout << "        The output filenames are dPhi_dE_FCMC_(spectrum)_(mode).dat." << std::endl;
@@ -388,22 +355,22 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
-    // if (not Backends::backendInfo().works["pbarlike1.0"]) backend_error().raise(LOCAL_INFO, "pbarlike1.0 is missing!");
+    if (not Backends::backendInfo().works["pbarlike1.0"]) backend_error().raise(LOCAL_INFO, "pbarlike1.0 is missing!");
+    if (not Backends::backendInfo().works["SimplePythonBackend1.0"]) backend_error().raise(LOCAL_INFO, "SimplePythonBackend1.0 is missing!");
+
 
     // ---- Initialize models ----
 
-    doublingMass.resolveBackendReq(&Backends::pybe_1_0::Functown::c_add);
-    printPC.resolveDependency(&WIMP_properties_WIMP);
-    printPC.resolveDependency(&TH_ProcessCatalog_WIMP);
-    printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_str);
-    printPC.resolveBackendReq(&Backends::pybe_1_0::Functown::c_print_num);
-    DelChi2.resolveDependency(&WIMP_properties_WIMP);
-    DelChi2.resolveDependency(&TH_ProcessCatalog_WIMP);
-    DelChi2.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_del_chi2);
-    DelChi2.resolveDependency(&ExtractLocalMaxwellianHalo);
-    DelChi2.resolveDependency(&RD_fraction_one);
-    // amsLogLikelihood.resolveDependency(&pbarFlux);
-    // amsLogLikelihood.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_chi2);
+    doublingMass.resolveBackendReq(&Backends::SimplePythonBackend_1_0::Functown::c_add);
+    printProcessCatalog.resolveDependency(&WIMP_properties_WIMP);
+    printProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
+    printProcessCatalog.resolveBackendReq(&Backends::SimplePythonBackend_1_0::Functown::c_print_str);
+    printProcessCatalog.resolveBackendReq(&Backends::SimplePythonBackend_1_0::Functown::c_print_double);
+    lnL_pbarAMS02.resolveDependency(&WIMP_properties_WIMP);
+    lnL_pbarAMS02.resolveDependency(&TH_ProcessCatalog_WIMP);
+    lnL_pbarAMS02.resolveDependency(&ExtractLocalMaxwellianHalo);
+    lnL_pbarAMS02.resolveDependency(&RD_fraction_one);
+    lnL_pbarAMS02.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_pbar_logLike_DRN);
 
     // Initialize halo model
     ModelParameters* Halo_primary_parameters = Models::Halo_Einasto::Functown::primary_parameters.getcontentsPtr();
@@ -710,11 +677,11 @@ int main(int argc, char* argv[])
     // CHECK-------------------::-------------;;---------------::-------------------::------------------;;--------------------
     if (mode==8)
     { 
-        pybeCheck(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));           
+        SimplePythonBackendTest(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));           
     }
     if (mode==9)
     { 
-        pbarlikeCheck(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.),"run1");    
+        pbarlikeTest(100.0,3e-26,daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.),"run1");    
     }
 
 

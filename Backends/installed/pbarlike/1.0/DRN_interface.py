@@ -4,18 +4,23 @@ from preamble import *
 #%% Helper functions
 
 class DRNet:
-    def __init__(self,propagation_model,prevent_extrapolation):
+    def __init__(self,prevent_extrapolation,propagation_model,propagation_parameters):
         self.pe = prevent_extrapolation
         model_options = ['run1', 'DIFF.BRK', 'INJ.BRK+vA']
+        solar_modulation_options = {'run1':self.solar_mod_run1, 'DIFF.BRK':self.solar_mod_brk, 'INJ.BRK+vA':self.solar_mod_brk}
         if propagation_model in model_options:
             self.propagation_model = propagation_model
             self.dep_path = script_directory + '/dependencies/' + self.propagation_model + '/'
+            self.solar_modulation = solar_modulation_options[self.propagation_model]
         else:
             print()
             print('The propagation model "%s" is not provided in this tool. It will be set to default (DIFF.BRK).'%model_name)
             self.propagation_model = 'DIFF.BRK'
         self.load_deps()
         self.load_pp_data()
+        self.preprocessing_prop_params(propagation_parameters)
+        self.phi_CR_LIS = self.CR_sim()
+        self.phi_CR   = self.solar_modulation[self.propagation_model](self.phi_CR_LIS) 
         print('\n The simulation tool has been initiated. \n')
 
     def load_deps(self):
@@ -46,26 +51,37 @@ class DRNet:
         self.mnpp = self.mns[100:102,:self.N_pp]
 
     # propagation_parameters - (n,N_pp) shaped array if flux is predicted for n DM_masses
-    # DM_masses - 1D array of shape (n,)
-    def preprocessing(self, DM_mass, br_fr, sigma_v, propagation_parameters):
-        # Making the propagation parameters a numpy array. Required transformations will be done within simulations (DM_sim, CR_sim)
-        if propagation_parameters is not None :
-            # Converting propagation parameters to 2D array
-            if propagation_parameters.ndim == 1:
-                propagation_parameters = propagation_parameters[np.newaxis,:]
-            self.pp = propagation_parameters
-            self.marginalization = False
-        else :
-            self.pp = self.mnpp   
-            self.marginalization = True     
+    def preprocessing_prop_params(self, propagation_parameters):
+        # Converting propagation parameters to 2D array. Required transformations will be done within simulations (DM_sim, CR_sim)
+        if propagation_parameters.ndim == 1:
+            propagation_parameters = propagation_parameters[np.newaxis,:]
 
-        # Checking if the given parameter is inside the region in which the network is trained
-        if (self.pp).shape[-1] != self.N_pp:
+        # Checking if given propagation parameters are custom or dummy
+        if propagation_parameters.all == 0 : 
+            self.pp = self.mnpp   
+            self.marginalization = True  
+        # Checking if correct number of propagation parameters are given
+        elif propagation_parameters.shape[1] != self.N_pp :
             print('The number of propagation parameters is not consistent with the propagation model. The default multinest sample will be used for marginalization.')
             self.pp = self.mnpp    
-            self.marginalization = True     
+            self.marginalization = True 
+        # Checking if the given propagation parameters are inside the region in which the network is trained
+        elif self.pe:
+            for i in range(self.N_pp):
+                if np.min(propagation_parameters[:, i]) <= self.mins_pp[i] or np.max(propagation_parameters[:, i]) >= self.maxs_pp[i]:
+                    print("At least one of the inputs for %s is outside the trained parameter ranges. No output will be given. The default multinest sample will be used for marginalization. " % (self.strings[self.propagation_model])[i])
+                    print(np.min(propagation_parameters[:, i]),np.max(propagation_parameters[:, i]))
+                    self.pp = self.mnpp
+                    break
+        else :
+            self.pp = propagation_parameters
+            self.marginalization = False               
+        
+        
+   
 
-
+    # DM_masses - 1D array of shape (n,)
+    def preprocessing_DMparams(self, DM_mass, br_fr, sigma_v):
         # Preparing DM masses
         # Converting float DM mass to 1D array
         if type(DM_mass) == float or type(DM_mass)== np.float64 or type(DM_mass) == np.int64:
@@ -92,28 +108,20 @@ class DRNet:
         
         # Preventing extrapolation
         self.stop_sim = False
-        if self.pe:
-            for i in range(self.N_pp):
-                if np.min(self.pp[:, i]) <= self.mins_pp[i] or np.max(self.pp[:, i]) >= self.maxs_pp[i]:
-                    print("At least one of the inputs for %s is outside the trained parameter ranges. No output will be given. The default multinest sample will be used for marginalization. " % (self.strings[self.propagation_model])[i])
-                    print(np.min(self.pp[:, i]),np.max(self.pp[:, i]))
-                    self.pp = self.mnpp
-                    break   
-            # Checking if the given parameter is inside the region in which the network is trained
-            stop_DM = False
-            #Checking DM parameters
-            if np.min(self.DM_mass) < 5 or np.max(self.DM_mass) > 5e3:
-                print('\n At least one of the given DM masses is outside of the provided range (5 GeV to 5 TeV). DM antiproton flux cannot be predicted.')
-                stop_DM = True
-            # Checking if the given parameter is inside the region in which the network is trained
-            if np.min(bf) < 1e-5 or np.max(bf) > 1 :
-                print(bf)
-                print('The given branching fractions were not in the range of trained parameters or not normalized to one. Values below 1e-5 were mapped to 1e-5 and the remaining fractions normalized accordingly.')
-                stop_DM = True 
-            if stop_DM:
-                self.stop_sim = True
+        # Checking if the given parameter is inside the region in which the network is trained
+        stop_DM = False
+        #Checking DM parameters
+        if np.min(self.DM_mass) < 5 or np.max(self.DM_mass) > 5e3:
+            print('\n At least one of the given DM masses is outside of the provided range (5 GeV to 5 TeV). DM antiproton flux cannot be predicted.')
+            stop_DM = True
+        # Checking if the given parameter is inside the region in which the network is trained
+        if np.min(bf) < 1e-5 or np.max(bf) > 1 :
+            print(bf)
+            print('The given branching fractions were not in the range of trained parameters or not normalized to one. Values below 1e-5 were mapped to 1e-5 and the remaining fractions normalized accordingly.')
+            stop_DM = True 
+        if stop_DM:
+            self.stop_sim = True
             
-
         # Preparing thermally averaged annihilation cross-section (sigma_v)
         # Converting float sigma_v to 1D array
         if type(sigma_v) == float or type(sigma_v)== np.float64 or type(sigma_v) == np.int64:
@@ -177,14 +185,13 @@ class DRNet:
         # Outputs phi_CR_LIS - (28,) array of flux values predicted by the sNet at different KE per nucleon values in E_drn
 
     def LIS_sim(self):
-        phi_CR_LIS = self.CR_sim()
         if self.stop_sim :
             print('The DM antiproton flux cannot be predicted by DRN due to atleast one parameter outside the region in which the network is trained.')
         else:
             DRN_output = self.DM_sim()
             phi_DM_LIS = self.sv[:,None]/10**(-25.5228)*DRN_output
             # Outputs 2D phi_DM_LIS - (n,28) array of flux values interpolated to obtain fluxes at the same KE per nucleon values as in E_drn
-        return phi_CR_LIS, phi_DM_LIS
+        return self.phi_CR_LIS, phi_DM_LIS
 
     # Calculates chi2 using ams data, ams errors and predicted flux
     def chi2(self,phi_pred):
@@ -270,10 +277,8 @@ class DRNet:
 
     def TOA_sim(self, phi_CR_LIS, phi_DM_LIS):
         phi_LIS = phi_CR_LIS + phi_DM_LIS
-        solar_modulation = {'run1':self.solar_mod_run1, 'DIFF.BRK':self.solar_mod_brk, 'INJ.BRK+vA':self.solar_mod_brk}
-        phi_CR   = solar_modulation[self.propagation_model](phi_CR_LIS) 
-        phi_DMCR = solar_modulation[self.propagation_model](phi_LIS) 
-        return phi_CR, phi_DMCR
+        phi_DMCR = self.solar_modulation[self.propagation_model](phi_LIS) 
+        return self.phi_CR, phi_DMCR
     
     def del_chi2(self,phi_CR, phi_DMCR):
         chi2_CR = self.chi2(phi_CR)

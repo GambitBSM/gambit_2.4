@@ -26,11 +26,14 @@ def br_fr(inputs, sigma_v=1):
     for i in keys_to_location.keys() :
         bf[0,keys_to_location[i]] += factorized_bf.get(i,0)
     return bf
+
+def DRN_initialization(prevent_extrapolation= False,propagation_model='DIFF.BRK',propagation_parameters):
+    DRN = DRNet(prevent_extrapolation,propagation_model,propagation_parameters)
+    return DRN
     
-def pbarlike(DM_mass, brfr, sigma_v = 10**(-25.5228), propagation_model='DIFF.BRK', propagation_parameters = None, prevent_extrapolation = False):
+def py_pbar_logLike_DRN(DRN, DM_mass, brfr, sigma_v = 10**(-25.5228)):
     bf = br_fr(brfr,sigma_v)
-    DRN = DRNet(propagation_model,prevent_extrapolation)
-    DRN.preprocessing(DM_mass, bf, sigma_v, propagation_parameters)
+    DRN.preprocessing_DMparams(DM_mass, bf, sigma_v)
     print('Normalized branching fractions: ',DRN.bf)
     print('\nPropagation model: ',DRN.propagation_model)
     print('\n Rescaled cross-section: ', DRN.sv)

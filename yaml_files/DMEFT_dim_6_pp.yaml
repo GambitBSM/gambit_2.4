@@ -100,7 +100,7 @@ Scanner:
       permit_discard_old_likes: true
       reader:
         type: hdf5
-        file: "<path_to_old_samples>/DMEFT.hdf5"
+        file: "/home/sowmiya/Research/DMEFTsamples/DMEFTreduced_rand.hdf5"
         group: "/DMEFT"
 
 ObsLikes:
@@ -114,11 +114,20 @@ Rules:
     function: lnL_pbarAMS02
     options : 
       PropagationModel : run1
+      PropagationParameters : [[0.0]]
+      PreventExtrapolation : False
     dependencies:
       - capability: RD_fraction
-        function: RD_fraction_one
+        function: RD_fraction_rescaled
         module: DarkBit
-        
+
+  - capability: RD_fraction
+    function: RD_fraction_rescaled
+    dependencies:
+      - capability: RD_oh2
+        function: RD_from_postprocessor
+        module: DarkBit
+  
   - capability: TH_ProcessCatalog
     function: TH_ProcessCatalog_DMEFT
     dependencies:
@@ -149,7 +158,7 @@ KeyValues:
     print_invalid_points: false
     debug: false
 
-  default_output_path: "runs/DMEFT_pp"
+  default_output_path: "/home/sowmiya/Research/postprocessing/DMEFT_pp3"
 
   debug: false
   print_timing_data: false
