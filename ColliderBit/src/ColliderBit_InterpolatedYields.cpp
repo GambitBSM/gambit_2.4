@@ -1931,17 +1931,13 @@ namespace Gambit
     std::map<str,Dijet_analysis_info> DMsimp_dijet_analysis_info;
     
     /// The di_jet searches that are to be used
-    std::vector<std::pair<str,str>> dijet_searches = {{"CMS-EXO-19-012","no-ISR"},
-                                                        {"ATLAS_Dijet_139invfb","no-ISR"},
-                                                        {"ATLAS_TLA","no-ISR"},
-                                                        {"CDF_Dijet_Run2","no-ISR"},
-                                                        {"CERN-EP-2017-280_jet","ISR-jet"},
-                                                        {"CERN-EP-2017-280_photon","ISR-photon"},
-                                                        {"ATLAS-CONF-2018-052","ISR-jet"},
-                                                        {"CMS-EXO-18-012","ISR-jet"},
-                                                        {"CERN-EP-2018-347_Low_Mass","ISR-photon"},
-                                                        {"CERN-EP-2018-347_High_Mass","ISR-photon"},
-                                                        {"CMS-EXO-17-027","ISR-photon"}};
+    std::vector<str> dijet_searches = {{"ATLAS-CONF-2018-052"},
+                                       {"CERN-EP-2017-280"},
+                                       {"CERN-EP-2018-347"},
+                                       {"CMS-EXO-18-012"},
+                                       {"CMS-EXO-19-012"},
+                                       {"DiJet_139"},
+                                       {"DiJet_TLA"}};
     
 
     /// Fill the DMsimp object with the interpolation information.
@@ -1958,18 +1954,11 @@ namespace Gambit
       // Set the analysis info:
       
       std::vector<str> colnames;
-      colnames = { "gq","mass", "xsec"};
-      
-      current_ainfo->add_interp2d_simple("MediatorProduction_no_ISR", GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/MediatorProduction_no_ISR.txt", colnames);
-      current_ainfo->add_interp2d_simple("MediatorProduction_ISR_jet", GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/MediatorProduction_ISR_jet.txt", colnames);
-      current_ainfo->add_interp2d_simple("MediatorProduction_ISR_photon", GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/MediatorProduction_ISR_photon.txt", colnames);
-      
-      
-      colnames = {"mass", "xsec"};
+      colnames = {"mass", "gqlimit"};
       
       for (auto searchname : dijet_searches)
       {
-        current_ainfo->add_interp1d(searchname.first, GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname.first+".txt", colnames);
+        current_ainfo->add_interp1d(searchname, GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname+".txt", colnames);
       }
       
       // Clear the pointer
@@ -1979,76 +1968,36 @@ namespace Gambit
     }
 
     /// Perform the actual likelihood evaluation for a given di-jet search
-    double DiJet_search_like(str searchname,double expected_xsec,double mMed)
+    double DiJet_search_like(str searchname, double gq, double mMed, double BR_q)
     {
-      const Utils::interp1d_collection& search_xsecs = DMsimp_dijet_analysis_info["DMsimp_DiJets"].get_interp1d(searchname);
+      const Utils::interp1d_collection& search_gqs = DMsimp_dijet_analysis_info["DMsimp_DiJets"].get_interp1d(searchname);
       
-      if (!search_xsecs.is_inside_range(mMed))
+      if (!search_gqs.is_inside_range(mMed))
       {
         return 0.0;
       }
       
-      // Calculate the interpolated xsec
-      double observed_xsec = search_xsecs.eval(mMed);
+      // Calculate the interpolated coupling
+      double gq_limit = search_gqs.eval(mMed);
       
-      // Compare to the input xsec and form a chi2.
-      double chi2 = 4.0 * pow((expected_xsec/observed_xsec),2);
+      // Compare to the input gq and form a chi2.
+      double chi2 = 4.0 * pow(gq,4)*pow(BR_q,2)/pow(gq_limit,4);
       
       // chi2 -> loglike
-      return -2.0 * chi2;
+      return -0.5 * chi2;
     }
     
     /// Loop over the di-jet analyses and calculate the most constraining likelihood
     double Total_DiJet_search_like(double mMed, double gq, double BR_q)
     {
 
-      // Get the interpolators for each type of dijet signal
-      Utils::interp2d_simple_collection& no_ISR_xsecs = DMsimp_dijet_analysis_info["DMsimp_DiJets"].get_interp2d_simple("MediatorProduction_no_ISR");
-      Utils::interp2d_simple_collection& ISR_jet_xsecs = DMsimp_dijet_analysis_info["DMsimp_DiJets"].get_interp2d_simple("MediatorProduction_ISR_jet");
-      Utils::interp2d_simple_collection& ISR_photon_xsecs = DMsimp_dijet_analysis_info["DMsimp_DiJets"].get_interp2d_simple("MediatorProduction_ISR_photon");
-      
-      if (!no_ISR_xsecs.is_inside_range(gq,mMed) && !ISR_jet_xsecs.is_inside_range(gq,mMed) && !ISR_photon_xsecs.is_inside_range(gq,mMed))
-      {
-        ColliderBit_error().raise(LOCAL_INFO, "ERROR! Parameter out of range in Di-Jet interpolation.");
-      }
-      
-      //  Interpolate to find predicted xsec
-      double xsec_no_ISR = 0.0;
-      double xsec_ISR_jet = 0.0;
-      double xsec_ISR_photon = 0.0;
-      
-      if (no_ISR_xsecs.is_inside_range(gq,mMed))
-      {
-        xsec_no_ISR = BR_q * no_ISR_xsecs.eval(gq,mMed,0);
-      }
-      
-      if (ISR_jet_xsecs.is_inside_range(gq,mMed))
-      {
-        xsec_ISR_jet = BR_q * ISR_jet_xsecs.eval(gq,mMed,0);
-      }
-      
-      if (ISR_photon_xsecs.is_inside_range(gq,mMed))
-      {
-        xsec_ISR_photon = BR_q * ISR_photon_xsecs.eval(gq,mMed,0);
-      }
-      
-      double expected_xsec = 0;
       double Min_LogLike = 0.0;
       
       for (auto search : dijet_searches)
       {
-        if (search.second == "no-ISR") {
-          expected_xsec = xsec_no_ISR;
-        } else if (search.second == "ISR-jet") {
-          expected_xsec = xsec_ISR_jet;
-        } else if (search.second == "ISR-photon") {
-          expected_xsec = xsec_ISR_photon;
-        } else {
-          ColliderBit_error().raise(LOCAL_INFO, "ERROR! Unrecognised signal type for DiJet interpolation");
-        }
         
         // Form a log-likelihood
-        double LogLike = DiJet_search_like(search.first, expected_xsec, mMed);
+        double LogLike = DiJet_search_like(search, gq, mMed, BR_q);
         
         // Select the most constraining
         if (LogLike < Min_LogLike)
