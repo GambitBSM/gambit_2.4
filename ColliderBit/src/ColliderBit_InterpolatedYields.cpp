@@ -67,10 +67,10 @@ namespace Gambit
 
     // =========== Useful stuff ===========
 
-    /// A minimal class with analysis info, maps for containing collections of 1D/2D interpolators
+    /// A minimal class with analysis info, maps for containing collections of 1D/2D/4D/5D interpolators
     /// and some helper functions for adding and accessing the interpolators, and for 
     /// adding a background covariance matrix. Currently this class is tailored specifically 
-    /// for the DMEFT model -- it will be generalized in the future.
+    /// for the DMEFT/DMsimp models -- it will be generalized in the future.
     class Model_analysis_info
     {
       public:
@@ -205,14 +205,19 @@ namespace Gambit
 
     /// Forward declarations of functions in this file
     void fill_analysis_info_map();
+    void DMsimp_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, int);
 
     void DMEFT_results(AnalysisDataPointers&);
-
-    void get_all_DMEFT_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
+    
+    void DMsimpVectorMedScalarDM_monojet_results(AnalysisDataPointers&);
+    void DMsimpVectorMedMajoranaDM_monojet_results(AnalysisDataPointers&);
+    void DMsimpVectorMedDiracDM_monojet_results(AnalysisDataPointers&);
 
     void get_DMEFT_signal_yields_dim6_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double, double);
-
     void get_DMEFT_signal_yields_dim7_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double);
+    void get_DMsimpVectorMedScalarDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
+    void get_DMsimpVectorMedMajoranaDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
+    void get_DMsimpVectorMedDiracDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double, double);
 
     void DMEFT_results_profiled(AnalysisDataPointers&);
 
@@ -228,21 +233,10 @@ namespace Gambit
 
     void InterpolatedMCInfo(MCLoopInfo&);
 
-    void DMsimp_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, int);
-
-    void DMsimpVectorMedScalarDM_monojet_results(AnalysisDataPointers&);
-    void DMsimpVectorMedMajoranaDM_monojet_results(AnalysisDataPointers&);
-    void DMsimpVectorMedDiracDM_monojet_results(AnalysisDataPointers&);
-
+    void get_all_DMEFT_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
     void get_all_DMsimpVectorMedScalarDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
     void get_all_DMsimpVectorMedMajoranaDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
     void get_all_DMsimpVectorMedDiracDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
-
-    void get_DMsimpVectorMedScalarDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
-    void get_DMsimpVectorMedMajoranaDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
-    void get_DMsimpVectorMedDiracDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double, double);
-
-    void DMSIMP_results(AnalysisDataPointers&);
 
 
     // =========== Functions ===========
