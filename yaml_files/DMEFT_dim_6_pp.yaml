@@ -106,16 +106,13 @@ Scanner:
 ObsLikes:
 
   # Add you own likelihood here
-  - capability: pbar_logLike
+  - capability: pbar_logLike_uncorr
+    purpose: LogLike
+
+  - capability: pbar_logLike_corr
     purpose: LogLike
 
 Rules:
-  - capability: pbar_logLike
-    function: lnL_pbarAMS02
-    dependencies:
-      - capability: RD_fraction
-        function: RD_fraction_rescaled
-        module: DarkBit
 
   - capability: RD_fraction
     function: RD_fraction_rescaled
@@ -123,6 +120,29 @@ Rules:
       - capability: RD_oh2
         function: RD_from_postprocessor
         module: DarkBit
+
+  - capability: pbar_logLikes
+    function: lnL_pbarAMS02
+    dependencies:
+      - capability: RD_fraction
+        function: RD_fraction_rescaled
+        module: DarkBit
+
+
+  - capability: pbar_logLike_uncorr
+    function: lnL_pbarAMS02_uncorr
+
+  - capability: pbar_logLike_corr
+    function: lnL_pbarAMS02_corr
+
+  - function : pbarlike_1_0_init
+    # dependencies:
+    #   - capability: RD_fraction
+    #     function: RD_fraction_rescaled
+    options : 
+      PreventExtrapolation : False
+      PropagationModel : run1
+      PropagationParameters : [[0.0]]
   
   - capability: TH_ProcessCatalog
     function: TH_ProcessCatalog_DMEFT
@@ -131,11 +151,6 @@ Rules:
         function: all_decays
         module: DecayBit
   
-  - function : pbarlike_1_0_init
-    options : 
-      PreventExtrapolation : False
-      PropagationModel : run1
-      PropagationParameters : [[0.0]]
         
 Logger:
 

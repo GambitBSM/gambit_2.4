@@ -936,15 +936,31 @@ START_MODULE
 
   // Antiproton likelihood ===============================================
 
-  #define CAPABILITY pbar_logLike
+  #define CAPABILITY pbar_logLikes
   START_CAPABILITY
     #define FUNCTION lnL_pbarAMS02
-    START_FUNCTION(double)
+    START_FUNCTION(map_str_dbl)
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
     DEPENDENCY(RD_fraction, double)
-    BACKEND_REQ(pbar_logLike_DRN,(),double,(double&, map_str_dbl&, double&))
+    BACKEND_REQ(drn_pbar_logLikes,(),map_str_dbl,(double&,  map_str_dbl&, double& ))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY pbar_logLike_uncorr
+  START_CAPABILITY
+    #define FUNCTION lnL_pbarAMS02_uncorr
+    START_FUNCTION(double)
+    DEPENDENCY(pbar_logLikes,map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY pbar_logLike_corr
+  START_CAPABILITY
+    #define FUNCTION lnL_pbarAMS02_corr
+    START_FUNCTION(double)
+    DEPENDENCY(pbar_logLikes,map_str_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 
