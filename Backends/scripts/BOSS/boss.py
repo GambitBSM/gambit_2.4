@@ -541,6 +541,9 @@ def main():
     # Remove from cfg.load_functions all functions that are not loadable
     #
 
+    # Remove whitespace in entries in cfg.load_functions
+    cfg.load_functions = [func_name.replace(' ', '') for func_name in cfg.load_functions]
+
     # Remove duplicates from cfg.load_functions
     cfg.load_functions = list(OrderedDict.fromkeys(cfg.load_functions))
 
@@ -556,6 +559,7 @@ def main():
             if el.tag == 'Function':
 
                 # Get function name
+                func_name_long_templ_args = ''
                 try:
                     func_name = funcutils.getFunctionNameDict(el)
                     func_name_long_templ_args = func_name['long_templ_args']
@@ -565,13 +569,14 @@ def main():
                     print('  ERROR: Unexpected error!')
                     raise
 
-                if func_name_long_templ_args.replace(" ", "") in cfg.load_functions_no_spaces:
+                compare_func_name = func_name_long_templ_args.replace(' ','')
+                if compare_func_name in cfg.load_functions:
 
                     is_loadable = not funcutils.ignoreFunction(el, limit_pointerness=True, print_warning=True)
 
                     if not is_loadable:
 
-                        cfg.load_functions.remove(func_name_long_templ_args)
+                        cfg.load_functions.remove(compare_func_name)
 
 
     #

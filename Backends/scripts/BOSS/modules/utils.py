@@ -2754,7 +2754,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 infomsg.FunctionAlreadyDone( func_name['long_templ_args'] ).printMessage()
                 continue
 
-            if func_name['long_templ_args'].replace(" ", "") in cfg.load_functions_no_spaces:
+            if func_name['long_templ_args'].replace(' ','') in cfg.load_functions:
                 gb.func_dict[func_name['long_templ_args']] = el
 
 
