@@ -546,7 +546,7 @@ AllAnalysisNumbersUnmodified: |
    of all analysis numbers before any subsequent modificiation, e.g. due to
    EFT validity constraints.
    
-Dijet_Likelihood: |
+Dijet_LogLike: |
    Interpolates dijet signal predictions and compares the
    cross-section scaled down by branching ratios to upper limits from a range of searches.
    Returns a log likelihood value.
