@@ -2,8 +2,9 @@
 //   *********************************************
 ///  \file
 ///
-///  Utils classes for holding a 
-///  collection of 1D/2D interpolators.
+////  Utils classes for holding a 
+///  collection of 1D/2D gsl interpolators and
+//   1D/2D/4D/5D linear interpolators.
 ///
 ///  *********************************************
 ///
@@ -39,11 +40,11 @@ namespace Gambit
   {
 
     // 
-    // interp1d_collection class methods
+    // interp1d_gsl_collection class methods
     // 
 
     // Constructor
-    interp1d_collection::interp1d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in)
+    interp1d_gsl_collection::interp1d_gsl_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in)
     {
       // Check if file exists.
       if (not(Utils::file_exists(file_name_in)))
@@ -110,7 +111,7 @@ namespace Gambit
     }
 
     // Destructor
-    interp1d_collection::~interp1d_collection()
+    interp1d_gsl_collection::~interp1d_gsl_collection()
     {
       for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
       {
@@ -120,35 +121,172 @@ namespace Gambit
     }
 
     // Evaluate a given interpolation
-    double interp1d_collection::eval(double x, size_t interp_index) const
+    double interp1d_gsl_collection::eval(double x, size_t interp_index) const
     {
       return gsl_spline_eval(splines[interp_index], x, x_accels[interp_index]);
     }
     
     // If there is only one interpolator, we can evaluate it without specifying the index
-    double interp1d_collection::eval(double x) const
+    double interp1d_gsl_collection::eval(double x) const
     {
       if (n_interpolators != 1)
       {
-          utils_error().raise(LOCAL_INFO, "ERROR! This interp1d_collection instance contains more than one interpolator, so the interpolator index must be specified.");
+          utils_error().raise(LOCAL_INFO, "ERROR! This interp1d_gsl_collection instance contains more than one interpolator, so the interpolator index must be specified.");
       }
       return eval(x, 0);
     }
 
     // Check if point is inside interpolation range
-    bool interp1d_collection::is_inside_range(double x) const
+    bool interp1d_gsl_collection::is_inside_range(double x) const
     {
       return ((x >= x_min) && (x <= x_max));
     }
 
 
-
     // 
-    // interp2d_collection class methods
+    // interp1d_collection class methods
     // 
 
     // Constructor
-    interp2d_collection::interp2d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in)
+    interp1d_collection::interp1d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in)
+    {
+      // Check if file exists.
+      if (not(Utils::file_exists(file_name_in)))
+      {
+        utils_error().raise(LOCAL_INFO, "ERROR! File '" + file_name_in + "' not found!");
+      }
+
+      // Read numerical values from data file.
+      ASCIItableReader tab(file_name_in);
+
+      // Check that there's more than one columns
+      if (tab.getncol() < 2)
+      {
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than two columns found in the input file '" + file_name_in + "'."); 
+      }
+
+      // Check that the number of columns matches the number of column names
+      if (colnames_in.size() != (size_t) tab.getncol())
+      {
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+      }
+
+      // Set the column names
+      tab.setcolnames(colnames_in);
+
+      // Save some names
+      collection_name = collection_name_in;
+      file_name = file_name_in;
+      x1_name = colnames_in.at(0);
+      interpolator_names = {colnames_in.begin() + 1, colnames_in.end()};
+
+      // Number of interpolators
+      n_interpolators = interpolator_names.size();
+
+      // Get unique entries of "xi" for the grid and grid size.
+      x1_vec = tab[x1_name];
+      x1_vec_unsorted = tab[x1_name];
+      sort(x1_vec.begin(), x1_vec.end());
+      x1_vec.erase(unique(x1_vec.begin(), x1_vec.end()), x1_vec.end());
+      int nx1 = x1_vec.size();
+      x1_min = x1_vec.front();
+      x1_max = x1_vec.back();
+
+      for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
+      {
+        // Store the interpolation data to be used later
+        std::string interp_name = interpolator_names[interp_index];
+        
+        int n_points = (tab[interp_name]).size();
+        
+        if (nx1 != n_points)
+        {
+          utils_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_points)+") does not agree with the number of unique 'x' values ("+std::to_string(nx1)+") for the interpolator '"+interp_name+"'.\n Check formatting of the file: '"+file_name_in+"'.");
+        }
+        
+        interp_data.push_back(tab[interp_name]);
+      }
+    }
+
+    // Destructor
+    interp1d_collection::~interp1d_collection() {}
+
+    // Evaluate a given interpolation
+    double interp1d_collection::eval(double x1, size_t interp_index)
+    {
+      std::vector<double> fi_values = interp_data[interp_index];
+      
+      // Determine upper and lower bounds
+      double xi_upper[] = {0.0};
+      double xi_lower[] = {0.0};
+      bool x1_equal = false;
+      
+      for (size_t i=0;i<(x1_vec.size());i++)
+      {
+        // In case of exact match
+        if (x1 == x1_vec[i])
+        {
+          xi_lower[0] = x1_vec[i];
+          xi_upper[0] = x1_vec[i];
+          x1_equal = true;
+        }
+        // Otherwise bounds as normal
+        if (x1 > x1_vec[i] && x1 < x1_vec[i+1])
+        {
+          xi_lower[0] = x1_vec[i];
+          xi_upper[0] = x1_vec[i+1];
+        }
+        // End early if you have found all of the bounds
+        if (x1 < x1_vec[i] ) break;
+      }
+      
+      // Find the corresponding function values
+      std::vector<double> fi = {-1.0,-1.0};
+      bool test_u[] = {false};
+      bool test_l[] = {false};
+
+      //Loop over all interp_data, and match value to coresponding value. 
+      for (size_t k=0;k<fi_values.size();k++)
+      {
+        // Reset Values
+        test_u[0] = false; test_u[1] = false;
+        test_l[0] = false; test_l[1] = false;
+          
+        // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
+        if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
+        else if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
+        else continue;
+          
+        // Set the values of fi in the correct order
+        if (test_l[0]) {fi[0] = fi_values[k];}
+        if (test_u[0]) {fi[1] = fi_values[k];}
+      }
+      
+      // Perform Calculation taking care for exact cases
+      double Y_interp;
+      if (x1_equal)
+      {
+        Y_interp = fi[0];
+      } else {
+        Y_interp = (xi_upper[0] - x1) / (xi_upper[0] - xi_lower[0]) * (fi[1]-fi[0]);
+      }
+      
+      return Y_interp;
+    }
+    
+    // Check if point is inside interpolation range
+    bool interp1d_collection::is_inside_range(double x1)
+    {
+      return ((x1 >= x1_min) && (x1 <= x1_max));
+    }
+
+
+    // 
+    // interp2d_gsl_collection class methods
+    // 
+
+    // Constructor
+    interp2d_gsl_collection::interp2d_gsl_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in)
     {
       // Check if file exists.
       if (not(Utils::file_exists(file_name_in)))
@@ -228,7 +366,7 @@ namespace Gambit
     }
 
     // Destructor
-    interp2d_collection::~interp2d_collection()
+    interp2d_gsl_collection::~interp2d_gsl_collection()
     {
       for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
       {
@@ -239,34 +377,34 @@ namespace Gambit
     }
 
     // Evaluate a given interpolation
-    double interp2d_collection::eval(double x, double y, size_t interp_index) const
+    double interp2d_gsl_collection::eval(double x, double y, size_t interp_index) const
     {
       return gsl_spline2d_eval(splines[interp_index], x, y, x_accels[interp_index], y_accels[interp_index]);
     }
     
     // If there is only one interpolator, we can evaluate it without specifying the index
-    double interp2d_collection::eval(double x, double y) const
+    double interp2d_gsl_collection::eval(double x, double y) const
     {
       if (n_interpolators != 1)
       {
-          utils_error().raise(LOCAL_INFO, "ERROR! This interp2d_collection instance contains more than one interpolator, so the interpolator index must be specified.");
+          utils_error().raise(LOCAL_INFO, "ERROR! This interp2d_gsl_collection instance contains more than one interpolator, so the interpolator index must be specified.");
       }
       return eval(x, y, 0);
     }
 
     // Check if point is inside interpolation range
-    bool interp2d_collection::is_inside_range(double x, double y) const
+    bool interp2d_gsl_collection::is_inside_range(double x, double y) const
     {
       return ((x >= x_min) && (x <= x_max) && (y >= y_min) && (y <= y_max));
     }
 
 
     // 
-    // interp2d_simple_collection class methods
+    // interp2d_collection class methods
     // 
 
     // Constructor
-    interp2d_simple_collection::interp2d_simple_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in)
+    interp2d_collection::interp2d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in)
     {
       // Check if file exists.
       if (not(Utils::file_exists(file_name_in)))
@@ -336,10 +474,10 @@ namespace Gambit
     }
 
     // Destructor
-    interp2d_simple_collection::~interp2d_simple_collection() {}
+    interp2d_collection::~interp2d_collection() {}
 
     // Evaluate a given interpolation
-    double interp2d_simple_collection::eval(double x1,double x2, size_t interp_index)
+    double interp2d_collection::eval(double x1,double x2, size_t interp_index)
     {
       std::vector<double> fi_values = interp_data[interp_index];
       
@@ -443,7 +581,7 @@ namespace Gambit
     }
     
     // Check if point is inside interpolation range
-    bool interp2d_simple_collection::is_inside_range(double x1,double x2)
+    bool interp2d_collection::is_inside_range(double x1,double x2)
     {
       return ((x1 >= x1_min) && (x1 <= x1_max) && (x2 >= x2_min) && (x2 <= x2_max));
     }
@@ -454,7 +592,7 @@ namespace Gambit
     // 
 
     // Constructor
-    interp4d_collection::interp4d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in, bool allow_missing_points)
+    interp4d_collection::interp4d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in, bool allow_missing_points, double missing_pts_val)
     {
       // Check if file exists.
       if (not(Utils::file_exists(file_name_in)))
@@ -479,6 +617,7 @@ namespace Gambit
 
       // Set whether to allow missing points in the interpolation grid
       allow_missing_pts = allow_missing_points;
+      missing_point_val = missing_pts_val;
 
       // Set the column names
       tab.setcolnames(colnames_in);
@@ -624,7 +763,6 @@ namespace Gambit
         if (x4 < x4_vec[i]) break;
       }
       
-      
       // Find the corresponding function values
       // Using a default value of -1 as this is assumed not a valid result
       std::vector<double> fi = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
@@ -640,20 +778,20 @@ namespace Gambit
           
         // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
         if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
-        else if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
-        else continue;
-          
+        if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
+        if (test_u[0]==false && test_l[0]==false) continue;
+        
         if (x2_vec_unsorted[k]==xi_upper[1]) { test_u[1]=true;}
-        else if (x2_vec_unsorted[k]==xi_lower[1]) { test_l[1]=true;}
-        else continue;
+        if (x2_vec_unsorted[k]==xi_lower[1]) { test_l[1]=true;}
+        if (test_u[1]==false && test_l[1]==false) continue;
         
         if (x3_vec_unsorted[k]==xi_upper[2]) { test_u[2]=true;}
-        else if (x3_vec_unsorted[k]==xi_lower[2]) { test_l[2]=true;}
-        else continue;
+        if (x3_vec_unsorted[k]==xi_lower[2]) { test_l[2]=true;}
+        if (test_u[2]==false && test_l[2]==false) continue;
         
         if (x4_vec_unsorted[k]==xi_upper[3]) { test_u[3]=true;}
-        else if (x4_vec_unsorted[k]==xi_lower[3]) { test_l[3]=true;}
-        else continue;
+        if (x4_vec_unsorted[k]==xi_lower[3]) { test_l[3]=true;}
+        if (test_u[3]==false && test_l[3]==false) continue;
         
         // Set the values of fi in the correct order
         if (test_l[0] && test_l[1] && test_l[2] && test_l[3]) {fi[0] = fi_values[k];}
@@ -676,7 +814,7 @@ namespace Gambit
       }
        
       // If failed to find all points needed for interpolation, throw an error.
-      // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return 0
+      // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return missing_point_val
       size_t index = 0;
       while(index<16)
       {
@@ -685,7 +823,7 @@ namespace Gambit
         {
           if (allow_missing_pts)
           {
-            return 0.0;
+            return missing_point_val;
           } else {
             utils_error().raise(LOCAL_INFO, "ERROR! 4D Interpolation fails for this parameter point.");
           }
@@ -707,13 +845,19 @@ namespace Gambit
       return fi[0];
     }
 
+    // Check if point is inside interpolation range
+    bool interp4d_collection::is_inside_range(double x1, double x2, double x3, double x4)
+    {
+      return ((x1 >= x1_min) && (x1 <= x1_max) && (x2 >= x2_min) && (x2 <= x2_max) && (x3 >= x3_min) && (x3 <= x3_max) && (x4 >= x4_min) && (x4 <= x4_max));
+    }
+
 
     // 
     // interp5d_collection class methods
     // 
 
     // Constructor
-    interp5d_collection::interp5d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in, bool allow_missing_points)
+    interp5d_collection::interp5d_collection(const std::string collection_name_in, const std::string file_name_in, const std::vector<std::string> colnames_in, bool allow_missing_points, double missing_pts_val)
     {
       // Check if file exists.
       if (not(Utils::file_exists(file_name_in)))
@@ -738,6 +882,7 @@ namespace Gambit
 
       // Set whether to allow missing points in the interpolation grid
       allow_missing_pts = allow_missing_points;
+      missing_point_val = missing_pts_val;
 
       // Set the column names
       tab.setcolnames(colnames_in);
@@ -983,7 +1128,7 @@ namespace Gambit
       }
          
       // If failed to find all points needed for interpolation, throw an error.
-      // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return 0
+      // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return missing_point_val
       size_t index = 0;
       while(index<32)
       {
@@ -992,7 +1137,7 @@ namespace Gambit
         {
           if (allow_missing_pts)
           {
-            return 0.0;
+            return missing_point_val;
           } else {
             utils_error().raise(LOCAL_INFO, "ERROR! 5D Interpolation fails for this parameter point.");
           }
