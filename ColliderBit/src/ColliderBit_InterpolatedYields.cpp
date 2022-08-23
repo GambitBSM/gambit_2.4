@@ -1291,7 +1291,7 @@ namespace Gambit
       {
         if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
         {
-          ColliderBit_error().raise(LOCAL_INFO, "ERROR! MonoJet Interpolation data file missing: " + Analysis_data_path[current_analysis_name] + ". If using one of the DMsimp models, please run \"make DMsimp_data_1.0\".");
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! MonoJet Interpolation data file missing: " + Analysis_data_path[current_analysis_name] + ". If using one of the DMsimp models, please make sure to run \"make DMsimp_data_1.0\".");
         }
         
         // Create an entry in the global analysis_info_map and point the pointer current_ainfo to it
@@ -1311,7 +1311,7 @@ namespace Gambit
       {
         if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
         {
-          ColliderBit_error().raise(LOCAL_INFO, "ERROR! MonoJet Interpolation data file missing: " + Analysis_data_path[current_analysis_name] + ". If using one of the DMsimp models, please run \"make DMsimp_data_1.0\".");
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! MonoJet Interpolation data file missing: " + Analysis_data_path[current_analysis_name] + ". If using one of the DMsimp models, please make sure to run \"make DMsimp_data_1.0\".");
         }
         
         // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
@@ -1330,7 +1330,7 @@ namespace Gambit
       {
         if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
         {
-          ColliderBit_error().raise(LOCAL_INFO, "ERROR! MonoJet Interpolation data file missing: " + Analysis_data_path[current_analysis_name] + ". If using one of the DMsimp models, please run \"make DMsimp_data_1.0\".");
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! MonoJet Interpolation data file missing: " + Analysis_data_path[current_analysis_name] + ". If using one of the DMsimp models, please make sure to run \"make DMsimp_data_1.0\".");
         }
       
         // Create an entry in the global analysis_info_map and point the pointer current_ainfo to it
@@ -1801,6 +1801,11 @@ namespace Gambit
       
       for (auto searchname : dijet_searches)
       {
+        if (not(Utils::file_exists(GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname+".txt")))
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! DMsimp DiJet data file missing: ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname+".txt" + ". If using one of the DMsimp models, please make sure to run \"make DMsimp_data_1.0\".");
+        }
+      
         current_ainfo->add_interp1d(searchname, GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname+".txt", colnames);
       }
       
