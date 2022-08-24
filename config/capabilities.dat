@@ -548,7 +548,7 @@ AllAnalysisNumbersUnmodified: |
    
 Dijet_LogLike: |
    Interpolates dijet signal predictions and compares the
-   cross-section scaled down by branching ratios to upper limits from a range of searches.
+   quark coupling scaled down by branching ratios to upper limits from a range of searches.
    Returns a log likelihood value.
 
 DMEFT_profiled_LHC_nuisance_params: |
