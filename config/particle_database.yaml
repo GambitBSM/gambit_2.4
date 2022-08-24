@@ -200,46 +200,46 @@ OtherModels:
     name: A0
     spinx2: 0
 
-  - PDG_context:
+  - name: Xd
+    PDG_context:
     - 5000521
     - 0
+    spinx2: 1
     chargex3: 0
     color: 1
-    conjugate: Xd~
     description: Xd (DMsimpVectorMedDiracDM)
-    name: Xd
-    spinx2: 1
+    conjugate: Xd~
 
-  - DecayBit:
-      Decays: true
-      name: Y1
+  - name: Y1
     PDG_context:
     - 5000001
     - 0
+    spinx2: 2
     chargex3: 0
     color: 1
     description: Y1 (DMsimpVectorMedDiracDM)
-    name: Y1
-    spinx2: 2
+    DecayBit:
+      Decays: true
+      name: Y1
 
-  - PDG_context:
+  - name: Xm
+    PDG_context:
     - 5000522
     - 0
+    spinx2: 1
     chargex3: 0
     color: 1
     description: Xm (DMsimpVectorMedMajoranaDM)
-    name: Xm
-    spinx2: 1
 
-  - PDG_context:
+  - name: Xc
+    PDG_context:
     - 5000520
     - 0
+    spinx2: 0
     chargex3: 0
     color: 1
-    conjugate: Xc~
     description: Xc (DMsimpVectorMedScalarDM)
-    name: Xc
-    spinx2: 0
+    conjugate: Xc~
   Sets:
 
   - DecayBit:
