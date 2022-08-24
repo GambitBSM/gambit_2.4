@@ -51,7 +51,7 @@ namespace Gambit
 
         std::vector<gsl_spline*> splines;
         std::vector<gsl_interp_accel*> x_accels;
-        
+
         double x_min;
         double x_max;
         size_t n_interpolators;
@@ -67,7 +67,7 @@ namespace Gambit
 
         // Evaluate a given interpolation
         double eval(double, size_t) const;
-        
+
         // If there is only one interpolator, we can evaluate it without specifying the index
         double eval(double) const;
 
@@ -110,7 +110,7 @@ namespace Gambit
 
         // Evaluate a given interpolation
         double eval(double, size_t);
-        
+
         // Check if point is inside interpolation range
         bool is_inside_range(double);
 
@@ -137,7 +137,7 @@ namespace Gambit
         std::vector<gsl_spline2d*> splines;
         std::vector<gsl_interp_accel*> x_accels;
         std::vector<gsl_interp_accel*> y_accels;
-        
+
         double x_min;
         double x_max;
         double y_min;
@@ -156,7 +156,7 @@ namespace Gambit
 
         // Evaluate a given interpolation
         double eval(double, double, size_t) const;
-        
+
         // If there is only one interpolator, we can evaluate it without specifying the index
         double eval(double, double) const;
 
@@ -205,7 +205,7 @@ namespace Gambit
 
         // Evaluate a given interpolation
         double eval(double, double, size_t);
-        
+
         // Check if point is inside interpolation range
         bool is_inside_range(double, double);
 
@@ -267,11 +267,11 @@ namespace Gambit
 
         // Evaluate a given interpolation
         double eval(double, double, double, double, size_t);
-        
+
         // Check if point is inside interpolation range
         bool is_inside_range(double, double, double, double);
     };
-    
+
 
     /// A class for holding a collection of 5D interpolators, created from reading a tabulated ascii file. 
     /// - The first 5 columns are taken to be the x1,x2,x3,x4,x5 grid points. 
@@ -333,12 +333,12 @@ namespace Gambit
 
         // Evaluate a given interpolation
         double eval(double, double, double, double, double, size_t);
-        
+
         // Check if point is inside interpolation range
         bool is_inside_range(double, double,double,double,double);
 
     };
-    
+
   }
 }
 

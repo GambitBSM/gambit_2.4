@@ -2,9 +2,9 @@
 //   *********************************************
 ///  \file
 ///
-////  Utils classes for holding a 
+///  Utils classes for holding a 
 ///  collection of 1D/2D gsl interpolators and
-//   1D/2D/4D/5D linear interpolators.
+///  1D/2D/4D/5D linear interpolators.
 ///
 ///  *********************************************
 ///
@@ -58,13 +58,13 @@ namespace Gambit
       // Check that there's more than one column
       if (tab.getncol() < 2)
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Less than two columns found in the input file '" + file_name_in + "'."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than two columns found in the input file '" + file_name_in + "'.");
       }
 
       // Check that the number of columns matches the number of column names
       if (colnames_in.size() != (size_t) tab.getncol())
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names.");
       }
 
       // Set the column names
@@ -125,7 +125,7 @@ namespace Gambit
     {
       return gsl_spline_eval(splines[interp_index], x, x_accels[interp_index]);
     }
-    
+
     // If there is only one interpolator, we can evaluate it without specifying the index
     double interp1d_gsl_collection::eval(double x) const
     {
@@ -162,13 +162,13 @@ namespace Gambit
       // Check that there's more than one columns
       if (tab.getncol() < 2)
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Less than two columns found in the input file '" + file_name_in + "'."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than two columns found in the input file '" + file_name_in + "'.");
       }
 
       // Check that the number of columns matches the number of column names
       if (colnames_in.size() != (size_t) tab.getncol())
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names.");
       }
 
       // Set the column names
@@ -196,14 +196,14 @@ namespace Gambit
       {
         // Store the interpolation data to be used later
         std::string interp_name = interpolator_names[interp_index];
-        
+
         int n_points = (tab[interp_name]).size();
-        
+
         if (nx1 != n_points)
         {
           utils_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_points)+") does not agree with the number of unique 'x' values ("+std::to_string(nx1)+") for the interpolator '"+interp_name+"'.\n Check formatting of the file: '"+file_name_in+"'.");
         }
-        
+
         interp_data.push_back(tab[interp_name]);
       }
     }
@@ -215,12 +215,12 @@ namespace Gambit
     double interp1d_collection::eval(double x1, size_t interp_index)
     {
       std::vector<double> fi_values = interp_data[interp_index];
-      
+
       // Determine upper and lower bounds
       double xi_upper[] = {0.0};
       double xi_lower[] = {0.0};
       bool x1_equal = false;
-      
+
       for (size_t i=0;i<(x1_vec.size());i++)
       {
         // In case of exact match
@@ -239,7 +239,7 @@ namespace Gambit
         // End early if you have found all of the bounds
         if (x1 < x1_vec[i] ) break;
       }
-      
+
       // Find the corresponding function values
       std::vector<double> fi = {-1.0,-1.0};
       bool test_u[] = {false};
@@ -251,17 +251,17 @@ namespace Gambit
         // Reset Values
         test_u[0] = false; test_u[1] = false;
         test_l[0] = false; test_l[1] = false;
-          
+
         // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
         if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
         else if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
         else continue;
-          
+
         // Set the values of fi in the correct order
         if (test_l[0]) {fi[0] = fi_values[k];}
         if (test_u[0]) {fi[1] = fi_values[k];}
       }
-      
+
       // Perform Calculation taking care for exact cases
       double Y_interp;
       if (x1_equal)
@@ -270,10 +270,10 @@ namespace Gambit
       } else {
         Y_interp = (xi_upper[0] - x1) / (xi_upper[0] - xi_lower[0]) * (fi[1]-fi[0]);
       }
-      
+
       return Y_interp;
     }
-    
+
     // Check if point is inside interpolation range
     bool interp1d_collection::is_inside_range(double x1)
     {
@@ -300,13 +300,13 @@ namespace Gambit
       // Check that there's more than two columns
       if (tab.getncol() < 3)
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Less than three columns found in the input file '" + file_name_in + "'."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than three columns found in the input file '" + file_name_in + "'.");
       }
 
       // Check that the number of columns matches the number of column names
       if (colnames_in.size() != (size_t) tab.getncol())
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names.");
       }
 
       // Set the column names
@@ -381,7 +381,7 @@ namespace Gambit
     {
       return gsl_spline2d_eval(splines[interp_index], x, y, x_accels[interp_index], y_accels[interp_index]);
     }
-    
+
     // If there is only one interpolator, we can evaluate it without specifying the index
     double interp2d_gsl_collection::eval(double x, double y) const
     {
@@ -418,13 +418,13 @@ namespace Gambit
       // Check that there's more than two columns
       if (tab.getncol() < 3)
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Less than three columns found in the input file '" + file_name_in + "'."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than three columns found in the input file '" + file_name_in + "'.");
       }
 
       // Check that the number of columns matches the number of column names
       if (colnames_in.size() != (size_t) tab.getncol())
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names.");
       }
 
       // Set the column names
@@ -456,19 +456,19 @@ namespace Gambit
       int nx2 = x2_vec.size();
       x2_min = x2_vec.front();
       x2_max = x2_vec.back();
-      
+
       for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
       {
         // Store the interpolation data to be used later
         std::string interp_name = interpolator_names[interp_index];
-        
+
         int n_points = (tab[interp_name]).size();
-        
+
         if (nx1 * nx2 != n_points)
         {
           utils_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_points)+") does not agree with the number of unique 'x' and 'y' values ("+std::to_string(nx1)+" and "+std::to_string(nx2)+") for the interpolator '"+interp_name+"'.\n Check formatting of the file: '"+file_name_in+"'.");
         }
-        
+
         interp_data.push_back(tab[interp_name]);
       }
     }
@@ -480,13 +480,13 @@ namespace Gambit
     double interp2d_collection::eval(double x1,double x2, size_t interp_index)
     {
       std::vector<double> fi_values = interp_data[interp_index];
-      
+
       // Determine upper and lower bounds
       double xi_upper[] = {0.0,0.0};
       double xi_lower[] = {0.0,0.0};
       bool x1_equal = false;
       bool x2_equal = false;
-      
+
       for (size_t i=0;i<(x1_vec.size());i++)
       {
         // In case of exact match
@@ -505,7 +505,7 @@ namespace Gambit
         // End early if you have found all of the bounds
         if (x1 < x1_vec[i] ) break;
       }
-      
+
       for (size_t i=0;i<(x2_vec.size());i++)
       {
         // In case of exact match
@@ -524,7 +524,7 @@ namespace Gambit
         
         if (x2 < x2_vec[i]) break;
       }
-      
+
       // Find the corresponding function values
       std::vector<double> fi = {-1.0,-1.0,-1.0,-1.0};
       bool test_u[] = {false,false};
@@ -536,23 +536,23 @@ namespace Gambit
         // Reset Values
         test_u[0] = false; test_u[1] = false;
         test_l[0] = false; test_l[1] = false;
-          
+
         // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
         if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
         else if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
         else continue;
-          
+
         if (x2_vec_unsorted[k]==xi_upper[1]) { test_u[1]=true;}
         else if (x2_vec_unsorted[k]==xi_lower[1]) { test_l[1]=true;}
         else continue;
-        
+
         // Set the values of fi in the correct order
         if (test_l[0] && test_l[1] ) {fi[0] = fi_values[k];}
         if (test_u[0] && test_l[1] ) {fi[1] = fi_values[k];}
         if (test_l[0] && test_u[1] ) {fi[2] = fi_values[k];}
         if (test_u[0] && test_u[1] ) {fi[3] = fi_values[k];}
       }
-      
+
       // Perform Calculation taking care for exact cases
       double Y_interp;
       double y_U;
@@ -561,7 +561,7 @@ namespace Gambit
       {
         fi[0] = fi[1];
         fi[2] = fi[3];
-      
+
         y_L = fi[0];
         y_U = fi[2];
         Y_interp = y_U - (y_U-y_L) * (xi_upper[1] - x2) / (xi_upper[1] - xi_lower[1]);
@@ -576,10 +576,10 @@ namespace Gambit
         y_U = fi[3] - (fi[3]-fi[2]) * (xi_upper[0] - x1) / (xi_upper[0] - xi_lower[0]);
         Y_interp = y_U - (y_U-y_L) * (xi_upper[1] - x2) / (xi_upper[1] - xi_lower[1]);
       }
-      
+
       return Y_interp;
     }
-    
+
     // Check if point is inside interpolation range
     bool interp2d_collection::is_inside_range(double x1,double x2)
     {
@@ -606,13 +606,13 @@ namespace Gambit
       // Check that there's more than 4 columns
       if (tab.getncol() < 5)
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Less than five columns found in the input file '" + file_name_in + "'."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than five columns found in the input file '" + file_name_in + "'.");
       }
 
       // Check that the number of columns matches the number of column names
       if (colnames_in.size() != (size_t) tab.getncol())
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names.");
       }
 
       // Set whether to allow missing points in the interpolation grid
@@ -650,7 +650,7 @@ namespace Gambit
       int nx2 = x2_vec.size();
       x2_min = x2_vec.front();
       x2_max = x2_vec.back();
-      
+
       x3_vec = tab[x3_name];
       x3_vec_unsorted = tab[x3_name];
       sort(x3_vec.begin(), x3_vec.end());
@@ -666,19 +666,19 @@ namespace Gambit
       int nx4 = x4_vec.size();
       x4_min = x4_vec.front();
       x4_max = x4_vec.back();
-      
+
       // Store the interpolation data to be used later
       for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
       {
         std::string interp_name = interpolator_names[interp_index];
-        
+
         int n_points = (tab[interp_name]).size();
-        
+
         if (!allow_missing_pts && (nx1 * nx2 * nx3 * nx4 != n_points))
         {
           utils_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_points)+") does not agree with the number of unique 'x' and 'y' values ("+std::to_string(nx1)+" and "+std::to_string(nx2)+") for the interpolator '"+interp_name+"'.\n Check formatting of the file: '"+file_name_in+"'. This could be the case if the interpolation grid is missing points.");
         }
-        
+
         interp_data.push_back(tab[interp_name]);
       }
     }
@@ -692,13 +692,13 @@ namespace Gambit
     // Evaluate a given interpolation
     double interp4d_collection::eval(double x1,double x2,double x3,double x4, size_t interp_index)
     {
-      double xi[] = {x1,x2,x3,x4}; 
+      double xi[] = {x1,x2,x3,x4};
       std::vector<double> fi_values = interp_data[interp_index];
-      
+
       // Determine upper and lower bounds
       double xi_upper[] = {0.0,0.0,0.0,0.0};
       double xi_lower[] = {0.0,0.0,0.0,0.0};
-      
+
       // Determine edges (-1 to make sure it doesn't run over the last element)
       for (size_t i=0;i<(x1_vec.size());i++)
       {
@@ -717,7 +717,7 @@ namespace Gambit
         // End early if you have found all of the bounds
         if (x1 < x1_vec[i] ) break;
       }
-      
+
       for (size_t i=0;i<(x2_vec.size());i++)
       {
         if (x2 == x2_vec[i])
@@ -732,7 +732,7 @@ namespace Gambit
         }
         if (x2 < x2_vec[i]) break;
       }
-      
+
       for (size_t i=0;i<(x3_vec.size());i++)
       {
         if (x3 == x3_vec[i])
@@ -747,7 +747,7 @@ namespace Gambit
         }
         if (x3 < x3_vec[i]) break;
       }
-      
+
       for (size_t i=0;i<(x4_vec.size());i++)
       {
         if (x4 == x4_vec[i])
@@ -762,7 +762,7 @@ namespace Gambit
         }
         if (x4 < x4_vec[i]) break;
       }
-      
+
       // Find the corresponding function values
       // Using a default value of -1 as this is assumed not a valid result
       std::vector<double> fi = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
@@ -775,24 +775,24 @@ namespace Gambit
         // Reset Values
         test_u[0] = false; test_u[1] = false; test_u[2] = false; test_u[3] = false;
         test_l[0] = false; test_l[1] = false; test_l[2] = false; test_l[3] = false;
-          
+
         // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
         if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
         if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
         if (test_u[0]==false && test_l[0]==false) continue;
-        
+
         if (x2_vec_unsorted[k]==xi_upper[1]) { test_u[1]=true;}
         if (x2_vec_unsorted[k]==xi_lower[1]) { test_l[1]=true;}
         if (test_u[1]==false && test_l[1]==false) continue;
-        
+
         if (x3_vec_unsorted[k]==xi_upper[2]) { test_u[2]=true;}
         if (x3_vec_unsorted[k]==xi_lower[2]) { test_l[2]=true;}
         if (test_u[2]==false && test_l[2]==false) continue;
-        
+
         if (x4_vec_unsorted[k]==xi_upper[3]) { test_u[3]=true;}
         if (x4_vec_unsorted[k]==xi_lower[3]) { test_l[3]=true;}
         if (test_u[3]==false && test_l[3]==false) continue;
-        
+
         // Set the values of fi in the correct order
         if (test_l[0] && test_l[1] && test_l[2] && test_l[3]) {fi[0] = fi_values[k];}
         if (test_u[0] && test_l[1] && test_l[2] && test_l[3]) {fi[1] = fi_values[k];}
@@ -810,9 +810,9 @@ namespace Gambit
         if (test_u[0] && test_l[1] && test_u[2] && test_u[3]) {fi[13] = fi_values[k];}
         if (test_l[0] && test_u[1] && test_u[2] && test_u[3]) {fi[14] = fi_values[k];}
         if (test_u[0] && test_u[1] && test_u[2] && test_u[3]) {fi[15] = fi_values[k];}
-        
+
       }
-       
+
       // If failed to find all points needed for interpolation, throw an error.
       // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return missing_point_val
       size_t index = 0;
@@ -830,18 +830,18 @@ namespace Gambit
         }
         index++;
       }
-       
+
       // Variables to track repetitions
       int it = 0;
       int itmax = 4;
-      
+
       // Perform the actual Calculation
       while (it < itmax)
       {
         InterpIter((itmax-it),xi_lower[it],xi_upper[it],fi,xi[it]);
         it++;
       }
-       
+
       return fi[0];
     }
 
@@ -871,13 +871,13 @@ namespace Gambit
       // Check that there's more than 5 columns
       if (tab.getncol() < 6)
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Less than six columns found in the input file '" + file_name_in + "'."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Less than six columns found in the input file '" + file_name_in + "'.");
       }
 
       // Check that the number of columns matches the number of column names
       if (colnames_in.size() != (size_t) tab.getncol())
       {
-        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names."); 
+        utils_error().raise(LOCAL_INFO, "ERROR! Mismatch between number of columns and number of column names.");
       }
 
       // Set whether to allow missing points in the interpolation grid
@@ -916,7 +916,7 @@ namespace Gambit
       int nx2 = x2_vec.size();
       x2_min = x2_vec.front();
       x2_max = x2_vec.back();
-      
+
       x3_vec = tab[x3_name];
       x3_vec_unsorted = tab[x3_name];
       sort(x3_vec.begin(), x3_vec.end());
@@ -932,7 +932,7 @@ namespace Gambit
       int nx4 = x4_vec.size();
       x4_min = x4_vec.front();
       x4_max = x4_vec.back();
-      
+
       x5_vec = tab[x5_name];
       x5_vec_unsorted = tab[x5_name];
       sort(x5_vec.begin(), x5_vec.end());
@@ -940,19 +940,19 @@ namespace Gambit
       int nx5 = x5_vec.size();
       x5_min = x5_vec.front();
       x5_max = x5_vec.back();
-      
+
       for (size_t interp_index = 0; interp_index < n_interpolators; ++interp_index)
       {
         // Store the interpolation data to be used later
         std::string interp_name = interpolator_names[interp_index];
-        
+
         int n_points = (tab[interp_name]).size();
-        
+
         if (!allow_missing_pts && (nx1 * nx2 * nx3 * nx4 * nx5 != n_points))
         {
           utils_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_points)+") does not agree with the number of unique 'x' and 'y' values ("+std::to_string(nx1)+" and "+std::to_string(nx2)+") for the interpolator '"+interp_name+"'.\n Check formatting of the file: '"+file_name_in+"'. This could be the case if the interpolation grid is missing points.");
         }
-        
+
         interp_data.push_back(tab[interp_name]);
       }
     }
@@ -966,13 +966,13 @@ namespace Gambit
     // Evaluate a given interpolation
     double interp5d_collection::eval(double x1,double x2,double x3,double x4, double x5, size_t interp_index)
     {
-      double xi[] = {x1,x2,x3,x4,x5}; 
+      double xi[] = {x1,x2,x3,x4,x5};
       std::vector<double> fi_values = interp_data[interp_index];
-      
+
       // Determine upper and lower bounds
       double xi_upper[] = {0.0,0.0,0.0,0.0,0.0};
       double xi_lower[] = {0.0,0.0,0.0,0.0,0.0};
-      
+
       // Determine edges
       // This is split into 5 different loops since the number in each dimension may be different
       for (size_t i=0;i<(x1_vec.size());i++)
@@ -992,7 +992,7 @@ namespace Gambit
         // End early if you have found all of the bounds
         if (x1 < x1_vec[i] ) break;
       }
-      
+
       for (size_t i=0;i<(x2_vec.size());i++)
       {
         if (x2 == x2_vec[i])
@@ -1007,7 +1007,7 @@ namespace Gambit
         }
         if (x2 < x2_vec[i]) break;
       }
-      
+
       for (size_t i=0;i<(x3_vec.size());i++)
       {
         if (x3 == x3_vec[i])
@@ -1022,7 +1022,7 @@ namespace Gambit
         }
         if (x3 < x3_vec[i]) break;
       }
-      
+
       for (size_t i=0;i<(x4_vec.size());i++)
       {
         if (x4 == x4_vec[i])
@@ -1037,7 +1037,7 @@ namespace Gambit
         }
         if (x4 < x4_vec[i]) break;
       }
-      
+
       for (size_t i=0;i<(x5_vec.size());i++)
       {
         if (x5 == x5_vec[i])
@@ -1052,7 +1052,7 @@ namespace Gambit
         }
         if (x5 < x5_vec[i]) break;
       }
-      
+
       // Find the corresponding function values
       // Using a default value of -1 as this is assumed not a valid result.
       // Note: This will cause a problem if your interpolation is using -1. 
@@ -1069,28 +1069,28 @@ namespace Gambit
         // Reset Values
         test_u[0] = false; test_u[1] = false; test_u[2] = false; test_u[3] = false; test_u[4] = false;
         test_l[0] = false; test_l[1] = false; test_l[2] = false; test_l[3] = false; test_l[4] = false;
-          
+
         // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
         if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}
         if (x1_vec_unsorted[k]==xi_lower[0]) { test_l[0]=true;}
         if (test_u[0]==false && test_l[0]==false) continue;
-        
+
         if (x2_vec_unsorted[k]==xi_upper[1]) { test_u[1]=true;}
         if (x2_vec_unsorted[k]==xi_lower[1]) { test_l[1]=true;}
         if (test_u[1]==false && test_l[1]==false) continue;
-        
+
         if (x3_vec_unsorted[k]==xi_upper[2]) { test_u[2]=true;}
         if (x3_vec_unsorted[k]==xi_lower[2]) { test_l[2]=true;}
         if (test_u[2]==false && test_l[2]==false) continue;
-        
+
         if (x4_vec_unsorted[k]==xi_upper[3]) { test_u[3]=true;}
         if (x4_vec_unsorted[k]==xi_lower[3]) { test_l[3]=true;}
         if (test_u[3]==false && test_l[3]==false) continue;
-        
+
         if (x5_vec_unsorted[k]==xi_upper[4]) { test_u[4]=true;}
         if (x5_vec_unsorted[k]==xi_lower[4]) { test_l[4]=true;}
         if (test_u[4]==false && test_l[4]==false) continue;
-        
+
         // Set the values of fi in the correct order
         if (test_l[0] && test_l[1] && test_l[2] && test_l[3] && test_l[4]) {fi[0] = fi_values[k];}
         if (test_u[0] && test_l[1] && test_l[2] && test_l[3] && test_l[4]) {fi[1] = fi_values[k];}
@@ -1124,9 +1124,9 @@ namespace Gambit
         if (test_u[0] && test_l[1] && test_u[2] && test_u[3] && test_u[4]) {fi[29] = fi_values[k];}
         if (test_l[0] && test_u[1] && test_u[2] && test_u[3] && test_u[4]) {fi[30] = fi_values[k];}
         if (test_u[0] && test_u[1] && test_u[2] && test_u[3] && test_u[4]) {fi[31] = fi_values[k];}
-        
+
       }
-         
+
       // If failed to find all points needed for interpolation, throw an error.
       // If the user allows missing pts, e.g. for additional cuts on what grid points were simulated, just return missing_point_val
       size_t index = 0;
@@ -1144,11 +1144,11 @@ namespace Gambit
         }
         index++;
       }
-      
+
       // Variables to track repetitions
       int it = 0;
       int itmax = 5;
-      
+
       // Perform the actual Calculation
       while (it < itmax)
       {
@@ -1158,7 +1158,7 @@ namespace Gambit
 
       return fi[0];
     }
-    
+
     // Linear interpolation in 1D
     double linearinterp1D(double x1, double x2, double y1, double y2, double xtest)
     {
@@ -1166,13 +1166,13 @@ namespace Gambit
       if(x2==x1) return y1;
       return (y1 + (xtest-x1)/(x2-x1) * (y2 - y1));
     }
-    
+
     // Function to evaluate set of 1D interps, requires careful formatting of original data...
     void InterpIter(int Ntemp,double xi_1,double xi_2,std::vector<double>& fi,double test)
     {
       std::vector<double> vi;
       size_t j=0;
-      
+
       // Loop over the number of required 1D interpolations
       while(j < pow(2,Ntemp))
       {
@@ -1180,11 +1180,11 @@ namespace Gambit
         {
           utils_error().raise(LOCAL_INFO, "ERROR! Something has gone wrong with sizes in InterpIter (4D/5D interpolation)");
         }
-        
+
         vi.push_back(linearinterp1D(xi_1,xi_2,fi[j],fi[j+1],test));
         j = j + 2;
       }
-      
+
       // Set values of fi to vi
       fi.clear();
       fi = vi;

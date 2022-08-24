@@ -299,20 +299,20 @@
     DEPENDENCY(DMEFT_spectrum, Spectrum)
     ALLOW_MODELS(DMEFT)
     #undef FUNCTION
-    
+
     #define FUNCTION DMsimpVectorMedScalarDM_results
     START_FUNCTION(AnalysisDataPointers)
     DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
     ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
-    
+
     #define FUNCTION DMsimpVectorMedMajoranaDM_results
     START_FUNCTION(AnalysisDataPointers)
     DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
     DEPENDENCY(Unitarity_Bound_DMsimpVectorMedMajoranaDM, double)
     ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
     #undef FUNCTION
-    
+
     #define FUNCTION DMsimpVectorMedDiracDM_results
     START_FUNCTION(AnalysisDataPointers)
     DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
@@ -346,14 +346,14 @@
     DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
     ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
-    
+
     #define FUNCTION DiJet_LogLike_DMsimpVectorMedMajoranaDM
     START_FUNCTION(double)
     DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
     DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
     ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
     #undef FUNCTION
-    
+
     #define FUNCTION DiJet_LogLike_DMsimpVectorMedDiracDM
     START_FUNCTION(double)
     DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
@@ -361,7 +361,7 @@
     ALLOW_MODELS(DMsimpVectorMedDiracDM)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
   /// Extract the signal predictions and uncertainties for all analyses
   #define CAPABILITY LHC_signals
   START_CAPABILITY
