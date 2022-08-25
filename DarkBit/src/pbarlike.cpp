@@ -29,8 +29,6 @@ namespace Gambit
         void lnL_pbarAMS02 (map_str_dbl& result)
         {
         using namespace Pipes::lnL_pbarAMS02;
-        // double dummy1 = 1.0 ;
-        // double dummy2 = 1.0 ;
         LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
         double rho0 = LocalHaloParameters.rho0;     
         double rho0_eff = (*Dep::RD_fraction)*rho0/0.43;
@@ -53,8 +51,6 @@ namespace Gambit
             sv += rate;
         }
         map_str_dbl del_chi2 = BEreq::drn_pbar_logLikes(DM_mass, input, sv);
-        // std::cout << "Delta chi^2 (preference of DM signal over background only) for the above specified model and channel: " << std::endl;
-        // std::cout << "delta chi^2 (uncorrelated): " << del_chi2 << std::endl;
         result = del_chi2;
         }
 
@@ -63,7 +59,7 @@ namespace Gambit
         using namespace Pipes::lnL_pbarAMS02_uncorr;
         map_str_dbl del_chi2 = *Dep::pbar_logLikes;
         double del_chi2_uncorr = del_chi2["uncorrelated"];
-        std::cout << "delta chi^2 (uncorrelated): " << del_chi2_uncorr << std::endl;
+        // std::cout << "delta chi^2 (uncorrelated): " << del_chi2_uncorr << std::endl;
         result = del_chi2_uncorr;
         }
 
@@ -72,7 +68,7 @@ namespace Gambit
         using namespace Pipes::lnL_pbarAMS02_corr;
         map_str_dbl del_chi2 = *Dep::pbar_logLikes;
         double del_chi2_corr = del_chi2["correlated"];
-        std::cout << "delta chi^2 (correlated): " << del_chi2_corr << std::endl;
+        // std::cout << "delta chi^2 (correlated): " << del_chi2_corr << std::endl;
         result = del_chi2_corr;
         }
     }
