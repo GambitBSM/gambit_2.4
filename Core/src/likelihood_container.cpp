@@ -117,12 +117,13 @@ namespace Gambit
     if (code != -1)
     {
       scancode = code;
-    // If resuming a previous scan, increment the scanID by 1. TODO: This is currently only applicable for the HDF5 printer.
-    } else if (printer.get_prevscanID() != -1) {
-      scancode = printer.get_prevscanID() + 1;
-    // Otherwise set as a default value, system time in milliseconds as an integer
     } else {
-      int timenow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      int timenow;
+      auto now = std::chrono::system_clock::now();
+      auto in_time_t = std::chrono::system_clock::to_time_t(now);
+      std::stringstream ss;
+      ss << std::put_time(std::localtime(&in_time_t), "%m%d%H%M");
+      ss >> timenow;
       scancode = timenow;
     }
     

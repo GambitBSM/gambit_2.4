@@ -115,10 +115,6 @@ namespace Gambit
         bool get_resume() { return resume; }
         void set_resume(bool rflag) { resume = rflag; }
         
-        // Get the scan ID from a resumed run.
-        int prevscanID = -1;
-        int get_prevscanID() {return prevscanID;};
-
         /// Signal printer that scan is finished, and final output needs to be performed
         virtual void finalise(bool abnormal=false) = 0;
 
