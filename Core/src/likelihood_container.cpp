@@ -89,7 +89,7 @@ namespace Gambit
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
     
     // Set the ScanID
-    set_scanID(iniFile);
+    set_scanID();
     
     // Find subset of vertices that match requested purpose
     auto all_vertices = dependencyResolver.getObsLikeOrder();
@@ -108,25 +108,9 @@ namespace Gambit
   }
 
   /// Work out what the scanID should be and set it
-  void Likelihood_Container::set_scanID(IniParser::IniFile inifile)
+  void Likelihood_Container::set_scanID()
   {
-    // Get the scanID from the yaml node.
-    int code = inifile.getValueOrDef<int>(-1, "scanID");
-    
-    // If code is supplied by user, use that
-    if (code != -1)
-    {
-      scancode = code;
-    } else {
-      int timenow;
-      auto now = std::chrono::system_clock::now();
-      auto in_time_t = std::chrono::system_clock::to_time_t(now);
-      std::stringstream ss;
-      ss << std::put_time(std::localtime(&in_time_t), "%m%d%H%M");
-      ss >> timenow;
-      scancode = timenow;
-    }
-    
+    scancode = dependencyResolver.scanID;
   }
 
   /// Do the prior transformation and populate the parameter map

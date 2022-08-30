@@ -431,6 +431,9 @@ namespace Gambit
 
       // Get BibTeX key entries for backends, modules, etc
       getCitationKeys();
+      
+      // Get the scanID
+      set_scanID();
 
       // Done
     }
@@ -2423,6 +2426,8 @@ namespace Gambit
     }
 
     /// Construct metadata information from used observables, rules and options
+    /// Note: No keys are can be identical (or differing just by capitalisation) 
+    ///       to those printed in the main file, otherwise the sqlite printer fails
     map_str_str DependencyResolver::getMetadata()
     {
       map_str_str metadata;
@@ -2433,10 +2438,18 @@ namespace Gambit
       // Date
       auto now = std::chrono::system_clock::now();
       auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
+      
       std::stringstream ss;
       ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M");
       metadata["Date"] =  ss.str();
+      
+      // scanID
+      if (boundIniFile->getValueOrDef<bool>(true, "print_scanID"))
+      {
+        ss.str("");
+        ss << scanID;
+        metadata["Scan ID"] = ss.str();
+      }
 
       // Parameters
       YAML::Node parametersNode = boundIniFile->getParametersNode();
@@ -2567,6 +2580,27 @@ namespace Gambit
         backendsRequired.push_back(resolvedBackends);
       }
 
+    }
+
+    // Set the Scan ID
+    void DependencyResolver::set_scanID()
+    {
+      // Get the scanID from the yaml node.
+      int code = boundIniFile->getValueOrDef<int>(-1, "scanID");
+    
+      // If code is supplied by user, use that
+      if (code != -1)
+      {
+        scanID = code;
+      } else {
+        int timenow;
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%m%d%H%M");
+        ss >> timenow;
+        scanID = timenow;
+      }
     }
 
     // Get BibTeX citation keys for backends, modules, etc

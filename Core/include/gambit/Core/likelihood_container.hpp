@@ -136,7 +136,7 @@ namespace Gambit
       double purposeModifier(double lnlike);
       
       /// Set the scanID.
-      void set_scanID(IniParser::IniFile);
+      void set_scanID();
   };
 
   // Register the Likelihood Container as an available target function for ScannerBit.  The first argument

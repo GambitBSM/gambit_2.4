@@ -139,6 +139,13 @@ Logger:
 KeyValues:
 
   default_output_path: "${PWD}/runs/spartan"
+  
+  # An additional entry in the dataset and metadata, useful for identifying which
+  # points correspond to a given scan in combined datasets.
+  # The default is for print_scanID: true, 
+  # and for it to print the date and time as an int of the form
+  # scanID: MonthDayHourMinute. This can be overwritten to any int. 
+  scanID: 1
 
   rng:
     generator: ranlux48
