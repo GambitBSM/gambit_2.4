@@ -144,7 +144,7 @@ KeyValues:
   # points correspond to a given scan in combined datasets.
   # The default is for print_scanID: true, 
   # and for it to print the date and time as an int of the form
-  # scanID: MonthDayHourMinute. This can be overwritten to any int. 
+  # scanID: HourMinuteSecondMillisecond. This can be overwritten to any int. 
   scanID: 1
 
   rng:

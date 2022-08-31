@@ -2596,8 +2596,10 @@ namespace Gambit
         int timenow;
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds> (now.time_since_epoch()) - std::chrono::duration_cast<std::chrono::seconds> (now.time_since_epoch());
         std::stringstream ss;
-        ss << std::put_time(std::localtime(&in_time_t), "%m%d%H%M");
+        ss << std::put_time(std::localtime(&in_time_t), "%H%M%S");
+        ss << ms.count();
         ss >> timenow;
         scanID = timenow;
       }
