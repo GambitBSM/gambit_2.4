@@ -1587,7 +1587,6 @@ namespace Gambit
 
                         logger() << LogTags::info << "Extracted highest pointID calculated on rank "<<myRank<<" process during previous scan (it was "<< highests <<") from combined output. Operation took "<<std::chrono::duration_cast<std::chrono::seconds>(time_taken).count()<<" seconds." << EOM;
 
-
                     }
                     else
                     {

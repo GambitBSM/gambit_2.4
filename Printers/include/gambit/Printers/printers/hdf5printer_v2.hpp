@@ -1363,7 +1363,7 @@ namespace Gambit
 
         /// Search the existing output and find the highest used pointIDs for each rank
         std::map<ulong, ulong> get_highest_PPIDs(const int mpisize);
-        
+
         /// Open (and lock) output HDF5 file and obtain HDF5 handles
         void lock_and_open_file(const char access_type='w'); // read/write allowed by default
 
@@ -1514,7 +1514,7 @@ namespace Gambit
 
         /// Report length of buffer for HDF5 output
         std::size_t get_buffer_length();
-        
+
         /// Base class virtual function overloads
         /// (the public virtual interface)
         ///@{
@@ -1611,7 +1611,7 @@ namespace Gambit
 
         /// Search the existing output and find the highest used pointIDs for each rank
         std::map<ulong, ulong> get_highest_PPIDs_from_HDF5();
-        
+
         /// Check all datasets in a group for length inconsistencies
         /// and correct them if possible
         void check_consistency(bool attempt_repair);

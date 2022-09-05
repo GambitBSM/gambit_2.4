@@ -2426,7 +2426,7 @@ namespace Gambit
     }
 
     /// Construct metadata information from used observables, rules and options
-    /// Note: No keys are can be identical (or differing just by capitalisation) 
+    /// Note: No keys can be identical (or differing only by capitalisation) 
     ///       to those printed in the main file, otherwise the sqlite printer fails
     map_str_str DependencyResolver::getMetadata()
     {
@@ -2438,17 +2438,17 @@ namespace Gambit
       // Date
       auto now = std::chrono::system_clock::now();
       auto in_time_t = std::chrono::system_clock::to_time_t(now);
-      
+
       std::stringstream ss;
       ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M");
       metadata["Date"] =  ss.str();
-      
+
       // scanID
       if (boundIniFile->getValueOrDef<bool>(true, "print_scanID"))
       {
         ss.str("");
         ss << scanID;
-        metadata["Scan ID"] = ss.str();
+        metadata["Scan_ID"] = ss.str();
       }
 
       // Parameters
@@ -2586,22 +2586,22 @@ namespace Gambit
     void DependencyResolver::set_scanID()
     {
       // Get the scanID from the yaml node.
-      int code = boundIniFile->getValueOrDef<int>(-1, "scanID");
+      scanID = boundIniFile->getValueOrDef<int>(-1, "scanID");
     
-      // If code is supplied by user, use that
-      if (code != -1)
+      // If scanID is supplied by user, use that
+      if (scanID != -1)
       {
-        scanID = code;
-      } else {
-        int timenow;
-        auto now = std::chrono::system_clock::now();
-        auto in_time_t = std::chrono::system_clock::to_time_t(now);
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds> (now.time_since_epoch()) - std::chrono::duration_cast<std::chrono::seconds> (now.time_since_epoch());
+        return;
+      }
+      else
+      {
+        const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+        std::time_t in_time_t = std::chrono::system_clock::to_time_t(now);
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds> (now.time_since_epoch()) - std::chrono::duration_cast<std::chrono::seconds> (now.time_since_epoch());
         std::stringstream ss;
         ss << std::put_time(std::localtime(&in_time_t), "%H%M%S");
         ss << ms.count();
-        ss >> timenow;
-        scanID = timenow;
+        ss >> scanID;
       }
     }
 

@@ -115,7 +115,7 @@ namespace Gambit
 
         bool get_resume() { return resume; }
         void set_resume(bool rflag) { resume = rflag; }
-        
+
         /// Signal printer that scan is finished, and final output needs to be performed
         virtual void finalise(bool abnormal=false) = 0;
 
