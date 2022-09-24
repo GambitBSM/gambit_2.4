@@ -54,7 +54,7 @@
       BACKEND_REQ(simplexs_get_xsection, (), PyDict, (PyDict&, PyDict&))
       #undef FUNCTION
     #endif
-    
+
     #ifdef HAVE_PYBIND11
       /// Get the PIDPairCrossSectionsMap using the 'xsec' backend
       /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)
@@ -64,7 +64,7 @@
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       DEPENDENCY(ActivePIDPairs, vec_PID_pair)
       DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-      ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
       ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
       BACKEND_REQ(xsecBE_import_slha_string, (), void, (std::string&))
       BACKEND_REQ(xsecBE_set_parameters, (), void, (PyDict&))
@@ -78,7 +78,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActivePIDPairs, vec_PID_pair)
     DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     /// @todo Extend to also allow models ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model
     BACKEND_REQ(prospino_run, (libprospino), map_str_dbl, (const PID_pair&, const Options&))
     BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
@@ -93,7 +93,7 @@
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       DEPENDENCY(ActivePIDPairs, vec_PID_pair)
       DEPENDENCY(SLHA1Spectrum, SLHAstruct)
-      ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
       ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
       BACKEND_REQ(salami_import_slha_string, (), void, (std::string&))
       BACKEND_REQ(salami_set_parameters, (), void, (PyDict&))
@@ -149,7 +149,7 @@
   START_CAPABILITY
     #define FUNCTION getSLHA1Spectrum
     START_FUNCTION(SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
@@ -160,7 +160,7 @@
   START_CAPABILITY
     #define FUNCTION getSLHA2Spectrum
     START_FUNCTION(SLHAstruct)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
@@ -173,13 +173,13 @@
   START_CAPABILITY
     #define FUNCTION calc_susy_spectrum_scan_guide
     START_FUNCTION(double)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// A dummy loglike function to ensure that points with failed mass spectrum 
+  /// A dummy loglike function to ensure that points with failed mass spectrum
   /// and/or decay calculations can be invalidated aslo in "observables-only" scans
   #define CAPABILITY susy_spectrum_validation_loglike
     #define FUNCTION get_susy_spectrum_validation_loglike
@@ -187,7 +187,7 @@
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_lightgravitino, MSSM63atQ_mA, MSSM63atQ_mA_lightgravitino, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atMGUT_mA, MSSM63atMGUT_mA_lightgravitino)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     #undef FUNCTION
   #undef CAPABILITY
 

@@ -727,8 +727,8 @@ namespace Gambit
       #endif
 
     }
-    
-    
+
+
     /// @} End module convenience functions
 
 
@@ -785,7 +785,7 @@ namespace Gambit
       // This FS spectrum generator has mA as the parameter
       input.mAInput = *myPipe::Param.at("mA");
       fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMatMSUSYEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMSUSY_mA_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMatMSUSYEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMSUSY_mA_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -813,7 +813,7 @@ namespace Gambit
       input.mHd2IN = *myPipe::Param.at("mHd2");
       input.SignMu = *myPipe::Param.at("SignMu");
       fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
-      result = run_FS_spectrum_generator<MSSMEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -846,7 +846,7 @@ namespace Gambit
       // Note: This particular spectrum generator has been created with
       // different names for parameter inputs.  We should standardise this
       fill_MSSM63_input_altnames(input,myPipe::Param);
-      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mA_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mA_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -924,7 +924,7 @@ namespace Gambit
       fill_MSSM63_input(input,myPipe::Param);
 
       // Run spectrum generator
-      result = run_FS_spectrum_generator<MSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -950,7 +950,7 @@ namespace Gambit
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
 
       // Run spectrum generator
-      result = run_FS_spectrum_generator<MSSM_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mA_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSM_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atQ_mA_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -977,7 +977,7 @@ namespace Gambit
       fill_MSSM63_input(input,myPipe::Param);
 
       // Run the spectrum generator
-      result = run_FS_spectrum_generator<MSSMatMGUT_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMatMGUT_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -1011,7 +1011,7 @@ namespace Gambit
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
 
       // Run the spectrum generator
-      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -1038,7 +1038,7 @@ namespace Gambit
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
 
       // Run the spectrum generator
-      result = run_FS_spectrum_generator<MSSMatMGUT_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mA_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMatMGUT_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mA_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -1069,7 +1069,7 @@ namespace Gambit
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
 
       // Run the specctrum generator
-      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mA_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMGUT_mA_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -1096,7 +1096,7 @@ namespace Gambit
       fill_MSSM63_input(input,myPipe::Param); // Fill the rest
 
       // Run the spectrum generator
-      result = run_FS_spectrum_generator<MSSMatMSUSY_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMSUSY_mA_lightgravitino"));
+      result = run_FS_spectrum_generator<MSSMatMSUSY_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param,myPipe::ModelInUse("MSSM63atMSUSY_mA_mG"));
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -1262,8 +1262,8 @@ namespace Gambit
       // current set of ModelParameters from.
       // Will throw an error if no reader object exists, i.e. if the postprocessor is not
       // driving this scan.
-     
-      // Retrieve MSSM spectrum info into an SLHAea object 
+
+      // Retrieve MSSM spectrum info into an SLHAea object
       MSSM_SLHAstruct mssm_in; // Special type to trigger specialised MSSM retrieve routine
       bool mssm_is_valid = get_pp_reader().retrieve(mssm_in,"MSSM_spectrum");
 
@@ -1277,16 +1277,16 @@ namespace Gambit
       //  so this is just checking that the spectrum was computed for
       //  the current input point)
       if(not (mssm_is_valid and sm_is_valid)) invalid_point().raise("Postprocessor: precomputed spectrum was set 'invalid' for this point");
-       
+
       // Dump spectrum to output for testing
       SLHAstruct mssm = mssm_in; // Only this type has stream overloads etc. defined
-      SLHAstruct sm = sm_in; 
+      SLHAstruct sm = sm_in;
 
       // Turns out we don't generically save tan_beta(mZ)_DRbar, so need to extract
       // this from model parameters (it is always an input, so we should have it in those)
       double tbmZ = *myPipe::Param.at("TanBeta");
-      SLHAea_add(mssm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");        
-      SLHAea_add(sm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");        
+      SLHAea_add(mssm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");
+      SLHAea_add(sm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");
 
       // Retrieve any mass cuts (could just cut with postprocessor, but I
       // guess can leave this feature in for compatibility with usage
@@ -1880,7 +1880,7 @@ namespace Gambit
          // because it uses SM_slha rather than SM for the LE subspectrum
          // TODO: Would be better to do this in a more elegant way than with exception
          // handling
-         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE()); 
+         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE());
       }
       fill_map_from_subspectrum<SpectrumContents::MSSM>(specmap, mssmspec.get_HE());
       add_extra_MSSM_parameter_combinations(specmap, mssmspec.get_HE());
@@ -1899,7 +1899,7 @@ namespace Gambit
          // because it uses SM_slha rather than SM for the LE subspectrum
          // TODO: Would be better to do this in a more elegant way than with exception
          // handling
-         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE()); 
+         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE());
       }
       fill_map_from_subspectrum<SpectrumContents::MSSM>(specmap, mssmspec.get_HE());
       add_extra_MSSM_parameter_combinations(specmap, mssmspec.get_HE());

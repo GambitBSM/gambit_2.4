@@ -61,8 +61,8 @@ namespace Gambit
         mass = spec.get(Par::Pole_Mass, 1000022, 0);
 
         // Presume that this Pipes:: ... as good as any for ModelInUse
-        const bool gravitino = Pipes::LEP208_SLHA1_convention_xsec_selselbar::ModelInUse("MSSM63atQ_lightgravitino") ||
-                               Pipes::LEP208_SLHA1_convention_xsec_selselbar::ModelInUse("MSSM63atMGUT_lightgravitino");
+        const bool gravitino = Pipes::LEP208_SLHA1_convention_xsec_selselbar::ModelInUse("MSSM63atQ_mG") ||
+                               Pipes::LEP208_SLHA1_convention_xsec_selselbar::ModelInUse("MSSM63atMGUT_mG");
 
         if (gravitino)
         {
@@ -2435,31 +2435,31 @@ namespace Gambit
     void OPAL_Degenerate_Chargino_Conservative_LLike(double& result)
     {
       using namespace Pipes::OPAL_Degenerate_Chargino_Conservative_LLike;
-      
+
       const Spectrum& spec = *Dep::MSSM_spectrum;
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
       const double mZ = spec.get(Par::Pole_Mass,23, 0);
       triplet<double> xsecWithError;
       double xsecLimit;
-      
+
       static const OPALDegenerateCharginoLimitAt208GeV limitContainer;
       // #ifdef COLLIDERBIT_DEBUG
       //   static bool dumped=false;
       //   if(!dumped)
       //   {
       //     limitContainer.dumpPlotData(45.0, 95., 0.320, 5., mZ, "lepLimitPlanev2/OPALDegenerateCharginoLimitAt208GeV.dump");
-      //     
+      //
       //     dumped=true;
       //   }
       // #endif
-      
+
       result = 0;
-      
+
       // char1, neut1
       xsecLimit = limitContainer.limitAverage(mass_char1, mass_char1-abs(mass_neut1), mZ);
       xsecWithError = *Dep::LEP208_xsec_chipm_11;
-      
+
       if (xsecWithError.central < xsecLimit)
       {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
@@ -2468,10 +2468,10 @@ namespace Gambit
       {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
       }
-      
+
     }
 
-    
+
     void OPAL_Chargino_All_Channels_Conservative_LLike(double& result)
     {
       using namespace Pipes::OPAL_Chargino_All_Channels_Conservative_LLike;
