@@ -1365,7 +1365,8 @@ namespace Gambit
         // Vector to contain signal yield predictions
         std::vector<double> sr_nums(ainfo.n_signal_regions, 0.);
 
-        // Fill the signal yield vector with DMsimpVectorMedScalarDM signal predictions
+        // Use the provided model-specific function pointer to fill the signal yield vector 
+        // with signal predictions for the given model
         get_all_model_signal_yields(sr_nums, ainfo, spec);
 
         // Create vector of SignalRegionData instances
