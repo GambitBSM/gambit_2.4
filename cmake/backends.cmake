@@ -1193,7 +1193,7 @@ set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For ski
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     # Fix bug preventing the use of array bounds checking.
@@ -1221,7 +1221,7 @@ set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For ski
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     # Fix bug preventing the use of array bounds checking.
@@ -1250,7 +1250,7 @@ set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For ski
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     # Fix bug preventing the use of array bounds checking.
@@ -1902,7 +1902,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND tar -C ${dir}/ -xf ${dir}/code/plc_3.0/plc-3.0.tar.bz2 --strip-components=1
           COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
           COMMAND sed ${dashi} -e "s#x86_64#${CMAKE_SYSTEM_PROCESSOR}#g" waf_tools/mbits.py
-    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${PYTHON_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --no_pytools
+    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${PYTHON_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --extra_lib=dl --no_pytools
     BUILD_COMMAND ""
     INSTALL_COMMAND C_INCLUDE_PATH=$(C_INCLUDE_PATH):${PYTHON_INCLUDE_DIR} ${PYTHON_EXECUTABLE} ${dir}/waf install --no_pytools
   )

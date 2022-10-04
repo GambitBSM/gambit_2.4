@@ -17,7 +17,7 @@
 ///  \author Ankit Beniwal
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Aug
-///  
+///
 ///  \author Inigo Saez Casares
 ///          (inigo.saez_casares@ens-paris-saclay.fr))
 ///
@@ -50,10 +50,8 @@ namespace Gambit
     struct DMsimpVectorMedMajoranaDM: SubSpectrumContents { DMsimpVectorMedMajoranaDM(); };
     struct DMsimpVectorMedScalarDM  : SubSpectrumContents { DMsimpVectorMedScalarDM(); };
 
-// TODO: Temporarily disabled until project is ready
-/*
-    struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); };
-*/
+    // TODO: Temporarily disabled until project is ready
+    // struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); };
 
   }
 }

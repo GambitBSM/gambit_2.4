@@ -2,7 +2,7 @@
 //  *********************************************
 ///  \file
 ///
-///  ScannerBit interface to PolyChord 1.17.1
+///  ScannerBit interface to PolyChord 1.20.1
 ///
 ///  Header file
 ///
@@ -22,6 +22,10 @@
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date May 2020
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date June 2022
+///
 ///  *********************************************
 
 #ifndef __polychord_hpp__
@@ -33,51 +37,53 @@
 
 struct Settings
 {
-    int nDims;
-    int nDerived;
-    int nlive;
-    int num_repeats;
-    int nprior;
-    int nfail;
-    bool do_clustering;
-    int feedback;
-    double precision_criterion;
-    double logzero;
-    int max_ndead;
-    double boost_posterior;
-    bool posteriors;
-    bool equals;
-    bool cluster_posteriors;
-    bool write_resume;
-    bool write_paramnames;
-    bool read_resume;
-    bool write_stats;
-    bool write_live;
-    bool write_dead;
-    bool write_prior;
-    bool maximise;
-    double compression_factor;
-    std::string base_dir;
-    std::string file_root;
-    std::vector<double> grade_frac;
-    std::vector<int> grade_dims;
-    std::vector<double> loglikes;
-    std::vector<int> nlives;
-    int seed;
+   int nDims;
+   int nDerived;
+   int nlive;
+   int num_repeats;
+   int nprior;
+   int nfail;
+   bool do_clustering;
+   int feedback;
+   double precision_criterion;
+   double logzero;
+   int max_ndead;
+   double boost_posterior;
+   bool posteriors;
+   bool equals;
+   bool cluster_posteriors;
+   bool write_resume;
+   bool write_paramnames;
+   bool read_resume;
+   bool write_stats;
+   bool write_live;
+   bool write_dead;
+   bool write_prior;
+   bool maximise;
+   double compression_factor;
+   bool synchronous;
+   std::string base_dir;
+   std::string file_root;
+   std::vector<double> grade_frac;
+   std::vector<int> grade_dims;
+   std::vector<double> loglikes;
+   std::vector<int> nlives;
+   int seed;
 
-    Settings(int _nDims=0,int _nDerived=0);
+   Settings(int _nDims=0,int _nDerived=0);
 };
 
+
 void run_polychord( 
-        double (*loglikelihood)(double*,int,double*,int),
-        void (*dumper)(int,int,int,double*,double*,double*,double,double), 
-        Settings);
+         double (*loglikelihood)(double*,int,double*,int),
+         void (*dumper)(int,int,int,double*,double*,double*,double,double), 
+         Settings);
 
 
 namespace Gambit
 {
 
-   namespace PolyChord
+   namespace PolyChord_1_20_1
    {
 
       /// Typedef for the ScannerBit pointer to the external loglikelihood function
