@@ -542,7 +542,7 @@ def write_wimp_props(model_name):
     ).format(model_name))
     
     wimp_prop_c = dumb_indent(6, (
-              "if(ModelInUse(\"{0}\"))\n"
+              "else if(ModelInUse(\"{0}\"))\n"
               "  props.mass = Dep::{0}_spectrum->get(Par::Pole_Mass, props.name);\n"
     ).format(model_name))
     
