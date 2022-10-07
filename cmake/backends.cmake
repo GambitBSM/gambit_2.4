@@ -973,7 +973,7 @@ endif()
 # - Add "-undefined dynamic_lookup flat_namespace" to linker flags when OSX linker is used
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
-  set(pythia_CXX_SONAME_FLABS "-Wl,-dylib_install_name")
+  set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name")
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
   set(pythia_CXX_SONAME_FLAGS "-Wl,-soname")
