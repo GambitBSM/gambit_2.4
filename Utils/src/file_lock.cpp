@@ -41,6 +41,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016, 2019 Sep
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2022 Oct
+///
 ///  *********************************************
 
 #include <cstdio>
@@ -75,7 +79,8 @@ namespace Gambit
 
       /// Constructor
       FileLock::FileLock(const std::string& fname, const bool harderrs)
-       : my_lock_fname(ensure_path_exists(fname))
+       : creator(not file_exists(fname))
+       , my_lock_fname(ensure_path_exists(fname))
        , fd(open(my_lock_fname.c_str(), O_RDWR | O_CREAT, 0666)) // last argument is permissions, in case file has to be created.
        , have_lock(false)
        , hard_errors(harderrs)
@@ -197,6 +202,9 @@ namespace Gambit
       /// Getter for lockfile name
       const std::string& FileLock::get_filename() const { return my_lock_fname; }
 
+      /// Is this process the creator of the file
+      bool FileLock::amICreator() const { return creator; }
+
       /// @}
 
 
@@ -210,6 +218,12 @@ namespace Gambit
       ProcessLock::ProcessLock(const std::string& fname, const bool harderrs)
        : FileLock(lock_prefix + fname + lock_suffix, harderrs)
       {}
+
+      /// Deleting existing locks
+      void ProcessLock::clean_locks()
+      {
+        int error = remove_all_files_in(lock_prefix);
+      }
 
       /// @}
 

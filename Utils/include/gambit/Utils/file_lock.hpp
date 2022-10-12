@@ -49,6 +49,10 @@ namespace Gambit
       class FileLock
       {
         private:
+
+          /// Bool to indicate whether this process created the file
+          bool creator;
+
           /// Name for the managed lock file
           const std::string my_lock_fname;
 
@@ -77,6 +81,9 @@ namespace Gambit
 
           /// Getter for lockfile name
           const std::string& get_filename() const;
+
+          /// Is this process the creator of the file
+          bool amICreator() const;
       };
 
 
@@ -93,6 +100,9 @@ namespace Gambit
         public:
           /// Constructor
           ProcessLock(const std::string& fname, const bool harderrs=false);
+
+          /// Clean up existing process locks
+          static void clean_locks();
       };
 
    }

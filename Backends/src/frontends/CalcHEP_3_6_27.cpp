@@ -24,7 +24,7 @@
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 #include "gambit/Elements/decay_table.hpp"
 
-#include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 #include <unistd.h>
 
@@ -75,14 +75,12 @@ BE_INI_FUNCTION
             " in CalcHEP. CalcHEP error code: " + std::to_string(error) + ". Please check your model files.\n");
     }
 
-    // Get the MPI rank, only let the first rank make the processes...
-    int rank = 0;
-    #ifdef WITH_MPI
-      rank = GMPI::Comm().Get_rank();
-    #endif
+    // Create a process lock to allow only one process in
+    Utils::ProcessLock mylock("CH_decays");
+    mylock.get_lock();
 
-    // rank 0 can create all the libraries
-    if (rank == 0)
+    // Only file creator creates the libraries
+    if (mylock.amICreator())
     {
       // Decays first
       for (auto d : decays)
@@ -94,10 +92,7 @@ BE_INI_FUNCTION
         for (auto fs : x.second)
           generate_xsec_code(model, x.first, fs);
     }
-    #ifdef WITH_MPI
-      // Wait here until the first rank has generated all matrix elements.
-      GMPI::Comm().Barrier();
-    #endif
+    mylock.release_lock();
 
     free(modeltoset);
   }
