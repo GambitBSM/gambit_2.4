@@ -222,7 +222,7 @@ namespace Gambit
       /// Deleting existing locks
       void ProcessLock::clean_locks()
       {
-        int error = remove_all_files_in(lock_prefix);
+        remove_all_files_in(lock_prefix, false); // last argument is "error_if_absent" -> No error if path does not exist
       }
 
       /// @}
