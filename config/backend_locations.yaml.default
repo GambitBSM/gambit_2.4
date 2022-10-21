@@ -48,10 +48,11 @@ SuperIso:
   4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
 
 HepLike:
-  1.2:         ./Backends/installed/heplike/1.2/libHEPLike.so
+  1.4:         ./Backends/installed/heplike/1.4/libHEPLike.so
 
 HepLikeData:
   1.2:         ./Backends/installed/heplikedata/1.2
+  1.4:         ./Backends/installed/heplikedata/1.4
 
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so
