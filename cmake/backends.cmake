@@ -461,7 +461,7 @@ endif()
 
 # HepLike
 set(name "heplike")
-set(ver "1.4")
+set(ver "2.0")
 set(git_repo "https://github.com/KrakowHEPSoft/HEPLike.git")
 #set(dl "https://github.com/KrakowHEPSoft/HEPLike/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")

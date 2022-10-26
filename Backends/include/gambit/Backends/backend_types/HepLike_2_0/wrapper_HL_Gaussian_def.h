@@ -1,5 +1,5 @@
-#ifndef __wrapper_HL_BifurGaussian_def_HepLike_1_4_h__
-#define __wrapper_HL_BifurGaussian_def_HepLike_1_4_h__
+#ifndef __wrapper_HL_Gaussian_def_HepLike_2_0_h__
+#define __wrapper_HL_Gaussian_def_HepLike_2_0_h__
 
 #include <string>
 
@@ -10,75 +10,75 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
    
    // Member functions: 
-   inline void HL_BifurGaussian::Read()
+   inline void HL_Gaussian::Read()
    {
       get_BEptr()->Read();
    }
    
-   inline double HL_BifurGaussian::GetChi2(double theory, double theory_err)
+   inline double HL_Gaussian::GetChi2(double theory, double theory_err)
    {
       return get_BEptr()->GetChi2(theory, theory_err);
    }
    
-   inline double HL_BifurGaussian::GetChi2(double theory)
+   inline double HL_Gaussian::GetChi2(double theory)
    {
       return get_BEptr()->GetChi2__BOSS(theory);
    }
    
-   inline double HL_BifurGaussian::GetLikelihood(double theory, double theory_err)
+   inline double HL_Gaussian::GetLikelihood(double theory, double theory_err)
    {
       return get_BEptr()->GetLikelihood(theory, theory_err);
    }
    
-   inline double HL_BifurGaussian::GetLikelihood(double theory)
+   inline double HL_Gaussian::GetLikelihood(double theory)
    {
       return get_BEptr()->GetLikelihood__BOSS(theory);
    }
    
-   inline double HL_BifurGaussian::GetLogLikelihood(double theory, double theory_err)
+   inline double HL_Gaussian::GetLogLikelihood(double theory, double theory_err)
    {
       return get_BEptr()->GetLogLikelihood(theory, theory_err);
    }
    
-   inline double HL_BifurGaussian::GetLogLikelihood(double theory)
+   inline double HL_Gaussian::GetLogLikelihood(double theory)
    {
       return get_BEptr()->GetLogLikelihood__BOSS(theory);
    }
    
    
    // Wrappers for original constructors: 
-   inline HL_BifurGaussian::HL_BifurGaussian() :
-      HL_Gaussian(__factory0())
+   inline HL_Gaussian::HL_Gaussian() :
+      WrapperBase(__factory0())
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_BifurGaussian::HL_BifurGaussian(::std::basic_string<char> s) :
-      HL_Gaussian(__factory1(s))
+   inline HL_Gaussian::HL_Gaussian(::std::basic_string<char> s) :
+      WrapperBase(__factory1(s))
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);
    }
    
    // Special pointer-based constructor: 
-   inline HL_BifurGaussian::HL_BifurGaussian(Abstract_HL_BifurGaussian* in) :
-      HL_Gaussian(in)
+   inline HL_Gaussian::HL_Gaussian(Abstract_HL_Gaussian* in) :
+      WrapperBase(in)
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);
    }
    
    // Copy constructor: 
-   inline HL_BifurGaussian::HL_BifurGaussian(const HL_BifurGaussian& in) :
-      HL_Gaussian(in.get_BEptr()->pointer_copy__BOSS())
+   inline HL_Gaussian::HL_Gaussian(const HL_Gaussian& in) :
+      WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);
    }
    
    // Assignment operator: 
-   inline HL_BifurGaussian& HL_BifurGaussian::operator=(const HL_BifurGaussian& in)
+   inline HL_Gaussian& HL_Gaussian::operator=(const HL_Gaussian& in)
    {
       if (this != &in)
       {
@@ -89,7 +89,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
    
    // Destructor: 
-   inline HL_BifurGaussian::~HL_BifurGaussian()
+   inline HL_Gaussian::~HL_Gaussian()
    {
       if (get_BEptr() != 0)
       {
@@ -104,9 +104,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    }
    
    // Returns correctly casted pointer to Abstract class: 
-   inline Abstract_HL_BifurGaussian* HL_BifurGaussian::get_BEptr() const
+   inline Abstract_HL_Gaussian* HL_Gaussian::get_BEptr() const
    {
-      return dynamic_cast<Abstract_HL_BifurGaussian*>(BEptr);
+      return dynamic_cast<Abstract_HL_Gaussian*>(BEptr);
    }
    
 }
@@ -114,4 +114,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_HL_BifurGaussian_def_HepLike_1_4_h__ */
+#endif /* __wrapper_HL_Gaussian_def_HepLike_2_0_h__ */

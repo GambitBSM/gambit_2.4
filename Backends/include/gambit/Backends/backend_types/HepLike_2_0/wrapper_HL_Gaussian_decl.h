@@ -1,12 +1,11 @@
-#ifndef __wrapper_HL_BifurGaussian_decl_HepLike_1_4_h__
-#define __wrapper_HL_BifurGaussian_decl_HepLike_1_4_h__
+#ifndef __wrapper_HL_Gaussian_decl_HepLike_2_0_h__
+#define __wrapper_HL_Gaussian_decl_HepLike_2_0_h__
 
 #include <cstddef>
 #include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_HL_BifurGaussian.h"
-#include "wrapper_HL_Gaussian_decl.h"
+#include "abstract_HL_Gaussian.h"
 
 #include "identification.hpp"
 
@@ -14,13 +13,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 {
    
    
-   class HL_BifurGaussian : public HL_Gaussian
+   class HL_Gaussian : public WrapperBase
    {
          // Member variables: 
       public:
          // -- Static factory pointers: 
-         static Abstract_HL_BifurGaussian* (*__factory0)();
-         static Abstract_HL_BifurGaussian* (*__factory1)(::std::basic_string<char>);
+         static Abstract_HL_Gaussian* (*__factory0)();
+         static Abstract_HL_Gaussian* (*__factory1)(::std::basic_string<char>);
    
          // -- Other member variables: 
    
@@ -43,23 +42,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          // Wrappers for original constructors: 
       public:
-         HL_BifurGaussian();
-         HL_BifurGaussian(::std::basic_string<char> s);
+         HL_Gaussian();
+         HL_Gaussian(::std::basic_string<char> s);
    
          // Special pointer-based constructor: 
-         HL_BifurGaussian(Abstract_HL_BifurGaussian* in);
+         HL_Gaussian(Abstract_HL_Gaussian* in);
    
          // Copy constructor: 
-         HL_BifurGaussian(const HL_BifurGaussian& in);
+         HL_Gaussian(const HL_Gaussian& in);
    
          // Assignment operator: 
-         HL_BifurGaussian& operator=(const HL_BifurGaussian& in);
+         HL_Gaussian& operator=(const HL_Gaussian& in);
    
          // Destructor: 
-         ~HL_BifurGaussian();
+         ~HL_Gaussian();
    
          // Returns correctly casted pointer to Abstract class: 
-         Abstract_HL_BifurGaussian* get_BEptr() const;
+         Abstract_HL_Gaussian* get_BEptr() const;
    
    };
    
@@ -68,4 +67,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_HL_BifurGaussian_decl_HepLike_1_4_h__ */
+#endif /* __wrapper_HL_Gaussian_decl_HepLike_2_0_h__ */

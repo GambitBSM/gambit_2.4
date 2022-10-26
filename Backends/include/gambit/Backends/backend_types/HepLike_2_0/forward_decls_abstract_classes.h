@@ -1,5 +1,5 @@
-#ifndef __forward_decls_abstract_classes_HepLike_1_4_h__
-#define __forward_decls_abstract_classes_HepLike_1_4_h__
+#ifndef __forward_decls_abstract_classes_HepLike_2_0_h__
+#define __forward_decls_abstract_classes_HepLike_2_0_h__
 
 
 #include "identification.hpp"
@@ -27,4 +27,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __forward_decls_abstract_classes_HepLike_1_4_h__ */
+#endif /* __forward_decls_abstract_classes_HepLike_2_0_h__ */

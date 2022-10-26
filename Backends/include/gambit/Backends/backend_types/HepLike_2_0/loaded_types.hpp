@@ -1,5 +1,5 @@
-#ifndef __loaded_types_HepLike_1_4_hpp__
-#define __loaded_types_HepLike_1_4_hpp__ 1
+#ifndef __loaded_types_HepLike_2_0_hpp__
+#define __loaded_types_HepLike_2_0_hpp__ 1
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -13,7 +13,7 @@
 #pragma GCC diagnostic pop
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
-#define HepLike_1_4_all_data \
+#define HepLike_2_0_all_data \
   (( /*class*/(HL_Gaussian),    /*constructors*/(("Factory_HL_Gaussian_0__BOSS_1",())) (("Factory_HL_Gaussian_1__BOSS_2",(std::basic_string<char>))) )) \
   (( /*class*/(HL_BifurGaussian),    /*constructors*/(("Factory_HL_BifurGaussian_0__BOSS_3",())) (("Factory_HL_BifurGaussian_1__BOSS_4",(std::basic_string<char>))) )) \
   (( /*class*/(HL_ProfLikelihood),    /*constructors*/(("Factory_HL_ProfLikelihood_0__BOSS_5",())) (("Factory_HL_ProfLikelihood_1__BOSS_6",(std::basic_string<char>))) )) \
@@ -29,4 +29,4 @@
 // Undefine macros to avoid conflict with other backends.
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __loaded_types_HepLike_1_4_hpp__ */
+#endif /* __loaded_types_HepLike_2_0_hpp__ */

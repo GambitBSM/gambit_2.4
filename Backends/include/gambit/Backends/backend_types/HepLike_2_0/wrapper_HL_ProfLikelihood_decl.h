@@ -1,5 +1,5 @@
-#ifndef __wrapper_HL_ProfLikelihood_decl_HepLike_1_4_h__
-#define __wrapper_HL_ProfLikelihood_decl_HepLike_1_4_h__
+#ifndef __wrapper_HL_ProfLikelihood_decl_HepLike_2_0_h__
+#define __wrapper_HL_ProfLikelihood_decl_HepLike_2_0_h__
 
 #include <cstddef>
 #include <string>
@@ -67,4 +67,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_HL_ProfLikelihood_decl_HepLike_1_4_h__ */
+#endif /* __wrapper_HL_ProfLikelihood_decl_HepLike_2_0_h__ */

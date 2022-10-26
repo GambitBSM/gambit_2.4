@@ -4,8 +4,8 @@
 
 #define BACKENDNAME HepLike
 #define BACKENDLANG CXX
-#define VERSION 1.4
-#define SAFE_VERSION 1_4
+#define VERSION 2.0
+#define SAFE_VERSION 2_0
 #define REFERENCE Bhom:2020bfe
 
 #undef DO_CLASSLOADING
