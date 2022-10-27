@@ -123,7 +123,7 @@ namespace Gambit {
         }
         
         // Fill tau object
-        for (const Particle* t : event->muons())
+        for (const Particle* t : event->taus())
         {
           if (t->pT() > 20 && t->abseta()<2.5) baselineTaus.push_back(t);
         }
