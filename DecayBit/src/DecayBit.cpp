@@ -3535,9 +3535,9 @@ namespace Gambit
         DecayBit_error().raise(LOCAL_INFO, "negative BF");
       }
 
-      double chi2_CMS = 339*pow(BR - 0.089,2.)
-      double chi2_ATLAS = 303*pow(BR - 0.032,2.)
-      lnL = -0.5 * (chi2_CMS + chi2_ATLAS)
+      double chi2_CMS = 339*pow(BF - 0.089,2.);
+      double chi2_ATLAS = 303*pow(BF - 0.032,2.);
+      lnL = -0.5 * (chi2_CMS + chi2_ATLAS);
 
       //const std::string default_name = "./DecayBit/data/arXiv_1306.2941_Figure_8.dat";
       //const std::string name = runOptions->getValueOrDef<std::string>

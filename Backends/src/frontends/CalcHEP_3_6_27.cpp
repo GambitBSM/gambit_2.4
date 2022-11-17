@@ -96,7 +96,7 @@ BE_INI_FUNCTION
     }
     #ifdef WITH_MPI
       // Wait here until the first rank has generated all matrix elements.
-      GMPI::Comm().Barrier();
+      // GMPI::Comm().Barrier();
     #endif
 
     free(modeltoset);
