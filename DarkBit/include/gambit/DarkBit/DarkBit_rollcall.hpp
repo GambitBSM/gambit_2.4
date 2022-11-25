@@ -1507,24 +1507,27 @@ START_MODULE
   SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   // Introduced in DDCalc 1.1.0
-  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
   // Introduced in DDCalc 1.2.0
-  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
   // Introduced in DDCalc 2.0.0
-  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  // Introduced in DDCalc 2.0.0 bit later deleted
   SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
   // Introduced in DDCalc 2.2.0
-  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0))
-
+  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0, 2.3.0))
+  // Introduced in DDCalc 2.2.0
+  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.3.0))
+  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.3.0))
 
   // Neutrinos =========================================================
 
