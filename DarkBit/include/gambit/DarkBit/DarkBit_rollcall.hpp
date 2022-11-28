@@ -1483,8 +1483,10 @@ START_MODULE
   DD_DECLARE_EXPERIMENT(LUX_2015)             // D.S. Akerib et al., PRL 116, 161301 (2016) [arXiv:1512.03506]
   DD_DECLARE_EXPERIMENT(LUX_2016)             // D.S. Akerib et al., PRL 118, 021303 (2017) [arxiv:1608.07648]
   DD_DECLARE_EXPERIMENT(LZ)                   // LZ TDR, [arXiv:1509.02910]
+  DD_DECLARE_EXPERIMENT(LZ_2022)              // LZ TDR, [arXiv:2207.03764]
   DD_DECLARE_EXPERIMENT(PandaX_2016)          // A. Tan et al., PRL 117, 121303 (2016) [arxiv:1607.07400]
   DD_DECLARE_EXPERIMENT(PandaX_2017)          // X. Cui et al., PRL 119, 181302 (2017) [arxiv:1708.06917]
+  DD_DECLARE_EXPERIMENT(PandaX_4T)            // Y. Meng et al., PRL 127, 261802 (2021) [arxiv:2107.13438]
   DD_DECLARE_EXPERIMENT(DarkSide_50)          // P. Agnes et al., [arXiv:1802.07198]
   DD_DECLARE_EXPERIMENT(DarkSide_50_S2)       // P. Agnes et al., [arXiv:1802.06994]
   DD_DECLARE_EXPERIMENT(CRESST_II)            // G. Angloher et al., [arXiv:1509.01515]
@@ -1528,6 +1530,9 @@ START_MODULE
   // Introduced in DDCalc 2.2.0
   SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.3.0))
   SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.3.0))
+  // Introduced in DDCalc 2.3.0
+  SET_BACKEND_OPTION(LZ_2022, (DDCalc, 2.3.0))
+  SET_BACKEND_OPTION(PandaX_4T, (DDCalc, 2.3.0))
 
   // Neutrinos =========================================================
 
