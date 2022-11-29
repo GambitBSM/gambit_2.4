@@ -176,7 +176,7 @@ ObsLikes:
   - capability: LZ_2022_LogLikelihood
     purpose:    LogLike
     
-  # Predicted signal at LZ experiment
+  # Predicted signal at DARWIN experiment
   - capability: DARWIN_Signal
     purpose:    ObsLike
 
