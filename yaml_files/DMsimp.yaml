@@ -173,8 +173,11 @@ ObsLikes:
   - capability: DarkSide_50_LogLikelihood
     purpose:    LogLike
     
+  - capability: LZ_2022_LogLikelihood
+    purpose:    LogLike
+    
   # Predicted signal at LZ experiment
-  - capability: LZ_Signal
+  - capability: DARWIN_Signal
     purpose:    ObsLike
 
   # Indirect Detection
@@ -286,15 +289,6 @@ Rules:
   # The model is annihilating DM, not decaying
   - capability: GA_Yield
     function: GA_AnnYield_General
-
-  - capability: electron_Yield
-    function: electron_AnnYield_General
-
-  - capability: positron_Yield
-    function: positron_AnnYield_General
-
-  - capability: capture_rate_Sun
-    function: capture_rate_Sun_NREO
 
   # Feed non-relativistic couplings into DDCalc
   - capability: DDCalc_Couplings
