@@ -1055,6 +1055,46 @@ namespace Gambit
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_0p045_1p1)
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_1p1_6)
 
+    // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
+    /// SuperIso prediction for RK* in low q^2
+    void SuperIso_RKstar_0045_11(double &result)
+    {
+      using namespace Pipes::SuperIso_RKstar_0045_11;
+      if (flav_debug) cout<<"Starting SuperIso_RKstar_0045_11"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RKstar(&param,0.045,1.1);
+
+      if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_RKstar_0045_11"<<endl;
+    }
+
+    /// RK* in intermediate q^2
+    void SuperIso_RKstar_11_60(double &result)
+    {
+      using namespace Pipes::SuperIso_RKstar_11_60;
+      if (flav_debug) cout<<"Starting SuperIso_RKstar_11_60"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RKstar(&param,1.1,6.0);
+
+      if (flav_debug) printf("RK*_intermq2=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_RKstar_11_60"<<endl;
+    }
+
+    /// RK between 1 and 6 GeV^2
+    void SuperIso_RK(double &result)
+    {
+      using namespace Pipes::SuperIso_RK;
+      if (flav_debug) cout<<"Starting SuperIso_RK"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RK(&param,1.0,6.0);
+
+      if (flav_debug) printf("RK=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_RK"<<endl;
+    }
+
     // The sub-capabilities that may be received from likelihood functions in order to feed them valid observables are listed
     // below. In principle though, these functions will accept as sub-capabilities *any* recognised SuperIso observable names.
     // The recognised observable names can be found in the check_nameobs function in src/chi2.c in SuperIso.
@@ -2992,9 +3032,9 @@ namespace Gambit
     }
 
 
-    void HEPLike_RK_LogLikelihood(double &result)
+    void HEPLike_RK_LogLikelihood_LHCb(double &result)
     {
-      using namespace Pipes::HEPLike_RK_LogLikelihood;
+     using namespace Pipes::HEPLike_RK_LogLikelihood_LHCb;
 
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Rk/CERN-EP-2019-043.yaml";
       static HepLike_default::HL_ProfLikelihood ProfLikelihood(inputfile);
@@ -3008,13 +3048,17 @@ namespace Gambit
         first = false;
       }
 
-      flav_prediction prediction = *Dep::prediction_RK_LHCb_1p1_6;
+      //flav_prediction prediction = *Dep::prediction_RK_LHCb;
 
-      const double theory = prediction.central_values.begin()->second;
-      const double theory_variance = prediction.covariance.begin()->second.begin()->second;
-      result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
+      //const double theory = prediction.central_values.begin()->second;
+      //const double theory_variance = prediction.covariance.begin()->second.begin()->second;
+      const double theory = *Dep::RK;
+      const double theory_variance = 0.0;
 
-      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood result: " << result << std::endl;
+      //result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
+      result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
+
+      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHC_LHCb result: " << result << std::endl;
     }
 
 
@@ -3024,33 +3068,40 @@ namespace Gambit
       using namespace Pipes::HEPLike_RKstar_LogLikelihood_LHCb;
 
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/RKstar/CERN-EP-2017-100_q2_";
-      static std::vector<HepLike_default::HL_ProfLikelihood> ProfLikelihood = {
-        HepLike_default::HL_ProfLikelihood(inputfile + "0.045_1.1.yaml"),
-        HepLike_default::HL_ProfLikelihood(inputfile + "1.1_6.yaml")
-      };
+      static std::vector<HepLike_default::HL_ProfLikelihood> ProfLikelihood;
+
+      //flav_binned_prediction binned_prediction = *Dep::prediction_RKstar_LHCb;
+      //std::vector<flav_prediction> prediction;
+      //for(auto pred : binned_prediction)
+      //  prediction.push_back(pred.second);
+      std::vector<double> prediction = {*Dep::RKstar_0045_11, *Dep::RKstar_11_60};
+      std::vector<str> bins = {"0.045_1.1", "1.1_6"};
 
       static bool first = true;
       if (first)
       {
-        for (unsigned int i = 0; i < ProfLikelihood.size(); i++)
+        //for(auto pred : binned_prediction)
+        for(str bin : bins)
         {
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << i << endl;
-          ProfLikelihood[i].Read();
+          //ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + pred.first + ".yaml"));
+          ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + bin + ".yaml"));
+          //if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + bin + ".yaml"  << endl;
+          ProfLikelihood[ProfLikelihood.size()-1].Read();
+
         }
         first = false;
       }
 
-      std::vector<flav_prediction> prediction = {
-        *Dep::prediction_RKstar_LHCb_0p045_1p1,
-        *Dep::prediction_RKstar_LHCb_1p1_6
-      };
-
       result = 0;
       for (unsigned int i = 0; i < ProfLikelihood.size(); i++)
       {
-        const double theory = prediction[i].central_values.begin()->second;
-        const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
-        result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
+        //const double theory = prediction[i].central_values.begin()->second;
+        //const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        const double theory = prediction[i];
+        const double theory_variance = 0.0;
+        //result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
+        result += ProfLikelihood[i].GetLogLikelihood(theory, theory_variance);
       }
 
       if (flav_debug) std::cout << "HEPLike_RKstar_LogLikelihood_LHCb result: " << result << std::endl;

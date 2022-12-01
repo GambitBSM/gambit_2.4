@@ -97,5 +97,9 @@ BE_CONV_FUNCTION(modified_AI_BKstarmumu, double, (const parameters*), "modified_
 BE_CONV_FUNCTION(modified_AI_BKstarmumu_zero, double, (const parameters*), "modified_AI_BKstarmumu_zero", (MSSM63atQ, MSSM63atMGUT, WC))
 BE_CONV_FUNCTION(modified_delta0, double, (const parameters*), "modified_delta0", (MSSM63atQ, MSSM63atMGUT, WC))
 
+// TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
+BE_CONV_FUNCTION(RKstar, double, (const parameters*, double, double), "RKstar", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
+BE_CONV_FUNCTION(RK, double, (const parameters*, double, double), "RK", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
+
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
