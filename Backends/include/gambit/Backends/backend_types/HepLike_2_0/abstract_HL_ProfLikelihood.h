@@ -18,6 +18,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       public:
    
+         virtual Abstract_HL_ProfLikelihood& operator_equal__BOSS(const Abstract_HL_ProfLikelihood&) =0;
+   
          virtual void Read() =0;
    
          virtual double GetChi2(double) =0;
@@ -31,6 +33,20 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          virtual double GetLikelihood(double) =0;
    
          virtual double GetLikelihood(double, double) =0;
+   
+         virtual int& nxbins_ref__BOSS() =0;
+   
+         virtual double& xmin_ref__BOSS() =0;
+   
+         virtual double& xmax_ref__BOSS() =0;
+   
+         virtual double& central_mes_val_ref__BOSS() =0;
+   
+         virtual std::basic_string<char>& ObsName_ref__BOSS() =0;
+   
+         virtual std::basic_string<char>& HL_RootFile_ref__BOSS() =0;
+   
+         virtual std::basic_string<char>& HL_PATH_ref__BOSS() =0;
    
       public:
          virtual void pointer_assign__BOSS(Abstract_HL_ProfLikelihood*) =0;

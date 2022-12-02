@@ -48,14 +48,28 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
    // Wrappers for original constructors: 
    inline HL_ProfLikelihood::HL_ProfLikelihood() :
-      WrapperBase(__factory0())
+      WrapperBase(__factory0()),
+      nxbins( get_BEptr()->nxbins_ref__BOSS()),
+      xmin( get_BEptr()->xmin_ref__BOSS()),
+      xmax( get_BEptr()->xmax_ref__BOSS()),
+      central_mes_val( get_BEptr()->central_mes_val_ref__BOSS()),
+      ObsName( get_BEptr()->ObsName_ref__BOSS()),
+      HL_RootFile( get_BEptr()->HL_RootFile_ref__BOSS()),
+      HL_PATH( get_BEptr()->HL_PATH_ref__BOSS())
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);
    }
    
    inline HL_ProfLikelihood::HL_ProfLikelihood(::std::basic_string<char> s) :
-      WrapperBase(__factory1(s))
+      WrapperBase(__factory1(s)),
+      nxbins( get_BEptr()->nxbins_ref__BOSS()),
+      xmin( get_BEptr()->xmin_ref__BOSS()),
+      xmax( get_BEptr()->xmax_ref__BOSS()),
+      central_mes_val( get_BEptr()->central_mes_val_ref__BOSS()),
+      ObsName( get_BEptr()->ObsName_ref__BOSS()),
+      HL_RootFile( get_BEptr()->HL_RootFile_ref__BOSS()),
+      HL_PATH( get_BEptr()->HL_PATH_ref__BOSS())
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);
@@ -63,7 +77,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
    // Special pointer-based constructor: 
    inline HL_ProfLikelihood::HL_ProfLikelihood(Abstract_HL_ProfLikelihood* in) :
-      WrapperBase(in)
+      WrapperBase(in),
+      nxbins( get_BEptr()->nxbins_ref__BOSS()),
+      xmin( get_BEptr()->xmin_ref__BOSS()),
+      xmax( get_BEptr()->xmax_ref__BOSS()),
+      central_mes_val( get_BEptr()->central_mes_val_ref__BOSS()),
+      ObsName( get_BEptr()->ObsName_ref__BOSS()),
+      HL_RootFile( get_BEptr()->HL_RootFile_ref__BOSS()),
+      HL_PATH( get_BEptr()->HL_PATH_ref__BOSS())
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);
@@ -71,7 +92,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
    // Copy constructor: 
    inline HL_ProfLikelihood::HL_ProfLikelihood(const HL_ProfLikelihood& in) :
-      WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
+      WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
+      nxbins( get_BEptr()->nxbins_ref__BOSS()),
+      xmin( get_BEptr()->xmin_ref__BOSS()),
+      xmax( get_BEptr()->xmax_ref__BOSS()),
+      central_mes_val( get_BEptr()->central_mes_val_ref__BOSS()),
+      ObsName( get_BEptr()->ObsName_ref__BOSS()),
+      HL_RootFile( get_BEptr()->HL_RootFile_ref__BOSS()),
+      HL_PATH( get_BEptr()->HL_PATH_ref__BOSS())
    {
       get_BEptr()->set_wptr(this);
       get_BEptr()->set_delete_wrapper(false);

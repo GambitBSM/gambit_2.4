@@ -26,6 +26,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // -- Other member variables: 
       public:
          double& loglikelihood_penalty;
+         std::basic_string<char>& HL_RootFile;
+         std::basic_string<char>& HL_PATH;
+         std::vector<std::basic_string<char>>& Observables;
+         int& NoOfObservables;
+         int& size_restricted;
+         double& xmin;
+         double& xmax;
+         double& ymin;
+         double& ymax;
+         double& zmin;
+         double& zmax;
+         std::vector<double>& central_mes_val;
+         int& dim;
+         int& n_binsX;
+         int& n_binsY;
+         int& n_binsZ;
+         bool& profiled;
    
          // Member functions: 
       public:

@@ -20,6 +20,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       public:
    
+         virtual Abstract_HL_nDimLikelihood& operator_equal__BOSS(const Abstract_HL_nDimLikelihood&) =0;
+   
          virtual void Read() =0;
    
          virtual double GetChi2(::std::vector<double>) =0;
@@ -47,6 +49,40 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          virtual ::std::vector<std::basic_string<char>> GetObservables() =0;
    
          virtual double& loglikelihood_penalty_ref__BOSS() =0;
+   
+         virtual std::basic_string<char>& HL_RootFile_ref__BOSS() =0;
+   
+         virtual std::basic_string<char>& HL_PATH_ref__BOSS() =0;
+   
+         virtual std::vector<std::basic_string<char>>& Observables_ref__BOSS() =0;
+   
+         virtual int& NoOfObservables_ref__BOSS() =0;
+   
+         virtual int& size_restricted_ref__BOSS() =0;
+   
+         virtual double& xmin_ref__BOSS() =0;
+   
+         virtual double& xmax_ref__BOSS() =0;
+   
+         virtual double& ymin_ref__BOSS() =0;
+   
+         virtual double& ymax_ref__BOSS() =0;
+   
+         virtual double& zmin_ref__BOSS() =0;
+   
+         virtual double& zmax_ref__BOSS() =0;
+   
+         virtual std::vector<double>& central_mes_val_ref__BOSS() =0;
+   
+         virtual int& dim_ref__BOSS() =0;
+   
+         virtual int& n_binsX_ref__BOSS() =0;
+   
+         virtual int& n_binsY_ref__BOSS() =0;
+   
+         virtual int& n_binsZ_ref__BOSS() =0;
+   
+         virtual bool& profiled_ref__BOSS() =0;
    
       public:
          virtual void pointer_assign__BOSS(Abstract_HL_nDimLikelihood*) =0;

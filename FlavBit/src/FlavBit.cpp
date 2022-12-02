@@ -3048,14 +3048,9 @@ namespace Gambit
         first = false;
       }
 
-      //flav_prediction prediction = *Dep::prediction_RK_LHCb;
-
-      //const double theory = prediction.central_values.begin()->second;
-      //const double theory_variance = prediction.covariance.begin()->second.begin()->second;
       const double theory = *Dep::RK;
-      const double theory_variance = 0.0;
+      const double theory_variance = 0.001;
 
-      //result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
       result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
 
       if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHC_LHCb result: " << result << std::endl;
@@ -3070,22 +3065,15 @@ namespace Gambit
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/RKstar/CERN-EP-2017-100_q2_";
       static std::vector<HepLike_default::HL_ProfLikelihood> ProfLikelihood;
 
-      //flav_binned_prediction binned_prediction = *Dep::prediction_RKstar_LHCb;
-      //std::vector<flav_prediction> prediction;
-      //for(auto pred : binned_prediction)
-      //  prediction.push_back(pred.second);
       std::vector<double> prediction = {*Dep::RKstar_0045_11, *Dep::RKstar_11_60};
       std::vector<str> bins = {"0.045_1.1", "1.1_6"};
 
       static bool first = true;
       if (first)
       {
-        //for(auto pred : binned_prediction)
         for(str bin : bins)
         {
-          //ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + pred.first + ".yaml"));
           ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + bin + ".yaml"));
-          //if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << endl;
           if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + bin + ".yaml"  << endl;
           ProfLikelihood[ProfLikelihood.size()-1].Read();
 
@@ -3096,11 +3084,8 @@ namespace Gambit
       result = 0;
       for (unsigned int i = 0; i < ProfLikelihood.size(); i++)
       {
-        //const double theory = prediction[i].central_values.begin()->second;
-        //const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
         const double theory = prediction[i];
         const double theory_variance = 0.0;
-        //result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
         result += ProfLikelihood[i].GetLogLikelihood(theory, theory_variance);
       }
 

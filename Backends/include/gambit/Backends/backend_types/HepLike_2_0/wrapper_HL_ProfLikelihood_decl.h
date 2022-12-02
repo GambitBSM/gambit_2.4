@@ -22,6 +22,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          static Abstract_HL_ProfLikelihood* (*__factory1)(::std::basic_string<char>);
    
          // -- Other member variables: 
+      public:
+         int& nxbins;
+         double& xmin;
+         double& xmax;
+         double& central_mes_val;
+         std::basic_string<char>& ObsName;
+         std::basic_string<char>& HL_RootFile;
+         std::basic_string<char>& HL_PATH;
    
          // Member functions: 
       public:
