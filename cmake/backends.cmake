@@ -200,7 +200,7 @@ set(name "capgen")
 set(ver "2.1")
 set(lib "gencaplib")
 set(dl "https://github.com/aaronvincent/captngen/archive/refs/tags/${ver}.tar.gz")
-set(md5 "128871ed6f0b61330c3d18571f01f2ab")
+set(md5 "6996c0ae9828f3b14f6c9bd45d46fb78")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(capgen_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
@@ -620,6 +620,26 @@ set(ver "2.2.0")
 set(lib "libDDCalc")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "36a29b2c95d619b2676d5d1e47b86ab4")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/")
+set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+set(name "ddcalc")
+set(ver "2.3.0")
+set(lib "libDDCalc")
+set(dl "https://github.com/GambitBSM/${name}/archive/refs/tags/v${ver}.tar.gz")
+set(md5 "f70e47a4a1412dc5497744d6477505e7")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/")
 set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
 check_ditch_status(${name} ${ver} ${dir})
