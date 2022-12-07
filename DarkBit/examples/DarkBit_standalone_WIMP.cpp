@@ -564,23 +564,23 @@ int main(int argc, char* argv[])
 
     // ---- Calculate direct detection constraints ----
 
-    // Calculate direct detection rates for LZ, PandaX 2017, Xenon 1T and PICO-60
-    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
-    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
-    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
-    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
+    // Calculate direct detection rates for LZ 2022, PandaX 4T, Xenon 1T and PICO-60
+    LZ_2022_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    LZ_2022_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
+    PandaX_4T_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    PandaX_4T_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
     PICO_60_2019_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
     PICO_60_2019_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
     XENON1T_2018_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
     XENON1T_2018_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
 
-    // Calculate direct detection likelihood for LZ, PandaX 2017, Xenon 1T and PICO-60
-    LZ_GetLogLikelihood.resolveDependency(&LZ_Calc);
-    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
-    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
-    PandaX_2017_GetLogLikelihood.resolveDependency(&PandaX_2017_Calc);
-    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
-    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
+    // Calculate direct detection likelihood for LZ 2022, PandaX 4T, Xenon 1T and PICO-60
+    LZ_2022_GetLogLikelihood.resolveDependency(&LZ_2022_Calc);
+    LZ_2022_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    LZ_2022_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
+    PandaX_4T_GetLogLikelihood.resolveDependency(&PandaX_4T_Calc);
+    PandaX_4T_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    PandaX_4T_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
     XENON1T_2018_GetLogLikelihood.resolveDependency(&XENON1T_2018_Calc);
     XENON1T_2018_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
     XENON1T_2018_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
@@ -589,10 +589,10 @@ int main(int argc, char* argv[])
     PICO_60_2019_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
 
     // Provide bin number in LZ
-    LZ_GetBinSignal.resolveDependency(&LZ_Calc);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Bins);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_BinSignal);
+    LZ_2022_GetBinSignal.resolveDependency(&LZ_2022_Calc);
+    LZ_2022_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    LZ_2022_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Bins);
+    LZ_2022_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_BinSignal);
 
     // Set generic WIMP mass object
     WIMP_properties_WIMP.resolveDependency(&DarkMatter_ID_WIMP);
@@ -875,16 +875,16 @@ int main(int argc, char* argv[])
           DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
           DDCalc_2_3_0_init.reset_and_calculate();
-          LZ_Calc.reset_and_calculate();
-          LZ_GetLogLikelihood.reset_and_calculate();
+          LZ_2022_Calc.reset_and_calculate();
+          LZ_2022_GetLogLikelihood.reset_and_calculate();
 
           XENON1T_2018_Calc.reset_and_calculate();
           XENON1T_2018_GetLogLikelihood.reset_and_calculate();
-          PandaX_2017_Calc.reset_and_calculate();
-          PandaX_2017_GetLogLikelihood.reset_and_calculate();
+          PandaX_4T_Calc.reset_and_calculate();
+          PandaX_4T_GetLogLikelihood.reset_and_calculate();
 
-          lnL1 = LZ_GetLogLikelihood(0);
-          lnL2 = PandaX_2017_GetLogLikelihood(0);
+          lnL1 = LZ_2022_GetLogLikelihood(0);
+          lnL2 = PandaX_4T_GetLogLikelihood(0);
           lnL3 = XENON1T_2018_GetLogLikelihood(0);
 
           // Set LocalHalo Model parameters to PICO-60 values
@@ -900,17 +900,17 @@ int main(int argc, char* argv[])
           lnL4 = PICO_60_2019_GetLogLikelihood(0);
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "LZ SI lnL = " << lnL1 << std::endl;
-            std::cout << "PandaX_2017 SI lnL = " << lnL2 << std::endl;
+            std::cout << "LZ_2022 SI lnL = " << lnL1 << std::endl;
+            std::cout << "PandaX_4T SI lnL = " << lnL2 << std::endl;
             std::cout << "XENON1T_2018 SI lnL = " << lnL3 << std::endl;
             std::cout << "PICO_60_2019 SI lnL = " << lnL4 << std::endl;
           #endif
 
           DDCalc_2_3_0_init.reset_and_calculate();
-          LZ_Calc.reset_and_calculate();
+          LZ_2022_Calc.reset_and_calculate();
           std::vector<double> events;
-          LZ_GetBinSignal.reset_and_calculate();
-          events = LZ_GetBinSignal(0);
+          LZ_2022_GetBinSignal.reset_and_calculate();
+          events = LZ_2022_GetBinSignal(0);
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
             int nbins = events.size();
@@ -927,8 +927,8 @@ int main(int argc, char* argv[])
         }
       }
 
-      dump_array_to_file("LZ_SI_table.dat", lnL_array1, m_list, s_list);
-      dump_array_to_file("PandaX_2017_SI_table.dat", lnL_array2, m_list, s_list);
+      dump_array_to_file("LZ_2022_SI_table.dat", lnL_array1, m_list, s_list);
+      dump_array_to_file("PandaX_4T_SI_table.dat", lnL_array2, m_list, s_list);
       dump_array_to_file("XENON1T_2018_SI_table.dat", lnL_array3, m_list, s_list);
       dump_array_to_file("PICO_60_2019_SI_table.dat", lnL_array4, m_list, s_list);
 
@@ -968,14 +968,14 @@ int main(int argc, char* argv[])
           DD_couplings_WIMP.reset_and_calculate();
 
           DDCalc_2_3_0_init.reset_and_calculate();
-          LZ_Calc.reset_and_calculate();
-          LZ_GetLogLikelihood.reset_and_calculate();
+          LZ_2022_Calc.reset_and_calculate();
+          LZ_2022_GetLogLikelihood.reset_and_calculate();
           XENON1T_2018_Calc.reset_and_calculate();
           XENON1T_2018_GetLogLikelihood.reset_and_calculate();
-          PandaX_2017_Calc.reset_and_calculate();
-          PandaX_2017_GetLogLikelihood.reset_and_calculate();
-          lnL1 = LZ_GetLogLikelihood(0);
-          lnL2 = PandaX_2017_GetLogLikelihood(0);
+          PandaX_4T_Calc.reset_and_calculate();
+          PandaX_4T_GetLogLikelihood.reset_and_calculate();
+          lnL1 = LZ_2022_GetLogLikelihood(0);
+          lnL2 = PandaX_4T_GetLogLikelihood(0);
           lnL3 = XENON1T_2018_GetLogLikelihood(0);
 
           // Set LocalHalo Model parameters to PICO-60 values
@@ -991,8 +991,8 @@ int main(int argc, char* argv[])
           lnL4 = PICO_60_2019_GetLogLikelihood(0);
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "LZ SD lnL = " << lnL1 << std::endl;
-            std::cout << "PandaX_2017 SD lnL = " << lnL2 << std::endl;
+            std::cout << "LZ_2022 SD lnL = " << lnL1 << std::endl;
+            std::cout << "PandaX_4T SD lnL = " << lnL2 << std::endl;
             std::cout << "XENON1T_2018 SD lnL = " << lnL3 << std::endl;
             std::cout << "PICO_60_2019 SD lnL = " << lnL4 << std::endl;
           #endif
@@ -1004,8 +1004,8 @@ int main(int argc, char* argv[])
         }
       }
 
-      dump_array_to_file("LZ_SD_table.dat", lnL_array1, m_list, s_list);
-      dump_array_to_file("PandaX_2017_SD_table.dat", lnL_array2, m_list, s_list);
+      dump_array_to_file("LZ_2022_SD_table.dat", lnL_array1, m_list, s_list);
+      dump_array_to_file("PandaX_4T_SD_table.dat", lnL_array2, m_list, s_list);
       dump_array_to_file("XENON1T_2018_SD_table.dat", lnL_array3, m_list, s_list);
       dump_array_to_file("PICO_60_2019_SD_table.dat", lnL_array4, m_list, s_list);
 
