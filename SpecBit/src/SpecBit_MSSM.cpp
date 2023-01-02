@@ -727,8 +727,8 @@ namespace Gambit
       #endif
 
     }
-    
-    
+
+
     /// @} End module convenience functions
 
 
@@ -1263,7 +1263,7 @@ namespace Gambit
       // Will throw an error if no reader object exists, i.e. if the postprocessor is not
       // driving this scan.
      
-      // Retrieve MSSM spectrum info into an SLHAea object 
+      // Retrieve MSSM spectrum info into an SLHAea object
       MSSM_SLHAstruct mssm_in; // Special type to trigger specialised MSSM retrieve routine
       bool mssm_is_valid = get_pp_reader().retrieve(mssm_in,"MSSM_spectrum");
 
@@ -1305,12 +1305,12 @@ namespace Gambit
     }
 
     /// FeynHiggs SUSY masses and mixings
-    void FH_MSSMMasses(fh_MSSMMassObs &result)
+    void FeynHiggs_MSSMMasses(fh_MSSMMassObs_container &result)
     {
-      using namespace Pipes::FH_MSSMMasses;
+      using namespace Pipes::FeynHiggs_MSSMMasses;
 
       #ifdef SPECBIT_DEBUG
-        cout << "****** calling FH_MSSMMasses ******" << endl;
+        cout << "****** calling FeynHiggs_MSSMMasses ******" << endl;
       #endif
 
       // zero if minimal, non-zero if non-minimal flavour violation
@@ -1380,7 +1380,7 @@ namespace Gambit
         invalid_point().raise(err.str());
       }
 
-      fh_MSSMMassObs MassObs;
+      fh_MSSMMassObs_container MassObs;
       for(int i = 0; i < 2; i++)
         for(int j = 0; j < 5; j++)
           for(int k = 0; k < 3; k++)
@@ -1418,12 +1418,12 @@ namespace Gambit
 
 
     /// Higgs masses and mixings with theoretical uncertainties
-    void FH_AllHiggsMasses(fh_HiggsMassObs &result)
+    void FeynHiggs_AllHiggsMasses(fh_HiggsMassObs_container &result)
     {
-      using namespace Pipes::FH_AllHiggsMasses;
+      using namespace Pipes::FeynHiggs_AllHiggsMasses;
 
       #ifdef SPECBIT_DEBUG
-        cout << "****** calling FH_HiggsMasses ******" << endl;
+        cout << "****** calling FeynHiggs_HiggsMasses ******" << endl;
       #endif
 
       // Higgs mass with
@@ -1474,7 +1474,7 @@ namespace Gambit
         invalid_point().raise(err.str());
       }
 
-      fh_HiggsMassObs HiggsMassObs;
+      fh_HiggsMassObs_container HiggsMassObs;
       for(int i = 0; i < 4; i++)
       {
         HiggsMassObs.MH[i] = MHiggs(i+1);
@@ -1498,13 +1498,13 @@ namespace Gambit
 //// Higgs routines ////
 ////////////////////////
 
-    /// Call FH_Couplings from FeynHiggs and collect the output
-    void FH_Couplings(fh_Couplings &result)
+    /// Call FHCouplings from FeynHiggs and collect the output
+    void FeynHiggs_Couplings(fh_Couplings_container &result)
     {
-      using namespace Pipes::FH_Couplings;
+      using namespace Pipes::FeynHiggs_Couplings;
 
       #ifdef SPECBIT_DEBUG
-        cout << "****** calling FH_Couplings ******" << endl;
+        cout << "****** calling FeynHiggs_Couplings ******" << endl;
       #endif
 
       // what to use for internal Higgs mixing
@@ -1557,7 +1557,7 @@ namespace Gambit
         invalid_point().raise(err.str());
       }
 
-      fh_Couplings Couplings;
+      fh_Couplings_container Couplings;
       for(int i = 0; i < ncouplings; i++) Couplings.couplings[i] = couplings(i+1);
       for(int i = 0; i < ncouplingsms; i++) Couplings.couplings_sm[i] = couplings_sm(i+1);
       for(int i = 0; i < ngammas; i++) Couplings.gammas[i] = gammas(i+1);
@@ -1671,9 +1671,9 @@ namespace Gambit
 
 
     /// Put together the Higgs couplings for the MSSM, using FeynHiggs
-    void MSSM_higgs_couplings_FH(HiggsCouplingsTable &result)
+    void MSSM_higgs_couplings_FeynHiggs(HiggsCouplingsTable &result)
     {
-      using namespace Pipes::MSSM_higgs_couplings_FH;
+      using namespace Pipes::MSSM_higgs_couplings_FeynHiggs;
 
       // Retrieve spectrum contents
       const SubSpectrum& spec = Dep::MSSM_spectrum->get_HE();
@@ -1880,7 +1880,7 @@ namespace Gambit
          // because it uses SM_slha rather than SM for the LE subspectrum
          // TODO: Would be better to do this in a more elegant way than with exception
          // handling
-         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE()); 
+         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE());
       }
       fill_map_from_subspectrum<SpectrumContents::MSSM>(specmap, mssmspec.get_HE());
       add_extra_MSSM_parameter_combinations(specmap, mssmspec.get_HE());
@@ -1899,7 +1899,7 @@ namespace Gambit
          // because it uses SM_slha rather than SM for the LE subspectrum
          // TODO: Would be better to do this in a more elegant way than with exception
          // handling
-         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE()); 
+         fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, mssmspec.get_LE());
       }
       fill_map_from_subspectrum<SpectrumContents::MSSM>(specmap, mssmspec.get_HE());
       add_extra_MSSM_parameter_combinations(specmap, mssmspec.get_HE());
@@ -1987,9 +1987,9 @@ namespace Gambit
       specmap["scale(Q)"] = subspec.GetScale();
     }
 
-    void FH_HiggsMass(triplet<double>& result)
+    void FeynHiggs_HiggsMass(triplet<double>& result)
     {
-      using namespace Pipes::FH_HiggsMass;
+      using namespace Pipes::FeynHiggs_HiggsMass;
       //FH indices: 0=h0_1, 1=h0_2
       int i = 0;
       const SubSpectrum& spec = Dep::unimproved_MSSM_spectrum->get_HE();
@@ -1997,14 +1997,14 @@ namespace Gambit
       if (higgs == 25) i = 0;
       else if (higgs == 35) i = 1;
       else SpecBit_error().raise(LOCAL_INFO, "Urecognised SM-like Higgs PDG code!");
-      result.central = Dep::FH_HiggsMasses->MH[i];
-      result.upper = Dep::FH_HiggsMasses->deltaMH[i];
-      result.lower = Dep::FH_HiggsMasses->deltaMH[i];
+      result.central = Dep::HiggsMasses->MH[i];
+      result.upper = Dep::HiggsMasses->deltaMH[i];
+      result.lower = Dep::HiggsMasses->deltaMH[i];
     }
 
-    void FH_HeavyHiggsMasses(map_int_triplet_dbl& result)
+    void FeynHiggs_HeavyHiggsMasses(map_int_triplet_dbl& result)
     {
-      using namespace Pipes::FH_HeavyHiggsMasses;
+      using namespace Pipes::FeynHiggs_HeavyHiggsMasses;
       const int neutrals[2] = {25, 35};
       int i = -1;
       const SubSpectrum& spec = Dep::unimproved_MSSM_spectrum->get_HE();
@@ -2013,26 +2013,26 @@ namespace Gambit
       else if (higgs == neutrals[1]) i = 0;
       else SpecBit_error().raise(LOCAL_INFO, "Urecognised SM-like Higgs PDG code!");
       result.clear();
-      result[neutrals[i]].central = Dep::FH_HiggsMasses->MH[i];
-      result[neutrals[i]].upper = Dep::FH_HiggsMasses->deltaMH[i];
-      result[neutrals[i]].lower = Dep::FH_HiggsMasses->deltaMH[i];
-      result[36].central = Dep::FH_HiggsMasses->MH[2];
-      result[36].upper = Dep::FH_HiggsMasses->deltaMH[2];
-      result[36].lower = Dep::FH_HiggsMasses->deltaMH[2];
-      result[37].central = Dep::FH_HiggsMasses->MH[3];
-      result[37].upper = Dep::FH_HiggsMasses->deltaMH[3];
-      result[37].lower = Dep::FH_HiggsMasses->deltaMH[3];
+      result[neutrals[i]].central = Dep::HiggsMasses->MH[i];
+      result[neutrals[i]].upper = Dep::HiggsMasses->deltaMH[i];
+      result[neutrals[i]].lower = Dep::HiggsMasses->deltaMH[i];
+      result[36].central = Dep::HiggsMasses->MH[2];
+      result[36].upper = Dep::HiggsMasses->deltaMH[2];
+      result[36].lower = Dep::HiggsMasses->deltaMH[2];
+      result[37].central = Dep::HiggsMasses->MH[3];
+      result[37].upper = Dep::HiggsMasses->deltaMH[3];
+      result[37].lower = Dep::HiggsMasses->deltaMH[3];
     }
 
-    void SHD_HiggsMass(triplet<double>& result)
+    void SUSYHD_HiggsMass(triplet<double>& result)
     {
-      using namespace Pipes::SHD_HiggsMass;
+      using namespace Pipes::SUSYHD_HiggsMass;
 
       const Spectrum& fullspectrum = *Dep::unimproved_MSSM_spectrum;
       SLHAea::Coll slhaea = fullspectrum.getSLHAea(1);
 
       #ifdef SPECBIT_DEBUG
-        cout << "****** calling SHD_HiggsMass ******" << endl;
+        cout << "****** calling SUSYHD_HiggsMass ******" << endl;
       #endif
 
       MList<MReal> parameterList = {
@@ -2063,14 +2063,14 @@ namespace Gambit
       MReal MHiggs = BEreq::SUSYHD_MHiggs(parameterList);
 
       #ifdef SPECBIT_DEBUG
-        cout << "****** calling SHD_DeltaHiggsMass ******" << endl;
+        cout << "****** calling SUSYHD_DeltaHiggsMass ******" << endl;
       #endif
 
       MReal DeltaMHiggs = BEreq::SUSYHD_DeltaMHiggs(parameterList);
 
       result.central = MHiggs;
 
-      bool use_SHD_uncertainty = runOptions->getValueOrDef<bool>(true, "use_SHD_uncertainty");
+      bool use_SHD_uncertainty = runOptions->getValueOrDef<bool>(true, "use_SUSYHD_uncertainty");
 
       if(use_SHD_uncertainty)
       {

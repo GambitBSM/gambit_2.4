@@ -18,6 +18,9 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Aug
 ///
+///  \author Inigo Saez Casares
+///          (inigo.saez_casares@ens-paris-saclay.fr))
+///
 ///  *********************************************
 
 #ifndef __registeredspectra_hpp__
@@ -43,6 +46,8 @@ namespace Gambit
     struct MajoranaSingletDM_Z2 : SubSpectrumContents { MajoranaSingletDM_Z2(); };
     struct DiracSingletDM_Z2    : SubSpectrumContents { DiracSingletDM_Z2(); };
     struct DMEFT                : SubSpectrumContents { DMEFT(); };
+// TODO: Temporarily disabled until project is ready
+/*  struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); }; */
 
   }
 }

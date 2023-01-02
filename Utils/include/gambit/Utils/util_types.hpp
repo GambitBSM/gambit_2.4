@@ -70,12 +70,20 @@ namespace Gambit
   typedef std::pair<int, int> iipair;
   /// Shorthand for a pair of string and double
   typedef std::pair<str, double> sdpair;
+  /// Shorthand for a vector of doubles
+  typedef std::vector<double> vec_dbl;
+  /// Shorthand for a matrix of doubles
+  typedef std::vector<std::vector<double>> mat_dbl;
   /// Shorthand for a string-to-double map
   typedef std::map<std::string,double> map_str_dbl;
   /// Shorthand for a string-to-int map
   typedef std::map<std::string,int> map_str_int;
   /// Shorthand for a string-to-string-to-double map
   typedef std::map<std::string,std::map<std::string,double> > map_str_map_str_dbl;
+  /// Shorthand for a const-string-to-double map
+  typedef std::map<const std::string,double> map_const_str_dbl;
+  /// Shorthand for a const-string-to-const-string-to-double map
+  typedef std::map<const std::string,std::map<const std::string,double> > map_const_str_map_const_str_dbl;
   /// Shorthand for a string-to-string map
   typedef std::map<std::string,std::string> map_str_str;
   /// Shorthand for a string-to-bool map
