@@ -532,3 +532,10 @@ std_headers = {
     "std::cv_status"                 : "<condition_variable>",
 }
 
+
+# Type name replacements
+replace_type_names = {
+  "std::basic_string<char, std::char_traits<char>, std::allocator<char> >": "std::string",
+  "std::basic_string<char,std::char_traits<char>,std::allocator<char>>": "std::string",
+  "std::basic_string<char>": "std::string",
+}
