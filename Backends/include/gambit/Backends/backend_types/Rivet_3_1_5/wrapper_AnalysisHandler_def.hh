@@ -6,18 +6,14 @@
 #include <utility>
 #include <map>
 #include <ostream>
-
-#ifndef EXCLUDE_HEPMC
 #include "HepMC3/GenEvent.h"
-
-#ifndef EXCLUDE_YODA
 #include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
 
 namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 {
-
+   
    namespace Rivet
    {
       
@@ -26,17 +22,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          return get_BEptr()->runName();
       }
-
+      
       inline long unsigned int AnalysisHandler::numEvents() const
       {
          return get_BEptr()->numEvents();
       }
-
+      
       inline double AnalysisHandler::sumW() const
       {
          return get_BEptr()->sumW();
       }
-
+      
       inline double AnalysisHandler::sumW2() const
       {
          return get_BEptr()->sumW2();
@@ -46,12 +42,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          return get_BEptr()->weightNames();
       }
-
+      
       inline long unsigned int AnalysisHandler::numWeights() const
       {
          return get_BEptr()->numWeights();
       }
-
+      
       inline bool AnalysisHandler::haveNamedWeights() const
       {
          return get_BEptr()->haveNamedWeights();
@@ -61,27 +57,27 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->setWeightNames(ge);
       }
-
+      
       inline long unsigned int AnalysisHandler::defaultWeightIndex() const
       {
          return get_BEptr()->defaultWeightIndex();
       }
-
+      
       inline void AnalysisHandler::setWeightCap(const double maxWeight)
       {
          get_BEptr()->setWeightCap(maxWeight);
       }
-
+      
       inline void AnalysisHandler::setNLOSmearing(double frac)
       {
          get_BEptr()->setNLOSmearing(frac);
       }
-
+      
       inline void AnalysisHandler::skipMultiWeights(bool ignore)
       {
          get_BEptr()->skipMultiWeights(ignore);
       }
-
+      
       inline void AnalysisHandler::skipMultiWeights()
       {
          get_BEptr()->skipMultiWeights__BOSS();
@@ -91,7 +87,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->selectMultiWeights(patterns);
       }
-
+      
       inline void AnalysisHandler::selectMultiWeights()
       {
          get_BEptr()->selectMultiWeights__BOSS();
@@ -101,7 +97,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->deselectMultiWeights(patterns);
       }
-
+      
       inline void AnalysisHandler::deselectMultiWeights()
       {
          get_BEptr()->deselectMultiWeights__BOSS();
@@ -111,7 +107,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->setNominalWeightName(name);
       }
-
+      
       inline void AnalysisHandler::setNominalWeightName()
       {
          get_BEptr()->setNominalWeightName__BOSS();
@@ -126,47 +122,47 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->setCrossSection__BOSS(xsec);
       }
-
+      
       inline void AnalysisHandler::setCrossSection(double xsec, double xsecerr, bool isUserSupplied)
       {
          get_BEptr()->setCrossSection(xsec, xsecerr, isUserSupplied);
       }
-
+      
       inline void AnalysisHandler::setCrossSection(double xsec, double xsecerr)
       {
          get_BEptr()->setCrossSection__BOSS(xsec, xsecerr);
       }
-
+      
       inline double AnalysisHandler::nominalCrossSection() const
       {
          return get_BEptr()->nominalCrossSection();
       }
-
+      
       inline ::std::pair<int, int> AnalysisHandler::beamIds() const
       {
          return get_BEptr()->beamIds();
       }
-
+      
       inline double AnalysisHandler::sqrtS() const
       {
          return get_BEptr()->sqrtS();
       }
-
+      
       inline void AnalysisHandler::checkBeams(bool check)
       {
          get_BEptr()->checkBeams(check);
       }
-
+      
       inline void AnalysisHandler::checkBeams()
       {
          get_BEptr()->checkBeams__BOSS();
       }
-
+      
       inline void AnalysisHandler::setIgnoreBeams(bool ignore)
       {
          get_BEptr()->setIgnoreBeams(ignore);
       }
-
+      
       inline void AnalysisHandler::setIgnoreBeams()
       {
          get_BEptr()->setIgnoreBeams__BOSS();
@@ -221,7 +217,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->analyze(event);
       }
-
+      
       inline void AnalysisHandler::finalize()
       {
          get_BEptr()->finalize();
@@ -261,7 +257,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          get_BEptr()->setAODump(dumpfile, period);
       }
-
+      
       inline void AnalysisHandler::setNoAODump()
       {
          get_BEptr()->setNoAODump();
@@ -310,31 +306,31 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_wptr(this);
          get_BEptr()->set_delete_wrapper(false);
       }
-
+      
       inline AnalysisHandler::AnalysisHandler() :
          WrapperBase(__factory1())
       {
          get_BEptr()->set_wptr(this);
          get_BEptr()->set_delete_wrapper(false);
       }
-
-      // Special pointer-based constructor:
+      
+      // Special pointer-based constructor: 
       inline AnalysisHandler::AnalysisHandler(Abstract_AnalysisHandler* in) :
          WrapperBase(in)
       {
          get_BEptr()->set_wptr(this);
          get_BEptr()->set_delete_wrapper(false);
       }
-
-      // Copy constructor:
+      
+      // Copy constructor: 
       inline AnalysisHandler::AnalysisHandler(const AnalysisHandler& in) :
          WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
       {
          get_BEptr()->set_wptr(this);
          get_BEptr()->set_delete_wrapper(false);
       }
-
-      // Assignment operator:
+      
+      // Assignment operator: 
       inline AnalysisHandler& AnalysisHandler::operator=(const AnalysisHandler& in)
       {
          if (this != &in)
@@ -343,9 +339,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          }
          return *this;
       }
-
-
-      // Destructor:
+      
+      
+      // Destructor: 
       inline AnalysisHandler::~AnalysisHandler()
       {
          if (get_BEptr() != 0)
@@ -359,18 +355,16 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          }
          set_delete_BEptr(false);
       }
-
-      // Returns correctly casted pointer to Abstract class:
+      
+      // Returns correctly casted pointer to Abstract class: 
       inline Abstract_AnalysisHandler* Rivet::AnalysisHandler::get_BEptr() const
       {
          return dynamic_cast<Abstract_AnalysisHandler*>(BEptr);
       }
    }
-
+   
 }
 
-#endif
-#endif
 
 #include "gambit/Backends/backend_undefs.hpp"
 
