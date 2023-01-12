@@ -4,7 +4,7 @@
 
 Parameters:
 
-  MSSM11atQ_mA_lightgravitino:
+  MSSM11atQ_mA_mG:
     M1: -950      # -832.38379  # 2000 # -832.3837911727785
     M2: 900       # 756.8381716717658  # 500 # 756.8381716717658
     mu: -150      # -773.2409660000001  # 80  # 100 # -773.2409660000001
@@ -153,10 +153,10 @@ ObsLikes:
     - purpose:    Observable
       capability: all_BFs
 
-    # - purpose:    Observable 
+    # - purpose:    Observable
     #   capability: TotalCrossSectionAsMap
 
-    # # - purpose:    Observable 
+    # # - purpose:    Observable
     # #   capability: PIDPairCrossSectionsInfo
 
     - purpose:    Observable
@@ -179,7 +179,7 @@ ObsLikes:
       capability: MSSM_spectrum
       type:       map_str_dbl
 
-    
+
 Rules:
 
   - options:
@@ -198,19 +198,19 @@ Rules:
   - capability: decay_rates
     function: all_decays
 
-  # Require a small, additional mass difference before switching on new decay decay modes in the 
+  # Require a small, additional mass difference before switching on new decay decay modes in the
   # limit of small chargino--neutralino mass difference. Can help avoid problems with chargino
   # decays in Pythia (due to Pythia's MSAFETY check).
   - capability: chargino_plus_1_decay_rates_smallsplit
     function: chargino_plus_1_decays_smallsplit
     options:
-      m_safety: 0.0011  
+      m_safety: 0.0011
 
   # Print branching ratios for all the EWinos to the output file
   - capability: all_BFs
     function: get_decaytable_as_map
     options:
-      # printall: true 
+      # printall: true
       BFs: [
               ["~chi0_1",  "gamma", "~G"],
               ["~chi0_1",  "Z0", "~G"],
@@ -293,14 +293,14 @@ Rules:
       use_higgs_2loop_at_at: true
       use_higgs_2loop_atau_atau: true
       invalid_point_fatal: false
-      # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by 
+      # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by
       # LEP measurements of the Z width.
       mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
 
 
   # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
   # so that things depending on "MSSM_spectrum" will be happy.
-  - capability: MSSM_spectrum 
+  - capability: MSSM_spectrum
     type: Spectrum
     function: make_MSSM_precision_spectrum_none
 
@@ -340,13 +340,13 @@ Rules:
   - capability: TotalCrossSection
     function: getEvGenCrossSection_as_base
 
-  # Choose how to do event weighting 
+  # Choose how to do event weighting
   - capability: EventWeighterFunction
     function: setEventWeight_unity
     # function: setEventWeight_fromCrossSection
 
   # # Choose where to get PID pair cross-sections from.
-  # # Note: This is not required if the "setEventWeight_unity" 
+  # # Note: This is not required if the "setEventWeight_unity"
   # #       function is chosen above.
   # - capability: PIDPairCrossSectionsMap
   #   function: getPIDPairCrossSectionsMap_prospino
@@ -415,7 +415,7 @@ Rules:
           #
           - ATLAS_13TeV_MultiLEP_strong_139invfb
           #
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
           # - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
           #
           - ATLAS_13TeV_4LEP_36invfb
@@ -452,7 +452,7 @@ Rules:
           - CMS_13TeV_2OSLEP_for_stop_36invfb
           - CMS_13TeV_2OSLEP_for_chargino_36invfb
           #
-          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
+          - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb
           # - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
           # - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
           #
@@ -463,7 +463,7 @@ Rules:
           #
           # - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
           # - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
-          - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
           # - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
           - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
           #
@@ -536,14 +536,14 @@ Rules:
 
 
   # List any analyses that should *NOT* be included in the total log-likelihood!
-  # These will still be computed if listed in the analysis setup above, 
+  # These will still be computed if listed in the analysis setup above,
   # but their likelihood will not added to the combined likelihood.
   - capability: LHC_Combined_LogLike
     options:
       write_summary_to_log: true
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses: 
+      # skip_analyses:
       #     # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
       #     # - ATLAS_13TeV_RJ3L_3Lep_36invfb
       #     #
@@ -558,7 +558,7 @@ Rules:
       #     # - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
       #     # - ATLAS_13TeV_MultiLEP_3Lep_36invfb
       #     #
-      #     # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+      #     # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
       #     - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
       #     #
       #     - ATLAS_13TeV_4LEP_36invfb
@@ -595,7 +595,7 @@ Rules:
       #     # - CMS_13TeV_2OSLEP_for_chargino_36invfb
       #     #
       #     # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb
-      #     - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip  
+      #     - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
       #     - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
       #     #
       #     # - CMS_13TeV_Photon_GMSB_36invfb
@@ -605,7 +605,7 @@ Rules:
       #     #
       #     - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
       #     - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
-      #     # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+      #     # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
       #     - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
       #     # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
       #     #
@@ -620,8 +620,8 @@ Rules:
           - 13TeV
         exclude_analyses:
           - ATLAS_2016_I1469071 #This analysis causes crashes if run on BSM outside of rivet.
-          
-  
+
+
   - capability: LHC_measurements
     function: Contur_LHC_measurements_from_stream
     options:

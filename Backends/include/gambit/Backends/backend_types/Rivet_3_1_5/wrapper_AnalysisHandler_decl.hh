@@ -10,53 +10,57 @@
 #include "forward_decls_wrapper_classes.hh"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_AnalysisHandler.hh"
+
+#ifndef EXCLUDE_HEPMC
 #include "HepMC3/GenEvent.h"
+
+#ifndef EXCLUDE_YODA
 #include "YODA/AnalysisObject.h"
 
 #include "identification.hpp"
 
 namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 {
-   
+
    namespace Rivet
    {
-      
+
       class AnalysisHandler : public WrapperBase
       {
-            // Member variables: 
+            // Member variables:
          public:
             // -- Static factory pointers: 
             static Abstract_AnalysisHandler* (*__factory0)(const std::string&);
             static Abstract_AnalysisHandler* (*__factory1)();
-      
-            // -- Other member variables: 
-      
-            // Member functions: 
+
+            // -- Other member variables:
+
+            // Member functions:
          public:
             ::std::string runName() const;
       
             long unsigned int numEvents() const;
-      
+
             double sumW() const;
-      
+
             double sumW2() const;
       
             const ::std::vector<std::string>& weightNames() const;
       
             long unsigned int numWeights() const;
-      
+
             bool haveNamedWeights() const;
       
             void setWeightNames(const HepMC3::GenEvent& ge);
       
             long unsigned int defaultWeightIndex() const;
-      
+
             void setWeightCap(const double maxWeight);
-      
+
             void setNLOSmearing(double frac);
-      
+
             void skipMultiWeights(bool ignore);
-      
+
             void skipMultiWeights();
       
             void selectMultiWeights(std::string patterns);
@@ -76,21 +80,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             void setCrossSection(const std::pair<double, double>& xsec);
       
             void setCrossSection(double xsec, double xsecerr, bool isUserSupplied);
-      
+
             void setCrossSection(double xsec, double xsecerr);
-      
+
             double nominalCrossSection() const;
-      
+
             ::std::pair<int, int> beamIds() const;
-      
+
             double sqrtS() const;
-      
+
             void checkBeams(bool check);
-      
+
             void checkBeams();
-      
+
             void setIgnoreBeams(bool ignore);
-      
+
             void setIgnoreBeams();
       
             ::std::vector<std::string> analysisNames() const;
@@ -150,27 +154,29 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          public:
             AnalysisHandler(const std::string& runname);
             AnalysisHandler();
-      
-            // Special pointer-based constructor: 
+
+            // Special pointer-based constructor:
             AnalysisHandler(Abstract_AnalysisHandler* in);
-      
-            // Copy constructor: 
+
+            // Copy constructor:
             AnalysisHandler(const AnalysisHandler& in);
-      
-            // Assignment operator: 
+
+            // Assignment operator:
             AnalysisHandler& operator=(const AnalysisHandler& in);
-      
-            // Destructor: 
+
+            // Destructor:
             ~AnalysisHandler();
-      
-            // Returns correctly casted pointer to Abstract class: 
+
+            // Returns correctly casted pointer to Abstract class:
             Abstract_AnalysisHandler* get_BEptr() const;
-      
+
       };
    }
-   
+
 }
 
+#endif
+#endif
 
 #include "gambit/Backends/backend_undefs.hpp"
 

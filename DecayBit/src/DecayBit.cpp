@@ -3306,7 +3306,7 @@ namespace Gambit
                       - pow2(d_Z) * (x - 1.0))
                   * pow2(x))
 
-                + 6.0 * a * k_L * k_R * (4.0 * pow2(c) 
+                + 6.0 * a * k_L * k_R * (4.0 * pow2(c)
                                          + (12.0 * pow2(d_Z) - 8.0 * d_Z - pow2(x) - 4.0 * x + 4.0) * c
                                          + (2.0 * d_Z + x - 1.0) * pow2(x))
               )
@@ -3404,9 +3404,9 @@ namespace Gambit
       #ifdef DECAYBIT_DEBUG
         if (n_Neu == 1)
         {
-          double width_Gffbar = partial_widths["~G_u_ubar"] + partial_widths["~G_d_dbar"] + partial_widths["~G_s_sbar"] 
+          double width_Gffbar = partial_widths["~G_u_ubar"] + partial_widths["~G_d_dbar"] + partial_widths["~G_s_sbar"]
                                 + partial_widths["~G_c_cbar"] + partial_widths["~G_b_bbar"] + partial_widths["~G_e-_e+"]
-                                + partial_widths["~G_mu-_mu+"] + partial_widths["~G_tau-_tau+"] + partial_widths["~G_nu_e_nubar_e"] 
+                                + partial_widths["~G_mu-_mu+"] + partial_widths["~G_tau-_tau+"] + partial_widths["~G_nu_e_nubar_e"]
                                 + partial_widths["~G_nu_mu_nubar_mu"] + partial_widths["~G_nu_tau_nubar_tau"];
           double width_Ggamma = partial_widths["~G_gamma"];
           double width_GZ = partial_widths["~G_Z"];
@@ -3511,9 +3511,9 @@ namespace Gambit
       const double m_tau = sm.safeget(Par::mass1, "e-", 3);
 
       // W decay rates
-      // @todo For simplicity we're here just using the same numbers as Pythia for the SM W branching 
-      // ratios to specific quark pairs, since we currenly only have a general BR(W --> hadrons) 
-      // available in our SM W decay table. 
+      // @todo For simplicity we're here just using the same numbers as Pythia for the SM W branching
+      // ratios to specific quark pairs, since we currenly only have a general BR(W --> hadrons)
+      // available in our SM W decay table.
       const double width_W = W_decays.width_in_GeV;
 
       const double BF_W_to_udbar = 0.3213690; // W_decays.BF("u", "dbar");
@@ -3616,7 +3616,7 @@ namespace Gambit
           double BF_W_to_ff = std::get<4>(fermion_pair_info);
 
           // Is this final state open?
-          if (delta_m > m_f1 + m_f2)  // and (delta_m <= m_W + width_W) already 
+          if (delta_m > m_f1 + m_f2)  // and (delta_m <= m_W + width_W) already
           {
             // Compute the 3-body contribution
             double width_3_body_ff = BF_W_to_ff * total_chargino_3_body_rate;
@@ -3939,7 +3939,7 @@ namespace Gambit
 
 
       // MSSM-specific
-      if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ_lightgravitino") or ModelInUse("MSSM63atMGUT_lightgravitino"))
+      if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ_mG") or ModelInUse("MSSM63atMGUT_mG"))
       {
 
         static bool allow_stable_charged_particles = runOptions->getValueOrDef<bool>(false, "allow_stable_charged_particles");
