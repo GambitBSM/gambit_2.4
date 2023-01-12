@@ -306,7 +306,7 @@
     #define FUNCTION FeynHiggs_HiggsMass
     START_FUNCTION(triplet<double>)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
-    DEPENDENCY(FH_HiggsMasses, fh_HiggsMassObs_container)
+    DEPENDENCY(HiggsMasses, fh_HiggsMassObs_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
