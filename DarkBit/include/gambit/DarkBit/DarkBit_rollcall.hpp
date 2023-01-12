@@ -165,9 +165,10 @@ START_MODULE
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
-      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
-                   ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3,
+                   ScalarSingletDM_Z3_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2,
+                   VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -222,8 +223,8 @@ START_MODULE
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
-      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -499,6 +500,30 @@ START_MODULE
       DEPENDENCY(DMEFT_spectrum, Spectrum)
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedDiracDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedMajoranaDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedScalarDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1093,6 +1118,10 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum, VectorSingletDM_Z2)
     MODEL_CONDITIONAL_DEPENDENCY(MDM_spectrum, Spectrum, MDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running)
     ALLOW_MODELS(VectorSingletDM_Z2, MajoranaSingletDM_Z2, DiracSingletDM_Z2)
@@ -1247,6 +1276,27 @@ START_MODULE
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
       ALLOW_MODEL(MajoranaSingletDM_Z2)
+      #undef FUNCTION
+      
+      #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedScalarDM
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODEL(DMsimpVectorMedScalarDM)
+      #undef FUNCTION
+      
+      #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedMajoranaDM
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODEL(DMsimpVectorMedMajoranaDM)
+      #undef FUNCTION
+      
+      #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedDiracDM
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODEL(DMsimpVectorMedDiracDM)
       #undef FUNCTION
 
   #undef CAPABILITY
@@ -1433,8 +1483,10 @@ START_MODULE
   DD_DECLARE_EXPERIMENT(LUX_2015)             // D.S. Akerib et al., PRL 116, 161301 (2016) [arXiv:1512.03506]
   DD_DECLARE_EXPERIMENT(LUX_2016)             // D.S. Akerib et al., PRL 118, 021303 (2017) [arxiv:1608.07648]
   DD_DECLARE_EXPERIMENT(LZ)                   // LZ TDR, [arXiv:1509.02910]
+  DD_DECLARE_EXPERIMENT(LZ_2022)              // LZ TDR, [arXiv:2207.03764]
   DD_DECLARE_EXPERIMENT(PandaX_2016)          // A. Tan et al., PRL 117, 121303 (2016) [arxiv:1607.07400]
   DD_DECLARE_EXPERIMENT(PandaX_2017)          // X. Cui et al., PRL 119, 181302 (2017) [arxiv:1708.06917]
+  DD_DECLARE_EXPERIMENT(PandaX_4T)            // Y. Meng et al., PRL 127, 261802 (2021) [arxiv:2107.13438]
   DD_DECLARE_EXPERIMENT(DarkSide_50)          // P. Agnes et al., [arXiv:1802.07198]
   DD_DECLARE_EXPERIMENT(DarkSide_50_S2)       // P. Agnes et al., [arXiv:1802.06994]
   DD_DECLARE_EXPERIMENT(CRESST_II)            // G. Angloher et al., [arXiv:1509.01515]
@@ -1457,24 +1509,27 @@ START_MODULE
   SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   // Introduced in DDCalc 1.1.0
-  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
   // Introduced in DDCalc 1.2.0
-  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
   // Introduced in DDCalc 2.0.0
-  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  // Introduced in DDCalc 2.0.0 bit later deleted
   SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
   // Introduced in DDCalc 2.2.0
-  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0))
-
+  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0, 2.3.0))
+  // Introduced in DDCalc 2.3.0
+  SET_BACKEND_OPTION(LZ_2022, (DDCalc, 2.3.0))
+  SET_BACKEND_OPTION(PandaX_4T, (DDCalc, 2.3.0))
 
   // Neutrinos =========================================================
 
@@ -1952,6 +2007,18 @@ START_MODULE
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMEFT)
     #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedDiracDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedMajoranaDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedScalarDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY DarkMatterConj_ID
@@ -1991,6 +2058,18 @@ START_MODULE
     #define FUNCTION DarkMatterConj_ID_DMEFT
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedDiracDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedMajoranaDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedScalarDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 
