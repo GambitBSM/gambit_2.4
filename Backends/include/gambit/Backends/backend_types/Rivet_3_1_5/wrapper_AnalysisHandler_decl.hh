@@ -26,7 +26,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static Abstract_AnalysisHandler* (*__factory0)(const ::std::string&);
+            static Abstract_AnalysisHandler* (*__factory0)(const std::string&);
             static Abstract_AnalysisHandler* (*__factory1)();
       
             // -- Other member variables: 
@@ -47,7 +47,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             bool haveNamedWeights() const;
       
-            void setWeightNames(const ::HepMC3::GenEvent& ge);
+            void setWeightNames(const HepMC3::GenEvent& ge);
       
             long unsigned int defaultWeightIndex() const;
       
@@ -59,21 +59,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void skipMultiWeights();
       
-            void selectMultiWeights(::std::string patterns);
+            void selectMultiWeights(std::string patterns);
       
             void selectMultiWeights();
       
-            void deselectMultiWeights(::std::string patterns);
+            void deselectMultiWeights(std::string patterns);
       
             void deselectMultiWeights();
       
-            void setNominalWeightName(::std::string name);
+            void setNominalWeightName(std::string name);
       
             void setNominalWeightName();
       
-            void setCrossSection(const ::std::pair<double, double>& xsec, bool isUserSupplied);
+            void setCrossSection(const std::pair<double, double>& xsec, bool isUserSupplied);
       
-            void setCrossSection(const ::std::pair<double, double>& xsec);
+            void setCrossSection(const std::pair<double, double>& xsec);
       
             void setCrossSection(double xsec, double xsecerr, bool isUserSupplied);
       
@@ -97,58 +97,58 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             ::std::vector<std::string> stdAnalysisNames() const;
       
-            Rivet::AnalysisHandler& addAnalysis(const ::std::string& analysisname);
+            Rivet::AnalysisHandler& addAnalysis(const std::string& analysisname);
       
-            Rivet::AnalysisHandler& addAnalysis(const ::std::string& analysisname, ::std::map<std::string, std::string> pars);
+            Rivet::AnalysisHandler& addAnalysis(const std::string& analysisname, std::map<std::string, std::string> pars);
       
-            Rivet::AnalysisHandler& addAnalyses(const ::std::vector<std::string>& analysisnames);
+            Rivet::AnalysisHandler& addAnalyses(const std::vector<std::string>& analysisnames);
       
-            Rivet::AnalysisHandler& removeAnalysis(const ::std::string& analysisname);
+            Rivet::AnalysisHandler& removeAnalysis(const std::string& analysisname);
       
-            Rivet::AnalysisHandler& removeAnalyses(const ::std::vector<std::string>& analysisnames);
+            Rivet::AnalysisHandler& removeAnalyses(const std::vector<std::string>& analysisnames);
       
-            void init(const ::HepMC3::GenEvent& event);
+            void init(const HepMC3::GenEvent& event);
       
-            void analyze(const ::HepMC3::GenEvent& event);
+            void analyze(const HepMC3::GenEvent& event);
       
-            void analyze(const ::HepMC3::GenEvent* event);
+            void analyze(const HepMC3::GenEvent* event);
       
             void finalize();
       
-            void readData(const ::std::string& filename);
+            void readData(const std::string& filename);
       
             ::std::vector<std::shared_ptr<YODA::AnalysisObject>> getYodaAOs(bool includeraw) const;
       
             ::std::vector<std::shared_ptr<YODA::AnalysisObject>> getYodaAOs() const;
       
-            void writeData(::std::basic_ostream<char>& ostr, const ::std::string& fmt) const;
+            void writeData(std::basic_ostream<char>& ostr, const std::string& fmt) const;
       
-            void writeData(const ::std::string& filename) const;
+            void writeData(const std::string& filename) const;
       
-            void dummy(::YODA::AnalysisObject* arg_1) const;
+            void dummy(YODA::AnalysisObject* arg_1) const;
       
-            void setAODump(const ::std::string& dumpfile, int period);
+            void setAODump(const std::string& dumpfile, int period);
       
             void setNoAODump();
       
-            void dump(const ::std::string& dumpfile, int period);
+            void dump(const std::string& dumpfile, int period);
       
-            void mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts, const ::std::vector<std::string>& matches, const ::std::vector<std::string>& unmatches, bool equiv);
+            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches, bool equiv);
       
-            void mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts, const ::std::vector<std::string>& matches, const ::std::vector<std::string>& unmatches);
+            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches);
       
-            void mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts, const ::std::vector<std::string>& matches);
+            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches);
       
-            void mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts);
+            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts);
       
-            void mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts);
+            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts);
       
-            void mergeYodas(const ::std::vector<std::string>& aofiles);
+            void mergeYodas(const std::vector<std::string>& aofiles);
       
       
             // Wrappers for original constructors: 
          public:
-            AnalysisHandler(const ::std::string& runname);
+            AnalysisHandler(const std::string& runname);
             AnalysisHandler();
       
             // Special pointer-based constructor: 

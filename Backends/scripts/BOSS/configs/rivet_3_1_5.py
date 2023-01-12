@@ -57,7 +57,7 @@ load_classes = [
 ]
 
 load_functions = [
-    'Rivet::addAnalysisLibPath(const ::std::string&)'
+    'Rivet::addAnalysisLibPath(const std::string&)'
 ]
 
 ditch = [

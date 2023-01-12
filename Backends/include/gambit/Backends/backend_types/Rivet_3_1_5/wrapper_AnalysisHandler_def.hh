@@ -53,7 +53,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->haveNamedWeights();
       }
       
-      inline void AnalysisHandler::setWeightNames(const ::HepMC3::GenEvent& ge)
+      inline void AnalysisHandler::setWeightNames(const HepMC3::GenEvent& ge)
       {
          get_BEptr()->setWeightNames(ge);
       }
@@ -83,7 +83,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->skipMultiWeights__BOSS();
       }
       
-      inline void AnalysisHandler::selectMultiWeights(::std::string patterns)
+      inline void AnalysisHandler::selectMultiWeights(std::string patterns)
       {
          get_BEptr()->selectMultiWeights(patterns);
       }
@@ -93,7 +93,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->selectMultiWeights__BOSS();
       }
       
-      inline void AnalysisHandler::deselectMultiWeights(::std::string patterns)
+      inline void AnalysisHandler::deselectMultiWeights(std::string patterns)
       {
          get_BEptr()->deselectMultiWeights(patterns);
       }
@@ -103,7 +103,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->deselectMultiWeights__BOSS();
       }
       
-      inline void AnalysisHandler::setNominalWeightName(::std::string name)
+      inline void AnalysisHandler::setNominalWeightName(std::string name)
       {
          get_BEptr()->setNominalWeightName(name);
       }
@@ -113,12 +113,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->setNominalWeightName__BOSS();
       }
       
-      inline void AnalysisHandler::setCrossSection(const ::std::pair<double, double>& xsec, bool isUserSupplied)
+      inline void AnalysisHandler::setCrossSection(const std::pair<double, double>& xsec, bool isUserSupplied)
       {
          get_BEptr()->setCrossSection(xsec, isUserSupplied);
       }
       
-      inline void AnalysisHandler::setCrossSection(const ::std::pair<double, double>& xsec)
+      inline void AnalysisHandler::setCrossSection(const std::pair<double, double>& xsec)
       {
          get_BEptr()->setCrossSection__BOSS(xsec);
       }
@@ -178,42 +178,42 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->stdAnalysisNames();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const ::std::string& analysisname)
+      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const std::string& analysisname)
       {
          return get_BEptr()->addAnalysis__BOSS(analysisname).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const ::std::string& analysisname, ::std::map<std::string, std::string> pars)
+      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const std::string& analysisname, std::map<std::string, std::string> pars)
       {
          return get_BEptr()->addAnalysis__BOSS(analysisname, pars).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalyses(const ::std::vector<std::string>& analysisnames)
+      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalyses(const std::vector<std::string>& analysisnames)
       {
          return get_BEptr()->addAnalyses__BOSS(analysisnames).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalysis(const ::std::string& analysisname)
+      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalysis(const std::string& analysisname)
       {
          return get_BEptr()->removeAnalysis__BOSS(analysisname).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalyses(const ::std::vector<std::string>& analysisnames)
+      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalyses(const std::vector<std::string>& analysisnames)
       {
          return get_BEptr()->removeAnalyses__BOSS(analysisnames).get_init_wref();
       }
       
-      inline void AnalysisHandler::init(const ::HepMC3::GenEvent& event)
+      inline void AnalysisHandler::init(const HepMC3::GenEvent& event)
       {
          get_BEptr()->init(event);
       }
       
-      inline void AnalysisHandler::analyze(const ::HepMC3::GenEvent& event)
+      inline void AnalysisHandler::analyze(const HepMC3::GenEvent& event)
       {
          get_BEptr()->analyze(event);
       }
       
-      inline void AnalysisHandler::analyze(const ::HepMC3::GenEvent* event)
+      inline void AnalysisHandler::analyze(const HepMC3::GenEvent* event)
       {
          get_BEptr()->analyze(event);
       }
@@ -223,7 +223,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->finalize();
       }
       
-      inline void AnalysisHandler::readData(const ::std::string& filename)
+      inline void AnalysisHandler::readData(const std::string& filename)
       {
          get_BEptr()->readData(filename);
       }
@@ -238,22 +238,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->getYodaAOs__BOSS();
       }
       
-      inline void AnalysisHandler::writeData(::std::basic_ostream<char>& ostr, const ::std::string& fmt) const
+      inline void AnalysisHandler::writeData(std::basic_ostream<char>& ostr, const std::string& fmt) const
       {
          get_BEptr()->writeData(ostr, fmt);
       }
       
-      inline void AnalysisHandler::writeData(const ::std::string& filename) const
+      inline void AnalysisHandler::writeData(const std::string& filename) const
       {
          get_BEptr()->writeData(filename);
       }
       
-      inline void AnalysisHandler::dummy(::YODA::AnalysisObject* arg_1) const
+      inline void AnalysisHandler::dummy(YODA::AnalysisObject* arg_1) const
       {
          get_BEptr()->dummy(arg_1);
       }
       
-      inline void AnalysisHandler::setAODump(const ::std::string& dumpfile, int period)
+      inline void AnalysisHandler::setAODump(const std::string& dumpfile, int period)
       {
          get_BEptr()->setAODump(dumpfile, period);
       }
@@ -263,44 +263,44 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->setNoAODump();
       }
       
-      inline void AnalysisHandler::dump(const ::std::string& dumpfile, int period)
+      inline void AnalysisHandler::dump(const std::string& dumpfile, int period)
       {
          get_BEptr()->dump(dumpfile, period);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts, const ::std::vector<std::string>& matches, const ::std::vector<std::string>& unmatches, bool equiv)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches, bool equiv)
       {
          get_BEptr()->mergeYodas(aofiles, delopts, addopts, matches, unmatches, equiv);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts, const ::std::vector<std::string>& matches, const ::std::vector<std::string>& unmatches)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts, addopts, matches, unmatches);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts, const ::std::vector<std::string>& matches)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts, addopts, matches);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts, const ::std::vector<std::string>& addopts)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts, addopts);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::string>& aofiles, const ::std::vector<std::string>& delopts)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::string>& aofiles)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles);
       }
       
       
       // Wrappers for original constructors: 
-      inline AnalysisHandler::AnalysisHandler(const ::std::string& runname) :
+      inline AnalysisHandler::AnalysisHandler(const std::string& runname) :
          WrapperBase(__factory0(runname))
       {
          get_BEptr()->set_wptr(this);
