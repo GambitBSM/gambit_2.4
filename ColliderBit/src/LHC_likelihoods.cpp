@@ -1110,7 +1110,7 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC loglikes per analysis: ";
 
-      for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
+      for (const std::pair<const str, AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair.first;
         const AnalysisLogLikes& analysis_loglikes = pair.second;
@@ -1140,7 +1140,7 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC loglikes per SR: ";
 
-      for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      for (const std::pair<const str, AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
@@ -1186,7 +1186,7 @@ namespace Gambit
     void get_LHC_LogLike_SR_labels(map_str_str& result)
     {
       using namespace Pipes::get_LHC_LogLike_per_SR;
-      for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      for (const std::pair<const str, AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
@@ -1206,7 +1206,7 @@ namespace Gambit
       summary_line << "LHC loglike SR indices: ";
 
       // Loop over analyses
-      for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      for (const std::pair<const str, AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
@@ -1251,7 +1251,7 @@ namespace Gambit
       }
 
       // Loop over analyses and calculate the total observed dLL
-      for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
+      for (const std::pair<const str, AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair.first;
         const AnalysisLogLikes& analysis_loglikes = pair.second;

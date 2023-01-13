@@ -209,15 +209,15 @@ namespace Gambit {
               
           // Require ETmiss > 150 GeV   
           if (met > 150) {EM_ETmiss_gt_150 = true;}
-          else break;
+          if (!EM_ETmiss_gt_150) break;
         
           // Veto on any leptons or photons
           if ((baselineElectrons.size() == 0) && (baselineMuons.size() == 0) && (baselineTaus.size() == 0) && (baselinePhotons.size() == 0)) {EM_lep_lt_1 = true;}
-          else break;
+          if (!EM_lep_lt_1) break;
           
           // Require no more than 4 jets
           if (signalJets.size() <= 4) {EM_Njet_leq_4 = true;}
-          else break;
+          if (!EM_Njet_leq_4) break;
          
           // Cut on maximum delta phi
           EM_min_deltaphi = true;
@@ -234,11 +234,11 @@ namespace Gambit {
           
           if (signalJets.empty()) break;
           if ((signalJets[0]->pT() > 150) && (signalJets[0]->abseta() < 2.4)) {EM_lead_jet_ptandeta = true;}
-          else break;
+          if (!EM_lead_jet_ptandeta) break;
           
           // Require ETmiss > 200 GeV
           if (met > 200) {EM_ETmiss_gt_200 = true;}
-          else break;         
+          if (!EM_ETmiss_gt_200) break;
         
           // Fill signal regions
           // Identify the ptmiss bin and fill the counter
