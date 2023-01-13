@@ -7,60 +7,63 @@
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_GAMBIT_hepmc_writer.h"
 #include "wrapper_Pythia_decl.h"
+
+#ifndef EXCLUDE_HEPMC
 #include "HepMC3/GenEvent.h"
 
 #include "identification.hpp"
 
 namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 {
-    
+
     namespace Pythia8
     {
-        
+
         class GAMBIT_hepmc_writer : public WrapperBase
         {
-                // Member variables: 
+                // Member variables:
             public:
-                // -- Static factory pointers: 
+                // -- Static factory pointers:
                 static Abstract_GAMBIT_hepmc_writer* (*__factory0)();
-        
-                // -- Other member variables: 
-        
-                // Member functions: 
+
+                // -- Other member variables:
+
+                // Member functions:
             public:
-                void init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > filename_in, bool HepMC2, bool HepMC3);
+                void init(::std::basic_string<char> filename_in, bool HepMC2, bool HepMC3);
         
                 void write_event_HepMC3(Pythia8::Pythia* pythia);
-        
+
                 void write_event_HepMC2(Pythia8::Pythia* pythia);
-        
+
                 void convert_to_HepMC_event(Pythia8::Pythia* pythia, ::HepMC3::GenEvent& event);
-        
-        
-                // Wrappers for original constructors: 
+
+
+                // Wrappers for original constructors:
             public:
                 GAMBIT_hepmc_writer();
-        
-                // Special pointer-based constructor: 
+
+                // Special pointer-based constructor:
                 GAMBIT_hepmc_writer(Abstract_GAMBIT_hepmc_writer* in);
-        
-                // Copy constructor: 
+
+                // Copy constructor:
                 GAMBIT_hepmc_writer(const GAMBIT_hepmc_writer& in);
-        
-                // Assignment operator: 
+
+                // Assignment operator:
                 GAMBIT_hepmc_writer& operator=(const GAMBIT_hepmc_writer& in);
-        
-                // Destructor: 
+
+                // Destructor:
                 ~GAMBIT_hepmc_writer();
-        
-                // Returns correctly casted pointer to Abstract class: 
+
+                // Returns correctly casted pointer to Abstract class:
                 Abstract_GAMBIT_hepmc_writer* get_BEptr() const;
-        
+
         };
     }
-    
+
 }
 
+#endif
 
 #include "gambit/Backends/backend_undefs.hpp"
 

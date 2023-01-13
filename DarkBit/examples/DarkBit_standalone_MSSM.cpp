@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 
     // ---- Check which backends are present ----
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
-    if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
+    if (not Backends::backendInfo().works["DDCalc2.3.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.3.0 is missing!");
     if (not Backends::backendInfo().works["nulike1.0.9"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.9 is missing!");
 
     // ---- Useful variables ----
@@ -403,24 +403,24 @@ int main(int argc, char* argv[])
       DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
       // Initialize DDCalc backend
-      Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-      DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-      DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
-      DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
-      DDCalc_2_2_0_init.reset_and_calculate();
+      Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+      DDCalc_2_3_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+      DDCalc_2_3_0_init.resolveDependency(&RD_fraction_one);
+      DDCalc_2_3_0_init.resolveDependency(&mwimp_generic);
+      DDCalc_2_3_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
+      DDCalc_2_3_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
       LUX_2016_Calc.reset_and_calculate();
 
       // Calculate direct detection likelihood for LUX 2016
       LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
       LUX_2016_GetLogLikelihood.reset_and_calculate();
       // Save the result
       results["LUX_2016_lnL"][current_backend] = LUX_2016_GetLogLikelihood(0);
@@ -824,24 +824,24 @@ int main(int argc, char* argv[])
       DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
       // Initialize DDCalc backend
-      Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-      DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-      DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
-      DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
-      DDCalc_2_2_0_init.reset_and_calculate();
+      Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+      DDCalc_2_3_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+      DDCalc_2_3_0_init.resolveDependency(&RD_fraction_one);
+      DDCalc_2_3_0_init.resolveDependency(&mwimp_generic);
+      DDCalc_2_3_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
+      DDCalc_2_3_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
       LUX_2016_Calc.reset_and_calculate();
 
       // Calculate direct detection likelihood for LUX 2016
       LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
       LUX_2016_GetLogLikelihood.reset_and_calculate();
       // Save the result
       results["LUX_2016_lnL"][current_backend] = LUX_2016_GetLogLikelihood(0);
@@ -1152,24 +1152,24 @@ int main(int argc, char* argv[])
       DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
       // Initialize DDCalc backend
-      Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-      DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-      DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
-      DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
-      DDCalc_2_2_0_init.reset_and_calculate();
+      Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+      DDCalc_2_3_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+      DDCalc_2_3_0_init.resolveDependency(&RD_fraction_one);
+      DDCalc_2_3_0_init.resolveDependency(&mwimp_generic);
+      DDCalc_2_3_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
+      DDCalc_2_3_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
       LUX_2016_Calc.reset_and_calculate();
 
       // Calculate direct detection likelihood for LUX 2016
       LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
       LUX_2016_GetLogLikelihood.reset_and_calculate();
       // Save the result
       results["LUX_2016_lnL"][current_backend] = LUX_2016_GetLogLikelihood(0);
@@ -1478,24 +1478,24 @@ int main(int argc, char* argv[])
       DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
       // Initialize DDCalc backend
-      Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-      DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-      DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
-      DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
-      DDCalc_2_2_0_init.reset_and_calculate();
+      Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+      DDCalc_2_3_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+      DDCalc_2_3_0_init.resolveDependency(&RD_fraction_one);
+      DDCalc_2_3_0_init.resolveDependency(&mwimp_generic);
+      DDCalc_2_3_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
+      DDCalc_2_3_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
       LUX_2016_Calc.reset_and_calculate();
 
       // Calculate direct detection likelihood for LUX 2016
       LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+      LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
       LUX_2016_GetLogLikelihood.reset_and_calculate();
       // Save the result
       results["LUX_2016_lnL"][current_backend] = LUX_2016_GetLogLikelihood(0);
@@ -1672,14 +1672,14 @@ int main(int argc, char* argv[])
       mwimp_generic.reset_and_calculate();
 
       // Initialize DDCalc backend
-      Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
-      Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-      DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-      DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
-      DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
-      DDCalc_2_2_0_init.reset_and_calculate();
+      Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
+      Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+      DDCalc_2_3_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+      DDCalc_2_3_0_init.resolveDependency(&RD_fraction_one);
+      DDCalc_2_3_0_init.resolveDependency(&mwimp_generic);
+      DDCalc_2_3_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
+      DDCalc_2_3_0_init.reset_and_calculate();
 
 
       sigma_SI_p_simple.resolveDependency(&mwimp_generic);

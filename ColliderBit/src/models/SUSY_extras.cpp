@@ -204,10 +204,10 @@ namespace Gambit
 
       result.clear();
 
-      if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT") 
-          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA") 
-          || ModelInUse("MSSM63atQ_lightgravitino") || ModelInUse("MSSM63atMGUT_lightgravitino")
-          || ModelInUse("MSSM63atQ_mA_lightgravitino") || ModelInUse("MSSM63atMGUT_mA_lightgravitino") ) 
+      if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT")
+          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA")
+          || ModelInUse("MSSM63atQ_mG") || ModelInUse("MSSM63atMGUT_mG")
+          || ModelInUse("MSSM63atQ_mA_mG") || ModelInUse("MSSM63atMGUT_mA_mG") )
       {
         result = Dep::MSSM_spectrum->getSLHAea(1);
       }
@@ -243,10 +243,10 @@ namespace Gambit
 
       result.clear();
 
-      if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT") 
-          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA") 
-          || ModelInUse("MSSM63atQ_lightgravitino") || ModelInUse("MSSM63atMGUT_lightgravitino")
-          || ModelInUse("MSSM63atQ_mA_lightgravitino") || ModelInUse("MSSM63atMGUT_mA_lightgravitino") ) 
+      if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT")
+          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA")
+          || ModelInUse("MSSM63atQ_mG") || ModelInUse("MSSM63atMGUT_mG")
+          || ModelInUse("MSSM63atQ_mA_mG") || ModelInUse("MSSM63atMGUT_mA_mG") )
       {
         result = Dep::MSSM_spectrum->getSLHAea(2);
       }
@@ -303,7 +303,7 @@ namespace Gambit
     }
 
 
-    // A dummy loglike function to ensure that points with failed mass spectrum 
+    // A dummy loglike function to ensure that points with failed mass spectrum
     // and/or decay calculations can be invalidated aslo in "observables-only" scans
     void get_susy_spectrum_validation_loglike(double& result)
     {

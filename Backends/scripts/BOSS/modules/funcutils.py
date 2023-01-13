@@ -147,11 +147,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
 
                 else:
                     if include_namespace:
-                        # If known class, add '::' for absolute namespace
-                        if arg_dict['known_class']:
-                            args_seq += '::' + arg_dict['type']                       
-                        else:
-                            args_seq += arg_dict['type']
+                        args_seq += arg_dict['type']
                     else:
                         args_seq += utils.removeNamespace(arg_dict['type'])
 

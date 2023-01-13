@@ -43,8 +43,8 @@ input_files = [
 ]
 include_paths = [
     '../../../Backends/installed/rivet/'+gambit_backend_version+'/include',
-    '../../../contrib/HepMC3-3.1.1/local/include',
-    '../../../contrib/YODA-1.9.1/local/include',
+    '../../../contrib/HepMC3-3.2.5/local/include',
+    '../../../contrib/YODA-1.9.7/local/include',
     '../../../Backends/installed/fastjet/3.3.2/local/include'
 ]
 base_paths = ['../../../Backends/installed/rivet/'+gambit_backend_version]
@@ -57,7 +57,7 @@ load_classes = [
 ]
 
 load_functions = [
-    'Rivet::addAnalysisLibPath(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&)'
+    'Rivet::addAnalysisLibPath(const std::string&)'
 ]
 
 ditch = [

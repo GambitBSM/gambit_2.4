@@ -243,6 +243,9 @@ def main():
     cfg.include_paths = list(filter(None, cfg.include_paths))
     cfg.base_paths = list(filter(None, cfg.base_paths))
 
+    # Create a version of the load_functions list with no spaces, for safer comparisons
+    cfg.load_functions_no_spaces = [func_name.replace(" ", "") for func_name in cfg.load_functions]
+
 
     #
     # If types_header_flag is True: Load saved variables, parse factory function files and generate loaded_types.hpp
@@ -286,6 +289,7 @@ def main():
     # Check if backend source tree has already been BOSSed. (Look for the backend_undefs.hpp header file.)
     #
     check_file = os.path.join(cfg.header_files_to, gb.gambit_backend_incl_dir, 'backend_undefs.hpp')
+    print('File: ', check_file)
     if os.path.isfile(check_file):
         print()
         print( utils.modifyText('The backend source tree seems to already have been BOSSed.','yellow'))
@@ -537,6 +541,9 @@ def main():
     # Remove from cfg.load_functions all functions that are not loadable
     #
 
+    # Remove whitespace in entries in cfg.load_functions
+    cfg.load_functions = [func_name.replace(' ', '') for func_name in cfg.load_functions]
+
     # Remove duplicates from cfg.load_functions
     cfg.load_functions = list(OrderedDict.fromkeys(cfg.load_functions))
 
@@ -552,6 +559,7 @@ def main():
             if el.tag == 'Function':
 
                 # Get function name
+                func_name_long_templ_args = ''
                 try:
                     func_name = funcutils.getFunctionNameDict(el)
                     func_name_long_templ_args = func_name['long_templ_args']
@@ -561,13 +569,14 @@ def main():
                     print('  ERROR: Unexpected error!')
                     raise
 
-                if func_name_long_templ_args in cfg.load_functions:
+                compare_func_name = func_name_long_templ_args.replace(' ','')
+                if compare_func_name in cfg.load_functions:
 
                     is_loadable = not funcutils.ignoreFunction(el, limit_pointerness=True, print_warning=True)
 
                     if not is_loadable:
 
-                        cfg.load_functions.remove(func_name_long_templ_args)
+                        cfg.load_functions.remove(compare_func_name)
 
 
     #

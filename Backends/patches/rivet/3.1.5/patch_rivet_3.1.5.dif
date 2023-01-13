@@ -1,6 +1,6 @@
 diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
---- Rivet-3.1.5/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.5/Makefile.in	2021-07-09 15:06:26.872373007 +0200
+--- Rivet-3.1.5/Makefile.in	2021-11-05 18:37:59.000000000 +0100
++++ ../installed/rivet/3.1.5/Makefile.in	2023-01-02 15:01:41.709423456 +0100
 @@ -455,6 +455,17 @@ pkgconfigdir = $(libdir)/pkgconfig
  dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
@@ -20,8 +20,8 @@ diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
  .SUFFIXES:
  am--refresh: Makefile
 diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/include/Rivet/Makefile.in
---- Rivet-3.1.5/include/Rivet/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.5/include/Rivet/Makefile.in	2021-07-09 15:06:26.872373007 +0200
+--- Rivet-3.1.5/include/Rivet/Makefile.in	2021-11-05 18:38:00.000000000 +0100
++++ ../installed/rivet/3.1.5/include/Rivet/Makefile.in	2023-01-02 15:04:21.708363318 +0100
 @@ -381,6 +381,7 @@ nobase_dist_noinst_HEADERS = Tools/osdir
  	Math/eigen3/README.md
  
@@ -44,20 +44,20 @@ diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/includ
 +        ../gambit/Backends/wrappertypedefs.hh \
 +        ../gambit/Backends/function_return_utils.hpp \
 +        ../gambit/Utils/cats.hpp \
-+        ../backend_types/Rivet_3.1.5/identification.hpp \
-+        ../backend_types/Rivet_3.1.5/forward_decls_abstract_classes.hh \
-+        ../backend_types/Rivet_3.1.5/forward_decls_wrapper_classes.hh \
-+        ../backend_types/Rivet_3.1.5/abstract_AnalysisHandler.hh \
-+        ../backend_types/Rivet_3.1.5/wrapper_AnalysisHandler.hh \
-+        ../backend_types/Rivet_3.1.5/wrapper_AnalysisHandler_decl.hh \
-+        ../backend_types/Rivet_3.1.5/wrapper_AnalysisHandler_def.hh
++        ../backend_types/Rivet_3_1_5/identification.hpp \
++        ../backend_types/Rivet_3_1_5/forward_decls_abstract_classes.hh \
++        ../backend_types/Rivet_3_1_5/forward_decls_wrapper_classes.hh \
++        ../backend_types/Rivet_3_1_5/abstract_AnalysisHandler.hh \
++        ../backend_types/Rivet_3_1_5/wrapper_AnalysisHandler.hh \
++        ../backend_types/Rivet_3_1_5/wrapper_AnalysisHandler_decl.hh \
++        ../backend_types/Rivet_3_1_5/wrapper_AnalysisHandler_def.hh
 +
  all: all-am
  
  .SUFFIXES:
 diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Makefile.in
---- Rivet-3.1.5/src/Core/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.5/src/Core/Makefile.in	2021-07-09 15:32:29.946626870 +0200
+--- Rivet-3.1.5/src/Core/Makefile.in	2021-11-05 18:38:00.000000000 +0100
++++ ../installed/rivet/3.1.5/src/Core/Makefile.in	2023-01-02 15:01:41.709423456 +0100
 @@ -110,6 +110,7 @@ CONFIG_CLEAN_VPATH_FILES =
  LTLIBRARIES = $(noinst_LTLIBRARIES)
  libRivetCore_la_DEPENDENCIES =  \
@@ -99,7 +99,7 @@ diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Ma
  
  libRivetCore_la_CPPFLAGS = -I$(srcdir)/yamlcpp -DYAML_NAMESPACE=RIVET_YAML $(AM_CPPFLAGS)
  libRivetCore_la_LIBADD = $(builddir)/yamlcpp/librivet-yaml-cpp.la
-@@ -504,6 +513,12 @@ distclean-compile:
+@@ -504,6 +516,12 @@ distclean-compile:
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-ProjectionApplier.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-ProjectionHandler.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Run.Plo@am__quote@
@@ -112,7 +112,7 @@ diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Ma
  
  .cc.o:
  @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@@ -603,6 +615,42 @@ libRivetCore_la-ProjectionHandler.lo: Pr
+@@ -603,6 +621,42 @@ libRivetCore_la-ProjectionHandler.lo: Pr
  @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
  @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-ProjectionHandler.lo `test -f 'ProjectionHandler.cc' || echo '$(srcdir)/'`ProjectionHandler.cc
  
@@ -156,34 +156,34 @@ diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Ma
  	-rm -f *.lo
  
 diff -rupN Rivet-3.1.5/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh
---- Rivet-3.1.5/include/Rivet/AnalysisHandler.hh  2021-03-29 14:15:18.000000000 +0200
-+++ ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh 2021-06-18 16:05:58.062283178 +0200
+--- Rivet-3.1.5/include/Rivet/AnalysisHandler.hh	2021-04-27 21:21:47.000000000 +0200
++++ ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh	2023-01-02 15:01:41.709423456 +0100
 @@ -27,10 +27,10 @@ namespace Rivet {
      AnalysisHandler(const string& runname="");
-
+ 
      /// The copy constructor is deleted, so it can never be called.
 -    AnalysisHandler(const AnalysisHandler&) = delete;
 +    //AnalysisHandler(const AnalysisHandler&) = delete; // Commented by GAMBIT
-
+ 
      /// The assignment operator is deleted, so it can never be called.
 -    AnalysisHandler& operator=(const AnalysisHandler&) = delete;
 +    //AnalysisHandler& operator=(const AnalysisHandler&) = delete; // Commented by GAMBIT
-
+ 
      /// The destructor is not virtual, as this class should not be inherited from.
      ~AnalysisHandler();
-@@ -266,6 +266,9 @@ namespace Rivet {
-
+@@ -267,6 +267,9 @@ namespace Rivet {
      /// Write all analyses' plots (via getData) to the named file.
      void writeData(const string& filename) const;
-+
+ 
 +    // Added by GAMBIT, Dummy function to force BOSS to add the headers for the YODA::AnalysisObject type
 +    void dummy(YODA::AnalysisObject*) const;
-
++
      /// @brief Configure the AnalysisObject dump rate and destination.
      ///
+     /// Tell Rivet to dump intermediate result to a file named @a
 diff -rupN Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh
 --- Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh	2020-04-07 16:43:14.000000000 +0200
-+++ ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh	2021-07-09 15:06:26.876373011 +0200
++++ ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh	2023-01-02 15:01:41.709423456 +0100
 @@ -8,7 +8,7 @@
  #include <valarray>
  
@@ -213,8 +213,8 @@ diff -rupN Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.
  
  namespace Rivet {
 diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/Core/AnalysisHandler.c
---- Rivet-3.1.5/src/Core/AnalysisHandler.cc	2021-04-05 21:02:55.000000000 +0200
-+++ ../installed/rivet/3.1.5/src/Core/AnalysisHandler.cc	2021-07-09 15:06:26.876373011 +0200
+--- Rivet-3.1.5/src/Core/AnalysisHandler.cc	2021-07-11 23:34:05.000000000 +0200
++++ ../installed/rivet/3.1.5/src/Core/AnalysisHandler.cc	2023-01-02 15:01:41.709423456 +0100
 @@ -121,7 +121,8 @@ namespace Rivet {
      if (num_anas_requested > 0 && analysisNames().empty()) {
        MSG_ERROR("All analyses were incompatible with the first event's beams\n"
@@ -225,7 +225,7 @@ diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/
      }
  
      // Warn if any analysis' status is not unblemished
-@@ -872,6 +873,12 @@ namespace Rivet {
+@@ -916,6 +917,12 @@ namespace Rivet {
  
    }
  
@@ -239,8 +239,8 @@ diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/
    string AnalysisHandler::runName() const {
      return _runname;
 diff -rupN Rivet-3.1.5/analyses/Makefile.in ../installed/rivet/3.1.5/analyses/Makefile.in
---- Rivet-3.1.5/analyses/Makefile.in	2021-04-01 13:22:11.000000000 +0200
-+++ ../installed/rivet/3.1.5/analyses/Makefile.in	2021-07-09 15:06:26.876373011 +0200
+--- Rivet-3.1.5/analyses/Makefile.in	2021-11-05 18:37:59.000000000 +0100
++++ ../installed/rivet/3.1.5/analyses/Makefile.in	2023-01-02 15:01:41.709423456 +0100
 @@ -569,7 +569,8 @@ uninstall-am: uninstall-local
  @ENABLE_ANALYSES_TRUE@	mkdir -p $(builddir)/data
  @ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/plugin*; do $(LN_S) -f $${pdir}/*.{info,plot,yoda*} $(builddir)/data; done

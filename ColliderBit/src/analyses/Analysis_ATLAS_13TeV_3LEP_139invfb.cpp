@@ -336,7 +336,7 @@ namespace Gambit {
         double weight_SR9_16_WZ  = 0.94;
         double weight_SR17_20_WZ = 0.89;
         double weight_SR_SFOS_Wh  = 0.94;
-        double weight_SR_DFOS_Wh = 0.98;
+        // double weight_SR_DFOS_Wh = 0.98;
         
         // First exclusive regions
         // Pre-selection for WZ on-shell SRs
@@ -433,11 +433,11 @@ namespace Gambit {
               }
             }
           }
-          // DFOS SRs
-          if(!bSFOS){
-            double weight = event->weight()*weight_trigger_Wh*weight_SR_DFOS_Wh;
-            // TODO: Needs E_T^miss significance reconstruction
-          }
+          // // DFOS SRs
+          // if(!bSFOS){
+          //   double weight = event->weight()*weight_trigger_Wh*weight_SR_DFOS_Wh;
+          //   // TODO: Needs E_T^miss significance reconstruction
+          // }
         }
         
         #ifdef CHECK_CUTFLOW

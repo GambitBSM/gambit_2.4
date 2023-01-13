@@ -18,7 +18,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       
       // Member functions: 
-      inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > AnalysisHandler::runName() const
+      inline ::std::string AnalysisHandler::runName() const
       {
          return get_BEptr()->runName();
       }
@@ -38,7 +38,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->sumW2();
       }
       
-      inline const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& AnalysisHandler::weightNames() const
+      inline const ::std::vector<std::string>& AnalysisHandler::weightNames() const
       {
          return get_BEptr()->weightNames();
       }
@@ -53,7 +53,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->haveNamedWeights();
       }
       
-      inline void AnalysisHandler::setWeightNames(const ::HepMC3::GenEvent& ge)
+      inline void AnalysisHandler::setWeightNames(const HepMC3::GenEvent& ge)
       {
          get_BEptr()->setWeightNames(ge);
       }
@@ -83,7 +83,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->skipMultiWeights__BOSS();
       }
       
-      inline void AnalysisHandler::selectMultiWeights(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > patterns)
+      inline void AnalysisHandler::selectMultiWeights(std::string patterns)
       {
          get_BEptr()->selectMultiWeights(patterns);
       }
@@ -93,7 +93,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->selectMultiWeights__BOSS();
       }
       
-      inline void AnalysisHandler::deselectMultiWeights(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > patterns)
+      inline void AnalysisHandler::deselectMultiWeights(std::string patterns)
       {
          get_BEptr()->deselectMultiWeights(patterns);
       }
@@ -103,7 +103,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->deselectMultiWeights__BOSS();
       }
       
-      inline void AnalysisHandler::setNominalWeightName(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name)
+      inline void AnalysisHandler::setNominalWeightName(std::string name)
       {
          get_BEptr()->setNominalWeightName(name);
       }
@@ -113,12 +113,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->setNominalWeightName__BOSS();
       }
       
-      inline void AnalysisHandler::setCrossSection(const ::std::pair<double, double>& xsec, bool isUserSupplied)
+      inline void AnalysisHandler::setCrossSection(const std::pair<double, double>& xsec, bool isUserSupplied)
       {
          get_BEptr()->setCrossSection(xsec, isUserSupplied);
       }
       
-      inline void AnalysisHandler::setCrossSection(const ::std::pair<double, double>& xsec)
+      inline void AnalysisHandler::setCrossSection(const std::pair<double, double>& xsec)
       {
          get_BEptr()->setCrossSection__BOSS(xsec);
       }
@@ -168,52 +168,52 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->setIgnoreBeams__BOSS();
       }
       
-      inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > AnalysisHandler::analysisNames() const
+      inline ::std::vector<std::string> AnalysisHandler::analysisNames() const
       {
          return get_BEptr()->analysisNames();
       }
       
-      inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > AnalysisHandler::stdAnalysisNames() const
+      inline ::std::vector<std::string> AnalysisHandler::stdAnalysisNames() const
       {
          return get_BEptr()->stdAnalysisNames();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& analysisname)
+      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const std::string& analysisname)
       {
          return get_BEptr()->addAnalysis__BOSS(analysisname).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& analysisname, ::std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > > pars)
+      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalysis(const std::string& analysisname, std::map<std::string, std::string> pars)
       {
          return get_BEptr()->addAnalysis__BOSS(analysisname, pars).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalyses(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& analysisnames)
+      inline Rivet::AnalysisHandler& AnalysisHandler::addAnalyses(const std::vector<std::string>& analysisnames)
       {
          return get_BEptr()->addAnalyses__BOSS(analysisnames).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalysis(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& analysisname)
+      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalysis(const std::string& analysisname)
       {
          return get_BEptr()->removeAnalysis__BOSS(analysisname).get_init_wref();
       }
       
-      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalyses(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& analysisnames)
+      inline Rivet::AnalysisHandler& AnalysisHandler::removeAnalyses(const std::vector<std::string>& analysisnames)
       {
          return get_BEptr()->removeAnalyses__BOSS(analysisnames).get_init_wref();
       }
       
-      inline void AnalysisHandler::init(const ::HepMC3::GenEvent& event)
+      inline void AnalysisHandler::init(const HepMC3::GenEvent& event)
       {
          get_BEptr()->init(event);
       }
       
-      inline void AnalysisHandler::analyze(const ::HepMC3::GenEvent& event)
+      inline void AnalysisHandler::analyze(const HepMC3::GenEvent& event)
       {
          get_BEptr()->analyze(event);
       }
       
-      inline void AnalysisHandler::analyze(const ::HepMC3::GenEvent* event)
+      inline void AnalysisHandler::analyze(const HepMC3::GenEvent* event)
       {
          get_BEptr()->analyze(event);
       }
@@ -223,37 +223,37 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->finalize();
       }
       
-      inline void AnalysisHandler::readData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename)
+      inline void AnalysisHandler::readData(const std::string& filename)
       {
          get_BEptr()->readData(filename);
       }
       
-      inline ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > > AnalysisHandler::getYodaAOs(bool includeraw) const
+      inline ::std::vector<std::shared_ptr<YODA::AnalysisObject>> AnalysisHandler::getYodaAOs(bool includeraw) const
       {
          return get_BEptr()->getYodaAOs(includeraw);
       }
       
-      inline ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject> > > AnalysisHandler::getYodaAOs() const
+      inline ::std::vector<std::shared_ptr<YODA::AnalysisObject>> AnalysisHandler::getYodaAOs() const
       {
          return get_BEptr()->getYodaAOs__BOSS();
       }
       
-      inline void AnalysisHandler::writeData(::std::basic_ostream<char, std::char_traits<char> >& ostr, const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& fmt) const
+      inline void AnalysisHandler::writeData(std::basic_ostream<char>& ostr, const std::string& fmt) const
       {
          get_BEptr()->writeData(ostr, fmt);
       }
       
-      inline void AnalysisHandler::writeData(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& filename) const
+      inline void AnalysisHandler::writeData(const std::string& filename) const
       {
          get_BEptr()->writeData(filename);
       }
       
-      inline void AnalysisHandler::dummy(::YODA::AnalysisObject* arg_1) const
+      inline void AnalysisHandler::dummy(YODA::AnalysisObject* arg_1) const
       {
          get_BEptr()->dummy(arg_1);
       }
       
-      inline void AnalysisHandler::setAODump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period)
+      inline void AnalysisHandler::setAODump(const std::string& dumpfile, int period)
       {
          get_BEptr()->setAODump(dumpfile, period);
       }
@@ -263,44 +263,44 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->setNoAODump();
       }
       
-      inline void AnalysisHandler::dump(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& dumpfile, int period)
+      inline void AnalysisHandler::dump(const std::string& dumpfile, int period)
       {
          get_BEptr()->dump(dumpfile, period);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& matches, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& unmatches, bool equiv)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches, bool equiv)
       {
          get_BEptr()->mergeYodas(aofiles, delopts, addopts, matches, unmatches, equiv);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& matches, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& unmatches)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts, addopts, matches, unmatches);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& matches)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts, addopts, matches);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& addopts)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts, addopts);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles, const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& delopts)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles, delopts);
       }
       
-      inline void AnalysisHandler::mergeYodas(const ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& aofiles)
+      inline void AnalysisHandler::mergeYodas(const std::vector<std::string>& aofiles)
       {
          get_BEptr()->mergeYodas__BOSS(aofiles);
       }
       
       
       // Wrappers for original constructors: 
-      inline AnalysisHandler::AnalysisHandler(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& runname) :
+      inline AnalysisHandler::AnalysisHandler(const std::string& runname) :
          WrapperBase(__factory0(runname))
       {
          get_BEptr()->set_wptr(this);

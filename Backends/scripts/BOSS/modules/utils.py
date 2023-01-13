@@ -709,7 +709,13 @@ def findType(el_input):
     name_and_namespaces = getNamespaces(el, include_self=True)
     typename = '::'.join(name_and_namespaces)
 
+    # Replace any type names? This is to tackle system-dependent type name expansions 
+    # like "std::basic_string<char, std::char_traits<char>, std::allocator<char> >"
+    # for std::string.
+    for current_type_name, new_type_name in gb.replace_type_names.items():
+        typename = typename.replace(current_type_name, new_type_name)
 
+    # Construct the returned dict with the type info
     type_dict = OrderedDict([])
     type_dict['name']                = typename
     type_dict['cv_qualifiers']       = cv_qualifiers
@@ -2046,7 +2052,7 @@ def constrLoadedTypesHeaderContent():
             class_line += '    /*constructors*/'
 
             for info_dict in gb.factory_info[ class_name['long'] ]:
-                class_line += '(("' + info_dict['name'] + '",' + info_dict['args_bracket'] + ')) '
+                class_line += '(("' + info_dict['name'] + '",' + info_dict['args_bracket'].replace(' ::', ' ').replace('(::', '(') + ')) '
 
             class_line += ')) \\'
             class_lines.append(class_line)
@@ -2754,7 +2760,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 infomsg.FunctionAlreadyDone( func_name['long_templ_args'] ).printMessage()
                 continue
 
-            if func_name['long_templ_args'] in cfg.load_functions:
+            if func_name['long_templ_args'].replace(' ','') in cfg.load_functions:
                 gb.func_dict[func_name['long_templ_args']] = el
 
 

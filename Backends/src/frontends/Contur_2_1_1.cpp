@@ -27,15 +27,6 @@ using namespace pybind11::literals;
 BE_NAMESPACE
 {
 
-  // Convenience functions
-  double Contur_LogLike(vector_shared_ptr<YODA::AnalysisObject> &aos)
-  {
-
-    //pybind11::object ao = yoda.attr("AnalysisObject");
-    return 0.0;
-
-  }
-
   Contur_output Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string> &contur_yaml_args)
   {
     //Convert C++ ostringstream to python StringIO

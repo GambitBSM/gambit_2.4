@@ -73,11 +73,10 @@ namespace Gambit
     (map_str_str)                 \
     (Gambit::ModelParameters)     \
 
-  #define SCANNER_RETRIEVABLE_TYPES  \
-    SCANNER_SIMPLE_TYPES             \
-    (std::string)                    \
-    (std::vector<double>)            \
-    (map_str_dbl)                    \
+  #define SCANNER_RETRIEVABLE_TYPES   \
+    SCANNER_SIMPLE_TYPES              \
+    (std::string)                     \
+    (std::vector<double>)             \
+    (map_str_dbl)                     \
     (Gambit::ModelParameters)
-
 }

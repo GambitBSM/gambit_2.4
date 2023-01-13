@@ -18,7 +18,10 @@
 
 #include "gambit/Backends/backend_types/Contur.hpp"
 
-namespace Gambit{
+namespace Gambit
+{
+
+  #ifdef HAVE_PYBIND11
 
     void Contur_output::print_Contur_output_debug(std::ostream&outstream) const
     {
@@ -34,7 +37,7 @@ namespace Gambit{
       }
       outstream << std::endl;
     }
-  
+
     Contur_output merge_contur_outputs(const Contur_output& output1, const Contur_output& output2)
     {
       map_str_str new_pool_tags {};
@@ -60,17 +63,20 @@ namespace Gambit{
     }
 
     //This assumes that the same contur instances belong in each run. If this isn't the case, something very bad has gone wrong!
-     Multi_Contur_output merge_multi_contur_outputs(const Multi_Contur_output& output1, const Multi_Contur_output& output2){
-       Multi_Contur_output final_output = {};
-       for(const auto &output_object_1 : output1){
-         final_output[output_object_1.first] = merge_contur_outputs(output_object_1.second, output2.at(output_object_1.first));
-       }
-     }
-    
+    Multi_Contur_output merge_multi_contur_outputs(const Multi_Contur_output& output1, const Multi_Contur_output& output2){
+      Multi_Contur_output final_output = {};
+      for(const auto &output_object_1 : output1){
+        final_output[output_object_1.first] = merge_contur_outputs(output_object_1.second, output2.at(output_object_1.first));
+      }
+      return final_output;
+    }
+
     void print_Multi_Contur_output_debug(const Multi_Contur_output& multi_contur_out, std::ostream& outstream){
       for (auto contur_instance : multi_contur_out){
         outstream << contur_instance.first << ":\n";
         contur_instance.second.print_Contur_output_debug(outstream);
       }
     }
+
+  #endif
 }

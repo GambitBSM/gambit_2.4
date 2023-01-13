@@ -99,7 +99,7 @@ namespace Gambit
 
   void MSSM25atX_to_MSSM30atX(const ModelParameters &myP, ModelParameters &targetP)
   {
-     // Copy all the common parameters of MSSM25atQ_lightgravitino into MSSM30atQ_lightgravitino
+     // Copy all the common parameters of MSSM25atX into MSSM30atX
      targetP.setValues(myP,false);
 
      // Manually set the parameters which differ
@@ -130,7 +130,7 @@ namespace Gambit
   void MSSM30atX_to_MSSM63atX(const ModelParameters &myP, ModelParameters &targetP)
   {
 
-     // Copy all common parameters of MSSM30atX_lightgravitino into MSSM63atX_lightgravitino
+     // Copy all common parameters of MSSM30atX into MSSM63atX
      targetP.setValues(myP,false);
 
      // Manually set parameters that differ
