@@ -63,12 +63,13 @@ namespace Gambit
     }
 
     //This assumes that the same contur instances belong in each run. If this isn't the case, something very bad has gone wrong!
-     Multi_Contur_output merge_multi_contur_outputs(const Multi_Contur_output& output1, const Multi_Contur_output& output2){
-       Multi_Contur_output final_output = {};
-       for(const auto &output_object_1 : output1){
-         final_output[output_object_1.first] = merge_contur_outputs(output_object_1.second, output2.at(output_object_1.first));
-       }
-     }
+    Multi_Contur_output merge_multi_contur_outputs(const Multi_Contur_output& output1, const Multi_Contur_output& output2){
+      Multi_Contur_output final_output = {};
+      for(const auto &output_object_1 : output1){
+        final_output[output_object_1.first] = merge_contur_outputs(output_object_1.second, output2.at(output_object_1.first));
+      }
+      return final_output;
+    }
 
     void print_Multi_Contur_output_debug(const Multi_Contur_output& multi_contur_out, std::ostream& outstream){
       for (auto contur_instance : multi_contur_out){
