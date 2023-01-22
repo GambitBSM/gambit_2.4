@@ -3,65 +3,63 @@
 
 #include <string>
 #include "wrapper_Pythia_decl.h"
-
-#ifndef EXCLUDE_HEPMC
 #include "HepMC3/GenEvent.h"
 
 #include "identification.hpp"
 
 namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 {
-
+    
     namespace Pythia8
     {
         
         // Member functions: 
-        inline void GAMBIT_hepmc_writer::init(::std::basic_string<char> filename_in, bool HepMC2, bool HepMC3)
+        inline void GAMBIT_hepmc_writer::init(std::string filename_in, bool HepMC2, bool HepMC3)
         {
             get_BEptr()->init(filename_in, HepMC2, HepMC3);
         }
-
+        
         inline void GAMBIT_hepmc_writer::write_event_HepMC3(Pythia8::Pythia* pythia)
         {
             get_BEptr()->write_event_HepMC3__BOSS((*pythia).get_BEptr());
         }
-
+        
         inline void GAMBIT_hepmc_writer::write_event_HepMC2(Pythia8::Pythia* pythia)
         {
             get_BEptr()->write_event_HepMC2__BOSS((*pythia).get_BEptr());
         }
-
-        inline void GAMBIT_hepmc_writer::convert_to_HepMC_event(Pythia8::Pythia* pythia, ::HepMC3::GenEvent& event)
+        
+        inline void GAMBIT_hepmc_writer::convert_to_HepMC_event(Pythia8::Pythia* pythia, HepMC3::GenEvent& event)
         {
             get_BEptr()->convert_to_HepMC_event__BOSS((*pythia).get_BEptr(), event);
         }
-
-
-        // Wrappers for original constructors:
+        
+        
+        // Wrappers for original constructors: 
         inline GAMBIT_hepmc_writer::GAMBIT_hepmc_writer() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
-
-        // Special pointer-based constructor:
+        
+        // Special pointer-based constructor: 
         inline GAMBIT_hepmc_writer::GAMBIT_hepmc_writer(Abstract_GAMBIT_hepmc_writer* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
-
-        // Copy constructor:
+        
+        // Copy constructor: 
         inline GAMBIT_hepmc_writer::GAMBIT_hepmc_writer(const GAMBIT_hepmc_writer& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
-
-        // Assignment operator:
+        
+        // Assignment operator: 
         inline GAMBIT_hepmc_writer& GAMBIT_hepmc_writer::operator=(const GAMBIT_hepmc_writer& in)
         {
             if (this != &in)
@@ -70,9 +68,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             }
             return *this;
         }
-
-
-        // Destructor:
+        
+        
+        // Destructor: 
         inline GAMBIT_hepmc_writer::~GAMBIT_hepmc_writer()
         {
             if (get_BEptr() != 0)
@@ -86,17 +84,16 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             }
             set_delete_BEptr(false);
         }
-
-        // Returns correctly casted pointer to Abstract class:
+        
+        // Returns correctly casted pointer to Abstract class: 
         inline Abstract_GAMBIT_hepmc_writer* Pythia8::GAMBIT_hepmc_writer::get_BEptr() const
         {
             return dynamic_cast<Abstract_GAMBIT_hepmc_writer*>(BEptr);
         }
     }
-
+    
 }
 
-#endif
 
 #include "gambit/Backends/backend_undefs.hpp"
 
