@@ -8,6 +8,9 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 //#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
 
+// #define CUTFLOW
+
+
 /* The ATLAS 2 lepton EW analysis (20fb^-1)
 
    based on: arXiv: 1403.5294
@@ -916,20 +919,20 @@ namespace Gambit {
 
       void collect_results() {
 
-
-        double scale_by=1.;
-        cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-        cout << "CUT FLOW: ATLAS 8 TeV 2-lepton EW paper SUSY-2013-11"<<endl;
-        cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-        cout<< right << setw(40) << "CUT" <<  "," << setw(20) << "RAW" <<  "," << setw(20) << "SCALED"
-        <<  "," << setw(20) << "%" <<  "," << setw(20) << endl;
-        for (int j=0; j<NCUTS; j++) {
-            cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-            << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-            << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << endl;
-        }
-        cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-
+        #ifdef CUTFLOW
+          double scale_by=1.;
+          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
+          cout << "CUT FLOW: ATLAS 8 TeV 2-lepton EW paper SUSY-2013-11"<<endl;
+          cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
+          cout<< right << setw(40) << "CUT" <<  "," << setw(20) << "RAW" <<  "," << setw(20) << "SCALED"
+          <<  "," << setw(20) << "%" <<  "," << setw(20) << endl;
+          for (int j=0; j<NCUTS; j++) {
+              cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
+              << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
+              << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << endl;
+          }
+          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
+        #endif
 
         // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
