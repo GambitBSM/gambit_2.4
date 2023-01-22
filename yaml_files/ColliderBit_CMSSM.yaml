@@ -297,6 +297,7 @@ Rules:
           - ATLAS_13TeV_0LEPStop_36invfb
           - ATLAS_13TeV_2LEPStop_36invfb
           - ATLAS_13TeV_2bMET_36invfb
+          - ATLAS_13TeV_1Lep2b_139invfb
         # - ATLAS_13TeV_RJ3L_lowmass_36invfb
         # - ATLAS_13TeV_1LEPStop_36invfb
         # The last two analyses depend on ROOT.
@@ -347,9 +348,9 @@ Rules:
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
     # Choose not to use the FullLikes backend.
-    function: calc_LHC_LogLikes
+    # function: calc_LHC_LogLikes
     # Choose to use the FullLikes backend when applicable
-    # function: calc_LHC_LogLikes_full
+    function: calc_LHC_LogLikes_full
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
