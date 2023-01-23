@@ -32,12 +32,12 @@ Parameters:
   #     prior_type: flat
   #   SignMu: 1
 
-  # SUSY parameters.
+  # CMSSM parameters for a single test point
   CMSSM:
-    M0: 4269.402
-    M12: 1266.043
-    A0: -9965.036
-    TanBeta: 14.857
+    M0: 300
+    M12: 400
+    A0: 0
+    TanBeta: 10
     SignMu: -1
 
 Priors:
@@ -263,8 +263,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_8TeV:
-        min_nEvents: 100
-        max_nEvents: 100
+        min_nEvents: 1000
+        max_nEvents: 1000
         events_between_convergence_checks: 5000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -406,11 +406,11 @@ Rules:
   - capability: LHC_measurements
     function: Contur_LHC_measurements_from_stream
     options:
-      #Adding a contur option is equivalent to running contur with the equivalent flag.
-      #contur_options:
-       #- use-searches
-       # - theory
-       # YODA_filename: "./runpoint_0017.yoda"
+      # Adding a contur option is equivalent to running contur with the equivalent flag.
+      # contur_options:
+      # - use-searches
+      # - theory
+      # YODA_filename: "./runpoint_0017.yoda"
 
   - capability: LHC_measurements_LogLike
     function: Contur_LHC_measurements_LogLike
