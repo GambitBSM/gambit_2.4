@@ -1,0 +1,11 @@
+diff -rupN contur-2.1.1_original/contur/data/build_covariance.py contur-2.1.1_patched/contur/data/build_covariance.py
+--- contur-2.1.1_original/contur/data/build_covariance.py	2023-01-23 21:48:31.413554149 +0100
++++ contur-2.1.1_patched/contur/data/build_covariance.py	2023-01-23 21:50:42.117180588 +0100
+@@ -37,6 +37,7 @@ class CovarianceBuilder(object):
+                 errMap_values[ibin]=0
+             ibin=ibin+1
+         for source in self.ao.variations():
++            source = source.encode("utf-8")  # GAMBIT patch
+             if len(source)>0 and not b"stat" in source and not b"Uncor" in source and not b"uncor" in source:
+                 systErrs = np.zeros(self.nbins)
+                 fracErrs = np.zeros(self.nbins)
