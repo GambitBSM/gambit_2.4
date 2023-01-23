@@ -245,9 +245,9 @@ Rules:
   - capability: HardScatteringEvent
     type: Pythia_default::Pythia8::Event
     function: generateEventPythia
-    options:
-      drop_HepMC3_file: true
-      # drop_HepMC2_file: true
+    # options:
+    #   drop_HepMC3_file: true
+    #   # drop_HepMC2_file: true
 
   - capability: HardScatteringEvent
     type: HEPUtils::Event
