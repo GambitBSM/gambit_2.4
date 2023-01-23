@@ -101,8 +101,8 @@ ObsLikes:
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
 
-    # - purpose: LogLike
-    #   capability: LHC_measurements_LogLike
+    - purpose: LogLike
+      capability: LHC_measurements_LogLike
 
     # Calculate the LEP likelihoods
     - purpose:    LogLike
@@ -163,8 +163,8 @@ ObsLikes:
     - purpose:    Observable
       capability: LHCEventLoopInfo
 
-    # - purpose:    Observable
-    #   capability: LHC_measurements_LogLike_perPool
+    - purpose:    Observable
+      capability: LHC_measurements_LogLike_perPool
 
     - purpose:    Observable
       capability: SLHA1_violation

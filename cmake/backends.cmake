@@ -2013,6 +2013,7 @@ set(Rivet_name "rivet")
 set(Rivet_ver "3.1.5")
 set(ditch_if_absent "SQLITE3;YODA;HepMC;Rivet")
 set(required_modules "cython;configobj;pandas;matplotlib")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -2024,6 +2025,7 @@ if(NOT ditched_${name}_${ver})
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
+      PATCH_COMMAND patch -p1 < ${patch}
       #CONFIGURE_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
