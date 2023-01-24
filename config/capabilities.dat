@@ -181,7 +181,7 @@ SomeDouble: |
 SomeInt: |
    Example integer in libfirst and friends.
 
-someOtherInt: |
+SomeOtherInt: |
    Another example integer; in libthird.
 
 funcBE: |
@@ -452,7 +452,10 @@ SLHAFileNameAndContent: |
    Name and content of a SLHA file.
 
 susy_spectrum_scan_guide: |
-   Invalid point check with advances mass cuts, to aid scans of SUSY models.
+   Invalid point check with advanced mass cuts, to aid scans of SUSY models.
+
+susy_spectrum_validation_loglike: |
+   A zero loglike used for separating physical and unphysical SUSY points in ColliderBit tests.
 
 LHC_LogLike_scan_guide: |
    A dummy log-likelihood to force the scanner to explore a given range of
@@ -1227,6 +1230,9 @@ sigma_SD_n: |
 
 DarkMatter_ID: |
    Contains string ID to identify dark matter particle.
+
+DarkMatterConj_ID: |
+   String ID for the dark matter conjugate.
 
 RD_spectrum: |
    Contains degrees of freedom and masses of all (co)-annihilating
@@ -6259,7 +6265,7 @@ varNames: |
 #  Rivet & Contur capabilites
 #-----------------------
 
-Rivet_3_1_4_init: |
+Rivet_3_1_5_init: |
   Initialise Rivet backend
 
 Rivet_measurements: |
@@ -6274,11 +6280,17 @@ Contur_2_1_1_init: |
 Contur_GetAnalyses: |
   Wrapper for Contur's static_db.getAnalyses(). Gets a string vector of all the analyses known to this version of Contur for a given beam energy, e.g. "13TeV".
 
+Contur_Measurements: |
+  Capability for a wrapper functions that can provide Contur output, e.g. from file or stream input.
+    
 LHC_measurements: |
   Produces a Contur_output object. Typically will require some form of yoda input to run contur on.
 
 LHC_measurements_LogLike: |
-   Extracts the LLR from a Contur_output object (including factor -2 correction for GAMBIT).
+  Extracts the LLR from a Contur_output object (including factor -2 correction for GAMBIT).
+
+LHC_measurements_LogLike_Multi: |
+  Similar to LHC_measurements_LogLike, for the case where multiple configurations of Contur are used.
 
 LHC_measurements_LogLike_perPool: |
   Extracts a map_str_dbl containing each pool and its individual LLR contribution.
@@ -6418,3 +6430,37 @@ DMsimpVectorMedScalarDM_parameters: |
 DMsimpVectorMedScalarDM_spectrum: |
     Create spectrum object for DMsimpVectorMedScalarDM model.
 
+#--------------------------------
+#  ATLAS_FullLikes capabilities
+#--------------------------------
+
+ATLAS_FullLikes_1_0_init: |
+  Initialization of the ATLAS_FullLikes 1.0 backend.
+
+FullLikes_ReadIn: |
+  ATLAS_FullLikes backend function for reading in JSON files with backgrounds.
+
+FullLikes_FileExists: |
+  ATLAS_FullLikes backend function checking if a particular analysis has been initialised.
+
+FullLikes_Reset: |
+  ATLAS_FullLikes backend function to reset the data for a given analysis
+
+FullLikes_Evaluate_pydict: |
+  ATLAS_FullLikes backend function to evaluate a likelihood for a given analysis and set of signal counts.
+
+FullLikes_Evaluate: |
+  A convenience function that provides an interface to FullLikes_Evaluate_pydict that doesn't use the PyDict type.
+
+#--------------------------------
+#  simple_xs capabilities
+#--------------------------------
+
+simple_xs_1_0_init: |
+  Initialization of the simple_xs 1.0 backend.
+
+simplexs_init: |
+  simple_xs backend function that reads in data and forms the interpolation function.
+
+simplexs_get_xsection: |
+  simple_xs backend function that returns the cross-section for a given process.
