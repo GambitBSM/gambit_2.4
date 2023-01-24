@@ -38,7 +38,7 @@ BE_NAMESPACE
     }
     
     // Pull the delta LogLike from the backend
-    double dll = Evaluate(n_sig_scaled,ana_name);
+    double dll = FullLikes_Evaluate_pydict(n_sig_scaled,ana_name);
     
     return dll;
   }

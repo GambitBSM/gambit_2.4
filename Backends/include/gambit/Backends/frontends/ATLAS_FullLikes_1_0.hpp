@@ -30,10 +30,10 @@ LOAD_LIBRARY
   BE_FUNCTION(FullLikes_ReadIn, int, (const str&,const str&), "ReadIn", "FullLikes_ReadIn")
   BE_FUNCTION(FullLikes_FileExists,bool,(const str&),"FileExists","FullLikes_FileExists")
   BE_FUNCTION(FullLikes_Reset,int,(const str&),"Reset","FullLikes_Reset") //TODO: Chris Chang. This is currently not used.
+  BE_FUNCTION(FullLikes_Evaluate_pydict, double, (PyDict&,const str&), "Evaluate", "FullLikes_Evaluate_pydict")
 
 #endif
 
-  BE_FUNCTION(Evaluate, double, (PyDict&,const str&), "Evaluate", "Evaluate")
   BE_CONV_FUNCTION(FullLikes_Evaluate, double, (std::map<str,double>&, const str&), "FullLikes_Evaluate")
 
 #include "gambit/Backends/backend_undefs.hpp"
