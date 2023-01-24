@@ -23,5 +23,32 @@ END_BE_INI_FUNCTION
 
 BE_NAMESPACE
 {
+
+#ifdef HAVE_PYBIND11
+  // Wrapper for the FullLikes_Evaluate function
+  double FullLikes_Evaluate(std::map<str,double>& SRsignal, const str& ana_name)
+  {
+    // Convert the std::map to a PyDict
+    pybind11::dict n_sig_scaled;
+    
+    for (auto mydict : SRsignal)
+    {
+      pybind11::str SRName = mydict.first;
+      n_sig_scaled[SRName] = mydict.second;
+    }
+    
+    // Pull the delta LogLike from the backend
+    double dll = Evaluate(n_sig_scaled,ana_name);
+    
+    return dll;
+  }
+#else
+  double FullLikes_Evaluate(std::map<str,double>& SRsignal, const str& ana_name)
+  {
+    backend_error().raise(LOCAL_INFO, "PYBIND11 not defined, but is required for the ATLAS_FullLikes backend.\n");
+    return 0.0; // Just returning a number to be consistent with types
+  }
+#endif
+
 }
 END_BE_NAMESPACE
