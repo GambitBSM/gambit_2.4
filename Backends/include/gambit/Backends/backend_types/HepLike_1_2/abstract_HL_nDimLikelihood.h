@@ -23,27 +23,27 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          virtual void Read() =0;
    
-         virtual double GetChi2(::std::vector<double>) =0;
+         virtual double GetChi2(std::vector<double>) =0;
    
-         virtual double GetChi2(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
+         virtual double GetChi2(std::vector<double>, boost::numeric::ublas::matrix<double>) =0;
    
-         virtual double GetLikelihood(::std::vector<double>) =0;
+         virtual double GetLikelihood(std::vector<double>) =0;
    
-         virtual double GetLikelihood(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
+         virtual double GetLikelihood(std::vector<double>, boost::numeric::ublas::matrix<double>) =0;
    
-         virtual double GetLogLikelihood(::std::vector<double>) =0;
+         virtual double GetLogLikelihood(std::vector<double>) =0;
    
-         virtual double GetLogLikelihood(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
+         virtual double GetLogLikelihood(std::vector<double>, boost::numeric::ublas::matrix<double>) =0;
    
          virtual void Profile() =0;
    
-         virtual double GetChi2_profile(double, ::std::basic_string<char>) =0;
+         virtual double GetChi2_profile(double, std::string) =0;
    
-         virtual double GetLikelihood_profile(double, ::std::basic_string<char>) =0;
+         virtual double GetLikelihood_profile(double, std::string) =0;
    
-         virtual double GetLogLikelihood_profile(double, ::std::basic_string<char>) =0;
+         virtual double GetLogLikelihood_profile(double, std::string) =0;
    
-         virtual ::std::vector<std::basic_string<char>> GetObservables() =0;
+         virtual ::std::vector<std::string> GetObservables() =0;
    
          virtual double& loglikelihood_penalty_ref__BOSS() =0;
    

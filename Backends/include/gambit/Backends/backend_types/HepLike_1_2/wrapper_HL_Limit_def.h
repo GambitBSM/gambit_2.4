@@ -45,7 +45,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_Limit::HL_Limit(::std::basic_string<char> s) :
+   inline HL_Limit::HL_Limit(std::string s) :
       HL_Data(__factory1(s))
    {
       get_BEptr()->set_wptr(this);
