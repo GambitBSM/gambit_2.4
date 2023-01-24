@@ -101,7 +101,7 @@ ObsLikes:
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
 
-    - purpose: LogLike
+    - purpose:    LogLike
       capability: LHC_measurements_LogLike
 
     # Calculate the LEP likelihoods
