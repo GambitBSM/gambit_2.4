@@ -107,6 +107,10 @@ indent = 3
 #   known_classes = {"SomeNamespace::KnownClassOne" : "path_to_header/KnownClassOne.hpp",
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
+convenience_functions = []
+
+ini_function_in_header = True
+
 known_classes = {
     "boost::numeric::ublas::matrix" : "<boost/numeric/ublas/matrix.hpp>",
     "YAML::Node" : "yaml-cpp/yaml.h"
