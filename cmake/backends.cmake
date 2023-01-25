@@ -453,12 +453,12 @@ endif()
 set(name "DMsimp_data")
 set(ver "1.0")
 set(dl "https://zenodo.org/record/6999436/files/DMsimp.zip")
-set(dir "${PROJECT_SOURCE_DIR}/ColliderBit/data/")
+set(dir "${PROJECT_SOURCE_DIR}/ColliderBit/data/DMsimp_data/")
 set(md5 "c4d8a3ecf22227376a227307dc00d850")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

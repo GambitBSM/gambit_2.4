@@ -1428,9 +1428,9 @@ namespace Gambit
       // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
       std::map<str,str> Analysis_data_path;
       std::map<str,std::vector<str>> Interpolation_columns;
-      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS137_MonoJet.txt";
+      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
+      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_ATLAS139_MonoJet.txt";
+      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS137_MonoJet.txt";
 
       Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
@@ -1490,9 +1490,9 @@ namespace Gambit
       // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
       std::map<str,str> Analysis_data_path;
       std::map<str,std::vector<str>> Interpolation_columns;
-      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS137_MonoJet.txt";
+      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
+      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_ATLAS139_MonoJet.txt";
+      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS137_MonoJet.txt";
 
       Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
@@ -1551,9 +1551,9 @@ namespace Gambit
       // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
       std::map<str,str> Analysis_data_path;
       std::map<str,std::vector<str>> Interpolation_columns;
-      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedDiracDM_MonoJets/DiracDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS137_MonoJet.txt";
+      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
+      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_ATLAS139_MonoJet.txt";
+      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS137_MonoJet.txt";
 
       Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
@@ -1808,12 +1808,12 @@ namespace Gambit
 
       for (auto searchname : dijet_searches)
       {
-        if (not(Utils::file_exists(GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname+".txt")))
+        if (not(Utils::file_exists(GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimp_Dijets/"+searchname+".txt")))
         {
-          ColliderBit_error().raise(LOCAL_INFO, "ERROR! DMsimp DiJet data file missing: ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname+".txt" + ". If using one of the DMsimp models, please make sure to run \"make DMsimp_data_1.0\".");
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! DMsimp DiJet data file missing: ColliderBit/data/DMsimp_data/DMsimp_Dijets/"+searchname+".txt" + ". If using one of the DMsimp models, please make sure to run \"make DMsimp_data_1.0\".");
         }
 
-        current_ainfo->add_interp1d(searchname, GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimp_Dijets/"+searchname+".txt", colnames);
+        current_ainfo->add_interp1d(searchname, GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimp_Dijets/"+searchname+".txt", colnames);
       }
 
       // Clear the pointer
