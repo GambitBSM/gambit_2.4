@@ -271,7 +271,7 @@ if(NOT EXCLUDE_YODA)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
-  gambit_find_python_module(cython) 
+  gambit_find_python_module(cython)
   if(PY_cython_FOUND)
     set(pyext yes)
     message("   Backends depending on YODA's python extension will be enabled.")
@@ -290,6 +290,11 @@ if(NOT EXCLUDE_YODA)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
   # YODA must be build before any bits as it is included early because it's in Rivet's headers
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+endif()
+
+# Make sure both hepmc and yoda are enabled when building ColliderBit
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;" AND (NOT WITH_HEPMC OR NOT WITH_YODA))
+  message(FATAL_ERROR "Usage of ColliderBit requires both HepMC and YODA to be present. Please rerun cmake with -DWITH_HEPMC=on and -DWITH_YODA=on.")
 endif()
 
 #contrib/fjcore-3.2.0
