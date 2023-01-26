@@ -233,6 +233,8 @@ if(NOT EXCLUDE_HEPMC)
 
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
+  # HEPMC must be build before any bits as it is included early because it's in Rivet's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 #contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
@@ -290,11 +292,6 @@ if(NOT EXCLUDE_YODA)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
   # YODA must be build before any bits as it is included early because it's in Rivet's headers
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
-endif()
-
-# Make sure both hepmc and yoda are enabled when building ColliderBit
-if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;" AND (NOT WITH_HEPMC OR NOT WITH_YODA))
-  message(FATAL_ERROR "Usage of ColliderBit requires both HepMC and YODA to be present. Please rerun cmake with -DWITH_HEPMC=on and -DWITH_YODA=on.")
 endif()
 
 #contrib/fjcore-3.2.0
