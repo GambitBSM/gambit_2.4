@@ -233,6 +233,8 @@ if(NOT EXCLUDE_HEPMC)
 
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
+  # HEPMC must be build before any bits as it is included early because it's in Rivet's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 #contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
@@ -271,7 +273,7 @@ if(NOT EXCLUDE_YODA)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
-  gambit_find_python_module(cython) 
+  gambit_find_python_module(cython)
   if(PY_cython_FOUND)
     set(pyext yes)
     message("   Backends depending on YODA's python extension will be enabled.")
