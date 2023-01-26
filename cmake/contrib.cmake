@@ -279,11 +279,17 @@ if(NOT EXCLUDE_YODA)
     set(pyext no)
     message("   Backends depending on YODA's python extension (e.g. Contur) will be disabled.")
   endif()
+  # Set LDFLAGS for MacOS to find libz
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(YODA_CONFIG_LDFLAGS "-L${CMAKE_OSX_SYSROOT}/usr/lib")
+  else()
+    set(YODA_CONFIG_LDFLAGS "")
+  endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
