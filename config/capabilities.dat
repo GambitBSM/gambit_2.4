@@ -70,9 +70,6 @@ test_Farrays: |
 test_marg_lnlike: |
    Tester for marginalised Poisson likelihood.
 
-test_Pythia: |
-   Tester for Pythia backend.
-
 test_BE_Array: |
    Tester for C/C++ backend array interfaces.
 

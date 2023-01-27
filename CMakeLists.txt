@@ -686,21 +686,24 @@ foreach(bit ${GAMBIT_BITS})
   endforeach()
 endforeach()
 
-# If ColliderBit is in use, make the collider_harvest step a dependency of ColliderBit
+# If ColliderBit is in use, set various dependencies
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  # Make the collider_harvest step a dependency of ColliderBit
   add_dependencies(ColliderBit collider_harvest)
   # If RestFrames is in use, make it a dependency of ColliderBit
   if(NOT EXCLUDE_RESTFRAMES)
     add_dependencies(ColliderBit restframes)
   endif()
-  # If HepMC is in use, make it a dependency of ColliderBit
-  if(NOT EXCLUDE_HEPMC)
-    add_dependencies(ColliderBit hepmc)
+  # ColliderBit depends on HepMC
+  if(EXCLUDE_HEPMC)
+    message(FATAL_ERROR "\nColliderBit needs HepMC3. Either use -DWITH_HEPMC=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
-  # If YODA is in use, make it a dependency of ColliderBit
-  if(NOT EXCLUDE_YODA)
-    add_dependencies(ColliderBit yoda)
+  add_dependencies(ColliderBit hepmc)
+  # ColliderBit depends on YODA
+  if(EXCLUDE_YODA)
+    message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
+  add_dependencies(ColliderBit yoda)
 endif()
 
 # If SpecBit is in use, make flexiblesusy a dependency of SpecBit
