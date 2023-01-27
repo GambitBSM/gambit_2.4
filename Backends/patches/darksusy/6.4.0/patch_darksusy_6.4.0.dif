@@ -1,0 +1,12 @@
+diff -rupN darksusy-6.4.0_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F darksusy-6.4.0_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+--- darksusy-6.4.0_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F
++++ darksusy-6.4.0_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+@@ -76,7 +76,7 @@ c...Read it in
+  
+  ! We want to get the model ID from the file eventually
+  ! For now, just use the filename, trimming away the path 
+-      idtag=file(index(file,'/',BACK=.true.)+1:lnblnk(file)) 
++      idtag=file(index(file,'/',BACK=.true.)+1:LEN_TRIM(file))
+ 
+ c...Transfer stuff from the SLHA data structure to DarkSUSY
+       call dsfromslha
