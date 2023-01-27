@@ -1,6 +1,9 @@
 #ifndef __loaded_types_Rivet_3_1_5_hpp__
 #define __loaded_types_Rivet_3_1_5_hpp__ 1
 
+#ifndef EXCLUDE_YODA
+#ifndef EXCLUDE_HEPMC
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -19,5 +22,8 @@
 
 // Undefine macros to avoid conflict with other backends.
 #include "gambit/Backends/backend_undefs.hpp"
+ 
+#endif
+#endif
 
 #endif /* __loaded_types_Rivet_3_1_5_hpp__ */

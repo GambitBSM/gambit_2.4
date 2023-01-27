@@ -12,6 +12,9 @@
 ///
 ///  *********************************************
 
+#ifndef EXCLUDE_YODA
+#ifndef EXCLUDE_HEPMC
+
 #include "gambit/Backends/backend_types/Rivet_3_1_5/identification.hpp"
 
 LOAD_LIBRARY
@@ -43,3 +46,6 @@ BE_FUNCTION(addAnalysisLibPath, void, (const std::string&), "addAnalysisLibPath_
 
 // End
 #include "gambit/Backends/backend_undefs.hpp"
+ 
+#endif
+#endif

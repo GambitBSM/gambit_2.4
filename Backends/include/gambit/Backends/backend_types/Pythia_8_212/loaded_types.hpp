@@ -1,6 +1,8 @@
 #ifndef __loaded_types_Pythia_8_212_hpp__
 #define __loaded_types_Pythia_8_212_hpp__ 1
 
+#ifndef EXCLUDE_HEPMC
+
 #include "wrapper_GAMBIT_hepmc_writer.h"
 #include "wrapper_Pythia.h"
 #include "wrapper_UserHooks.h"
@@ -77,5 +79,7 @@
 
 // Undefine macros to avoid conflict with other backends.
 #include "gambit/Backends/backend_undefs.hpp"
+ 
+#endif
 
 #endif /* __loaded_types_Pythia_8_212_hpp__ */
