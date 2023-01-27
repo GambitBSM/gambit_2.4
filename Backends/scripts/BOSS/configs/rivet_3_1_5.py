@@ -93,11 +93,13 @@ known_classes = {
       "YODA::AnalysisObject" : "YODA/AnalysisObject.h"
 }
 
+
 # ~~~~~ Declarations to be added to the frontend header file ~~~~~
 
 convenience_functions = []
 
 ini_function_in_header = False
+
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 
@@ -113,3 +115,19 @@ pragmas_begin = [
 pragmas_end = [
   '#pragma GCC diagnostic pop'
 ]
+
+
+# ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
+
+# The listed code will be added at the top/bottom in the frontend header file 
+# and in the loaded_types.hpp header.
+
+surround_code_begin = '''
+#ifndef EXCLUDE_YODA
+#ifndef EXCLUDE_HEPMC
+'''
+
+surround_code_end = ''' 
+#endif
+#endif
+'''

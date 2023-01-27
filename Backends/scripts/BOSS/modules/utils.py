@@ -2096,6 +2096,10 @@ def constrLoadedTypesHeaderContent():
     code  = ''
     code += incl_guard_start
 
+    # - Any user-specified code to add?
+    if cfg.surround_code_begin.strip() != '':
+        code += cfg.surround_code_begin
+
     code += '\n'
     code += incl_statements_code
 
@@ -2112,6 +2116,10 @@ def constrLoadedTypesHeaderContent():
     code += '\n'
     code += '// Undefine macros to avoid conflict with other backends.\n'
     code += '#include "' + os.path.join(gb.gambit_backend_incl_dir, "backend_undefs.hpp") + '"\n'
+
+    # - Any user-specified code to add?
+    if cfg.surround_code_end.strip() != '':
+        code += cfg.surround_code_end
 
     code += '\n'
     code += incl_guard_end

@@ -132,3 +132,13 @@ pragmas_end = [
 ]
 
 
+# ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
+
+# The listed code will be added at the top/bottom in the frontend header file 
+# and in the loaded_types.hpp header.
+
+surround_code_begin = '''
+'''
+
+surround_code_end = ''' 
+'''

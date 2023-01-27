@@ -789,6 +789,10 @@ def createFrontendHeader(function_xml_files_dict):
         '///\n'\
         '///  *********************************************\n'
 
+    # - Any user-specified code to add?
+    if cfg.surround_code_begin.strip() != '':
+        frontend_content += cfg.surround_code_begin
+
     # - Include statement for the identification header
     frontend_content += '\n'
     frontend_content += '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.backend_types_basedir, gb.gambit_backend_name_full, 'identification.hpp') + '"\n'
@@ -825,6 +829,9 @@ def createFrontendHeader(function_xml_files_dict):
     frontend_content += '// End\n'
     frontend_content += '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
 
+    # - Any user-specified code to add?
+    if cfg.surround_code_end.strip() != '':
+        frontend_content += cfg.surround_code_end
 
     # Write to file
     f = open(gb.frontend_path, 'w')
