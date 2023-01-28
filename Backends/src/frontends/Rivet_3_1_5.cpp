@@ -14,6 +14,9 @@
 ///  \date 2021 July
 ///  *********************************************
 
+#ifndef EXCLUDE_YODA
+#ifndef EXCLUDE_HEPMC
+
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/Rivet_3_1_5.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -41,3 +44,6 @@ BE_INI_FUNCTION
   scan_level = false;
 }
 END_BE_INI_FUNCTION
+
+#endif
+#endif
