@@ -21,18 +21,18 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static Abstract_ESetupError* (*__factory0)(const std::string&);
+            static Abstract_ESetupError* (*__factory0)(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&);
       
             // -- Other member variables: 
       
             // Member functions: 
          public:
-            ::std::string what() const;
+            ::std::basic_string<char, std::char_traits<char>, std::allocator<char>> what() const;
       
       
             // Wrappers for original constructors: 
          public:
-            ESetupError(const std::string& message_);
+            ESetupError(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& message_);
       
             // Special pointer-based constructor: 
             ESetupError(Abstract_ESetupError* in);

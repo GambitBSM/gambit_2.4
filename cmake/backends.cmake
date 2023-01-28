@@ -1916,8 +1916,8 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(fastjet_name "fastjet")
 set(fastjet_ver "3.3.2")
 set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
-# set(FJCONTRIB_CXX_FLAGS ${FJ_CXX_FLAGS})
-set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
+set(FJCONTRIB_CXX_FLAGS ${FJ_CXX_FLAGS})
+#set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
 set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
 set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
 set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
@@ -1964,7 +1964,15 @@ set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set_compiler_warning("no-unused-parameter" Rivet_CXX_FLAGS)
 set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
-set(Rivet_LD_FLAGS "-L${dir}/include/Rivet -L${HEPMC_PATH}/local/lib -Wl,-rpath=${HEPMC_PATH}/local/lib")
+set(Rivet_LD_FLAGS "-L${dir}/include/Rivet -L${HEPMC_PATH}/local/lib -Wl,-rpath,${HEPMC_PATH}/local/lib")
+
+# For MacOS we need to specify the (weird) root directory for headers (isysroot)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(Rivet_CPP_FLAGS "-isysroot${CMAKE_OSX_SYSROOT}")
+else()
+  set(Rivet_CPP_FLAGS "")
+endif()
+
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 ## Rivet needs to be compiled with c++14 or c++17, otherwise it will fail to compile
 set(ditch_if_absent "HepMC;YODA;c++14")
@@ -1990,7 +1998,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} ${dir}/local/lib/libRivet.so
     INSTALL_COMMAND ""
   )

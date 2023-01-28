@@ -21,18 +21,18 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static Abstract_EInvalidInput* (*__factory0)(const std::string&);
+            static Abstract_EInvalidInput* (*__factory0)(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&);
       
             // -- Other member variables: 
       
             // Member functions: 
          public:
-            ::std::string what() const;
+            ::std::basic_string<char, std::char_traits<char>, std::allocator<char>> what() const;
       
       
             // Wrappers for original constructors: 
          public:
-            EInvalidInput(const std::string& message_);
+            EInvalidInput(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& message_);
       
             // Special pointer-based constructor: 
             EInvalidInput(Abstract_EInvalidInput* in);

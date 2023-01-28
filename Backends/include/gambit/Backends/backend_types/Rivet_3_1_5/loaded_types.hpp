@@ -13,7 +13,7 @@
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define Rivet_3_1_5_all_data \
-  (( /*class*/(Rivet)(AnalysisHandler),    /*constructors*/(("Factory_AnalysisHandler_0__BOSS_1",(const std::string&))) (("Factory_AnalysisHandler_1__BOSS_2",())) )) \
+  (( /*class*/(Rivet)(AnalysisHandler),    /*constructors*/(("Factory_AnalysisHandler_0__BOSS_1",(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&))) (("Factory_AnalysisHandler_1__BOSS_2",())) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))

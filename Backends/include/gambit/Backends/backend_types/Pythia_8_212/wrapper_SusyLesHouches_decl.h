@@ -26,31 +26,31 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // -- Static factory pointers: 
                 static Abstract_SusyLesHouches* (*__factory0)(int);
                 static Abstract_SusyLesHouches* (*__factory1)();
-                static Abstract_SusyLesHouches* (*__factory2)(std::string, int);
-                static Abstract_SusyLesHouches* (*__factory3)(std::string);
+                static Abstract_SusyLesHouches* (*__factory2)(std::basic_string<char, std::char_traits<char>, std::allocator<char>>, int);
+                static Abstract_SusyLesHouches* (*__factory3)(std::basic_string<char, std::char_traits<char>, std::allocator<char>>);
         
                 // -- Other member variables: 
             public:
-                std::string& slhaFile;
-                std::map<int, int>& decayIndices;
-                std::vector<std::string>& qnumbersName;
-                std::vector<std::string>& qnumbersAntiName;
+                std::basic_string<char, std::char_traits<char>, std::allocator<char>>& slhaFile;
+                std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int>>>& decayIndices;
+                std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& qnumbersName;
+                std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& qnumbersAntiName;
         
                 // Member functions: 
             public:
-                int readFile(std::string slhaFileIn, int verboseIn, bool useDecayIn);
+                int readFile(std::basic_string<char, std::char_traits<char>, std::allocator<char>> slhaFileIn, int verboseIn, bool useDecayIn);
         
-                int readFile(std::string slhaFileIn, int verboseIn);
+                int readFile(std::basic_string<char, std::char_traits<char>, std::allocator<char>> slhaFileIn, int verboseIn);
         
-                int readFile(std::string slhaFileIn);
+                int readFile(std::basic_string<char, std::char_traits<char>, std::allocator<char>> slhaFileIn);
         
                 int readFile();
         
-                int readFile(std::basic_istream<char>& arg_1, int verboseIn, bool useDecayIn);
+                int readFile(std::basic_istream<char, std::char_traits<char>>& arg_1, int verboseIn, bool useDecayIn);
         
-                int readFile(std::basic_istream<char>& arg_1, int verboseIn);
+                int readFile(std::basic_istream<char, std::char_traits<char>>& arg_1, int verboseIn);
         
-                int readFile(std::basic_istream<char>& arg_1);
+                int readFile(std::basic_istream<char, std::char_traits<char>>& arg_1);
         
                 void setSLHAea(const SLHAea::Coll* inputSLHAea);
         
@@ -68,19 +68,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void verbose(int verboseIn);
         
-                void message(int arg_1, std::string arg_2, std::string arg_3, int line);
+                void message(int arg_1, std::basic_string<char, std::char_traits<char>, std::allocator<char>> arg_2, std::basic_string<char, std::char_traits<char>, std::allocator<char>> arg_3, int line);
         
-                void message(int arg_1, std::string arg_2, std::string arg_3);
+                void message(int arg_1, std::basic_string<char, std::char_traits<char>, std::allocator<char>> arg_2, std::basic_string<char, std::char_traits<char>, std::allocator<char>> arg_3);
         
-                void toLower(std::string& name);
+                void toLower(std::basic_string<char, std::char_traits<char>, std::allocator<char>>& name);
         
         
                 // Wrappers for original constructors: 
             public:
                 SusyLesHouches(int verboseIn);
                 SusyLesHouches();
-                SusyLesHouches(std::string filename, int verboseIn);
-                SusyLesHouches(std::string filename);
+                SusyLesHouches(std::basic_string<char, std::char_traits<char>, std::allocator<char>> filename, int verboseIn);
+                SusyLesHouches(std::basic_string<char, std::char_traits<char>, std::allocator<char>> filename);
         
                 // Special pointer-based constructor: 
                 SusyLesHouches(Abstract_SusyLesHouches* in);

@@ -26,14 +26,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static Abstract_AnalysisHandler* (*__factory0)(const std::string&);
+            static Abstract_AnalysisHandler* (*__factory0)(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&);
             static Abstract_AnalysisHandler* (*__factory1)();
       
             // -- Other member variables: 
       
             // Member functions: 
          public:
-            ::std::string runName() const;
+            ::std::basic_string<char, std::char_traits<char>, std::allocator<char>> runName() const;
       
             long unsigned int numEvents() const;
       
@@ -41,7 +41,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double sumW2() const;
       
-            const ::std::vector<std::string>& weightNames() const;
+            const ::std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& weightNames() const;
       
             long unsigned int numWeights() const;
       
@@ -59,15 +59,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void skipMultiWeights();
       
-            void selectMultiWeights(std::string patterns);
+            void selectMultiWeights(std::basic_string<char, std::char_traits<char>, std::allocator<char>> patterns);
       
             void selectMultiWeights();
       
-            void deselectMultiWeights(std::string patterns);
+            void deselectMultiWeights(std::basic_string<char, std::char_traits<char>, std::allocator<char>> patterns);
       
             void deselectMultiWeights();
       
-            void setNominalWeightName(std::string name);
+            void setNominalWeightName(std::basic_string<char, std::char_traits<char>, std::allocator<char>> name);
       
             void setNominalWeightName();
       
@@ -93,19 +93,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void setIgnoreBeams();
       
-            ::std::vector<std::string> analysisNames() const;
+            ::std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>> analysisNames() const;
       
-            ::std::vector<std::string> stdAnalysisNames() const;
+            ::std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>> stdAnalysisNames() const;
       
-            Rivet::AnalysisHandler& addAnalysis(const std::string& analysisname);
+            Rivet::AnalysisHandler& addAnalysis(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& analysisname);
       
-            Rivet::AnalysisHandler& addAnalysis(const std::string& analysisname, std::map<std::string, std::string> pars);
+            Rivet::AnalysisHandler& addAnalysis(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& analysisname, std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator<std::pair<const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>> pars);
       
-            Rivet::AnalysisHandler& addAnalyses(const std::vector<std::string>& analysisnames);
+            Rivet::AnalysisHandler& addAnalyses(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& analysisnames);
       
-            Rivet::AnalysisHandler& removeAnalysis(const std::string& analysisname);
+            Rivet::AnalysisHandler& removeAnalysis(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& analysisname);
       
-            Rivet::AnalysisHandler& removeAnalyses(const std::vector<std::string>& analysisnames);
+            Rivet::AnalysisHandler& removeAnalyses(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& analysisnames);
       
             void init(const HepMC3::GenEvent& event);
       
@@ -115,40 +115,40 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void finalize();
       
-            void readData(const std::string& filename);
+            void readData(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& filename);
       
-            ::std::vector<std::shared_ptr<YODA::AnalysisObject>> getYodaAOs(bool includeraw) const;
+            ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject>>> getYodaAOs(bool includeraw) const;
       
-            ::std::vector<std::shared_ptr<YODA::AnalysisObject>> getYodaAOs() const;
+            ::std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject>>> getYodaAOs() const;
       
-            void writeData(std::basic_ostream<char>& ostr, const std::string& fmt) const;
+            void writeData(std::basic_ostream<char, std::char_traits<char>>& ostr, const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& fmt) const;
       
-            void writeData(const std::string& filename) const;
+            void writeData(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& filename) const;
       
             void dummy(YODA::AnalysisObject* arg_1) const;
       
-            void setAODump(const std::string& dumpfile, int period);
+            void setAODump(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& dumpfile, int period);
       
             void setNoAODump();
       
-            void dump(const std::string& dumpfile, int period);
+            void dump(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& dumpfile, int period);
       
-            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches, bool equiv);
+            void mergeYodas(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& aofiles, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& delopts, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& addopts, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& matches, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& unmatches, bool equiv);
       
-            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches, const std::vector<std::string>& unmatches);
+            void mergeYodas(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& aofiles, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& delopts, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& addopts, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& matches, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& unmatches);
       
-            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts, const std::vector<std::string>& matches);
+            void mergeYodas(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& aofiles, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& delopts, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& addopts, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& matches);
       
-            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts, const std::vector<std::string>& addopts);
+            void mergeYodas(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& aofiles, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& delopts, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& addopts);
       
-            void mergeYodas(const std::vector<std::string>& aofiles, const std::vector<std::string>& delopts);
+            void mergeYodas(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& aofiles, const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& delopts);
       
-            void mergeYodas(const std::vector<std::string>& aofiles);
+            void mergeYodas(const std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>& aofiles);
       
       
             // Wrappers for original constructors: 
          public:
-            AnalysisHandler(const std::string& runname);
+            AnalysisHandler(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& runname);
             AnalysisHandler();
       
             // Special pointer-based constructor: 
