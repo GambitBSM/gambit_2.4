@@ -533,9 +533,10 @@ std_headers = {
 }
 
 
-# Type name replacements
-replace_type_names = {
-  "std::basic_string<char, std::char_traits<char>, std::allocator<char> >": "std::string",
-  "std::basic_string<char,std::char_traits<char>,std::allocator<char>>": "std::string",
-  "std::basic_string<char>": "std::string",
-}
+# Commented out the next block as it is work in progress, and it may be abandoned.
+# # Type name replacements
+# replace_type_names = {
+#   "std::basic_string<char, std::char_traits<char>, std::allocator<char> >": "std::string",
+#   "std::basic_string<char,std::char_traits<char>,std::allocator<char>>": "std::string",
+#   "std::basic_string<char>": "std::string",
+# }
