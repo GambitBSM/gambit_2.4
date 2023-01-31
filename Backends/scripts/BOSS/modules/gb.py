@@ -42,6 +42,7 @@ contains_pure_virtual_members = []
 
 file_dict               = OrderedDict()
 std_types_dict          = OrderedDict()
+std_typedef_names_dict  = OrderedDict()
 typedef_dict            = OrderedDict()
 loaded_classes_in_xml   = OrderedDict()
 func_dict               = OrderedDict()
@@ -532,11 +533,3 @@ std_headers = {
     "std::cv_status"                 : "<condition_variable>",
 }
 
-
-# Commented out the next block as it is work in progress, and it may be abandoned.
-# # Type name replacements
-# replace_type_names = {
-#   "std::basic_string<char, std::char_traits<char>, std::allocator<char> >": "std::string",
-#   "std::basic_string<char,std::char_traits<char>,std::allocator<char>>": "std::string",
-#   "std::basic_string<char>": "std::string",
-# }

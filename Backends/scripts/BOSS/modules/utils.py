@@ -709,12 +709,13 @@ def findType(el_input):
     name_and_namespaces = getNamespaces(el, include_self=True)
     typename = '::'.join(name_and_namespaces)
 
-    # Commented out the next block as it is work in progress, and it may be abandoned.
-    # # Replace any type names? This is to tackle system-dependent type name expansions 
-    # # like "std::basic_string<char, std::char_traits<char>, std::allocator<char> >"
-    # # for std::string.
-    # for current_type_name, new_type_name in gb.replace_type_names.items():
-    #     typename = typename.replace(current_type_name, new_type_name)
+    # Replace any type names? This is to tackle system-dependent typedef expansions 
+    # like "std::basic_string<char, std::char_traits<char>, std::allocator<char> >"
+    # for the typdef std::string.
+    if isStdType(el):
+        if typename in gb.std_typedef_names_dict.keys():
+            typedef_name = gb.std_typedef_names_dict[typename]
+            typename = typedef_name
 
     # Construct the returned dict with the type info
     type_dict = OrderedDict([])
@@ -2659,6 +2660,7 @@ def clearGlobalXMLdicts():
 
     gb.file_dict.clear()
     gb.std_types_dict.clear()
+    gb.std_typedef_names_dict.clear()
     gb.typedef_dict.clear()
     gb.loaded_classes_in_xml.clear()
     gb.func_dict.clear()
@@ -2690,6 +2692,8 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
     # Loop over all elements in this xml file
     # to fill the remaining dicts. (The order is important!)
     #
+
+    all_typedef_elems = []
 
     for xml_id, el in gb.id_dict.items():
 
@@ -2730,6 +2734,10 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
         # Update global dict: typedef name --> typedef xml element
         if el.tag == 'Typedef':
+
+            # Collect list of xml elements for all (global) typedefs
+            if 'access' not in el.keys():
+                all_typedef_elems.append(el)
 
             # Only accept native typedefs:
             if isNative(el):
@@ -2807,6 +2815,23 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
     # END: Loop over all elements in this xml file
     #
 
+    # Update global dict: std type xml element --> std typdef xml element
+    # Update global dict: std type name --> std typdef xml element
+    for class_name_long_templ, class_el in gb.std_types_dict.items():
+
+        for typedef_el in all_typedef_elems:
+
+            if typedef_el.get('type') == class_el.get('id'):
+
+                name_and_namespaces = getNamespaces(typedef_el, include_self=True)
+
+                if name_and_namespaces[0] == 'std':
+
+                    long_typedef_name = '::'.join(name_and_namespaces)
+
+                    gb.std_typedef_names_dict[class_name_long_templ] = long_typedef_name
+
+                    break
 
 # ====== END: initGlobalXMLdicts ========
 
