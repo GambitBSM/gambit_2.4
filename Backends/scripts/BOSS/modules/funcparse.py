@@ -177,7 +177,8 @@ def run():
         # Keep track of functions done
         #
         gb.functions_done.append(func_name)
-        gb.wr_func_names.append(wr_func_name)
+        # gb.wr_func_names += wr_func_names_generated
+        gb.wr_func_names[func_name['long_templ_args']] = list(wr_func_names_generated)
 
         print()
 

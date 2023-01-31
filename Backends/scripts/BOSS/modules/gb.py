@@ -54,7 +54,7 @@ std_include_paths       = []
 
 functions_done          = []
 classes_done            = []
-wr_func_names           = []
+wr_func_names           = OrderedDict()
 
 factory_info            = OrderedDict()
 class_factory_file_dict = OrderedDict()

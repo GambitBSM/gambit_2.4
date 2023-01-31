@@ -327,6 +327,9 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
 
     # Should this function be ditched?
     if func_name['long_templ_args'] in cfg.ditch:
+        if print_warning:
+            reason = "This function is listed as ditched."
+            infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
         return True
 
     # Ignore templated functions (BOSS cannot deal with that yet...)
@@ -398,6 +401,9 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
                     arg_types_accepted = False
                     break
     if (not arg_types_accepted):
+        if print_warning:
+            reason = "The function argument types are not accpted."
+            infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
         return True
 
     # Function accepted (i.e. should *not* be ignored)
