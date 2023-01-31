@@ -416,7 +416,7 @@ namespace Gambit
           result = contur_likelihood_object.LLR;
         }
 
-        // Extracts a single likelihood from a map<string, Contur_output> based on options
+        // Extracts the likelihood value for every set of contur settings from a map<string, Contur_output>
         // This is the likelihood that will actually be "used" by gambit
         void Multi_Contur_LHC_measurements_LogLike_all(map_str_dbl &result)
         {
@@ -428,7 +428,7 @@ namespace Gambit
           }
         }
 
-        //Extracts the likelihood value for every set of contur settings from a map<string, Contur_output>
+        // Extracts a single likelihood from a map<string, Contur_output> based on options
         void Multi_Contur_LHC_measurements_LogLike_single(double &result)
         {
           using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_single;
