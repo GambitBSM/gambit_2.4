@@ -702,8 +702,6 @@ def createFrontendHeader(function_xml_files_dict):
 
     for i,func_name in enumerate(gb.functions_done):
 
-        be_function_macro_code += '\n'
-        
         wr_func_names = gb.wr_func_names[func_name['long_templ_args']]
 
         for j,wr_func_name in enumerate(wr_func_names):
