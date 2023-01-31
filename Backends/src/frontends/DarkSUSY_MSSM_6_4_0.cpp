@@ -547,7 +547,7 @@ BE_NAMESPACE
   /// particle codes used internally in DS (as stored in common block /pacodes_mssm/)
   /// presently this is only needed in RD_annrate_DSprep_MSSM_func, to prepare (RelicDensity.cpp),
   /// to prepare DS for the calculation of the invariant rate, dsanwx.
-  // Note: DarkSUSY use the opposite convention on h1_0 and h2_0. The names
+  // Note: DarkSUSY uses the opposite convention on h1_0 and h2_0. The names
   // used here are the gambit names where h1_0 hence refers to what DarkSUSY
   // calls H2.
   int DSparticle_code(const str& particleID)
