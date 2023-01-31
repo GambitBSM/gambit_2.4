@@ -2823,6 +2823,10 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
         for typedef_el in all_typedef_elems:
 
+            # Skip special std typedefs starting with __
+            if typedef_el.get('name')[0:2] == '__':
+                continue
+
             if typedef_el.get('type') == class_el.get('id'):
 
                 name_and_namespaces = getNamespaces(typedef_el, include_self=True)
