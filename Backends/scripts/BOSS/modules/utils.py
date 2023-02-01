@@ -2714,6 +2714,7 @@ def initGlobalTypedefDicts(xml_paths):
                             long_typedef_name = '::'.join(name_and_namespaces)
 
                             gb.std_typedef_names_dict[class_name_long_templ] = long_typedef_name
+                            # print("DEBUG: Got typedef: ", [class_name_long_templ], " --> ", [long_typedef_name])
                             break
 
 # ====== END: initGlobalTypedefDicts ========

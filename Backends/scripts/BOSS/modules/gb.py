@@ -42,7 +42,6 @@ contains_pure_virtual_members = []
 
 file_dict               = OrderedDict()
 std_types_dict          = OrderedDict()
-std_typedef_names_dict  = OrderedDict()
 # typedef_dict            = OrderedDict()
 loaded_classes_in_xml   = OrderedDict()
 func_dict               = OrderedDict()
@@ -531,5 +530,20 @@ std_headers = {
     "std::condition_variable"        : "<condition_variable>",
     "std::condition_variable_any"    : "<condition_variable>",
     "std::cv_status"                 : "<condition_variable>",
+}
+
+
+# Standard library typedefs. This dictionary will be expanded by BOSS at runtime. Below we 
+# manually list various typedefs we need that BOSS currently can't construct at runtime.
+std_typedef_names_dict = {
+    "std::vector<std::basic_string<char>>" : "std::vector<std::string>",
+    "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>" : "std::vector<std::string>",
+    # 
+    "std::map<std::basic_string<char>, std::basic_string<char>>" : "std::map<std::string, std::string>",
+    "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator<std::pair<const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>>" : "std::map<std::string, std::string>",
+    # 
+    "std::map<std::basic_string<char>, double>" : "std::map<std::string, double>", 
+    "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator< std::pair< const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double>>>" : "std::map<std::string, double>", 
+    #
 }
 
