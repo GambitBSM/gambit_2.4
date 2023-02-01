@@ -51,16 +51,21 @@ def main():
 
     parser = OptionParser(usage=usage_string,
                           version="%prog 0.1")
-    parser.add_option("-i", "--castxml-cc-id",
+    parser.add_option("--castxml-cc-id",
                       dest="castxml_cc_id",
                       default="",
-                      help="Set castxml-cc-id to ID.",
+                      help="Set the reference compiler for CastXML to ID, e.g. 'gnu'.",
                       metavar="ID")
-    parser.add_option("-c", "--castxml-cc",
+    parser.add_option("--castxml-cc",
                       dest="castxml_cc",
                       default="",
-                      help="Set castxml-cc to COMPILER.",
+                      help="Tell CastXML to use the specific compiler COMPILER, e.g. 'g++'.",
                       metavar="COMPILER")
+    parser.add_option("--castxml-cc-opt",
+                      dest="castxml_cc_opt",
+                      default="",
+                      help="Provide the additional flags OPTIONS to the compiler.",
+                      metavar="OPTIONS")
     parser.add_option("-l", "--list",
                       action="store_true",
                       dest="list_flag",
@@ -224,12 +229,19 @@ def main():
     if not cfg.header_files_to.startswith('/'): cfg.header_files_to = gb.boss_dir + '/' + cfg.header_files_to
     if not cfg.src_files_to.startswith('/'): cfg.src_files_to = gb.boss_dir + '/' + cfg.src_files_to
 
-    # If castxml compiler setting are given as command line input,
-    # update the variables in cfg
+    # If castxml compiler setting are also given as command line input, append or override the values set in cfg.
+    # - Override castxml_cc_id option:
     if options.castxml_cc_id != '':
-        cfg.castxml_cc_id = options.castxml_cc_id
+        cfg.castxml_cc_id = " " + options.castxml_cc_id
+    print('Running with setting castxml_cc_id="' + cfg.castxml_cc_id + '".')
+    # - Override castxml_cc option:
     if options.castxml_cc != '':
-        cfg.castxml_cc = options.castxml_cc
+        cfg.castxml_cc = " " + options.castxml_cc
+    print('Running with setting castxml_cc="' + cfg.castxml_cc + '".')
+    # - Append to castxml_cc_opt option, putting the command line input at the end (takes priority if conflicts/duplicates)
+    if options.castxml_cc_opt != '':
+        cfg.castxml_cc_opt += " " + options.castxml_cc_opt
+    print('Running with setting castxml_cc_opt="' + cfg.castxml_cc_opt + '".')
 
 
     # If additional include paths are given at the command line,
@@ -289,7 +301,6 @@ def main():
     # Check if backend source tree has already been BOSSed. (Look for the backend_undefs.hpp header file.)
     #
     check_file = os.path.join(cfg.header_files_to, gb.gambit_backend_incl_dir, 'backend_undefs.hpp')
-    print('File: ', check_file)
     if os.path.isfile(check_file):
         print()
         print( utils.modifyText('The backend source tree seems to already have been BOSSed.','yellow'))
