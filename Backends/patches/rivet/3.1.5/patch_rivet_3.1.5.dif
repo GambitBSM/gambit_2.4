@@ -1,6 +1,6 @@
 diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
 --- Rivet-3.1.5/Makefile.in	2021-11-05 18:37:59.000000000 +0100
-+++ ../installed/rivet/3.1.5/Makefile.in	2023-01-02 15:01:41.709423456 +0100
++++ ../installed/rivet/3.1.5/Makefile.in	2023-02-01 19:18:15.829702414 +0100
 @@ -455,6 +455,17 @@ pkgconfigdir = $(libdir)/pkgconfig
  dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
@@ -21,7 +21,7 @@ diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
  am--refresh: Makefile
 diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/include/Rivet/Makefile.in
 --- Rivet-3.1.5/include/Rivet/Makefile.in	2021-11-05 18:38:00.000000000 +0100
-+++ ../installed/rivet/3.1.5/include/Rivet/Makefile.in	2023-01-02 15:04:21.708363318 +0100
++++ ../installed/rivet/3.1.5/include/Rivet/Makefile.in	2023-02-01 19:18:15.829702414 +0100
 @@ -381,6 +381,7 @@ nobase_dist_noinst_HEADERS = Tools/osdir
  	Math/eigen3/README.md
  
@@ -57,7 +57,7 @@ diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/includ
  .SUFFIXES:
 diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Makefile.in
 --- Rivet-3.1.5/src/Core/Makefile.in	2021-11-05 18:38:00.000000000 +0100
-+++ ../installed/rivet/3.1.5/src/Core/Makefile.in	2023-01-02 15:01:41.709423456 +0100
++++ ../installed/rivet/3.1.5/src/Core/Makefile.in	2023-02-01 19:18:15.829702414 +0100
 @@ -110,6 +110,7 @@ CONFIG_CLEAN_VPATH_FILES =
  LTLIBRARIES = $(noinst_LTLIBRARIES)
  libRivetCore_la_DEPENDENCIES =  \
@@ -157,7 +157,7 @@ diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Ma
  
 diff -rupN Rivet-3.1.5/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh
 --- Rivet-3.1.5/include/Rivet/AnalysisHandler.hh	2021-04-27 21:21:47.000000000 +0200
-+++ ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh	2023-01-02 15:01:41.709423456 +0100
++++ ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh	2023-02-01 19:18:15.829702414 +0100
 @@ -27,10 +27,10 @@ namespace Rivet {
      AnalysisHandler(const string& runname="");
  
@@ -183,7 +183,7 @@ diff -rupN Rivet-3.1.5/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.5
      /// Tell Rivet to dump intermediate result to a file named @a
 diff -rupN Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh
 --- Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh	2020-04-07 16:43:14.000000000 +0200
-+++ ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh	2023-01-02 15:01:41.709423456 +0100
++++ ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh	2023-02-01 19:18:15.829702414 +0100
 @@ -8,7 +8,7 @@
  #include <valarray>
  
@@ -214,7 +214,7 @@ diff -rupN Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.
  namespace Rivet {
 diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/Core/AnalysisHandler.c
 --- Rivet-3.1.5/src/Core/AnalysisHandler.cc	2021-07-11 23:34:05.000000000 +0200
-+++ ../installed/rivet/3.1.5/src/Core/AnalysisHandler.cc	2023-01-02 15:01:41.709423456 +0100
++++ ../installed/rivet/3.1.5/src/Core/AnalysisHandler.cc	2023-02-01 19:18:15.829702414 +0100
 @@ -121,7 +121,8 @@ namespace Rivet {
      if (num_anas_requested > 0 && analysisNames().empty()) {
        MSG_ERROR("All analyses were incompatible with the first event's beams\n"
@@ -240,7 +240,7 @@ diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/
      return _runname;
 diff -rupN Rivet-3.1.5/analyses/Makefile.in ../installed/rivet/3.1.5/analyses/Makefile.in
 --- Rivet-3.1.5/analyses/Makefile.in	2021-11-05 18:37:59.000000000 +0100
-+++ ../installed/rivet/3.1.5/analyses/Makefile.in	2023-01-02 15:01:41.709423456 +0100
++++ ../installed/rivet/3.1.5/analyses/Makefile.in	2023-02-01 19:18:15.829702414 +0100
 @@ -569,7 +569,8 @@ uninstall-am: uninstall-local
  @ENABLE_ANALYSES_TRUE@	mkdir -p $(builddir)/data
  @ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/plugin*; do $(LN_S) -f $${pdir}/*.{info,plot,yoda*} $(builddir)/data; done
@@ -251,3 +251,15 @@ diff -rupN Rivet-3.1.5/analyses/Makefile.in ../installed/rivet/3.1.5/analyses/Ma
  @ENABLE_ANALYSES_TRUE@	$(MKDIR_P) $(DESTDIR)$(libdir)/Rivet
  @ENABLE_ANALYSES_TRUE@	$(INSTALL) $^ $(DESTDIR)$(libdir)/Rivet
  
+diff -rupN Rivet-3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc ../installed/rivet/3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc
+--- Rivet-3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc	2021-11-08 21:05:48.000000000 +0100
++++ ../installed/rivet/3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc	2023-02-01 19:24:12.320019063 +0100
+@@ -120,7 +120,7 @@ namespace Rivet {
+ 
+       const Particles& photons = apply<VetoedFinalState>(event, "MyPhotons").particles(Cuts::abseta < 2.4 && Cuts::pT > 15*GeV);
+       for (const Particle& ph : photons) {
+-        double isolation = sum(filter_select(isopars, deltaRLess(ph, 0.4)), pT, 0.);
++        double isolation = sum(filter_select(isopars, deltaRLess(ph, 0.4)), Kin::pT, 0.);
+         isolation = isolation/ph.pt() - 1.;
+         if (isolation > 0.25) continue;
+         additionalobjects += ph;
