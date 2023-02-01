@@ -455,6 +455,9 @@ def main():
     #
     utils.xmlFilesToDicts(xml_files)
 
+    # Fill the global dictionary gb.std_typedef_names_dict
+    utils.initGlobalTypedefDicts(xml_files)
+
 
     #
     # Look up potential parent classes and add to cfg.load_classes
@@ -570,7 +573,7 @@ def main():
                     raise
 
                 compare_func_name = func_name_long_templ_args.replace(' ','')
-                print("DEBUG: compare_func_name: ", [compare_func_name])
+                # print("DEBUG: compare_func_name: ", [compare_func_name])
                 if compare_func_name in cfg.load_functions:
 
                     is_loadable = not funcutils.ignoreFunction(el, limit_pointerness=True, print_warning=True)
@@ -593,8 +596,6 @@ def main():
         print( utils.modifyText('Done!','bold'))
 
         sys.exit()
-
-
 
     print()
     print()

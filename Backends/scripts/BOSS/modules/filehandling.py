@@ -656,7 +656,6 @@ def createFrontendHeader(function_xml_files_dict):
     # Read all xml files
     utils.xmlFilesToDicts(function_xml_files_dict.values())
 
-
     #
     # Generate typedefs for loaded classes, from ::BACKENDNAME_SAFE_VERSION::class_name
     # to ::Gambit::Backends::BACKENDNAME_SAFE_VERSION::class_name
