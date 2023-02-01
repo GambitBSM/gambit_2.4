@@ -505,7 +505,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
     INSTALL_COMMAND ""
     )
-  BOSS_backend_with_ROOT(${name} ${ver})
+  BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG} -I${ROOT_INCLUDE_DIRS}")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -1068,7 +1068,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} ${BOSS_suffix})
+  BOSS_backend(${name} ${ver} "" ${BOSS_suffix})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -1530,7 +1530,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${GM2CALC_CXX_FLAGS} EIGENFLAGS=-I${EIGEN3_INCLUDE_DIR} BOOSTFLAGS=-I${Boost_INCLUDE_DIR} MAKESHAREDLIB=${GM2CALC_MAKESHAREDLIB} sharedlib
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver})
+  BOSS_backend(${name} ${ver} "")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
@@ -1559,7 +1559,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${GM2CALC_CXX_FLAGS} EIGENFLAGS=-I${EIGEN3_INCLUDE_DIR} BOOSTFLAGS=-I${Boost_INCLUDE_DIR} MAKESHAREDLIB=${GM2CALC_MAKESHAREDLIB} alllib
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver})
+  BOSS_backend(${name} ${ver} "")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -1662,7 +1662,7 @@ if(NOT ditched_${name}_${ver})
           )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
-  BOSS_backend(${name} ${ver})
+  BOSS_backend(${name} ${ver} "")
 endif()
 
 
@@ -2003,7 +2003,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} ${dir}/local/lib/libRivet.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver})
+  BOSS_backend(${name} ${ver} "")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

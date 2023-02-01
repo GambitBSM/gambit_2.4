@@ -279,6 +279,8 @@ function(check_root_std_flag)
     string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
     set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
   endif()
+  # Make the detected ROOT_CXX_FLAG available to all who need it
+  set(ROOT_CXX_FLAG ${ROOT_CXX_FLAG} PARENT_SCOPE)
 endfunction()
 
 # Check for ROOT.
