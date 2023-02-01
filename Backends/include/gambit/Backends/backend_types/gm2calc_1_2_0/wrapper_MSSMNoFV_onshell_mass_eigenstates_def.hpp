@@ -97,7 +97,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->name();
       }
       
-      inline void MSSMNoFV_onshell_mass_eigenstates::print(std::basic_ostream<char>& arg_1) const
+      inline void MSSMNoFV_onshell_mass_eigenstates::print(std::ostream& arg_1) const
       {
          get_BEptr()->print(arg_1);
       }

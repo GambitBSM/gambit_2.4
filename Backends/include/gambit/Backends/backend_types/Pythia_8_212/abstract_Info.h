@@ -23,7 +23,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual void list(std::basic_ostream<char>&) const =0;
+                virtual void list(std::ostream&) const =0;
     
                 virtual void list__BOSS() const =0;
     
@@ -283,7 +283,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void errorReset() =0;
     
-                virtual void errorMsg(std::string, std::string, bool, std::basic_ostream<char>&) =0;
+                virtual void errorMsg(std::string, std::string, bool, std::ostream&) =0;
     
                 virtual void errorMsg__BOSS(std::string, std::string, bool) =0;
     
@@ -293,7 +293,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual int errorTotalNumber() =0;
     
-                virtual void errorStatistics(std::basic_ostream<char>&) =0;
+                virtual void errorStatistics(std::ostream&) =0;
     
                 virtual void errorStatistics__BOSS() =0;
     

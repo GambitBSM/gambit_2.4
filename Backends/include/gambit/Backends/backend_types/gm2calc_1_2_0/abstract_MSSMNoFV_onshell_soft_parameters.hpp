@@ -22,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual void print(std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
             virtual void clear() =0;
    

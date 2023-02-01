@@ -36,17 +36,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->readFile__BOSS();
         }
         
-        inline int SusyLesHouches::readFile(std::basic_istream<char>& arg_1, int verboseIn, bool useDecayIn)
+        inline int SusyLesHouches::readFile(std::istream& arg_1, int verboseIn, bool useDecayIn)
         {
             return get_BEptr()->readFile(arg_1, verboseIn, useDecayIn);
         }
         
-        inline int SusyLesHouches::readFile(std::basic_istream<char>& arg_1, int verboseIn)
+        inline int SusyLesHouches::readFile(std::istream& arg_1, int verboseIn)
         {
             return get_BEptr()->readFile__BOSS(arg_1, verboseIn);
         }
         
-        inline int SusyLesHouches::readFile(std::basic_istream<char>& arg_1)
+        inline int SusyLesHouches::readFile(std::istream& arg_1)
         {
             return get_BEptr()->readFile__BOSS(arg_1);
         }

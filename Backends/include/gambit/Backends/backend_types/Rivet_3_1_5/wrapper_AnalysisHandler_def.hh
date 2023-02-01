@@ -238,7 +238,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->getYodaAOs__BOSS();
       }
       
-      inline void AnalysisHandler::writeData(std::basic_ostream<char>& ostr, const std::string& fmt) const
+      inline void AnalysisHandler::writeData(std::ostream& ostr, const std::string& fmt) const
       {
          get_BEptr()->writeData(ostr, fmt);
       }

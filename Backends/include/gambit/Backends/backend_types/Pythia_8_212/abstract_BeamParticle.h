@@ -92,7 +92,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual int append__BOSS(int, int, double) =0;
     
-                virtual void list(std::basic_ostream<char>&) const =0;
+                virtual void list(std::ostream&) const =0;
     
                 virtual void list__BOSS() const =0;
     

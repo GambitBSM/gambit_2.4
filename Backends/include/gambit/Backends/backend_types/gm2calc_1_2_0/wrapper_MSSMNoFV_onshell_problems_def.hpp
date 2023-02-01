@@ -79,17 +79,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->get_problems();
       }
       
-      inline void MSSMNoFV_onshell_problems::print(std::basic_ostream<char>& arg_1) const
+      inline void MSSMNoFV_onshell_problems::print(std::ostream& arg_1) const
       {
          get_BEptr()->print(arg_1);
       }
       
-      inline void MSSMNoFV_onshell_problems::print_problems(std::basic_ostream<char>& arg_1) const
+      inline void MSSMNoFV_onshell_problems::print_problems(std::ostream& arg_1) const
       {
          get_BEptr()->print_problems(arg_1);
       }
       
-      inline void MSSMNoFV_onshell_problems::print_warnings(std::basic_ostream<char>& arg_1) const
+      inline void MSSMNoFV_onshell_problems::print_warnings(std::ostream& arg_1) const
       {
          get_BEptr()->print_warnings(arg_1);
       }

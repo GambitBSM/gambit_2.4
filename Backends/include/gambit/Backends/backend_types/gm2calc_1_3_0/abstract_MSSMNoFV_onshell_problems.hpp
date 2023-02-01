@@ -52,11 +52,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual ::std::string get_problems() const =0;
    
-            virtual void print(std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
-            virtual void print_problems(std::basic_ostream<char>&) const =0;
+            virtual void print_problems(std::ostream&) const =0;
    
-            virtual void print_warnings(std::basic_ostream<char>&) const =0;
+            virtual void print_warnings(std::ostream&) const =0;
    
          public:
             virtual void pointer_assign__BOSS(Abstract_MSSMNoFV_onshell_problems*) =0;

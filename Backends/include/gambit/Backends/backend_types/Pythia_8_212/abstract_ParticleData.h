@@ -62,7 +62,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void listFF(std::string) =0;
     
-                virtual bool readString(std::string, bool, std::basic_ostream<char>&) =0;
+                virtual bool readString(std::string, bool, std::ostream&) =0;
     
                 virtual bool readString__BOSS(std::string, bool) =0;
     
@@ -70,19 +70,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool readingFailed() =0;
     
-                virtual void listAll(std::basic_ostream<char>&) =0;
+                virtual void listAll(std::ostream&) =0;
     
                 virtual void listAll__BOSS() =0;
     
-                virtual void listChanged(std::basic_ostream<char>&) =0;
+                virtual void listChanged(std::ostream&) =0;
     
                 virtual void listChanged__BOSS() =0;
     
-                virtual void listChanged(bool, std::basic_ostream<char>&) =0;
+                virtual void listChanged(bool, std::ostream&) =0;
     
                 virtual void listChanged__BOSS(bool) =0;
     
-                virtual void list(bool, bool, std::basic_ostream<char>&) =0;
+                virtual void list(bool, bool, std::ostream&) =0;
     
                 virtual void list__BOSS(bool, bool) =0;
     
@@ -90,19 +90,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void list__BOSS() =0;
     
-                virtual void list(int, std::basic_ostream<char>&) =0;
+                virtual void list(int, std::ostream&) =0;
     
                 virtual void list__BOSS(int) =0;
     
-                virtual void list(std::vector<int>, std::basic_ostream<char>&) =0;
+                virtual void list(std::vector<int>, std::ostream&) =0;
     
                 virtual void list__BOSS(std::vector<int>) =0;
     
-                virtual void checkTable(std::basic_ostream<char>&) =0;
+                virtual void checkTable(std::ostream&) =0;
     
                 virtual void checkTable__BOSS() =0;
     
-                virtual void checkTable(int, std::basic_ostream<char>&) =0;
+                virtual void checkTable(int, std::ostream&) =0;
     
                 virtual void checkTable__BOSS(int) =0;
     

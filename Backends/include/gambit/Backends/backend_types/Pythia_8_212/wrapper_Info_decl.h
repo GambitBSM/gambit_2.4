@@ -35,7 +35,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 // Member functions: 
             public:
-                void list(std::basic_ostream<char>& os) const;
+                void list(std::ostream& os) const;
         
                 void list() const;
         
@@ -295,7 +295,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void errorReset();
         
-                void errorMsg(std::string messageIn, std::string extraIn, bool showAlways, std::basic_ostream<char>& os);
+                void errorMsg(std::string messageIn, std::string extraIn, bool showAlways, std::ostream& os);
         
                 void errorMsg(std::string messageIn, std::string extraIn, bool showAlways);
         
@@ -305,7 +305,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 int errorTotalNumber();
         
-                void errorStatistics(std::basic_ostream<char>& os);
+                void errorStatistics(std::ostream& os);
         
                 void errorStatistics();
         

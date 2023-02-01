@@ -180,7 +180,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->append__BOSS(iPos, idIn, x);
         }
         
-        inline void BeamParticle::list(std::basic_ostream<char>& os) const
+        inline void BeamParticle::list(std::ostream& os) const
         {
             get_BEptr()->list(os);
         }

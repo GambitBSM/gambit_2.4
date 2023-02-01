@@ -121,7 +121,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             ::std::vector<std::shared_ptr<YODA::AnalysisObject>> getYodaAOs() const;
       
-            void writeData(std::basic_ostream<char>& ostr, const std::string& fmt) const;
+            void writeData(std::ostream& ostr, const std::string& fmt) const;
       
             void writeData(const std::string& filename) const;
       

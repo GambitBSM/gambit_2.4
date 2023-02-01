@@ -105,7 +105,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listFF(outFile);
         }
         
-        inline bool ParticleData::readString(std::string lineIn, bool warn, std::basic_ostream<char>& os)
+        inline bool ParticleData::readString(std::string lineIn, bool warn, std::ostream& os)
         {
             return get_BEptr()->readString(lineIn, warn, os);
         }
@@ -125,7 +125,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->readingFailed();
         }
         
-        inline void ParticleData::listAll(std::basic_ostream<char>& os)
+        inline void ParticleData::listAll(std::ostream& os)
         {
             get_BEptr()->listAll(os);
         }
@@ -135,7 +135,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listAll__BOSS();
         }
         
-        inline void ParticleData::listChanged(std::basic_ostream<char>& os)
+        inline void ParticleData::listChanged(std::ostream& os)
         {
             get_BEptr()->listChanged(os);
         }
@@ -145,7 +145,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listChanged__BOSS();
         }
         
-        inline void ParticleData::listChanged(bool changedRes, std::basic_ostream<char>& os)
+        inline void ParticleData::listChanged(bool changedRes, std::ostream& os)
         {
             get_BEptr()->listChanged(changedRes, os);
         }
@@ -155,7 +155,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listChanged__BOSS(changedRes);
         }
         
-        inline void ParticleData::list(bool changedOnly, bool changedRes, std::basic_ostream<char>& os)
+        inline void ParticleData::list(bool changedOnly, bool changedRes, std::ostream& os)
         {
             get_BEptr()->list(changedOnly, changedRes, os);
         }
@@ -175,7 +175,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS();
         }
         
-        inline void ParticleData::list(int idList, std::basic_ostream<char>& os)
+        inline void ParticleData::list(int idList, std::ostream& os)
         {
             get_BEptr()->list(idList, os);
         }
@@ -185,7 +185,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS(idList);
         }
         
-        inline void ParticleData::list(std::vector<int> idList, std::basic_ostream<char>& os)
+        inline void ParticleData::list(std::vector<int> idList, std::ostream& os)
         {
             get_BEptr()->list(idList, os);
         }
@@ -195,7 +195,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS(idList);
         }
         
-        inline void ParticleData::checkTable(std::basic_ostream<char>& os)
+        inline void ParticleData::checkTable(std::ostream& os)
         {
             get_BEptr()->checkTable(os);
         }
@@ -205,7 +205,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->checkTable__BOSS();
         }
         
-        inline void ParticleData::checkTable(int verbosity, std::basic_ostream<char>& os)
+        inline void ParticleData::checkTable(int verbosity, std::ostream& os)
         {
             get_BEptr()->checkTable(verbosity, os);
         }

@@ -60,17 +60,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->readFile(fileName, subrun);
         }
         
-        inline bool Pythia::readFile(std::basic_istream<char>& is, bool warn, int subrun)
+        inline bool Pythia::readFile(std::istream& is, bool warn, int subrun)
         {
             return get_BEptr()->readFile(is, warn, subrun);
         }
         
-        inline bool Pythia::readFile(std::basic_istream<char>& is, bool warn)
+        inline bool Pythia::readFile(std::istream& is, bool warn)
         {
             return get_BEptr()->readFile__BOSS(is, warn);
         }
         
-        inline bool Pythia::readFile(std::basic_istream<char>& is)
+        inline bool Pythia::readFile(std::istream& is)
         {
             return get_BEptr()->readFile__BOSS(is);
         }
@@ -80,7 +80,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->readFile__BOSS();
         }
         
-        inline bool Pythia::readFile(std::basic_istream<char>& is, int subrun)
+        inline bool Pythia::readFile(std::istream& is, int subrun)
         {
             return get_BEptr()->readFile(is, subrun);
         }
@@ -95,7 +95,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->setResonancePtr__BOSS((*resonancePtrIn).get_BEptr());
         }
         
-        inline bool Pythia::init(std::basic_ostream<char>& os)
+        inline bool Pythia::init(std::ostream& os)
         {
             return get_BEptr()->init(os);
         }
@@ -140,7 +140,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->forceRHadronDecays();
         }
         
-        inline void Pythia::LHAeventList(std::basic_ostream<char>& os)
+        inline void Pythia::LHAeventList(std::ostream& os)
         {
             get_BEptr()->LHAeventList(os);
         }

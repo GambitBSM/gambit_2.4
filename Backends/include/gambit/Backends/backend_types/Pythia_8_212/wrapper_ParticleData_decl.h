@@ -67,7 +67,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void listFF(std::string outFile);
         
-                bool readString(std::string lineIn, bool warn, std::basic_ostream<char>& os);
+                bool readString(std::string lineIn, bool warn, std::ostream& os);
         
                 bool readString(std::string lineIn, bool warn);
         
@@ -75,19 +75,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool readingFailed();
         
-                void listAll(std::basic_ostream<char>& os);
+                void listAll(std::ostream& os);
         
                 void listAll();
         
-                void listChanged(std::basic_ostream<char>& os);
+                void listChanged(std::ostream& os);
         
                 void listChanged();
         
-                void listChanged(bool changedRes, std::basic_ostream<char>& os);
+                void listChanged(bool changedRes, std::ostream& os);
         
                 void listChanged(bool changedRes);
         
-                void list(bool changedOnly, bool changedRes, std::basic_ostream<char>& os);
+                void list(bool changedOnly, bool changedRes, std::ostream& os);
         
                 void list(bool changedOnly, bool changedRes);
         
@@ -95,19 +95,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void list();
         
-                void list(int idList, std::basic_ostream<char>& os);
+                void list(int idList, std::ostream& os);
         
                 void list(int idList);
         
-                void list(std::vector<int> idList, std::basic_ostream<char>& os);
+                void list(std::vector<int> idList, std::ostream& os);
         
                 void list(std::vector<int> idList);
         
-                void checkTable(std::basic_ostream<char>& os);
+                void checkTable(std::ostream& os);
         
                 void checkTable();
         
-                void checkTable(int verbosity, std::basic_ostream<char>& os);
+                void checkTable(int verbosity, std::ostream& os);
         
                 void checkTable(int verbosity);
         

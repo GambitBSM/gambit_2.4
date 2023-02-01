@@ -64,17 +64,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->fill__BOSS(x);
         }
         
-        inline void Hist::table(std::basic_ostream<char>& os, bool printOverUnder, bool xMidBin) const
+        inline void Hist::table(std::ostream& os, bool printOverUnder, bool xMidBin) const
         {
             get_BEptr()->table(os, printOverUnder, xMidBin);
         }
         
-        inline void Hist::table(std::basic_ostream<char>& os, bool printOverUnder) const
+        inline void Hist::table(std::ostream& os, bool printOverUnder) const
         {
             get_BEptr()->table__BOSS(os, printOverUnder);
         }
         
-        inline void Hist::table(std::basic_ostream<char>& os) const
+        inline void Hist::table(std::ostream& os) const
         {
             get_BEptr()->table__BOSS(os);
         }

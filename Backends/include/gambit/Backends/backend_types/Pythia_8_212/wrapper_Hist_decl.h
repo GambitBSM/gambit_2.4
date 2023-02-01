@@ -53,11 +53,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void fill(double x);
         
-                void table(std::basic_ostream<char>& os, bool printOverUnder, bool xMidBin) const;
+                void table(std::ostream& os, bool printOverUnder, bool xMidBin) const;
         
-                void table(std::basic_ostream<char>& os, bool printOverUnder) const;
+                void table(std::ostream& os, bool printOverUnder) const;
         
-                void table(std::basic_ostream<char>& os) const;
+                void table(std::ostream& os) const;
         
                 void table() const;
         

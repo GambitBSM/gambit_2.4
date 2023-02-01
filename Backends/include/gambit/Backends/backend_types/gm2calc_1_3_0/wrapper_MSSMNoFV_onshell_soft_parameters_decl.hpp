@@ -29,7 +29,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             // Member functions: 
          public:
-            void print(std::basic_ostream<char>& arg_1) const;
+            void print(std::ostream& arg_1) const;
       
             void clear();
       

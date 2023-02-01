@@ -15,7 +15,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void Info::list(std::basic_ostream<char>& os) const
+        inline void Info::list(std::ostream& os) const
         {
             get_BEptr()->list(os);
         }
@@ -665,7 +665,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->errorReset();
         }
         
-        inline void Info::errorMsg(std::string messageIn, std::string extraIn, bool showAlways, std::basic_ostream<char>& os)
+        inline void Info::errorMsg(std::string messageIn, std::string extraIn, bool showAlways, std::ostream& os)
         {
             get_BEptr()->errorMsg(messageIn, extraIn, showAlways, os);
         }
@@ -690,7 +690,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->errorTotalNumber();
         }
         
-        inline void Info::errorStatistics(std::basic_ostream<char>& os)
+        inline void Info::errorStatistics(std::ostream& os)
         {
             get_BEptr()->errorStatistics(os);
         }

@@ -69,21 +69,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool readFile(std::string fileName, int subrun);
         
-                bool readFile(std::basic_istream<char>& is, bool warn, int subrun);
+                bool readFile(std::istream& is, bool warn, int subrun);
         
-                bool readFile(std::basic_istream<char>& is, bool warn);
+                bool readFile(std::istream& is, bool warn);
         
-                bool readFile(std::basic_istream<char>& is);
+                bool readFile(std::istream& is);
         
                 bool readFile();
         
-                bool readFile(std::basic_istream<char>& is, int subrun);
+                bool readFile(std::istream& is, int subrun);
         
                 bool setUserHooksPtr(Pythia8::UserHooks* userHooksPtrIn);
         
                 bool setResonancePtr(Pythia8::ResonanceWidths* resonancePtrIn);
         
-                bool init(std::basic_ostream<char>& os);
+                bool init(std::ostream& os);
         
                 bool init();
         
@@ -101,7 +101,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool forceRHadronDecays();
         
-                void LHAeventList(std::basic_ostream<char>& os);
+                void LHAeventList(std::ostream& os);
         
                 void LHAeventList();
         

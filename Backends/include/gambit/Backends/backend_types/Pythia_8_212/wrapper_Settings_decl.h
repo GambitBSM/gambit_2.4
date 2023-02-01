@@ -31,7 +31,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 void initPtr(Pythia8::Info* infoPtrIn);
         
-                bool init(std::string startFile, bool append, std::basic_ostream<char>& os);
+                bool init(std::string startFile, bool append, std::ostream& os);
         
                 bool init(std::string startFile, bool append);
         
@@ -39,13 +39,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool init();
         
-                bool reInit(std::string startFile, std::basic_ostream<char>& os);
+                bool reInit(std::string startFile, std::ostream& os);
         
                 bool reInit(std::string startFile);
         
                 bool reInit();
         
-                bool readString(std::string line, bool warn, std::basic_ostream<char>& os);
+                bool readString(std::string line, bool warn, std::ostream& os);
         
                 bool readString(std::string line, bool warn);
         
@@ -57,21 +57,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool writeFile(std::string toFile);
         
-                bool writeFile(std::basic_ostream<char>& os, bool writeAll);
+                bool writeFile(std::ostream& os, bool writeAll);
         
-                bool writeFile(std::basic_ostream<char>& os);
+                bool writeFile(std::ostream& os);
         
                 bool writeFile();
         
-                void listAll(std::basic_ostream<char>& os);
+                void listAll(std::ostream& os);
         
                 void listAll();
         
-                void listChanged(std::basic_ostream<char>& os);
+                void listChanged(std::ostream& os);
         
                 void listChanged();
         
-                void list(std::string match, std::basic_ostream<char>& os);
+                void list(std::string match, std::ostream& os);
         
                 void list(std::string match);
         

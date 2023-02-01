@@ -58,7 +58,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual ::std::string name() const =0;
    
-            virtual void print(std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
             virtual double get_MVG() const =0;
    

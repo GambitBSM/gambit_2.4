@@ -34,7 +34,7 @@ namespace Gambit
 }
 
 // Functions
-BE_FUNCTION(addAnalysisLibPath, void, (const std::string&), "addAnalysisLibPath__BOSS_3", "addAnalysisLibPath")
+BE_FUNCTION(addAnalysisLibPath, void, (const std::string&), ("addAnalysisLibPath__BOSS_3","_addAnalysisLibPath__BOSS_3"), "addAnalysisLibPath")
 // Variables
 
 // Initialisation function (dependencies)

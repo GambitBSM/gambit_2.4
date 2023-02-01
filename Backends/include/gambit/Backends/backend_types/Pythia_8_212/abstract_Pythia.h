@@ -50,21 +50,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool readFile(std::string, int) =0;
     
-                virtual bool readFile(std::basic_istream<char>&, bool, int) =0;
+                virtual bool readFile(std::istream&, bool, int) =0;
     
-                virtual bool readFile__BOSS(std::basic_istream<char>&, bool) =0;
+                virtual bool readFile__BOSS(std::istream&, bool) =0;
     
-                virtual bool readFile__BOSS(std::basic_istream<char>&) =0;
+                virtual bool readFile__BOSS(std::istream&) =0;
     
                 virtual bool readFile__BOSS() =0;
     
-                virtual bool readFile(std::basic_istream<char>&, int) =0;
+                virtual bool readFile(std::istream&, int) =0;
     
                 virtual bool setUserHooksPtr__BOSS(Pythia8::Abstract_UserHooks*) =0;
     
                 virtual bool setResonancePtr__BOSS(Pythia8::Abstract_ResonanceWidths*) =0;
     
-                virtual bool init(std::basic_ostream<char>&) =0;
+                virtual bool init(std::ostream&) =0;
     
                 virtual bool init__BOSS() =0;
     
@@ -82,7 +82,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool forceRHadronDecays() =0;
     
-                virtual void LHAeventList(std::basic_ostream<char>&) =0;
+                virtual void LHAeventList(std::ostream&) =0;
     
                 virtual void LHAeventList__BOSS() =0;
     

@@ -98,7 +98,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 int append(int iPos, int idIn, double x);
         
-                void list(std::basic_ostream<char>& os) const;
+                void list(std::ostream& os) const;
         
                 void list() const;
         

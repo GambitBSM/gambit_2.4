@@ -25,7 +25,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void initPtr__BOSS(Pythia8::Abstract_Info*) =0;
     
-                virtual bool init(std::string, bool, std::basic_ostream<char>&) =0;
+                virtual bool init(std::string, bool, std::ostream&) =0;
     
                 virtual bool init__BOSS(std::string, bool) =0;
     
@@ -33,13 +33,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool init__BOSS() =0;
     
-                virtual bool reInit(std::string, std::basic_ostream<char>&) =0;
+                virtual bool reInit(std::string, std::ostream&) =0;
     
                 virtual bool reInit__BOSS(std::string) =0;
     
                 virtual bool reInit__BOSS() =0;
     
-                virtual bool readString(std::string, bool, std::basic_ostream<char>&) =0;
+                virtual bool readString(std::string, bool, std::ostream&) =0;
     
                 virtual bool readString__BOSS(std::string, bool) =0;
     
@@ -51,21 +51,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool writeFile__BOSS(std::string) =0;
     
-                virtual bool writeFile(std::basic_ostream<char>&, bool) =0;
+                virtual bool writeFile(std::ostream&, bool) =0;
     
-                virtual bool writeFile__BOSS(std::basic_ostream<char>&) =0;
+                virtual bool writeFile__BOSS(std::ostream&) =0;
     
                 virtual bool writeFile__BOSS() =0;
     
-                virtual void listAll(std::basic_ostream<char>&) =0;
+                virtual void listAll(std::ostream&) =0;
     
                 virtual void listAll__BOSS() =0;
     
-                virtual void listChanged(std::basic_ostream<char>&) =0;
+                virtual void listChanged(std::ostream&) =0;
     
                 virtual void listChanged__BOSS() =0;
     
-                virtual void list(std::string, std::basic_ostream<char>&) =0;
+                virtual void list(std::string, std::ostream&) =0;
     
                 virtual void list__BOSS(std::string) =0;
     

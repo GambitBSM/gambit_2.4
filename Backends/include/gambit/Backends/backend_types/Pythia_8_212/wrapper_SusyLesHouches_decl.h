@@ -46,11 +46,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 int readFile();
         
-                int readFile(std::basic_istream<char>& arg_1, int verboseIn, bool useDecayIn);
+                int readFile(std::istream& arg_1, int verboseIn, bool useDecayIn);
         
-                int readFile(std::basic_istream<char>& arg_1, int verboseIn);
+                int readFile(std::istream& arg_1, int verboseIn);
         
-                int readFile(std::basic_istream<char>& arg_1);
+                int readFile(std::istream& arg_1);
         
                 void setSLHAea(const SLHAea::Coll* inputSLHAea);
         

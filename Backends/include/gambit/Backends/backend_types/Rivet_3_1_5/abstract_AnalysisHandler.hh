@@ -114,7 +114,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual ::std::vector<std::shared_ptr<YODA::AnalysisObject>> getYodaAOs__BOSS() const =0;
    
-            virtual void writeData(std::basic_ostream<char>&, const std::string&) const =0;
+            virtual void writeData(std::ostream&, const std::string&) const =0;
    
             virtual void writeData(const std::string&) const =0;
    

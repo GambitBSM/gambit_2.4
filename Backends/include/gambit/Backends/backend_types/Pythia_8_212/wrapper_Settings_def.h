@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->initPtr__BOSS((*infoPtrIn).get_BEptr());
         }
         
-        inline bool Settings::init(std::string startFile, bool append, std::basic_ostream<char>& os)
+        inline bool Settings::init(std::string startFile, bool append, std::ostream& os)
         {
             return get_BEptr()->init(startFile, append, os);
         }
@@ -40,7 +40,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->init__BOSS();
         }
         
-        inline bool Settings::reInit(std::string startFile, std::basic_ostream<char>& os)
+        inline bool Settings::reInit(std::string startFile, std::ostream& os)
         {
             return get_BEptr()->reInit(startFile, os);
         }
@@ -55,7 +55,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->reInit__BOSS();
         }
         
-        inline bool Settings::readString(std::string line, bool warn, std::basic_ostream<char>& os)
+        inline bool Settings::readString(std::string line, bool warn, std::ostream& os)
         {
             return get_BEptr()->readString(line, warn, os);
         }
@@ -85,12 +85,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->writeFile__BOSS(toFile);
         }
         
-        inline bool Settings::writeFile(std::basic_ostream<char>& os, bool writeAll)
+        inline bool Settings::writeFile(std::ostream& os, bool writeAll)
         {
             return get_BEptr()->writeFile(os, writeAll);
         }
         
-        inline bool Settings::writeFile(std::basic_ostream<char>& os)
+        inline bool Settings::writeFile(std::ostream& os)
         {
             return get_BEptr()->writeFile__BOSS(os);
         }
@@ -100,7 +100,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->writeFile__BOSS();
         }
         
-        inline void Settings::listAll(std::basic_ostream<char>& os)
+        inline void Settings::listAll(std::ostream& os)
         {
             get_BEptr()->listAll(os);
         }
@@ -110,7 +110,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listAll__BOSS();
         }
         
-        inline void Settings::listChanged(std::basic_ostream<char>& os)
+        inline void Settings::listChanged(std::ostream& os)
         {
             get_BEptr()->listChanged(os);
         }
@@ -120,7 +120,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listChanged__BOSS();
         }
         
-        inline void Settings::list(std::string match, std::basic_ostream<char>& os)
+        inline void Settings::list(std::string match, std::ostream& os)
         {
             get_BEptr()->list(match, os);
         }

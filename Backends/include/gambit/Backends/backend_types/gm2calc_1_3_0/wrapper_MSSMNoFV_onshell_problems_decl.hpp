@@ -58,11 +58,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             ::std::string get_problems() const;
       
-            void print(std::basic_ostream<char>& arg_1) const;
+            void print(std::ostream& arg_1) const;
       
-            void print_problems(std::basic_ostream<char>& arg_1) const;
+            void print_problems(std::ostream& arg_1) const;
       
-            void print_warnings(std::basic_ostream<char>& arg_1) const;
+            void print_warnings(std::ostream& arg_1) const;
       
       
             // Wrappers for original constructors: 

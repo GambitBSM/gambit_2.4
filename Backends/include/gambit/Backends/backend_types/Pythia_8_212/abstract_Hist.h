@@ -44,11 +44,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void fill__BOSS(double) =0;
     
-                virtual void table(std::basic_ostream<char>&, bool, bool) const =0;
+                virtual void table(std::ostream&, bool, bool) const =0;
     
-                virtual void table__BOSS(std::basic_ostream<char>&, bool) const =0;
+                virtual void table__BOSS(std::ostream&, bool) const =0;
     
-                virtual void table__BOSS(std::basic_ostream<char>&) const =0;
+                virtual void table__BOSS(std::ostream&) const =0;
     
                 virtual void table__BOSS() const =0;
     
