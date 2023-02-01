@@ -15,7 +15,7 @@ diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
 +	cd ${top_builddir}/src && ${MAKE} libRivet.la
 +	cd ${top_builddir}/analyses && ${MAKE} install
 +	cd ${top_builddir}/pyext && ${MAKE} install
-+	cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so
++#	cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so
  
  .SUFFIXES:
  am--refresh: Makefile

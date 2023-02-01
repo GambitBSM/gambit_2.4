@@ -1988,6 +1988,12 @@ else()
   set(pyext no)
   message("   Backends depending on Rivet's python extension (e.g. Contur) will be disabled.")
 endif()
+# Set library name used below to move the library
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(Rivet_lib_name "libRivet.dylib")
+else()
+  set(Rivet_lib_name "libRivet.so")
+endif()
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -2001,6 +2007,8 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} ${dir}/local/lib/libRivet.so
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}/local/lib
+    COMMAND ${CMAKE_COMMAND} -E rename ${dir}/src/.libs/${Rivet_lib_name} ${dir}/local/lib/${Rivet_lib_name}
     INSTALL_COMMAND ""
   )
   BOSS_backend(${name} ${ver} "")
