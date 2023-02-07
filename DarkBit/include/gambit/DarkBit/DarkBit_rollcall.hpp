@@ -168,7 +168,7 @@ START_MODULE
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3,
                    ScalarSingletDM_Z3_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2,
                    VectorSingletDM_Z2, DMEFT)
-      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -224,7 +224,7 @@ START_MODULE
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
-      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -322,6 +322,8 @@ START_MODULE
       BACKEND_OPTION((MicrOmegas_VectorSingletDM_Z2), (gimmemicro))
       BACKEND_OPTION((MicrOmegas_MajoranaSingletDM_Z2), (gimmemicro))
       BACKEND_OPTION((MicrOmegas_DiracSingletDM_Z2),(gimmemicro))
+      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))
+      ALLOW_MODEL(DMsimpVectorMedVectorDM)
       ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT,
                    ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
@@ -501,6 +503,7 @@ START_MODULE
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMEFT)
     #undef FUNCTION
+
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedDiracDM
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(WIMP_properties, WIMPprops)
@@ -509,6 +512,7 @@ START_MODULE
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMsimpVectorMedDiracDM)
     #undef FUNCTION
+
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedMajoranaDM
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(WIMP_properties, WIMPprops)
@@ -517,6 +521,7 @@ START_MODULE
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
     #undef FUNCTION
+
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedScalarDM
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(WIMP_properties, WIMPprops)
@@ -524,6 +529,15 @@ START_MODULE
       DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMsimpVectorMedScalarDM)
+    #undef FUNCTION
+
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedVectorDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1118,10 +1132,11 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum, VectorSingletDM_Z2)
     MODEL_CONDITIONAL_DEPENDENCY(MDM_spectrum, Spectrum, MDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
-    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running)
     ALLOW_MODELS(VectorSingletDM_Z2, MajoranaSingletDM_Z2, DiracSingletDM_Z2)
@@ -1158,6 +1173,7 @@ START_MODULE
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z2),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z3),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_VectorSingletDM_Z2),(gimmemicro))
+      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))
       FORCE_SAME_BACKEND(gimmemicro)
     #undef FUNCTION
 
@@ -1214,17 +1230,18 @@ START_MODULE
       ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq, MSSM63atQ,
                              ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                              ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                             VectorSingletDM_Z2, DMEFT)
+                             VectorSingletDM_Z2, DMEFT, DMsimpVectorMedVectorDM)
       MODEL_GROUP(group1, (nuclear_params_fnq))
       MODEL_GROUP(group2, (MSSM63atQ,
                            ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                            ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                           VectorSingletDM_Z2, DMEFT))
+                           VectorSingletDM_Z2, DMEFT, DMsimpVectorMedVectorDM))
       ALLOW_MODEL_COMBINATION(group1, group2)
       BACKEND_OPTION((MicrOmegas_MSSM),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z2),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z3),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_VectorSingletDM_Z2),(gimmemicro))
+      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))
       FORCE_SAME_BACKEND(gimmemicro)
     #undef FUNCTION
 
@@ -1338,6 +1355,11 @@ START_MODULE
       START_FUNCTION(NREO_DM_nucleon_couplings)
       DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
       ALLOW_JOINT_MODEL(nuclear_params_fnq, MajoranaSingletDM_Z2)
+      #undef FUNCTION
+
+      #define FUNCTION DD_nonrel_WCs_DMsimpVectorMedVectorDM
+      START_FUNCTION(NREO_DM_nucleon_couplings)
+      DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
       #undef FUNCTION
 
   #undef CAPABILITY
@@ -2019,6 +2041,10 @@ START_MODULE
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedVectorDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedVectorDM)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY DarkMatterConj_ID
@@ -2070,6 +2096,10 @@ START_MODULE
     #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedScalarDM
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMsimpVectorMedScalarDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedVectorDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 

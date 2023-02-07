@@ -28,6 +28,7 @@ BE_ALLOW_MODELS(DMEFT)
 BE_ALLOW_MODELS(DMsimpVectorMedScalarDM)
 BE_ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
 BE_ALLOW_MODELS(DMsimpVectorMedDiracDM)
+BE_ALLOW_MODELS(DMsimpVectorMedVectorDM)
 
 BE_FUNCTION(setModel, int, (char*, int), "setModel", "setModel")
 BE_FUNCTION(calcMainFunc, int, (), "calcMainFunc", "calcMainFunc")
@@ -56,5 +57,6 @@ BE_INI_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
 BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
 BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
 BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

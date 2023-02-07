@@ -1222,3 +1222,7 @@ DMsimpVectorMedMajoranaDM: |
 DMsimpVectorMedScalarDM: |
     DMsimpVectorMedScalarDM model, created by GUM, with parameters: gVXc, gVq, MXc, MY1
 
+
+DMsimpVectorMedVectorDM: |
+    DMsimpVectorMedVectorDM model, created by GUM, with parameters: gVXv, gVq, mXv, MY1
+
