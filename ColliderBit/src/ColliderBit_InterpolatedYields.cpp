@@ -1609,10 +1609,10 @@ namespace Gambit
       // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
       std::map<str,str> Analysis_data_path;
       std::map<str,std::vector<str>> Interpolation_columns;
-      // Skipping the 36 invfb anaysis since it was not used for this model
+      // Skipping the 36 invfb anaysis since it was not used for this model TODO: Perhaps I shoud instead add a bit where it also passes the model name. This way I can just check if the VectorDM model gets used with the wrong analysis and throw an error
       Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = "Skip Analysis";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedVectorDM_MonoJets/DiracDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedVectorDM_MonoJets/DiracDM_CMS137_MonoJet.txt";
+      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedVectorDM_MonoJets/VectorDM_ATLAS139_MonoJet.txt";
+      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp/DMsimpVectorMedVectorDM_MonoJets/VectorDM_CMS137_MonoJet.txt";
 
       Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",

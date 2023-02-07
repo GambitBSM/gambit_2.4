@@ -319,6 +319,13 @@
     DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double)
     ALLOW_MODELS(DMsimpVectorMedDiracDM)
     #undef FUNCTION
+
+    #define FUNCTION DMsimpVectorMedVectorDM_results
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
+    DEPENDENCY(Unitarity_Bound_DMsimpVectorMedVectorDM, double)
+    ALLOW_MODELS(DMsimpVectorMedVectorDM)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY AllAnalysisNumbersUnmodified
@@ -359,6 +366,13 @@
     DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
     DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
     ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+
+    #define FUNCTION DiJet_LogLike_DMsimpVectorMedVectorDM
+    START_FUNCTION(double)
+    DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
+    DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
+    ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
