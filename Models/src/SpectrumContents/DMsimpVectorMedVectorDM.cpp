@@ -24,10 +24,10 @@ namespace Gambit
   SpectrumContents::DMsimpVectorMedVectorDM::DMsimpVectorMedVectorDM()
   {
     setName("DMsimpVectorMedVectorDM");
-    
+
     std::vector<int> scalar = initVector(1); // i.e. get(Par::Tag, "name")
     std::vector<int> m3x3  = initVector(3,3); // i.e. get(Par::Tag, "name", i, j)
-    
+
     addParameter(Par::dimensionless, "gVXv", scalar, "DMINT", 1);
     addParameter(Par::dimensionless, "gVq", scalar, "DMINT", 2);
     addParameter(Par::mass1, "vev", scalar, "VEVS", 1);
@@ -41,7 +41,7 @@ namespace Gambit
     addParameter(Par::Pole_Mass, "h0_1", scalar, "MASS", 25);
     addParameter(Par::Pole_Mass, "~Xv", scalar, "MASS", 5000523);
     addParameter(Par::Pole_Mass, "Y1", scalar, "MASS", 5000001);
-    
+
   } // namespace Models
 } // namespace Gambit
 #endif

@@ -79,7 +79,7 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"Xd", "Xd~"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
       model = "DMsimpVectorMedDiracDM";
     }
-    
+
     if (ModelInUse("DMsimpVectorMedMajoranaDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedMajoranaDM";
@@ -90,7 +90,7 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"Xm", "Xm"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
       model = "DMsimpVectorMedMajoranaDM";
     }
-    
+
     if (ModelInUse("DMsimpVectorMedScalarDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedScalarDM";
@@ -101,7 +101,7 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"Xc", "Xc~"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
       model = "DMsimpVectorMedScalarDM";
     }
-    
+
     if (ModelInUse("DMsimpVectorMedVectorDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedVectorDM";
@@ -112,7 +112,7 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"~Xv", "~Xva"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
       model = "DMsimpVectorMedVectorDM";
     }
-    
+
     {
       int error = setModel(modeltoset, 1);
       if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model" + std::string(modeltoset) +
@@ -181,58 +181,58 @@ BE_INI_FUNCTION
   {
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::DMsimpVectorMedDiracDM_spectrum;
-    
+
     // Obtain model contents
     static const SpectrumContents::DMsimpVectorMedDiracDM DMsimpVectorMedDiracDM_contents;
-    
+
     // Obtain list of all parameters within model
     static const std::vector<SpectrumParameter> DMsimpVectorMedDiracDM_params = DMsimpVectorMedDiracDM_contents.all_parameters();
-    
+
     Assign_All_Values(spec, DMsimpVectorMedDiracDM_params);
   }
-  
+
   if (ModelInUse("DMsimpVectorMedMajoranaDM"))
   {
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::DMsimpVectorMedMajoranaDM_spectrum;
-    
+
     // Obtain model contents
     static const SpectrumContents::DMsimpVectorMedMajoranaDM DMsimpVectorMedMajoranaDM_contents;
-    
+
     // Obtain list of all parameters within model
     static const std::vector<SpectrumParameter> DMsimpVectorMedMajoranaDM_params = DMsimpVectorMedMajoranaDM_contents.all_parameters();
-    
+
     Assign_All_Values(spec, DMsimpVectorMedMajoranaDM_params);
   }
-  
+
   if (ModelInUse("DMsimpVectorMedScalarDM"))
   {
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::DMsimpVectorMedScalarDM_spectrum;
-    
+
     // Obtain model contents
     static const SpectrumContents::DMsimpVectorMedScalarDM DMsimpVectorMedScalarDM_contents;
-    
+
     // Obtain list of all parameters within model
     static const std::vector<SpectrumParameter> DMsimpVectorMedScalarDM_params = DMsimpVectorMedScalarDM_contents.all_parameters();
-    
+
     Assign_All_Values(spec, DMsimpVectorMedScalarDM_params);
   }
-  
+
   if (ModelInUse("DMsimpVectorMedVectorDM"))
   {
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::DMsimpVectorMedVectorDM_spectrum;
-    
+
     // Obtain model contents
     static const SpectrumContents::DMsimpVectorMedVectorDM DMsimpVectorMedVectorDM_contents;
-    
+
     // Obtain list of all parameters within model
     static const std::vector<SpectrumParameter> DMsimpVectorMedVectorDM_params = DMsimpVectorMedVectorDM_contents.all_parameters();
-    
+
     Assign_All_Values(spec, DMsimpVectorMedVectorDM_params);
   }
-  
+
 }
 END_BE_INI_FUNCTION
 

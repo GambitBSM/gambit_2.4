@@ -32,55 +32,55 @@
 
 namespace Gambit
 {
-  
+
   namespace SpecBit
   {
     using namespace LogTags;
-    
+
     /// Get a (simple) Spectrum object wrapper for DMsimpVectorMedVectorDM_spectrum model.
     void get_DMsimpVectorMedVectorDM_spectrum(Spectrum& result)
     {
       namespace myPipe = Pipes::get_DMsimpVectorMedVectorDM_spectrum;
       const SMInputs& sminputs = *myPipe::Dep::SMINPUTS;
-      
+
       // Initialise SLHAea object 
       SLHAstruct slha;
-      
+
       // Block DMINT
       SLHAea_add_block(slha, "DMINT");
       SLHAea_add(slha, "DMINT", 1, *myPipe::Param["gVXv"]);
       SLHAea_add(slha, "DMINT", 2, *myPipe::Param["gVq"]);
       double vev = 1. / sqrt(sqrt(2.)*sminputs.GF);
       double sqrt2v = pow(2.0,0.5)/vev;
-      
+
       SLHAea_add_block(slha, "VEVS");
       SLHAea_add(slha, "VEVS", 1, vev);
-      
+
       SLHAea_add_block(slha, "HMIX");
       SLHAea_add(slha, "HMIX", 3, vev);
-      
-      
+
+
       // Block MASS
       SLHAea_add_block(slha, "MASS");
       SLHAea_add(slha, "MASS", 25, *myPipe::Param["mH"]);
       SLHAea_add(slha, "MASS", 5000523, *myPipe::Param["mXv"]);
       SLHAea_add(slha, "MASS", 5000001, *myPipe::Param["MY1"]);
-      
+
       // quantities needed to fill container spectrum
       double alpha_em = 1.0 / sminputs.alphainv;
       double C = alpha_em * pi / (sminputs.GF * pow(2,0.5));
       double sinW2 = 0.5 - pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double e = pow( 4*pi*( alpha_em ),0.5);
-      
+
       SLHAea_add_block(slha, "GAUGE");
       SLHAea_add(slha, "GAUGE", 1, sqrt(5/3) * e / sqrt(cosW2) );
       SLHAea_add(slha, "GAUGE", 2, e / sqrt(sinW2));
       SLHAea_add(slha, "GAUGE", 3, pow( 4*pi*sminputs.alphaS,0.5) );
-      
+
       SLHAea_add_block(slha, "SINTHETAW");
       SLHAea_add(slha, "SINTHETAW", 1, sinW2);
-      
+
       SLHAea_add_block(slha, "YU");
       SLHAea_add(slha, "YU", 1, 1, sqrt2v*sminputs.mU, "u");
       SLHAea_add(slha, "YU", 1, 2, 0., "");
@@ -91,7 +91,7 @@ namespace Gambit
       SLHAea_add(slha, "YU", 3, 1, 0., "");
       SLHAea_add(slha, "YU", 3, 2, 0., "");
       SLHAea_add(slha, "YU", 3, 3, sqrt2v*sminputs.mT, "t");
-      
+
       SLHAea_add_block(slha, "YE");
       SLHAea_add(slha, "YE", 1, 1, sqrt2v*sminputs.mE, "e");
       SLHAea_add(slha, "YE", 1, 2, 0., "");
@@ -102,7 +102,7 @@ namespace Gambit
       SLHAea_add(slha, "YE", 3, 1, 0., "");
       SLHAea_add(slha, "YE", 3, 2, 0., "");
       SLHAea_add(slha, "YE", 3, 3, sqrt2v*sminputs.mTau, "tau");
-      
+
       SLHAea_add_block(slha, "YD");
       SLHAea_add(slha, "YD", 1, 1, sqrt2v*sminputs.mD, "d");
       SLHAea_add(slha, "YD", 1, 2, 0., "");
@@ -113,7 +113,7 @@ namespace Gambit
       SLHAea_add(slha, "YD", 3, 1, 0., "");
       SLHAea_add(slha, "YD", 3, 2, 0., "");
       SLHAea_add(slha, "YD", 3, 3, sqrt2v*sminputs.mBmB, "b");
-      
+
       // Block SMINPUTS
       SLHAea_add_block(slha, "SMINPUTS");
       SLHAea_add(slha, "SMINPUTS", 1, sminputs.alphainv, "# alpha_em^-1(MZ)^MSbar");
@@ -132,41 +132,41 @@ namespace Gambit
       SLHAea_add(slha, "SMINPUTS", 22, sminputs.mU, "# m_u(2 GeV), MSbar");
       SLHAea_add(slha, "SMINPUTS", 23, sminputs.mS, "# m_s(2 GeV), MSbar");
       SLHAea_add(slha, "SMINPUTS", 24, sminputs.mCmC, "# m_c(m_c), MSbar");
-      
+
       // And the W for good measure
       SLHAea_add(slha, "MASS", 24, sminputs.mW);
-      
+
       // Retrieve any mass cuts
       static const Spectrum::mc_info mass_cut = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
       static const Spectrum::mr_info mass_ratio_cut = myPipe::runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
-      
+
       // Construct the Spectrum object from the SLHAea inputs
       result = spectrum_from_SLHAea<Gambit::Models::DMsimpVectorMedVectorDMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
     }
-    
-    
+
+
     // Declaration: print spectrum out
     void fill_map_from_DMsimpVectorMedVectorDM_spectrum(std::map<std::string,double>&, const Spectrum&);
-    
+
     void get_DMsimpVectorMedVectorDM_spectrum_as_map(std::map<std::string,double>& specmap)
     {
       namespace myPipe = Pipes::get_DMsimpVectorMedVectorDM_spectrum_as_map;
       const Spectrum& spec(*myPipe::Dep::DMsimpVectorMedVectorDM_spectrum);
       fill_map_from_DMsimpVectorMedVectorDM_spectrum(specmap, spec);
     }
-    
+
     void fill_map_from_DMsimpVectorMedVectorDM_spectrum(std::map<std::string, double>& specmap, const Spectrum& spec)
     {
       /// Use SpectrumContents routines to automate
       static const SpectrumContents::DMsimpVectorMedVectorDM contents;
       static const std::vector<SpectrumParameter> required_parameters = contents.all_parameters();
-      
+
       for(std::vector<SpectrumParameter>::const_iterator it = required_parameters.begin(); it != required_parameters.end(); ++it)
       {
         const Par::Tags        tag   = it->tag();
         const std::string      name  = it->name();
         const std::vector<int> shape = it->shape();
-        
+
         // Scalar case
         if(shape.size()==1 and shape[0]==1)
         {

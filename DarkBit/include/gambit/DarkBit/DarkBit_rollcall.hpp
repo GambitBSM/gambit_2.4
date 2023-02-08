@@ -1294,21 +1294,21 @@ START_MODULE
       DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
       ALLOW_MODEL(MajoranaSingletDM_Z2)
       #undef FUNCTION
-      
+
       #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedScalarDM
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
       ALLOW_MODEL(DMsimpVectorMedScalarDM)
       #undef FUNCTION
-      
+
       #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedMajoranaDM
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
       ALLOW_MODEL(DMsimpVectorMedMajoranaDM)
       #undef FUNCTION
-      
+
       #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedDiracDM
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)

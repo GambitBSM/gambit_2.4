@@ -26,18 +26,18 @@ namespace Gambit
     /// Simple DMsimpVectorMedVectorDM model object.
     class DMsimpVectorMedVectorDMModel : public SLHAeaModel
     {
-      
+
       public:
-      
+
       /// Default uncertainty
       double default_uncert = 0.3;
-      
+
         /// @{ Constructors
         DMsimpVectorMedVectorDMModel(const SLHAstruct &input)
          : SLHAeaModel(input)
         {}
         /// @}
-      
+
         /// @{ Getters for DMsimpVectorMedVectorDM information
         double get_gVXv() const { return getdata("DMINT",1); }
         double get_gVq() const { return getdata("DMINT",2); }
@@ -83,9 +83,9 @@ namespace Gambit
           else return default_uncert;
         }
       /// @}}
-    
+
   };
-  
+
   /// Forward declare the wrapper class so that we can use it
   /// as the template parameter for the SpecTraits specialisation.
   class DMsimpVectorMedVectorDMSimpleSpec;
@@ -104,51 +104,51 @@ namespace Models
 {
   class DMsimpVectorMedVectorDMSimpleSpec : public SLHASimpleSpec<DMsimpVectorMedVectorDMSimpleSpec>
   {
-    
+
     public:
       /// @{
       /// Constructor via SLHAea object
       DMsimpVectorMedVectorDMSimpleSpec(const SLHAea::Coll& input)
        : SLHASimpleSpec(input)
       {}
-      
+
       /// Copy constructor
       DMsimpVectorMedVectorDMSimpleSpec(const DMsimpVectorMedVectorDMSimpleSpec& other)
        : SLHASimpleSpec(other)
       {}
-      
+
       /// Destructor
       virtual ~DMsimpVectorMedVectorDMSimpleSpec() {};
-      
+
       static int index_offset() {return 0;}
-      
+
       /// Construct the SubSpectrumContents
       const SpectrumContents::DMsimpVectorMedVectorDM contents;
-      
+
       /// Add SLHAea object using the SimpleSpec_to_SLHAea routine
       void add_to_SLHAea(int /*slha_version*/, SLHAea::Coll& slha) const
       {
         // Add SPINFO data if not already present
         SLHAea_add_GAMBIT_SPINFO(slha);
-        
+
         // All blocks given in the SimpleSpec
-        
+
         add_SimpleSpec_to_SLHAea(*this, slha, contents);
       }
-      
+
       /// Wrapper functions to parameter object.
-      
+
       /// Map fillers
       static GetterMaps fill_getter_maps()
       {
         GetterMaps getters;
-        
+
         typedef typename MTget::FInfo2 FInfo2;
         static const int i123v[] = {1,2,3};
         static const std::set<int> i123(i123v, Utils::endA(i123v));
-        
+
         using namespace Par;
-        
+
         getters[dimensionless].map0["gVXv"] =  &Model::get_gVXv;
         getters[dimensionless].map0["gVq"] =  &Model::get_gVq;
         getters[mass1].map0["vev"] =  &Model::get_vev;
@@ -168,10 +168,10 @@ namespace Models
         getters[Pole_Mass].map0["Y1"] =  &Model::get_Y1PoleMass;
         getters[Pole_Mass_1srd_low].map0["Y1"] =  &Model::get_Y1PoleMass_1srd_low;
         getters[Pole_Mass_1srd_high].map0["Y1"] =  &Model::get_Y1PoleMass_1srd_high;
-        
+
         return getters;
       }
-      
+
     };
   }
 } // namespace Gambit

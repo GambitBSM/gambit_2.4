@@ -718,7 +718,7 @@ START_MODULE
     BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
     ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
     #undef FUNCTION
-    
+
     #define FUNCTION CH_DMsimpVectorMedScalarDM_Y1_decays
     START_FUNCTION(DecayTable::Entry)
     BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))

@@ -29,7 +29,7 @@
     MODEL_GROUP(DMsimpVectorMedVectorDM_group, (DMsimpVectorMedVectorDM))
     ALLOW_MODEL_COMBINATION(higgs, DMsimpVectorMedVectorDM_group)
     #undef FUNCTION
-    
+
     // Map for Spectrum, for printing.
     #define FUNCTION get_DMsimpVectorMedVectorDM_spectrum_as_map
     START_FUNCTION(map_str_dbl)
