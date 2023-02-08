@@ -3157,7 +3157,8 @@ namespace Gambit
 
       }
 
-      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+      // Check the width. Invalidate if a suspiciously large decay width, since these are expected in this model
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"),true);
     }
 
     //////////// Everything ///////////////////

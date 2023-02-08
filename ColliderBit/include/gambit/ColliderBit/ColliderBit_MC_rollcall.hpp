@@ -323,7 +323,6 @@
     #define FUNCTION DMsimpVectorMedVectorDM_results
     START_FUNCTION(AnalysisDataPointers)
     DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
-    DEPENDENCY(Unitarity_Bound_DMsimpVectorMedVectorDM, double)
     ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY

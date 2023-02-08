@@ -425,9 +425,9 @@ endif()
 # This is the MonoJet and DiJet data associated with the simplified dark matter models.
 set(name "DMsimp_data")
 set(ver "1.0")
-set(dl "https://zenodo.org/record/7614468/files/DMsimp.zip")
+set(dl "https://zenodo.org/record/7619478/files/DMsimp.zip")
 set(dir "${PROJECT_SOURCE_DIR}/ColliderBit/data/DMsimp_data/")
-set(md5 "3defceaa72a358be511781dba1d5bf3b")
+set(md5 "a20fb95888e005b6665ca3bac811c426")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}

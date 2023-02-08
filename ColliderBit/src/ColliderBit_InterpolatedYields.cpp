@@ -1290,7 +1290,7 @@ namespace Gambit
 
       current_analysis_name = "CMS_13TeV_MONOJET_36invfb_interpolated";
 
-      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() || Analysis_data_path[current_analysis_name] == "Skip Analysis")
+      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() && Analysis_data_path[current_analysis_name] != "Skip Analysis")
       {
         if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
         {
@@ -1310,7 +1310,7 @@ namespace Gambit
       // Analysis name
       current_analysis_name = "ATLAS_13TeV_MONOJET_139invfb_interpolated";
 
-      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() || Analysis_data_path[current_analysis_name] == "Skip Analysis")
+      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() && Analysis_data_path[current_analysis_name] != "Skip Analysis")
       {
         if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
         {
@@ -1329,7 +1329,7 @@ namespace Gambit
 
       current_analysis_name = "CMS_13TeV_MONOJET_137invfb_interpolated";
 
-      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() || Analysis_data_path[current_analysis_name] == "Skip Analysis")
+      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() && Analysis_data_path[current_analysis_name] != "Skip Analysis")
       {
         if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
         {
@@ -1728,7 +1728,7 @@ namespace Gambit
       std::vector<double> signal(analysis_info.n_signal_regions, 0.);
 
       // Get the parameters we need from the theory spectrum
-      double mDM = spec.get(Par::Pole_Mass, "Xv");
+      double mDM = spec.get(Par::Pole_Mass, "~Xv");
       double mMed = spec.get(Par::Pole_Mass, "Y1");
       double gq = spec.get(Par::dimensionless, "gVq");
       double gVchi = spec.get(Par::dimensionless, "gVXv");
