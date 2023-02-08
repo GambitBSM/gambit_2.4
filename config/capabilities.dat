@@ -6240,3 +6240,7 @@ MicrOmegas_DMsimpVectorMedVectorDM_3_6_9_2_init: |
 DMsimpVectorMedVectorDM_spectrum: |
     Create spectrum object for DMsimpVectorMedVectorDM model.
 
+DecayWidthPerturbativity_DMsimpVectorMedVectorDM: |
+    Invalidate points where the mediator width to mass ratio is above 1. Return zero otherwise.
+
+
