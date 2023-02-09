@@ -3628,6 +3628,60 @@ namespace Gambit
       /**
          @brief Log-likelihood for Higgs invisible branching ratio
 
+         We use log-likelihoods extracted from e.g.,
+         <a href="http://cms-results.web.cern.ch/cms-results/public-results/
+         preliminary-results/HIG-17-023/CMS-PAS-HIG-17-023_Figure_007-b.png">
+         CMS-PAS-HIG-17-023</a>
+
+         There are scripts
+         @code
+         python ./DecayBit/data/convolve_with_theory.py <file> <frac_error> <min> <max>
+         @endcode
+         for convolving a data file with a fractional theory error, and
+         @code
+         python ./DecayBit/data/profile_theory.py <file> <frac_error> <min> <max>
+         @endcode
+         for profiling a fractional theory error.
+
+         There are a few data files, e.g.,
+         @code
+         ./DecayBit/data/arXiv_1306.2941_Figure_8.dat
+         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b.dat
+         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b_10_convolved.dat
+         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b_10_profiled.dat
+         @endcode
+         The first one is the default. The third and fourth ones include a 10%
+         theory uncertainty in the branching fraction by convolving it and
+         profiling it, respectively. The data file is specified in
+         the YAML by the `BR_h_inv_chi2_data_file` option. The path is
+         relative to the GAMBIT directory, `GAMBIT_DIR`.
+
+         @warning This typically assumes that the Higgs is otherwise SM-like,
+         i.e., no changes to production cross sections or any other decays.
+
+         @param lnL Log-likelihood for Higgs invisible branching ratio
+      */
+      using namespace Pipes::lnL_Higgs_invWidth_SMlike;
+
+      const double BF = *Dep::inv_Higgs_BF;
+
+      if (BF < 0.)
+      {
+        DecayBit_error().raise(LOCAL_INFO, "negative BF");
+      }
+
+      const std::string default_name = "./DecayBit/data/arXiv_1306.2941_Figure_8.dat";
+      const std::string name = runOptions->getValueOrDef<std::string>
+        (default_name, "BR_h_inv_chi2_data_file");
+      static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/" + name);
+      lnL = -0.5 * chi2->bind("BR")->eval(BF);
+    }
+
+    void lnL_Higgs_invWidth_SMlike_2022(double& lnL)
+    {
+      /**
+         @brief Log-likelihood for Higgs invisible branching ratio
+
          For CMS we use the log likelihood from figure 12 of arXiv:2201.11585, which can be perfectly fitted by a parabola.
          For ATLAS we assume that the log likelihood is given by a parabola and extract the fit parameters from the two values stated in the paper:
          BR < 0.145 at 95% CL and BR < 0.127 at 90% CL.
@@ -3652,13 +3706,8 @@ namespace Gambit
       double chi2_ATLAS = 303*pow(BF - 0.032,2.);
       lnL = -0.5 * (chi2_CMS + chi2_ATLAS);
 
-      //const std::string default_name = "./DecayBit/data/arXiv_1306.2941_Figure_8.dat";
-      //const std::string name = runOptions->getValueOrDef<std::string>
-      //  (default_name, "BR_h_inv_chi2_data_file");
-      //static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/" + name);
-      //lnL = -0.5 * chi2->bind("BR")->eval(BF);
     }
-
+    
     void lnL_Z_inv(double& lnL)
     {
       /**
