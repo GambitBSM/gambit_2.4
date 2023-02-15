@@ -616,8 +616,6 @@ int main(int argc, char* argv[])
     //
     // ======= Perform all calculations for backend DarkSUSY_MSSM 6.1.1 =======
     //
-    // DarkSUSY version < 6.4.0 disabled because Higgsbounds & Higgssignals do not
-    // compile with gcc>10...
 
     current_backend = "DarkSUSY_MSSM6.1.1";
 

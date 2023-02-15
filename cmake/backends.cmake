@@ -228,6 +228,10 @@ endif()
 # DarkSUSY
 set(name "darksusy")
 set(ver "5.1.3")
+# Ditch DarkSUSY 5 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "5.1.3" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_5.1.3")
+endif()
 set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tar.gz")
 set(md5 "ca95ffa083941a469469710fab2f3c97")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -253,6 +257,12 @@ endif()
 # DarkSUSY base (for all models)
 set(name "darksusy")
 set(ver "6.1.1")
+# Ditch DarkSUSY 6.1.1 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.1.1" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_6.1.1")
+  set(itch "${itch}" "darksusy_MSSM_6.1.1")
+  set(itch "${itch}" "darksusy_generic_wimp_6.1.1")
+endif()
 set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
 set(md5 "448f72e9bfafbb086bf4526a2094a189")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -272,11 +282,6 @@ if(NOT ditched_.${name}_${ver}_base)
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
-endif()
-
-# Ditch DarkSUSY_MSSM < 6.4.0 if using gfortran 10 or later, as it won't compile due to FeynHiggs
-if("${ver}" STREQUAL "6.1.1" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
-  set(itch "${itch}" "darksusy_MSSM_6.1.1")
 endif()
 
 # DarkSUSY MSSM module
@@ -314,6 +319,12 @@ endif()
 # DarkSUSY base (for all models)
 set(name "darksusy")
 set(ver "6.2.2")
+# Ditch DarkSUSY 6.2.2 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.2.2" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_6.2.2")
+  set(itch "${itch}" "darksusy_MSSM_6.2.2")
+  set(itch "${itch}" "darksusy_generic_wimp_6.2.2")
+endif()
 set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
 set(md5 "e23feb7363aebc5460aa8ae2c6906ce1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -334,11 +345,6 @@ if(NOT ditched_.${name}_${ver}_base)
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
-endif()
-
-# Ditch DarkSUSY_MSSM < 6.4.0 if using gfortran 10 or later, as it won't compile due to FeynHiggs
-if("${ver}" STREQUAL "6.2.2" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
-  set(itch "${itch}" "darksusy_MSSM_6.2.2")
 endif()
 
 # DarkSUSY MSSM module
@@ -395,7 +401,7 @@ if(NOT ditched_.${name}_${ver}_base)
   add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
-# Ditch DarkSUSY_MSSM < 6.4.0 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+# Ditch DarkSUSY_MSSM_6.2.5 if using gfortran 10 or later, as it won't compile due to FeynHiggs
 if("${ver}" STREQUAL "6.2.5" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
   set(itch "${itch}" "darksusy_MSSM_6.2.5")
 endif()
