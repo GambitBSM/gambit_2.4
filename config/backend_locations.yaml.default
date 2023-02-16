@@ -125,7 +125,7 @@ SimplePythonBackend:
   1.0:         ./Backends/installed/SimplePythonBackend/1.0/SimplePythonBackend.py
 
 pbarlike:
-  1.0:         ./Backends/installed/pbarlike/1.0/pbarlike.py
+  1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py
   
 # Work in progress:
 # Rivet:

@@ -17,19 +17,18 @@
     {
         std::string static DM_ID ;
         std::string static DMbar_ID ;
-        pybind11::object static DRN;
-        map_str_dbl static pbar_logLikelihoods;
+        pybind11::list static obj_list;
 
-        pybind11::object c_pbarlike_initialization(const std::string& prevent_extrapolation,const std::string& propagation_model,mat_dbl& propagation_parameters)
+        pybind11::list c_pbarlike_initialization(const std::string& prevent_extrapolation,const std::string& propagation_model,mat_dbl& propagation_parameters)
         {
-            pybind11::object DRN = pbarlike.attr("DRN_initialization")(propagation_parameters,propagation_model,prevent_extrapolation);
-            return DRN;
+            obj_list = pbarlike.attr("DRN_initialization")(propagation_parameters,propagation_model,prevent_extrapolation);
+            return obj_list;
         }
                 
         map_str_dbl c_pbar_logLikes(double& DM_mass, map_str_dbl& channel_dict, double& sv)
         {   
             pybind11::dict inputs = pybind11::cast(channel_dict);
-            pybind11::dict del_chi2 = pbarlike.attr("py_pbar_logLikes")(DRN,DM_mass,inputs,sv);
+            pybind11::dict del_chi2 = pbarlike.attr("py_pbar_logLikes")(obj_list,DM_mass,inputs,sv);
             map_str_dbl c_del_chi2 = del_chi2.cast<map_str_dbl>();
             return c_del_chi2;
         }
@@ -47,7 +46,7 @@ BE_INI_FUNCTION
             const std::string prevent_extrapolation = runOptions->getValue<std::string>("PreventExtrapolation");
             const std::string propagation_model = runOptions->getValue<std::string>("PropagationModel");
             mat_dbl propagation_parameters = runOptions->getValue<mat_dbl>("PropagationParameters");
-            DRN = c_pbarlike_initialization(prevent_extrapolation,propagation_model,propagation_parameters);
+            obj_list = c_pbarlike_initialization(prevent_extrapolation,propagation_model,propagation_parameters);
         }
         scan_level = false;
     #endif

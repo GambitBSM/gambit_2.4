@@ -7,7 +7,7 @@
 LOAD_LIBRARY
 
 #ifdef HAVE_PYBIND11
-    BE_CONV_FUNCTION(c_pbarlike_initialization,pybind11::object,(const std::string& ,const std::string& ,mat_dbl& ), "pbarlike_initialization")
+    BE_CONV_FUNCTION(c_pbarlike_initialization,pybind11::list,(const std::string& ,const std::string& ,mat_dbl& ), "pbarlike_initialization")
     BE_CONV_FUNCTION(c_pbar_logLikes,map_str_dbl,(double&,  map_str_dbl&, double& ), "drn_pbar_logLikes")
 #endif
 
