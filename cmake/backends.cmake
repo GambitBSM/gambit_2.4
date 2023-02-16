@@ -260,15 +260,13 @@ set(ver "6.1.1")
 # Ditch DarkSUSY 6.1.1 if using gfortran 10 or later, as it won't compile due to FeynHiggs
 if("${ver}" STREQUAL "6.1.1" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
   set(itch "${itch}" "darksusy_6.1.1")
-  set(itch "${itch}" "darksusy_MSSM_6.1.1")
-  set(itch "${itch}" "darksusy_generic_wimp_6.1.1")
 endif()
 set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
 set(md5 "448f72e9bfafbb086bf4526a2094a189")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -287,7 +285,7 @@ endif()
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -303,7 +301,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -322,15 +320,13 @@ set(ver "6.2.2")
 # Ditch DarkSUSY 6.2.2 if using gfortran 10 or later, as it won't compile due to FeynHiggs
 if("${ver}" STREQUAL "6.2.2" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
   set(itch "${itch}" "darksusy_6.2.2")
-  set(itch "${itch}" "darksusy_MSSM_6.2.2")
-  set(itch "${itch}" "darksusy_generic_wimp_6.2.2")
 endif()
 set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
 set(md5 "e23feb7363aebc5460aa8ae2c6906ce1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -350,7 +346,7 @@ endif()
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -366,7 +362,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -388,7 +384,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -409,7 +405,7 @@ endif()
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -425,7 +421,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -447,7 +443,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -464,7 +460,7 @@ endif()
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -481,7 +477,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
