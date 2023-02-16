@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Fronted header for the DarkSUSY backend
+///  Frontend header for the DarkSUSY backend
 ///
 ///  Compile-time registration of available
 ///  functions and variables from this backend.
@@ -13,18 +13,14 @@
 ///
 ///  \author Torsten Bringmann
 ///          (torsten.bringmann@fys.uio.no)
-///  \date 2020 February, 2023
-///
-///  \author Pat Scott
-///          (pat.scott@uq.edu.au)
-///  \date 2020 September
+///  \date 2022 January, 2023
 ///
 ///  *********************************************
 
 #define BACKENDNAME DarkSUSY_generic_wimp
 #define BACKENDLANG FORTRAN
-#define VERSION 6.2.2
-#define SAFE_VERSION 6_2_2
+#define VERSION 6.4.0
+#define SAFE_VERSION 6_4_0
 #define REFERENCE Gondolo:2004sc,Bringmann:2018lay
 
 // Load the library
@@ -34,7 +30,7 @@ LOAD_LIBRARY
 #include "gambit/Backends/frontends/shared_includes/DarkSUSY_6.hpp"
 
 // Common blocks in the DarkSUSY core library that are not identical for all DS6 versions
-BE_VARIABLE(rdpars, DS_RDPARS_OLD,     "rdpars_",    "rdpars")    // gRD Parameters
+BE_VARIABLE(rdpars, DS_RDPARS,     "rdpars_",    "rdpars")    // gRD Parameters
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
