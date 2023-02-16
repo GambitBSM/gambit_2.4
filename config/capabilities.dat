@@ -2366,6 +2366,15 @@ IC79_loglike: |
 IceCube_likelihood: |
    The complete IceCube log-likelihood, including 22-string and 79-string data.
 
+pbar_logLikes:
+   AMS-02 7-year antiproton likelihoods for both correlated and uncorrelated errors.
+
+pbar_logLike_uncorr:
+   AMS-02 7-year antiproton likelihoods for uncorrelated errors.
+
+pbar_logLike_corr:
+   AMS-02 7-year antiproton likelihoods for correlated errors.
+
 DarkSUSY_PointInit: |
    Initialises DarkSUSY (up to version 5) for a specific model point.
 
@@ -4624,6 +4633,16 @@ set_data_path: |
 
 set_halo_profile: |
    Set the halo profile in gamLike.
+
+#----------------------------
+# pbarlike capabilites
+#----------------------------
+
+pbarlike_initialization:
+   Initialiases pbarlike and calculates scan-level observables and likelihoods.
+
+drn_pbar_logLikes:
+   AMS-02 7-year log-likelihood ratios using correlated and uncorrelated errors.
 
 #----------------------------
 #  gm2calc capabilities

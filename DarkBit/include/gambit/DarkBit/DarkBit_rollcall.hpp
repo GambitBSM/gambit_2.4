@@ -107,27 +107,6 @@
 #define REFERENCE GAMBITDarkMatterWorkgroup:2017fax
 START_MODULE
 
- // Doubles the given quantity
-  #define CAPABILITY doublingMass
-  START_CAPABILITY
-    #define FUNCTION doublingMass
-    START_FUNCTION(double)
-    BACKEND_REQ(python_add,(),double,(double&, double&))
-    #undef FUNCTION
-  #undef CAPABILITY
-
- // Prints stuff
-  #define CAPABILITY printProcessCatalog
-  START_CAPABILITY
-    #define FUNCTION printProcessCatalog
-    START_FUNCTION(double)
-    DEPENDENCY(WIMP_properties, WIMPprops)
-    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
-    BACKEND_REQ(python_print_string,(),void,(std::string&, double&))
-    BACKEND_REQ(python_print_double,(),void,(double&, double&))
-    #undef FUNCTION
-  #undef CAPABILITY
-
   // DarkSUSY-specific initialisation functions ========================
 
   /// Make sure LocalHalo model is initialized in DarkSUSY5
