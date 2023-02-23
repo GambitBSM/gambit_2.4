@@ -1,5 +1,5 @@
 ##########################################################################
-## GAMBIT configuration for running a scan of the NUHM2 using Diver.
+## GAMBIT configuration for running a scan of the MSSM7 using Diver.
 ##
 ## Includes likelihoods for LHC and LEP particle searches, LHC and LEP Higgs
 ## searches (and LHC signal strengths), flavour physics, indirect and
@@ -10,7 +10,7 @@
 ##########################################################################
 
 # NB: This example yaml file uses flexiblesusy, so make sure you have
-# built gambit with -DBUILD_FS_MODELS="MSSMatMGUT"
+# built gambit with -DBUILD_FS_MODELS="MSSM"
 
 
 Parameters:
@@ -32,27 +32,32 @@ Parameters:
       fixed_value: -0.085
 
   # SUSY parameters.
-  NUHM2:
-    M0:
-      range: [50, 1e4]
-      prior_type: log
-    M12:
-      range: [50, 1e4]
-      prior_type: log
-    mHu:
-      range: [50, 1e4]
-      prior_type: log
-    mHd:
-      range: [50, 1e4]
-      prior_type: log
-    A0:
-      range: [-1e4, 1e4]
-      flat_start: -1e2
-      flat_end: 1e2
+  MSSM7atQ:
+    Qin:
+      fixed_value: 1000.0
+    SignMu:
+      fixed_value: 1
+    Ad_3:
       prior_type: double_log_flat_join
+      ranges: [-1e4, -1e2, 1e2, 1e4]
+    Au_3:
+      prior_type: double_log_flat_join
+      ranges: [-1e4, -1e2, 1e2, 1e4]
+    M2:
+      prior_type: double_log_flat_join
+      ranges: [-1e4, -1e2, 1e2, 1e4]
     TanBeta:
-      range: [3.0, 70]
-    SignMu: 1
+      range: [3.0, 70.0]
+      prior_type: flat
+    mHd2:
+      prior_type: double_log_flat_join
+      ranges: [-1e8, -1e4, 1e4, 1e8]
+    mHu2:
+      prior_type: double_log_flat_join
+      ranges: [-1e8, -1e4, 1e4, 1e8]
+    mf2:
+      prior_type: double_log_flat_join
+      ranges: [0, 0, 1e4, 1e8]
 
   # Dark matter halo parameters.
   Halo_gNFW_rho0:
@@ -77,8 +82,8 @@ Printer:
 
   printer: hdf5
   options:
-    output_file: "NUHM2.hdf5"
-    group: "/NUHM2"
+    output_file: "MSSM7.hdf5"
+    group: "/MSSM7"
 
 
 Scanner:
@@ -463,7 +468,7 @@ Rules:
   # Choose to get the spectrum from SpecBit proper, not an SLHA file.
   # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
   - capability: unimproved_MSSM_spectrum
-    function: get_MSSMatMGUT_spectrum_FS
+    function: get_MSSMatQ_spectrum_FS
     options:
       precision_goal:        1.0e-4
       max_iterations:        0
@@ -595,7 +600,10 @@ Rules:
       ms_central: 95.E-03
       ms_error: 5.E-03
 
-  # Pass an SLHA2 spectrum to Pythia
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+
   - capability: SpectrumAndDecaysForPythia
     function: getSpectrumAndDecaysForPythia
     options:
@@ -610,14 +618,9 @@ Rules:
   - capability: EventWeighterFunction
     function: setEventWeight_unity
 
-  # Choose where to get scattering events from
+  # Choose to generate events with Pythia on the fly (rather than reading them in)
   - capability: HardScatteringEvent
-    type: Pythia_default::Pythia8::Event
     function: generateEventPythia
-
-  - capability: HardScatteringEvent
-    type: HEPUtils::Event
-    function: generateEventPythia_HEPUtils
 
   # Choose Monte Carlo event simulator and options.
   - capability: HardScatteringSim
@@ -678,7 +681,6 @@ Rules:
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
-    function: calc_LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
@@ -704,6 +706,7 @@ Rules:
       # skip_analyses:
 
 
+
 Logger:
 
   redirection:
@@ -727,6 +730,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/NUHM2/"
+  default_output_path: "runs/MSSM7/"
 
   debug: true
