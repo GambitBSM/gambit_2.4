@@ -462,18 +462,15 @@ endif()
 # HepLike
 set(name "heplike")
 set(ver "2.0")
-set(git_repo "https://github.com/KrakowHEPSoft/HEPLike.git")
-#set(dl "https://github.com/KrakowHEPSoft/HEPLike/archive/V${ver}.zip")
+set(dl "https://github.com/tegonzalo/HEPLike/archive/v${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-#set(md5 "0854396f48f2257ad185064107d6f72f")
+set(md5 "ae45633cd76f97962cc1f5efed9b4401")
 set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS heplikedata
-    #DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    GIT_REPOSITORY ${git_repo}
-    GIT_TAG rootless
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
