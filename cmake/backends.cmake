@@ -496,7 +496,7 @@ set(ver "1.2")
 set(dl "https://github.com/KrakowHEPSoft/HEPLike/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "0854396f48f2257ad185064107d6f72f")
-set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
+set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR} -undefined dynamic_lookup -flat_namespace ${NO_FIXUP_CHAINS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -504,9 +504,12 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
+    UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
+    # BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
+
     INSTALL_COMMAND ""
     )
   BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG} -I${ROOT_INCLUDE_DIRS}")
