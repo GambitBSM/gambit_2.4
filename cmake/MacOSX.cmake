@@ -35,9 +35,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
   # Strip leading whitespace in case this was first definition of CMAKE_SHARED_LINKER_FLAGS
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
-  # The ${NO_FIXUP_CHAINS} -Xlinker -no_fixup_chains had to be added Feb 2023 due to MacOS clang changes that leads to linking problems
-  # See discussion in CPython forums and bug report to apple https://github.com/python/cpython/issues/97524
-  set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
   # Pass on the sysroot and minimum OSX version (for backend builds; this gets added automatically by cmake for others)
   if(CMAKE_OSX_DEPLOYMENT_TARGET)
     set(OSX_MIN "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
@@ -49,3 +46,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} -L${CMAKE_OSX_SYSROOT}/usr/lib ${OSX_MIN}")
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
 endif()
+
+# Settings specific to using the clang compiler on MacOS
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  # The ${NO_FIXUP_CHAINS} -Xlinker -no_fixup_chains had to be added Feb 2023 due to MacOS clang changes that leads to linking problems
+  # See discussion in CPython forums and bug report to apple:
+  # https://github.com/python/cpython/issues/97524
+  set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
+endif()
+
