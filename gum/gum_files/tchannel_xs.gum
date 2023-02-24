@@ -1,5 +1,5 @@
-# Input GUM file for the MDMSM (Majorana DM, scalar mediator)
-# model in GUM
+# Input GUM file for the t-channel simplified
+# model with a scalar DM in GUM
 
 math:
     package: feynrules
