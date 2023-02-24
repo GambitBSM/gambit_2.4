@@ -16,6 +16,10 @@
 ///          (t.procter.1@research.gla.ac.uk)
 /// \date 2021 June
 ///
+/// \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+/// \date 2023 Feb
+///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
@@ -28,65 +32,47 @@
   BE_NAMESPACE
   {
 
-    // Helper function for constructing a dictionary with Contur arguments. 
+    // Helper function for setting some default arguments for Contur.
     // Used by the functions Contur_LogLike_from_stream and Contur_LogLike_from_file below.
-    pybind11::dict Contur_construct_args_dict(pybind11::object yoda_string_IO, std::vector<std::string> &contur_yaml_args)
+    void Contur_add_GAMBIT_default_args(pybind11::dict& args_dict)
     {
-      //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
-      pybind11::dict args_dict = 
-        ((Contur.attr("arg_utils").attr("get_argparser")(pybind11::cast("analysis"))).attr(
-          "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
-
-      args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
       args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")] = pybind11::list();
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_tags");
-
-      return args_dict;
     }
 
 
-    Contur_output Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string> &contur_yaml_args)
+    Contur_output Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string>& contur_yaml_args)
     {
       //Convert C++ ostringstream to python StringIO
       pybind11::str InputString = pybind11::cast(yodastream->str());
       pybind11::object yoda_string_IO = Contur.attr("StringIO")(InputString);
       yoda_string_IO.attr("seek")(pybind11::int_(pybind11::cast(0)));
 
-      // Construct dictionary with Contur settings
-      pybind11::dict args_dict = Contur_construct_args_dict(yoda_string_IO, contur_yaml_args);
+      // Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
+      pybind11::dict args_dict = 
+        ((Contur.attr("arg_utils").attr("get_argparser")(pybind11::cast("analysis"))).attr(
+          "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
+      args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
 
-      //   ((Contur.attr("arg_utils").attr("get_argparser")(pybind11::cast("analysis"))).attr(
-      //     "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
-      // args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
-      // args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")] = pybind11::list();
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_tags");
+      Contur_add_GAMBIT_default_args(args_dict);
 
       //Return the contur output.
       return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
     }
 
 
-    Contur_output Contur_LogLike_from_file(str &YODA_filename, std::vector<std::string>& contur_yaml_args)
+    Contur_output Contur_LogLike_from_file(str& YODA_filename, std::vector<std::string>& contur_yaml_args)
     {
-      // Construct dictionary with Contur settings
-      pybind11::dict args_dict = Contur_construct_args_dict(yoda_string_IO, contur_yaml_args);
+      // Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
+      pybind11::dict args_dict = 
+        ((Contur.attr("arg_utils").attr("get_argparser")(pybind11::cast("analysis"))).attr(
+          "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
+      args_dict[pybind11::cast("YODASTREAM")] = YODA_filename;
 
-      // //Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
-      // pybind11::dict args_dict = 
-      //   ((Contur.attr("arg_utils").attr("get_argparser")(pybind11::cast("analysis"))).attr(
-      //     "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
-      // args_dict[pybind11::cast("YODASTREAM")] = YODA_filename;
-      // args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")] = pybind11::list();
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
-      // args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_tags");
+      Contur_add_GAMBIT_default_args(args_dict);
 
       //Run contur, get a LLR and return it
       return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
@@ -95,7 +81,7 @@
 
     //Appends all analyses at given beamString (e.g. 13TeV) that contur knows about to the lit of analyses
     //to study.
-    void Contur_get_analyses_from_beam(std::vector<std::string> &analyses, std::string &beamString)
+    void Contur_get_analyses_from_beam(std::vector<std::string>& analyses, std::string& beamString)
     {
       std::vector<std::string> obtained_analyses;
       # pragma omp critical
