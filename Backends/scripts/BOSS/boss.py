@@ -229,7 +229,7 @@ def main():
     if not cfg.header_files_to.startswith('/'): cfg.header_files_to = gb.boss_dir + '/' + cfg.header_files_to
     if not cfg.src_files_to.startswith('/'): cfg.src_files_to = gb.boss_dir + '/' + cfg.src_files_to
 
-    # If castxml compiler setting are also given as command line input, append or override the values set in cfg.
+    # If castxml compiler settings are also given as command line input, append or override the values set in cfg.
     # - Override castxml_cc_id option:
     if options.castxml_cc_id != '':
         cfg.castxml_cc_id = " " + options.castxml_cc_id
@@ -254,9 +254,6 @@ def main():
     cfg.input_files = list(filter(None, cfg.input_files))
     cfg.include_paths = list(filter(None, cfg.include_paths))
     cfg.base_paths = list(filter(None, cfg.base_paths))
-
-    # Create a version of the load_functions list with no spaces, for safer comparisons
-    cfg.load_functions_no_spaces = [func_name.replace(" ", "") for func_name in cfg.load_functions]
 
 
     #

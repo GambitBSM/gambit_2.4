@@ -24,13 +24,17 @@
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
 #ifndef EXCLUDE_HEPMC
+  #include "gambit/Utils/begin_ignore_warnings_hepmc.hpp"
   #include "HepMC3/ReaderAscii.h"
   #include "HepMC3/ReaderAsciiHepMC2.h"
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 #ifndef EXCLUDE_YODA
+  #include "gambit/Utils/begin_ignore_warnings_yoda.hpp"
   #include "YODA/AnalysisObject.h"
   #include "YODA/IO.h"
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 namespace Gambit
@@ -42,7 +46,8 @@ namespace Gambit
     //Small convenience function for supplying options to the contur argparser.
     void convert_yaml_options_for_contur(std::vector<std::string> &yaml_options)
     {
-      for (size_t i{0}; i <yaml_options.size(); ++i){
+      for (size_t i{0}; i <yaml_options.size(); ++i)
+      {
         yaml_options[i] = ("--"+yaml_options[i]);
       }
     }
@@ -63,7 +68,8 @@ namespace Gambit
 
           if (*Loop::iteration == COLLIDER_INIT)
           {
-            if (ah != nullptr) {
+            if (ah != nullptr)
+            {
               ah->~AnalysisHandler();
               ah = nullptr;
             }
@@ -75,13 +81,15 @@ namespace Gambit
             bool runningStandalone = runOptions->getValueOrDef<bool>(false, "runningStandalone");
             std::vector<std::string> analyses, excluded_analyses;
 
-            if (!runningStandalone){
+            if (!runningStandalone)
+            {
               YAML::Node colNode = runOptions->getValue<YAML::Node>(Dep::RunMC->current_collider());
               Options colOptions(colNode);
               analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
               excluded_analyses = colOptions.getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
             }
-            else {
+            else
+            {
               analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "analyses");
               excluded_analyses = runOptions->getValueOrDef<std::vector<str> >(std::vector<str>(), "exclude_analyses");
             }
@@ -89,16 +97,20 @@ namespace Gambit
             if(not analyses.size())
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet. This means an empty yoda file will be passed to Contur");
             // TODO: Add somewhere a check to make sure we only do LHC analyses
-            else{
-              for (size_t i = 0; i < analyses.size() ; ++i){
+            else
+            {
+              for (size_t i = 0; i < analyses.size() ; ++i)
+              {
                 //If the analysis is a special code referring to multiple analyses,
                 //append these to the end of the vector, so they are dealt with
                 //later in the loop
-                if (analyses[i] == "13TeV" || analyses[i] == "8TeV" || analyses[i] == "7TeV"){
+                if (analyses[i] == "13TeV" || analyses[i] == "8TeV" || analyses[i] == "7TeV")
+                {
                   BEreq::Contur_GetAnalyses(analyses, analyses[i]);
                 }
                 //If its a normal analyis just add it.
-                else {
+                else
+                {
                   ah->addAnalysis(analyses[i]);
                 }
               }
@@ -115,24 +127,30 @@ namespace Gambit
             //TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER.
             // Should we account for this? E.g. By wiping the file in base_init.
             const static bool output_used_analyses = runOptions->getValueOrDef<bool>(false, "drop_used_analyses");
-            if (output_used_analyses){
+            if (output_used_analyses)
+            {
               static bool analysis_file_opened = false;
               static std::map<std::string, bool> analyses_written_to_file_per_collider;
-              if (analyses_written_to_file_per_collider.count(Dep::RunMC->current_collider()) == 0){
+              if (analyses_written_to_file_per_collider.count(Dep::RunMC->current_collider()) == 0)
+              {
                 std::ofstream analyses_output_file;
                 //TODO please feel free to change name/put in more appropriate location.
                 str filename = "/GAMBIT_rivet_analyses.log";
-                if (!analysis_file_opened){
+                if (!analysis_file_opened)
+                {
                   analyses_output_file.open(GAMBIT_DIR+std::string(filename));
                   analysis_file_opened = true;
-                } else {
+                }
+                else
+                {
                   analyses_output_file.open(GAMBIT_DIR+std::string(filename),std::ios_base::app);
                   analyses_output_file << "\n";
                 }
                 analyses_output_file << Dep::RunMC->current_collider() << ":\n";
                 analyses_output_file << "  analyses:";
 
-                for (std::string an_analysis_string : ah->analysisNames()) {
+                for (std::string an_analysis_string : ah->analysisNames())
+                {
                   analyses_output_file << "\n   - " << an_analysis_string;
                 }
                 analyses_output_file.close();
@@ -151,7 +169,8 @@ namespace Gambit
             {
               #ifdef COLLIDERBIT_DEBUG
                 std::cout << "Summary data from rivet:\n\tAnalyses used: ";
-                for (auto analysis : ah->analysisNames()){
+                for (auto analysis : ah->analysisNames())
+                {
                     std::cout << analysis << ", ";
                 }
                 std::cout << "\n\tBeam IDs are " << ah->beamIds().first << ", " << ah->beamIds().second;
@@ -159,7 +178,8 @@ namespace Gambit
                 std::cout << "\n\tRunName: " << ah->runName();
                 std::cout << "\n\tSqrtS: " << ah->sqrtS();
                 std::cout << "\n\tList of available analyses: ";
-                for (auto analysis : ah->stdAnalysisNames()){
+                for (auto analysis : ah->stdAnalysisNames())
+                {
                     std::cout << analysis << ", ";
                 }
                 std::cout << std::flush;
@@ -184,13 +204,14 @@ namespace Gambit
                 str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";
                 #pragma omp critical
                 {
-                  try{ ah->writeData(filename); }
+                  try { ah->writeData(filename); }
                   catch (...)
                   { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
                 }
               }
             }
-            else{
+            else
+            {
               result = nullptr;
             }
 
@@ -204,7 +225,8 @@ namespace Gambit
           // Don't do anything else during special iterations
           if (*Loop::iteration < 0) return;
 
-          if (studying_first_event){
+          if (studying_first_event)
+          {
             if (omp_get_thread_num() == 0)
             {
               // Get the HepMC event
@@ -238,7 +260,8 @@ namespace Gambit
               }
             }
           }
-          else{
+          else
+          {
             # pragma omp critical
             {
               // Get the HepMC event
@@ -281,11 +304,13 @@ namespace Gambit
             std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
 
             //Check that rivet actually ran. If not, produce an empty Contur_output object.
-            if (yodastream == nullptr){
+            if (yodastream == nullptr)
+            {
               temp_result = Contur_output();
             }
             //If rivet ran, run Contur.
-            else {
+            else
+            {
               std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
               convert_yaml_options_for_contur(yaml_contur_options);
 
@@ -302,13 +327,17 @@ namespace Gambit
               temp_result.print_Contur_output_debug();
             #endif
           }
-          else if (*Loop::iteration == BASE_FINALIZE){
-            if(results.size() == 0){
+          else if (*Loop::iteration == BASE_FINALIZE)
+          {
+            if(results.size() == 0)
+            {
               result = Contur_output();
             }
-            else {
+            else
+            {
               result = results[0];
-              for(size_t i = 1; i < results.size(); ++i){
+              for(size_t i = 1; i < results.size(); ++i)
+              {
                 result = Gambit::merge_contur_outputs(result, results[i]);
               }
             }
@@ -339,7 +368,8 @@ namespace Gambit
 
             //Check that rivet actually ran. If not, produce an empty Contur_output object.
             bool Rivet_ran;
-            if (yodastream == nullptr){
+            if (yodastream == nullptr)
+            {
               Rivet_ran = false;
             } else Rivet_ran = true;
 
@@ -347,9 +377,11 @@ namespace Gambit
 
 
 
-            for (std::string contur_instance : contur_names){
+            for (std::string contur_instance : contur_names)
+            {
               std::shared_ptr<std::ostringstream> yodastreamcopy = yodastream;
-              if (Rivet_ran){
+              if (Rivet_ran)
+              {
                 std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), contur_instance);
                 convert_yaml_options_for_contur(yaml_contur_options);
                 #pragma omp critical
@@ -357,7 +389,9 @@ namespace Gambit
                   ///Call contur
                   temp_result[contur_instance] = BEreq::Contur_Measurements(std::move(yodastreamcopy), yaml_contur_options);
                 }
-              } else {
+              }
+              else
+              {
                 //Case rivet failed to run:
                 temp_result[contur_instance] = Contur_output();
               }
@@ -370,13 +404,17 @@ namespace Gambit
               print_Multi_Contur_output_debug(temp_result);
             #endif
           }
-          else if (*Loop::iteration == BASE_FINALIZE){
-            if(results.size() == 0){
+          else if (*Loop::iteration == BASE_FINALIZE)
+          {
+            if(results.size() == 0)
+            {
               result = Multi_Contur_output{};
             }
-            else {
+            else
+            {
               result = results[0];
-              for(size_t i = 1; i < results.size(); ++i){
+              for(size_t i = 1; i < results.size(); ++i)
+              {
                 result = Gambit::merge_multi_contur_outputs(result, results[i]);
               }
             }
@@ -423,7 +461,8 @@ namespace Gambit
           using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_all;
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
 
-          for (auto Contur_name : contur_likelihood_object){
+          for (auto Contur_name : contur_likelihood_object)
+          {
             result[Contur_name.first + "_LLR"] = Contur_name.second.LLR;
           }
         }
@@ -445,7 +484,8 @@ namespace Gambit
           summary_line << "LHC Contur LogLikes per pool: ";
           result = (*Dep::LHC_measurements).pool_LLR;
 
-          for( auto const& entry : result){
+          for( auto const& entry : result)
+          {
             summary_line << entry.first << ":" << entry.second << ", ";
           }
           logger() << LogTags::debug << summary_line.str() << EOM;
@@ -459,12 +499,15 @@ namespace Gambit
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
-          for (const auto& contur_output_instance : contur_likelihood_object){
-            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_LLR){
+          for (const auto& contur_output_instance : contur_likelihood_object)
+          {
+            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_LLR)
+            {
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }
           }
-          for( auto const& entry : result){
+          for( auto const& entry : result)
+          {
             summary_line << entry.first << ":" << entry.second << ", ";
           }
           logger() << LogTags::debug << summary_line.str() << EOM;
@@ -479,7 +522,8 @@ namespace Gambit
           summary_line << "LHC Contur LogLikes per pool: ";
           result = (*Dep::LHC_measurements).pool_tags;
 
-          for( auto const& entry : result){
+          for( auto const& entry : result)
+          {
             summary_line << entry.first << ":" << entry.second << ", ";
           }
 
@@ -496,12 +540,15 @@ namespace Gambit
           summary_line << "LHC Contur LogLikes per pool: ";
 
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
-          for (const auto& contur_output_instance : contur_likelihood_object){
-            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags){
+          for (const auto& contur_output_instance : contur_likelihood_object)
+          {
+            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags)
+            {
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }
           }
-          for( auto const& entry : result){
+          for( auto const& entry : result)
+          {
             summary_line << entry.first << ":" << entry.second << ", ";
           }
           logger() << LogTags::debug << summary_line.str() << EOM;

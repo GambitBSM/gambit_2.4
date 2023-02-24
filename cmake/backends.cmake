@@ -69,6 +69,10 @@
 #  \date 2017 Jun
 #  \date 2018 Aug
 #
+#  \author Torsten Bringmann
+#      (torsten.bringmann@uio.no)
+#  \date 2022 Jan
+#
 #  \author Aaron Vincent
 #          (aaron.vincent@cparc.ca)
 #  \date 2017 Sep, Nov
@@ -207,6 +211,10 @@ set(required_modules "pyhf")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(examples_dir "${PROJECT_SOURCE_DIR}/Backends/examples/${name}/${ver}")
 check_ditch_status(${name} ${ver} "none" ${ditch_if_absent})
+# Ditch if Python version < v3.6 (required for pyhf)
+if(${PYTHON_VERSION_MAJOR} LESS 3 OR ${PYTHON_VERSION_MINOR} LESS 6)
+  set(ditched_${name}_${ver} true)
+endif()
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
   if(modules_missing_${name}_${ver})
@@ -255,6 +263,10 @@ endif()
 # DarkSUSY
 set(name "darksusy")
 set(ver "5.1.3")
+# Ditch DarkSUSY 5 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "5.1.3" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_5.1.3")
+endif()
 set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tar.gz")
 set(md5 "ca95ffa083941a469469710fab2f3c97")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -280,12 +292,16 @@ endif()
 # DarkSUSY base (for all models)
 set(name "darksusy")
 set(ver "6.1.1")
+# Ditch DarkSUSY 6.1.1 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.1.1" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_6.1.1")
+endif()
 set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
 set(md5 "448f72e9bfafbb086bf4526a2094a189")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -301,15 +317,10 @@ if(NOT ditched_.${name}_${ver}_base)
   add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
-# Ditch DarkSUSY_MSSM if using gfortran 10 or later, as it won't compile due to FeynHiggs
-if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
-  set(itch "${itch}" "darksusy_MSSM")
-endif()
-
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -325,7 +336,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -341,12 +352,16 @@ endif()
 # DarkSUSY base (for all models)
 set(name "darksusy")
 set(ver "6.2.2")
+# Ditch DarkSUSY 6.2.2 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.2.2" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_6.2.2")
+endif()
 set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
 set(md5 "e23feb7363aebc5460aa8ae2c6906ce1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -366,7 +381,7 @@ endif()
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -382,7 +397,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -404,7 +419,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -415,13 +430,17 @@ if(NOT ditched_.${name}_${ver}_base)
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend base (not functional alone)" ${name} ${ver})
+endif()
+
+# Ditch DarkSUSY_MSSM_6.2.5 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.2.5" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_MSSM_6.2.5")
 endif()
 
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -432,13 +451,68 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY generic_wimp module
+set(model "generic_wimp")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_generic_wimp
+          COMMAND ${MAKE_PARALLEL} ds_generic_wimp_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY base (for all models)
+set(name "darksusy")
+set(ver "6.4.0")
+set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
+set(md5 "1bf46347bac64fb019a8b2c617586d0a")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(.${name}_${ver}_base
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_core ds_empty install_tables
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend base (not functional alone)" ${name} ${ver})
+endif()
+
+# DarkSUSY MSSM module
+set(model "MSSM")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} higgsbounds higgssignals ds_mssm
+          COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
   set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -496,7 +570,13 @@ set(ver "1.2")
 set(dl "https://github.com/KrakowHEPSoft/HEPLike/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "0854396f48f2257ad185064107d6f72f")
-set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR} -undefined dynamic_lookup -flat_namespace ${NO_FIXUP_CHAINS}")
+set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} -undefined dynamic_lookup -flat_namespace")
+endif()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} ${NO_FIXUP_CHAINS}")
+endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1044,37 +1124,25 @@ if(COMPILER_SUPPORTS_CXX17)
 endif()
 
 # - Set include directories
-set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
-
-# - Setup HepMC-specific additions
-option(PYTHIA_WITH_HEPMC "Pythia is compiled with HepMC" ON)
-if(EXCLUDE_HEPMC)
-  set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_nohepmc.dif")
-  set(EXTRA_CONFIG "")
-  set(BOSS_suffix "nohepmc")
-else()
-  set(pythia_depends_on "hepmc")
-  set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-  set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
-  set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_PATH}/local/lib -Wl,-rpath ${HEPMC_PATH}/local/lib -lHepMC3")
-  set(EXTRA_CONFIG "--with-hepmc3=${HEPMC_PATH}/local")
-  set(BOSS_suffix "")
-endif()
+set(ditch_if_absent "hepmc")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURCE_DIR}/contrib/slhaea/include -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
+set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_PATH}/local/lib -Wl,-rpath ${HEPMC_PATH}/local/lib -lHepMC3")
 
 # - Actual configure and compile commands
-check_ditch_status(${name} ${ver} ${dir})
+check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS ${pythia_depends_on}
+    DEPENDS hepmc
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
+    CONFIGURE_COMMAND ./configure --with-hepmc3=${HEPMC_PATH}/local --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} "" ${BOSS_suffix})
+  BOSS_backend(${name} ${ver} "")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

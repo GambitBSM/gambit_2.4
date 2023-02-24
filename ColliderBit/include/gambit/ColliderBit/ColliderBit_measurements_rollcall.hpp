@@ -91,7 +91,7 @@
         #undef FUNCTION
       #undef CAPABILITY
 
-  //For the case we run multiple instances of contur, get all as Likelihood details to save.
+      //For the case we run multiple instances of contur, get all as Likelihood details to save.
       #define CAPABILITY LHC_measurements_LogLike_Multi
       START_CAPABILITY
         #define FUNCTION Multi_Contur_LHC_measurements_LogLike_all

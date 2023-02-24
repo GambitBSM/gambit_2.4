@@ -2377,6 +2377,9 @@ DarkSUSY_MSSM_6_2_2_init: |
 DarkSUSY_MSSM_6_2_5_init: |
    Initialises DarkSUSY 6.2.5 for the MSSM.
 
+DarkSUSY_MSSM_6_4_0_init: |
+   Initialises DarkSUSY 6.4.0 for the MSSM.
+
 DarkSUSY_generic_wimp_6_1_1_init: |
    Initialises DarkSUSY 6.1.1 for a generic WIMP.
 
@@ -2385,6 +2388,9 @@ DarkSUSY_generic_wimp_6_2_2_init: |
 
 DarkSUSY_generic_wimp_6_2_5_init: |
    Initialises DarkSUSY 6.2.5 for a generic WIMP.
+
+DarkSUSY_generic_wimp_6_4_0_init: |
+   Initialises DarkSUSY 6.4.0 for a generic WIMP.
 
 DarkSUSY5_PointInit_LocalHalo: |
    Initialises Milky Way halo model parameters in DarkSUSY5
@@ -3036,6 +3042,12 @@ dssuconst_yukawa: |
 
 rdmgev: |
    Information about (co)annihilating particles for the DarkSUSY relic density routines.
+
+RD_oh2_DS6_ini: |
+   Initializes relic density calculations with DarkSUSY (starting from version 6.4.0).
+   
+RD_oh2_DS6pre4_ini: |
+   Initializes relic density calculations with DarkSUSY 6 (for versions prior to 6.4.0).
 
 rdpth: |
    Momentum thresholds relevant for DarkSUSY relic density calculation.

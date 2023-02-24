@@ -58,7 +58,7 @@ namespace Gambit
   {
 
     /// A nested function that reads in HepMC event files
-    void readHepMCEvent(HepMC3::GenEvent& result, const str HepMC_filename, 
+    void readHepMCEvent(HepMC3::GenEvent& result, const str HepMC_filename,
                         const MCLoopInfo& RunMC, const int iteration,
                         void(*halt)())
     {
@@ -100,17 +100,24 @@ namespace Gambit
               {
                 HepMC_file_version = 3;
                 break;
-              }else if (text_format == "HepMC::IO_GenE"){
+              }
+              else if (text_format == "HepMC::IO_GenE")
+              {
                 HepMC_file_version = 2;
                 break;
-              } else
+              }
+              else
               {
-                throw std::runtime_error("Could not determine HepMC version from the string '"+text_format+"' extracted from the line '"+line+"'. Quitting...");
+                std::stringstream msg;
+                msg <<  "Could not determine HepMC version from the string '" << text_format << "' extracted from the line '" << line << "'. Quitting...";
+                ColliderBit_error().raise(LOCAL_INFO, msg);
               }
             }
             else
             {
-              throw std::runtime_error("Could not determine HepMC version from the string '"+short_line+"' extracted from the line '"+line+"'. Quitting...");
+              std::stringstream msg;
+              msg << "Could not determine HepMC version from the string '" << short_line << "' extracted from the line '" << line << "'. Quitting...";
+              ColliderBit_error().raise(LOCAL_INFO, msg);
             }
           }
         }
@@ -119,7 +126,9 @@ namespace Gambit
 
       if(HepMC_file_version != 2 and HepMC_file_version != 3)
       {
-        throw std::runtime_error("Failed to determine HepMC version for input file "+HepMC_filename+". Quitting...");
+        std::stringstream msg;
+        msg << "Failed to determine HepMC version for input file " << HepMC_filename << ". Quitting...";
+        ColliderBit_error().raise(LOCAL_INFO, msg);
       }
 
       static HepMC3::Reader *HepMCio;
@@ -127,9 +136,12 @@ namespace Gambit
       // Initialize the reader on the first iteration
       if (iteration == BASE_INIT)
       {
-        if (HepMC_file_version == 2){
+        if (HepMC_file_version == 2)
+        {
           HepMCio = new HepMC3::ReaderAsciiHepMC2(HepMC_filename);
-        } else {
+        }
+        else
+        {
           HepMCio = new HepMC3::ReaderAscii(HepMC_filename);
         }
       }
@@ -175,9 +187,9 @@ namespace Gambit
 
       // Get the HepMC event
       readHepMCEvent(result, HepMC_filename, *Dep::RunMC, *Loop::iteration, Loop::halt);
- 
+
     }
- 
+
     /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
     void getHepMCEvent_HEPUtils(HEPUtils::Event &result)
     {
@@ -187,7 +199,7 @@ namespace Gambit
       const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
       const static double antiktR = runOptions->getValueOrDef<double>(0.4, "antiktR");
       const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
- 
+
       // Get the HepMC event
       //HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
       HepMC3::GenEvent ge;
@@ -195,13 +207,13 @@ namespace Gambit
 
       //We need to not do anything else on special iterations, where an event has not actually been extracted:
       if (*Loop::iteration < 0) return;
-      
+
       //Set the weight
       result.set_weight(ge.weight());
 
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
       Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, antiktR, jet_pt_min);
- 
+
     }
 
     void convertHepMCEvent_HEPUtils(HEPUtils::Event &result)

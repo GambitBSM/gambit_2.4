@@ -1739,10 +1739,6 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(1,2) : 0.0), 0.0, "~chi0_2", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(1,3) : 0.0), 0.0, "~chi0_3", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(1,4) : 0.0), 0.0, "~chi0_4", "H+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(1) : 0.0), 0.0, "~G", "W+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(1) : 0.0), 0.0, "~G", "H+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(1) : 0.0), 0.0, "~G", "W+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(1) : 0.0), 0.0, "~G", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(1,1) : 0.0), 0.0, "~chi0_1", "u", "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(1,2) : 0.0), 0.0, "~chi0_2", "u", "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(1,3) : 0.0), 0.0, "~chi0_3", "u", "dbar");
@@ -1817,10 +1813,6 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(2,2) : 0.0), 0.0, "~chi0_2", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(2,3) : 0.0), 0.0, "~chi0_3", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharhcneut(2,4) : 0.0), 0.0, "~chi0_4", "H+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(2) : 0.0), 0.0, "~G", "W+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(2) : 0.0), 0.0, "~G", "H+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharwgravitino(2) : 0.0), 0.0, "~G", "W+");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2bodygrav->brcharhcgravitino(2) : 0.0), 0.0, "~G", "H+");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(2,1) : 0.0), 0.0, "~chi0_1", "u", "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(2,2) : 0.0), 0.0, "~chi0_2", "u", "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brnupdb(2,3) : 0.0), 0.0, "~chi0_3", "u", "dbar");
@@ -2040,16 +2032,6 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsnel(1) : 0.0), 0.0, psn.isnmulbar, "nu_mu");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsn1(1) : 0.0), 0.0, psn.isntaul, "nubar_tau");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsn1(1) : 0.0), 0.0, psn.isntaulbar, "nu_tau");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutgamgrav(1) : 0.0), 0.0, "~G", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutzgrav(1) : 0.0), 0.0, "~G", "Z0");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthlgrav(1) : 0.0), 0.0, "~G", "h0_1");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthhgrav(1) : 0.0), 0.0, "~G", "h0_2");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthagrav(1) : 0.0), 0.0, "~G", "A0");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutgamgrav(1) : 0.0), 0.0, "~G", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutzgrav(1) : 0.0), 0.0, "~G", "Z0");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthlgrav(1) : 0.0), 0.0, "~G", "h0_1");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthhgrav(1) : 0.0), 0.0, "~G", "h0_2");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthagrav(1) : 0.0), 0.0, "~G", "A0");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brchubd(1,1) : 0.0), 0.0, "~chi+_1", "ubar", "d");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brchubd(1,1) : 0.0), 0.0, "~chi-_1", "dbar", "u");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brchubd(1,2) : 0.0), 0.0, "~chi+_2", "ubar", "d");
@@ -2273,18 +2255,8 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsnel(3) : 0.0), 0.0, psn.isnmulbar, "nu_mu");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsn1(3) : 0.0), 0.0, psn.isntaul, "nubar_tau");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsn1(3) : 0.0), 0.0, psn.isntaulbar, "nu_tau");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutgamgrav(3) : 0.0), 0.0, "~G", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutzgrav(3) : 0.0), 0.0, "~G", "Z0");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthlgrav(3) : 0.0), 0.0, "~G", "h0_1");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthhgrav(3) : 0.0), 0.0, "~G", "h0_2");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthagrav(3) : 0.0), 0.0, "~G", "A0");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neutloop->brnraddec(3,1) : 0.0), 0.0, "~chi0_1", "gamma");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neutloop->brnraddec(3,2) : 0.0), 0.0, "~chi0_2", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutgamgrav(3) : 0.0), 0.0, "~G", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutzgrav(3) : 0.0), 0.0, "~G", "Z0");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthlgrav(3) : 0.0), 0.0, "~G", "h0_1");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthhgrav(3) : 0.0), 0.0, "~G", "h0_2");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthagrav(3) : 0.0), 0.0, "~G", "A0");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brneutup(3,1) : 0.0), 0.0, "~chi0_1", "ubar", "u");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brneutdow(3,1) : 0.0), 0.0, "~chi0_1", "dbar", "d");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brneutch(3,1) : 0.0), 0.0, "~chi0_1", "cbar", "c");
@@ -2415,19 +2387,9 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsnel(4) : 0.0), 0.0, psn.isnmulbar, "nu_mu");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsn1(4) : 0.0), 0.0, psn.isntaul, "nubar_tau");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2body->brneutsn1(4) : 0.0), 0.0, psn.isntaulbar, "nu_tau");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutgamgrav(4) : 0.0), 0.0, "~G", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutzgrav(4) : 0.0), 0.0, "~G", "Z0");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthlgrav(4) : 0.0), 0.0, "~G", "h0_1");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthhgrav(4) : 0.0), 0.0, "~G", "h0_2");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthagrav(4) : 0.0), 0.0, "~G", "A0");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neutloop->brnraddec(4,1) : 0.0), 0.0, "~chi0_1", "gamma");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neutloop->brnraddec(4,2) : 0.0), 0.0, "~chi0_2", "gamma");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neutloop->brnraddec(4,3) : 0.0), 0.0, "~chi0_3", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutgamgrav(4) : 0.0), 0.0, "~G", "gamma");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneutzgrav(4) : 0.0), 0.0, "~G", "Z0");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthlgrav(4) : 0.0), 0.0, "~G", "h0_1");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthhgrav(4) : 0.0), 0.0, "~G", "h0_2");
-      // result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut2bodygrav->brneuthagrav(4) : 0.0), 0.0, "~G", "A0");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brneutup(4,1) : 0.0), 0.0, "~chi0_1", "ubar", "u");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brneutdow(4,1) : 0.0), 0.0, "~chi0_1", "dbar", "d");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_neut3body->brneutch(4,1) : 0.0), 0.0, "~chi0_1", "cbar", "c");
@@ -3118,7 +3080,8 @@ namespace Gambit
       const double mh_mNeu_2 = pow2(mh_mNeu);
 
       // Phase-space beta function
-      std::function<double(double, double)> phasespace_beta = [](double b, double c) {
+      std::function<double(double, double)> phasespace_beta = [](double b, double c)
+      {
         return sqrt(1. - 2. * (pow2(b) + pow2(c)) + pow2(pow2(b) - pow2(c)));
       };
 
@@ -3262,7 +3225,8 @@ namespace Gambit
         double g_Z_coupling = sqrt(pow2(g) + pow2(g_prime));
 
         // Propagator function
-        std::function<double(double)> propagator_D_ZZ = [&c, &d_Z, &g_Z](double x) {
+        std::function<double(double)> propagator_D_ZZ = [&c, &d_Z, &g_Z](double x) 
+        {
           return 1.0 / (pow2(c - d_Z - x + 1.0) + d_Z * g_Z);
         };
         // Gaugino contribution to the integrand, (E.27) in DESY-thesis-09-016
