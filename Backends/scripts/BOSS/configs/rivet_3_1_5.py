@@ -112,13 +112,11 @@ ini_function_in_header = False
 # the BOSS-generated headers in GAMBIT.
 
 pragmas_begin = [
-  '#pragma GCC diagnostic push',
-  '#pragma GCC diagnostic ignored "-Wignored-qualifiers"',
-  '#pragma GCC diagnostic ignored "-Wunused-parameter"',
+  '#include "gambit/Utils/begin_ignore_warnings_rivet_backend.hpp"', # Contains pragmas to suppress warnings from YODA and HepMC
 ]
 
 pragmas_end = [
-  '#pragma GCC diagnostic pop'
+  '#include "gambit/Utils/end_ignore_warnings.hpp"', # Restores the warning settings
 ]
 
 

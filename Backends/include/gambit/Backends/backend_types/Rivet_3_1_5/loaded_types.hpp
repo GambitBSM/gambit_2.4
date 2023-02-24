@@ -4,12 +4,10 @@
 #ifndef EXCLUDE_YODA
 #ifndef EXCLUDE_HEPMC
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include "gambit/Utils/begin_ignore_warnings_rivet_backend.hpp"
 #include "wrapper_AnalysisHandler.hh"
 #include "identification.hpp"
-#pragma GCC diagnostic pop
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define Rivet_3_1_5_all_data \
