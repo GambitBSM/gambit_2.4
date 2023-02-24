@@ -28,11 +28,13 @@ namespace Gambit
       outstream << "\nContur Output Object.\n\tLLR is: " <<
         LLR << "\n\tPool LLR's:";
 
-      for (auto pool : pool_LLR){
+      for (auto pool : pool_LLR)
+      {
         outstream << "\n\t\t" << pool.first << ": " << pool.second;
       }
       outstream << "\n\tPool Histotags:";
-      for (auto pool : pool_tags){
+      for (auto pool : pool_tags)
+      {
         outstream << "\n\t\t" << pool.first << ": " << pool.second;
       }
       outstream << std::endl;
@@ -45,16 +47,20 @@ namespace Gambit
 
       //Concatenate the maps
       //TODO I presume there's something better than this syntax
-      for(auto const& pool : output1.pool_LLR){
+      for(auto const& pool : output1.pool_LLR)
+      {
         new_pool_LLR[pool.first] = pool.second;
       }
-      for(auto const& pool : output1.pool_tags){
+      for(auto const& pool : output1.pool_tags)
+      {
         new_pool_tags[pool.first] = pool.second;
       }
-      for(auto const& pool : output2.pool_LLR){
+      for(auto const& pool : output2.pool_LLR)
+      {
         new_pool_LLR[pool.first] = pool.second;
       }
-      for(auto const& pool : output2.pool_tags){
+      for(auto const& pool : output2.pool_tags)
+      {
         new_pool_tags[pool.first] = pool.second;
       }
 
@@ -63,16 +69,20 @@ namespace Gambit
     }
 
     //This assumes that the same contur instances belong in each run. If this isn't the case, something very bad has gone wrong!
-    Multi_Contur_output merge_multi_contur_outputs(const Multi_Contur_output& output1, const Multi_Contur_output& output2){
+    Multi_Contur_output merge_multi_contur_outputs(const Multi_Contur_output& output1, const Multi_Contur_output& output2)
+    {
       Multi_Contur_output final_output = {};
-      for(const auto &output_object_1 : output1){
+      for(const auto &output_object_1 : output1)
+      {
         final_output[output_object_1.first] = merge_contur_outputs(output_object_1.second, output2.at(output_object_1.first));
       }
       return final_output;
     }
 
-    void print_Multi_Contur_output_debug(const Multi_Contur_output& multi_contur_out, std::ostream& outstream){
-      for (auto contur_instance : multi_contur_out){
+    void print_Multi_Contur_output_debug(const Multi_Contur_output& multi_contur_out, std::ostream& outstream)
+    {
+      for (auto contur_instance : multi_contur_out)
+      {
         outstream << contur_instance.first << ":\n";
         contur_instance.second.print_Contur_output_debug(outstream);
       }

@@ -31,14 +31,15 @@ BE_INI_FUNCTION
     std::string rivet_analyses_dir = std::string(GAMBIT_DIR)+
         "/Backends/installed/rivet/3.1.5/analyses";
 
-    //Check if the rivet_analyses_dir if it actually exists: if it 
+    //Check if the rivet_analyses_dir if it actually exists: if it
     //doesn't then installation probably hasn't installed properly.
-    if (Utils::file_exists(rivet_analyses_dir)){
+    if (Utils::file_exists(rivet_analyses_dir))
+    {
       addAnalysisLibPath(rivet_analyses_dir);
     }
-    else{
-      std::cout << "\nRivet analysis directory does not exist." << std::endl;
-      backend_error();
+    else
+    {
+      backend_error().raise(LOCAL_INFO, "Rivet analysis directory does not exist.");
     }
   }
   scan_level = false;
