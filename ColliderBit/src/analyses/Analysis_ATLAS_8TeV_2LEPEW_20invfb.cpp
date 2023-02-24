@@ -1035,10 +1035,10 @@ namespace Gambit
           std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         }
 
-      };
+    };
 
 
-      DEFINE_ANALYSIS_FACTORY(ATLAS_8TeV_2LEPEW_20invfb)
+    DEFINE_ANALYSIS_FACTORY(ATLAS_8TeV_2LEPEW_20invfb)
 
 
   }

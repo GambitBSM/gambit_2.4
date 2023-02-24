@@ -730,11 +730,11 @@ namespace Gambit
           for (auto& pair : _counters) { pair.second.reset(); }
         }
 
-      };
+    };
 
 
-      // Factory fn
-      DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_3LEP_139invfb)
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_3LEP_139invfb)
 
   }
 }

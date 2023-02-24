@@ -997,9 +997,9 @@ namespace Gambit
 
 
 
-      };
+    };
 
-      DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2bMET_36invfb)
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2bMET_36invfb)
 
   }
 }
