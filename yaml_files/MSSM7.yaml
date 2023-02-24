@@ -486,18 +486,18 @@ Rules:
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum
     type: Spectrum
-    #function: make_MSSM_precision_spectrum_none
-    #function: make_MSSM_precision_spectrum_W
-    #function: make_MSSM_precision_spectrum_H_W
-    function: make_MSSM_precision_spectrum_4H_W
+    function: make_MSSM_precision_spectrum_none
+    # function: make_MSSM_precision_spectrum_W
+    # function: make_MSSM_precision_spectrum_H_W
+    # function: make_MSSM_precision_spectrum_4H_W
     # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
     # or make_MSSM_precision_spectrum_H_W.
     # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
     # Choose to use the difference between the precision and spectrum generator predictions, along
     # with the precision error estimate, to estimate the theoretical error on the prediction.
-    options:
-      Higgs_predictions_source: 1
-      Higgs_predictions_error_method: 4
+    # options:
+    #   Higgs_predictions_source: 1
+    #   Higgs_predictions_error_method: 4
 
   # Make sure to use the next-to-latest version (2.11.3) of FeynHiggs for things that need it,
   # as the latest version (2.12.0) is buggy.
@@ -522,10 +522,10 @@ Rules:
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
 
-  # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
-  - capability: prec_mh
-    function: FeynHiggs_HiggsMass
-    #function: SUSYHD_HiggsMass
+  # # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
+  # - capability: prec_mh
+  #   function: FeynHiggs_HiggsMass
+  #   # function: SUSYHD_HiggsMass
 
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
   - capability: Reference_SM_Higgs_decay_rates
@@ -600,10 +600,7 @@ Rules:
       ms_central: 95.E-03
       ms_error: 5.E-03
 
-  # Choose where to get scattering events from
-  - capability: HardScatteringEvent
-    function: generateEventPythia
-
+  # Pass an SLHA2 spectrum to Pythia
   - capability: SpectrumAndDecaysForPythia
     function: getSpectrumAndDecaysForPythia
     options:
@@ -618,9 +615,14 @@ Rules:
   - capability: EventWeighterFunction
     function: setEventWeight_unity
 
-  # Choose to generate events with Pythia on the fly (rather than reading them in)
+  # Choose where to get scattering events from
   - capability: HardScatteringEvent
+    type: Pythia_default::Pythia8::Event
     function: generateEventPythia
+
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
 
   # Choose Monte Carlo event simulator and options.
   - capability: HardScatteringSim
@@ -681,6 +683,7 @@ Rules:
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
+    function: calc_LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
