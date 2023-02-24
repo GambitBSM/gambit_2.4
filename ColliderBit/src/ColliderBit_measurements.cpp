@@ -24,13 +24,17 @@
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
 #ifndef EXCLUDE_HEPMC
+  #include "gambit/Utils/begin_ignore_warnings_hepmc.hpp"
   #include "HepMC3/ReaderAscii.h"
   #include "HepMC3/ReaderAsciiHepMC2.h"
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 #ifndef EXCLUDE_YODA
+  #include "gambit/Utils/begin_ignore_warnings_yoda.hpp"
   #include "YODA/AnalysisObject.h"
   #include "YODA/IO.h"
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 namespace Gambit
