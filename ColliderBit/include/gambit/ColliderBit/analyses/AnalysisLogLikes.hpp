@@ -27,14 +27,16 @@
 #endif
 
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
     /// @brief Container for loglike information for an analysis
     struct AnalysisLogLikes
     {
       // Signal region labels
-      std::vector<std::string> sr_labels;  
+      std::vector<std::string> sr_labels;
 
       // The "observed" log-likelihood (per SR)
       std::vector<double> sr_loglikes;
@@ -53,7 +55,7 @@ namespace Gambit {
         combination_loglike(0.0)
         { }
 
-      // Get the number of SRs and the correponding SR labels from 
+      // Get the number of SRs and the correponding SR labels from
       // an AnalysisData instance. Use this to initialize.
       void initialize(const AnalysisData& adata_in, const std::vector<std::string>& alt_loglike_keys = {})
       {
@@ -66,7 +68,7 @@ namespace Gambit {
           sr_loglikes.push_back(0.0);
         }
 
-        // Initialize map of alternative SR loglikes, 
+        // Initialize map of alternative SR loglikes,
         // and vector of alternative combined loglikes
         for (const std::string& key : alt_loglike_keys)
         {
