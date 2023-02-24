@@ -2,11 +2,11 @@ This is a little read me file to explain my naming convention for the data files
 
 1. All the files are written as:
 
-	comenergy_LowerPIDcode_higherPIDcode_extrainfo.txt
+    comenergy_LowerPIDcode_higherPIDcode_extrainfo.txt
 
 2. Most of PID codes are:
 
-	gluino-------------------1000021
+    gluino-------------------1000021
     neutralino 1-------------1000022
     neutralino 2-------------1000023
     stop---------------------1000005 
