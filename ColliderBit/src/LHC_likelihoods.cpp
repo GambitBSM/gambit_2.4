@@ -453,14 +453,15 @@ namespace Gambit
     }
 
 
-      /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
-      void fill_analysis_loglikes_full(const AnalysisData& ana_data, 
-                                  AnalysisLogLikes& ana_loglikes,
-                                  bool (*FullLikes_FileExists)(const str&),
-                                  int (*FullLikes_ReadIn)(const str&, const str&),
-                                  double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
-                                  const std::string alt_loglike_key = "")
-      {
+    /// Helper function called by fill_analysis_loglikes below. It's used to get the 
+    /// loglike(s) for ATLAS analyses for which we have the ATLAS Full Likelihood information.
+    void fill_analysis_loglikes_full(const AnalysisData& ana_data, 
+                                AnalysisLogLikes& ana_loglikes,
+                                bool (*FullLikes_FileExists)(const str&),
+                                int (*FullLikes_ReadIn)(const str&, const str&),
+                                double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
+                                const std::string alt_loglike_key = "")
+    {
       // Are we filling the standard loglike or an alternative one?
       bool fill_alt_loglike = false;
       if (!alt_loglike_key.empty()) fill_alt_loglike = true;
@@ -485,7 +486,8 @@ namespace Gambit
       // Delta log-likelihood variable
       double dll = NAN;
 
-      // Work out the total (delta) log likelihood for this analysis, with correlations/full likelihoods as available/instructed
+      // Work out the total (delta) log likelihood for this analysis, by passing in the signal predictions
+      // in a map<str,double> to the ATLAS_FullLikes backend.
       std::map<str,double> SRsignal;
 
       for (size_t SR = 0; SR < nSR; ++SR)
@@ -507,7 +509,6 @@ namespace Gambit
       {
         ana_loglikes.combination_loglike = dll;
       }
-      
     }
       
     /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.

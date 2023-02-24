@@ -110,14 +110,14 @@ namespace Gambit
               {
                 std::stringstream msg;
                 msg <<  "Could not determine HepMC version from the string '" << text_format << "' extracted from the line '" << line << "'. Quitting...";
-                ColliderBit_error().raise(LOCAL_INFO, msg);
+                ColliderBit_error().raise(LOCAL_INFO, msg.str());
               }
             }
             else
             {
               std::stringstream msg;
               msg << "Could not determine HepMC version from the string '" << short_line << "' extracted from the line '" << line << "'. Quitting...";
-              ColliderBit_error().raise(LOCAL_INFO, msg);
+              ColliderBit_error().raise(LOCAL_INFO, msg.str());
             }
           }
         }
@@ -128,7 +128,7 @@ namespace Gambit
       {
         std::stringstream msg;
         msg << "Failed to determine HepMC version for input file " << HepMC_filename << ". Quitting...";
-        ColliderBit_error().raise(LOCAL_INFO, msg);
+        ColliderBit_error().raise(LOCAL_INFO, msg.str());
       }
 
       static HepMC3::Reader *HepMCio;

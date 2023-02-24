@@ -30,8 +30,13 @@
 
 LOAD_LIBRARY
 
-BE_CONV_FUNCTION(Contur_LogLike_from_stream, Contur_output, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&), "Contur_Measurements")
-BE_CONV_FUNCTION(Contur_LogLike_from_file, Contur_output, (str &, std::vector<std::string>&), "Contur_Measurements")
-BE_CONV_FUNCTION(Contur_get_analyses_from_beam, void, (std::vector<std::string>&, std::string&), "Contur_GetAnalyses")
+#ifdef HAVE_PYBIND11
+
+  BE_CONV_FUNCTION(Contur_LogLike_from_stream, Contur_output, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&), "Contur_Measurements")
+  BE_CONV_FUNCTION(Contur_LogLike_from_file, Contur_output, (str &, std::vector<std::string>&), "Contur_Measurements")
+  BE_CONV_FUNCTION(Contur_get_analyses_from_beam, void, (std::vector<std::string>&, std::string&), "Contur_GetAnalyses")
+
+#endif
+
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
