@@ -20,9 +20,6 @@ my_path = os.path.dirname(os.path.abspath(__file__))
 #Global dictionary to store the interpolated functions
 functiondict = {}
 
-# #Global dictionary to store info on the data tables
-# datfiles = {}
-
 
 #
 # A minimal container class to hold the cross-section functions 
@@ -63,8 +60,6 @@ def str_to_PID_pair_list(input_str):
 # Initialisation function that reads in the data and forms the interpolation function.
 #
 def init(simplexs_init_pars):
-
-    print("DEBUG: Got these settings from ColliderBit: ", simplexs_init_pars, flush=True)
 
     # This function will edit the following global variables
     global functiondict

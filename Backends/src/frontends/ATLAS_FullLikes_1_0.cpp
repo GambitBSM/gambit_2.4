@@ -45,7 +45,7 @@ BE_NAMESPACE
 #else
   double FullLikes_Evaluate(std::map<str,double>& SRsignal, const str& ana_name)
   {
-    backend_error().raise(LOCAL_INFO, "PYBIND11 not defined, but is required for the ATLAS_FullLikes backend.\n");
+    backend_error().raise(LOCAL_INFO, "pybind11 has been excluded, but is required for the ATLAS_FullLikes backend.\n");
     return 0.0; // Just returning a number to be consistent with types
   }
 #endif
