@@ -536,8 +536,10 @@ std_headers = {
 # Standard library typedefs. This dictionary will be expanded by BOSS at runtime. Below we 
 # manually list various typedefs we need that BOSS currently can't construct at runtime.
 std_typedef_names_dict = {
+    # Various standard types
     "std::vector<std::basic_string<char>>" : "std::vector<std::string>",
     "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>" : "std::vector<std::string>",
+    "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>" : "std::vector<std::string>",
     # 
     "std::map<std::basic_string<char>, std::basic_string<char>>" : "std::map<std::string, std::string>",
     "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator<std::pair<const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>>" : "std::map<std::string, std::string>",
@@ -545,5 +547,6 @@ std_typedef_names_dict = {
     "std::map<std::basic_string<char>, double>" : "std::map<std::string, double>", 
     "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator< std::pair< const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double>>>" : "std::map<std::string, double>", 
     #
+    # Backend-specific types
+    "std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject>>>" : "std::vector<std::shared_ptr<YODA::AnalysisObject>>",
 }
-
