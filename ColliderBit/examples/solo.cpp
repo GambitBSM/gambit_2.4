@@ -45,8 +45,10 @@ using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 //Helper function to check if setting in CBS yaml and then set it
 //TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
 template <typename Tsetting>
-bool apply_setting_if_present(const std::string &setting, Options& settings, Gambit::module_functor<ColliderBit::map_str_AnalysisLogLikes> &the_functor){
-  if (settings.hasKey(setting)){
+bool apply_setting_if_present(const std::string &setting, Options& settings, Gambit::module_functor<ColliderBit::map_str_AnalysisLogLikes> &the_functor)
+{
+  if (settings.hasKey(setting))
+  {
     the_functor.setOption<Tsetting>(setting, settings.getValue<Tsetting>(setting));
     return true;
   }
@@ -114,7 +116,7 @@ int main(int argc, char* argv[])
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
     bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
-    
+
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
@@ -129,30 +131,42 @@ int main(int argc, char* argv[])
     bool withContur;
     Options rivet_settings;
     std::vector<std::string> contur_options;
-    try{
-      if (infile["rivet-settings"]) {
+    try
+    {
+      if (infile["rivet-settings"])
+      {
         withRivet = true;
         rivet_settings = Options(infile["rivet-settings"]);
       } else {withRivet = false;}
       //Todo: Should we just assume contur with no options if rivet settings are specified and Contur not?
-      if (infile["contur-settings"]) {
+      if (infile["contur-settings"])
+      {
         withContur = true;
         contur_options = infile["contur-settings"].as<std::vector<std::string>>();
-      } else {withContur = false;}
+      }
+      else
+      {
+        withContur = false;
+      }
       //Throw out cases where things won't work, with informative errors:
-      if (withContur && !withRivet){
+      if (withContur && !withRivet)
+      {
         throw std::runtime_error("Can't run contur without rivet. Try adding a rivet-settings section to your yaml-file. Quitting...");
       }
-      else if (!withContur && withRivet){
+      else if (!withContur && withRivet)
+      {
         throw std::runtime_error("Can't run rivet without contur. Try adding a contur-settings section to your yaml-file. Quitting...");
       }
-      else if (withContur && !conturWorks){
+      else if (withContur && !conturWorks)
+      {
         backend_error().raise(LOCAL_INFO, str("yaml file requests contur, but Contur ")+CONTUR_VERSION+" is missing!");
       }
-      else if (withRivet && !rivetWorks){
+      else if (withRivet && !rivetWorks)
+      {
         backend_error().raise(LOCAL_INFO, str("yaml file requests rivet, but Rivet ")+RIVET_VERSION+" is missing!");
       }
-      else if (withContur && withRivet){
+      else if (withContur && withRivet)
+      {
         //Ok, we're good to go with Rivet and Contur,
         //TODO: Proper citation message?
         std::cout << "\nUsing RIVET " << RIVET_VERSION << " and CONTUR " <<
@@ -232,7 +246,8 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.setOption<bool>("use_FullLikes",use_FullLikes);
 
     //if Rivet/Contur, set rivet/contur options
-    if (withRivet){
+    if (withRivet)
+    {
       Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValueOrDef<bool>(true, "drop_YODA_file"));
       Rivet_measurements.setOption<bool>("runningStandalone", true);
       Rivet_measurements.setOption<std::vector<std::string>>("analyses",
@@ -240,9 +255,9 @@ int main(int argc, char* argv[])
       Rivet_measurements.setOption<std::vector<std::string>>("exclude_analyses",
                                                 rivet_settings.getValueOrDef<std::vector<std::string>>({},"exclude_analyses"));
       std::vector<std::string> contur_options = infile["contur-settings"].as<std::vector<std::string>>();
-      Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);                                             
+      Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);
     }
-    
+
 
     // Resolve ColliderBit dependencies and backend requirements
     convertEvent.resolveDependency(&getEvent);
@@ -274,7 +289,8 @@ int main(int argc, char* argv[])
     copyEvent.resolveDependency(&getBuckFastIdentity);
     copyEvent.resolveDependency(&convertEvent);
     //If using Rivet/Contur, resolve rivet/contur dependencies:
-    if (withRivet){
+    if (withRivet)
+    {
       Rivet_measurements.resolveDependency(&getEvent);
       Rivet_measurements.resolveBackendReq(&Contur_get_analyses_from_beam);
 
@@ -315,9 +331,10 @@ int main(int argc, char* argv[])
                                                                   &copyEvent,
                                                                   &runATLASAnalyses,
                                                                   &runCMSAnalyses,
-                                                                  &runIdentityAnalyses);                                                            
+                                                                  &runIdentityAnalyses);
     //if using contur and rivet:
-    if (withRivet){
+    if (withRivet)
+    {
       Rivet_measurements.resolveLoopManager(&operateLHCLoop);
       Contur_LHC_measurements_from_stream.resolveLoopManager(&operateLHCLoop);
 
@@ -329,7 +346,8 @@ int main(int argc, char* argv[])
 
     // Call the initialisation function for backends
     CAT_3(nulike_,NULIKE_SAFE_VERSION,_init).reset_and_calculate();
-    if (withRivet){
+    if (withRivet)
+    {
       CAT_3(Contur_, CONTUR_SAFE_VERSION,_init).reset_and_calculate();
       CAT_3(Rivet_, RIVET_SAFE_VERSION,_init).reset_and_calculate();
     }
@@ -340,7 +358,8 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes.reset_and_calculate();
     get_LHC_LogLike_per_analysis.reset_and_calculate();
     calc_combined_LHC_LogLike.reset_and_calculate();
-    if (withContur){
+    if (withContur)
+    {
       Contur_LHC_measurements_LogLike.reset_and_calculate();
       Contur_LHC_measurements_LogLike_perPool.reset_and_calculate();
       Contur_LHC_measurements_histotags_perPool.reset_and_calculate();
@@ -373,7 +392,8 @@ int main(int argc, char* argv[])
       summary_line << "    Selected signal region: " << analysis_loglikes.combination_sr_label << endl;
       summary_line << "    Total log-likelihood for analysis:" << analysis_loglikes.combination_loglike << endl << endl;
     }
-    if (withContur){
+    if (withContur)
+    {
       summary_line << "\nContur results:" << std::endl;
       summary_line << "Total Contur Log-Likelihood: " << Contur_LHC_measurements_LogLike(0) << std::endl;
       map_str_dbl pool_LLRs = Contur_LHC_measurements_LogLike_perPool(0);
