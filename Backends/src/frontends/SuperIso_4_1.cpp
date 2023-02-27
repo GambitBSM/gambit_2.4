@@ -193,7 +193,7 @@ BE_NAMESPACE
 
   // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
   /// RK* observables
-  double RKstar(const parameters *param, double Q2_min, double Q2_max)
+  double SuperIso_RKstar_computation(const parameters *param, double Q2_min, double Q2_max)
   {
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
@@ -228,7 +228,7 @@ BE_NAMESPACE
   }
 
   /// RK observable
-  double RK(const parameters *param, double Q2_min, double Q2_max)
+  double SuperIso_RK_computation(const parameters *param, double Q2_min, double Q2_max)
   {
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong

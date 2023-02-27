@@ -1061,7 +1061,7 @@ namespace Gambit
       if (flav_debug) std::cout<<"Starting SuperIso_RKstar_0045_11"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RKstar(&param,0.045,1.1);
+      result = BEreq::SuperIso_RKstar_computation(&param,0.045,1.1);
 
       if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished SuperIso_RKstar_0045_11"<< std::endl;
@@ -1074,7 +1074,7 @@ namespace Gambit
       if (flav_debug) std::cout<<"Starting SuperIso_RKstar_11_60"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RKstar(&param,1.1,6.0);
+      result = BEreq::SuperIso_RKstar_computation(&param,1.1,6.0);
 
       if (flav_debug) printf("RK*_intermq2=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished SuperIso_RKstar_11_60"<< std::endl;
@@ -1087,7 +1087,7 @@ namespace Gambit
       if (flav_debug) std::cout<<"Starting SuperIso_RK"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RK(&param,1.0,6.0);
+      result = BEreq::SuperIso_RK_computation(&param,1.0,6.0);
 
       if (flav_debug) printf("RK=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished SuperIso_RK"<< std::endl;
