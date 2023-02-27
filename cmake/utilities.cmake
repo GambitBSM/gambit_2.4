@@ -685,7 +685,7 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     # Parse command line options from optional arguments
     set(BOSS_command_line_options "")
     foreach(arg ${ARGN})
-      set(BOSS_command_line_options "${BOSS_command_line_options} ${arg}")
+      set(BOSS_command_line_options ${BOSS_command_line_options} ${arg})
     endforeach()
 
     add_dependencies(${name}_${ver} castxml)
