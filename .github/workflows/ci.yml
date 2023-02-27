@@ -61,7 +61,8 @@ jobs:
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
-        make -j$(( ($(nproc)+1)/2 )) backends
+        #make -j$(( ($(nproc)+1)/2 )) backends
+        make backends
     - name: CLI test
       run: |
         . BUILD/buildenv.sh

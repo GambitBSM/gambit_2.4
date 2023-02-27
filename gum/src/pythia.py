@@ -402,7 +402,7 @@ def write_pythia_cmake_entry(model, output_dir):
                "check_ditch_status(${name} ${ver} ${dir})\n"\
                "if(NOT ditched_${name}_${ver})\n"\
                "  ExternalProject_Add(${name}_${ver}\n"\
-               "    DEPENDS ${pythia_depends_on}\n"\
+               "    DEPENDS hepmc\n"\
                "    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}\n"\
                "    SOURCE_DIR ${dir}\n"\
                "    BUILD_IN_SOURCE 1\n"\
@@ -413,7 +413,7 @@ def write_pythia_cmake_entry(model, output_dir):
                "    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=\"${CMAKE_CXX_COMPILER}\" lib/${lib}.so\n"\
                "    INSTALL_COMMAND \"\"\n"\
                "  )\n"\
-               "  BOSS_backend(${name} ${ver} \"\" ${BOSS_suffix})\n"\
+               "  BOSS_backend(${name} ${ver} \"\")\n"\
                "  add_extra_targets(\"backend\" ${name} ${ver} ${dir} ${dl} distclean)\n"\
                "  set_as_default_version(\"backend\" ${name} ${ver})\n"\
                "endif()\n\n"

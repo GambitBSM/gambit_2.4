@@ -641,7 +641,7 @@ set(BOSS_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS")
 set(needs_BOSSing "")
 set(needs_BOSSing_failed "")
 
-macro(BOSS_backend_full name backend_version BOSS_command_line_options ${ARGN})
+macro(BOSS_backend_full name backend_version ${ARGN})
 
   # Replace "." by "_" in the backend version number
   string(REPLACE "." "_" backend_version_safe ${backend_version})
@@ -682,6 +682,12 @@ macro(BOSS_backend_full name backend_version BOSS_command_line_options ${ARGN})
       set(BOSS_castxml_cc "")
     endif()
 
+    # Parse command line options from optional arguments
+    set(BOSS_command_line_options "")
+    foreach(arg ${ARGN})
+      set(BOSS_command_line_options ${BOSS_command_line_options} ${arg})
+    endforeach()
+
     add_dependencies(${name}_${ver} castxml)
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Run BOSS
@@ -696,6 +702,6 @@ macro(BOSS_backend_full name backend_version BOSS_command_line_options ${ARGN})
   endif()
 endmacro()
 
-macro(BOSS_backend name backend_version BOSS_command_line_options ${ARGN})
-  BOSS_backend_full(${name} ${backend_version} "${BOSS_command_line_options}" ${ARGN})
+macro(BOSS_backend name backend_version ${ARGN})
+  BOSS_backend_full(${name} ${backend_version} ${ARGN})
 endmacro()

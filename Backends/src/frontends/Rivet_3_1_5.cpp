@@ -11,6 +11,7 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Tomek Procter
+///          (t.procter.1@research.gla.ac.uk)
 ///  \date 2021 July
 ///  *********************************************
 

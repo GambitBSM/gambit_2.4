@@ -38,7 +38,7 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 Sep, Oct
-///  \date 2002 Apr
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -170,7 +170,7 @@ namespace Gambit
                                   const int iteration,
                                   void(*wrapup)(),
                                   const safe_ptr<Options>& runOptions)
- 
+
     {
 
       // If in any other special iteration, do nothing
