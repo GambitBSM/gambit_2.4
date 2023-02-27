@@ -262,7 +262,10 @@ if(NOT EXCLUDE_YODA)
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
   set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
-  set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
+
+  # OpenMP flags does not play nicely with clang and Yoda's use of libtools
+  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
+  #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")

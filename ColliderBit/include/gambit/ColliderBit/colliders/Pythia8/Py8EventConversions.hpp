@@ -119,11 +119,11 @@ namespace Gambit
             }
           }
           // Check for reasonable on-shellness (only low masses discarded on purpose)
-          if(apid == MCUtils::PID::Z0 && (91.-p4.m() > 20.))
+          if(apid == MCUtils::PID::Z0 && (mz_central_observed-p4.m() > 20.))
           {
             isGoodBoson = false;
           }
-          if(apid == MCUtils::PID::WPLUS && (80.-p4.m() > 20.))
+          if(apid == MCUtils::PID::WPLUS && (mw_central_observed-p4.m() > 20.))
           {
             isGoodBoson = false;
           }
