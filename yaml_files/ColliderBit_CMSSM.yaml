@@ -374,7 +374,7 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses: 
+      # skip_analyses:
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
@@ -400,17 +400,18 @@ Rules:
           - ATLAS_2017_I1514251:LMODE=MU
         exclude_analyses:
           - ATLAS_2016_I1469071 # This analysis causes crashes if run on BSM outside of rivet.
-      
-          
+
+
 
   - capability: LHC_measurements
     function: Contur_LHC_measurements_from_stream
+    # function: Contur_LHC_measurements_from_file
     options:
       # Adding a contur option is equivalent to running contur with the equivalent flag.
       # contur_options:
       # - use-searches
       # - theory
-      # YODA_filename: "./runpoint_0017.yoda"
+      # YODA_filename: "./GAMBIT_collider_measurements_LHC_13TeV.yoda"
 
   - capability: LHC_measurements_LogLike
     function: Contur_LHC_measurements_LogLike
