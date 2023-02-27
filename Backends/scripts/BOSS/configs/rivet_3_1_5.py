@@ -56,8 +56,6 @@ load_classes = [
     'Rivet::AnalysisHandler'
 ]
 
-# The addAnalysisLibPath function is repeated to account for system-dependent expansions
-# of the std::string typename.
 load_functions = [
     'Rivet::addAnalysisLibPath(const std::string&)'
 ]
