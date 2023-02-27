@@ -32,10 +32,6 @@ namespace HEPUtils {
     /// @name Constructors
     //@{
 
-    /// Constructor for a light jet without explicit constituents
-//    Jet(const P4& mom, bool isB=false, bool isC=false)
-//      : _p4(mom), _isB(isB), _isC(isC) {  }
-
     /// Constructor for jet with tags
     Jet(const P4& mom, bool isB=false, bool isC=false, bool isW=false, bool isZ=false, bool ish=false)
       : _p4(mom), _isB(isB), _isC(isC), _isW(isW), _isZ(isZ), _ish(ish) {  }
