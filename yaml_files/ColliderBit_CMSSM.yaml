@@ -1,5 +1,5 @@
 ##########################################################################
-## GAMBIT configuration for running a few CMSSM points using only 
+## GAMBIT configuration for running a few CMSSM points using only
 ## ColliderBit likelihoods (LHC and LEP particle searches, LHC and LEP
 ## Higgs data).
 ##
@@ -243,7 +243,7 @@ Rules:
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
-    type: ColliderPythia_defaultversion
+    type: Py8Collider_defaultversion
     function: getPythia
     options:
       LHC_13TeV:

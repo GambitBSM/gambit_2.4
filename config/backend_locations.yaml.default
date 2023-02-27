@@ -38,11 +38,13 @@ DarkSUSY_MSSM:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_mssm.so
+  6.4.0:       ./Backends/installed/darksusy/6.4.0/lib/libds_core_mssm.so
 
 DarkSUSY_generic_wimp:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_generic_wimp.so
+  6.4.0:       ./Backends/installed/darksusy/6.4.0/lib/libds_core_generic_wimp.so
 
 SuperIso:
   4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
@@ -61,6 +63,7 @@ DDCalc:
   2.0.0:       ./Backends/installed/ddcalc/2.0.0/lib/libDDCalc.so
   2.1.0:       ./Backends/installed/ddcalc/2.1.0/lib/libDDCalc.so
   2.2.0:       ./Backends/installed/ddcalc/2.2.0/lib/libDDCalc.so
+  2.3.0:       ./Backends/installed/ddcalc/2.3.0/lib/libDDCalc.so
 
 HiggsBounds:
   4.2.1:       ./Backends/installed/higgsbounds/4.2.1/lib/libhiggsbounds.so

@@ -69,6 +69,10 @@
 #  \date 2017 Jun
 #  \date 2018 Aug
 #
+#  \author Torsten Bringmann
+#      (torsten.bringmann@uio.no)
+#  \date 2022 Jan
+#
 #  \author Aaron Vincent
 #          (aaron.vincent@cparc.ca)
 #  \date 2017 Sep, Nov
@@ -200,7 +204,7 @@ set(name "capgen")
 set(ver "2.1")
 set(lib "gencaplib")
 set(dl "https://github.com/aaronvincent/captngen/archive/refs/tags/${ver}.tar.gz")
-set(md5 "128871ed6f0b61330c3d18571f01f2ab")
+set(md5 "6996c0ae9828f3b14f6c9bd45d46fb78")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(capgen_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
@@ -224,6 +228,10 @@ endif()
 # DarkSUSY
 set(name "darksusy")
 set(ver "5.1.3")
+# Ditch DarkSUSY 5 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "5.1.3" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_5.1.3")
+endif()
 set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tar.gz")
 set(md5 "ca95ffa083941a469469710fab2f3c97")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -249,12 +257,16 @@ endif()
 # DarkSUSY base (for all models)
 set(name "darksusy")
 set(ver "6.1.1")
+# Ditch DarkSUSY 6.1.1 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.1.1" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_6.1.1")
+endif()
 set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
 set(md5 "448f72e9bfafbb086bf4526a2094a189")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -270,15 +282,10 @@ if(NOT ditched_.${name}_${ver}_base)
   add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
-# Ditch DarkSUSY_MSSM if using gfortran 10 or later, as it won't compile due to FeynHiggs
-if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
-  set(itch "${itch}" "darksusy_MSSM")
-endif()
-
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -294,7 +301,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -310,12 +317,16 @@ endif()
 # DarkSUSY base (for all models)
 set(name "darksusy")
 set(ver "6.2.2")
+# Ditch DarkSUSY 6.2.2 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.2.2" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_6.2.2")
+endif()
 set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
 set(md5 "e23feb7363aebc5460aa8ae2c6906ce1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -335,7 +346,7 @@ endif()
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -351,7 +362,7 @@ endif()
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -373,7 +384,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_.${name}_${ver}_base)
+if(NOT ditched_${name}_${ver})
   ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -384,13 +395,17 @@ if(NOT ditched_.${name}_${ver}_base)
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend base (not functional alone)" ${name} ${ver})
+endif()
+
+# Ditch DarkSUSY_MSSM_6.2.5 if using gfortran 10 or later, as it won't compile due to FeynHiggs
+if("${ver}" STREQUAL "6.2.5" AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+  set(itch "${itch}" "darksusy_MSSM_6.2.5")
 endif()
 
 # DarkSUSY MSSM module
 set(model "MSSM")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -401,13 +416,68 @@ if(NOT ditched_${name}_${model}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY generic_wimp module
+set(model "generic_wimp")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_generic_wimp
+          COMMAND ${MAKE_PARALLEL} ds_generic_wimp_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY base (for all models)
+set(name "darksusy")
+set(ver "6.4.0")
+set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
+set(md5 "1bf46347bac64fb019a8b2c617586d0a")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(.${name}_${ver}_base
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_core ds_empty install_tables
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend base (not functional alone)" ${name} ${ver})
+endif()
+
+# DarkSUSY MSSM module
+set(model "MSSM")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} higgsbounds higgssignals ds_mssm
+          COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
   set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # DarkSUSY generic_wimp module
 set(model "generic_wimp")
 check_ditch_status(${name}_${model} ${ver} ${dir})
-if(NOT ditched_${name}_${model}_${ver})
+if(NOT ditched_${name}_${ver} AND NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
@@ -620,6 +690,26 @@ set(ver "2.2.0")
 set(lib "libDDCalc")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "36a29b2c95d619b2676d5d1e47b86ab4")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/")
+set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+set(name "ddcalc")
+set(ver "2.3.0")
+set(lib "libDDCalc")
+set(dl "https://github.com/GambitBSM/${name}/archive/refs/tags/v${ver}.tar.gz")
+set(md5 "f70e47a4a1412dc5497744d6477505e7")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/")
 set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
 check_ditch_status(${name} ${ver} ${dir})

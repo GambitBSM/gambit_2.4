@@ -173,8 +173,11 @@ ObsLikes:
   - capability: DarkSide_50_LogLikelihood
     purpose:    LogLike
     
-  # Predicted signal at LZ experiment
-  - capability: LZ_Signal
+  - capability: LZ_2022_LogLikelihood
+    purpose:    LogLike
+    
+  # Predicted signal at DARWIN experiment
+  - capability: DARWIN_Signal
     purpose:    ObsLike
 
   # Indirect Detection
@@ -252,10 +255,13 @@ Rules:
     options: # Planck 2018 values
       oh2_obs: 0.120
 
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
     function: RD_oh2_DS_general
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
-      fast: 1  # 0: standard, 1: fast (default)
+      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
   - capability: sigmav
@@ -286,15 +292,6 @@ Rules:
   # The model is annihilating DM, not decaying
   - capability: GA_Yield
     function: GA_AnnYield_General
-
-  - capability: electron_Yield
-    function: electron_AnnYield_General
-
-  - capability: positron_Yield
-    function: positron_AnnYield_General
-
-  - capability: capture_rate_Sun
-    function: capture_rate_Sun_NREO
 
   # Feed non-relativistic couplings into DDCalc
   - capability: DDCalc_Couplings

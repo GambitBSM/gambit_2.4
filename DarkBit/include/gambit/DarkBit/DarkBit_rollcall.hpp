@@ -23,7 +23,7 @@
 ///          (torsten.bringmann@fys.uio.no)
 ///  \date 2013 Jun
 ///  \date 2014 Mar
-///  \date 2019 May
+///  \date 2019 May, 2022 Jan
 ///
 ///  \author Lars A. Dal
 ///          (l.a.dal@fys.uio.no)
@@ -135,8 +135,8 @@ START_MODULE
       BACKEND_REQ(dshmisodf, (ds6), DS_HMISODF)
       BACKEND_REQ(dshmframevelcom, (ds6), DS_HMFRAMEVELCOM)
       BACKEND_REQ(dshmnoclue, (ds6), DS_HMNOCLUE)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only DS6
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only DS6
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -197,7 +197,7 @@ START_MODULE
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       BACKEND_REQ(dsancoann, (ds6), DS_DSANCOANN)
       BACKEND_REQ(DSparticle_code, (ds6), int, (const str&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -216,7 +216,7 @@ START_MODULE
       ALLOW_MODELS(MSSM63atQ)
       DEPENDENCY(RD_eff_annrate_DSprep_MSSM, int)
       BACKEND_REQ(dsanwx, (ds6), double, (double&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
     #undef FUNCTION
     #define FUNCTION RD_eff_annrate_from_ProcessCatalog
       START_FUNCTION(fptr_dd)
@@ -228,9 +228,34 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY RD_oh2_DS6pre4_ini
+  START_CAPABILITY
+    #define FUNCTION RD_oh2_DS6pre4_ini_func
+      START_FUNCTION(int)
+      BACKEND_REQ(dsrdcom, (ds6), void, ())
+      BACKEND_REQ(rdpars, (ds6), DS_RDPARS_OLD)
+      BACKEND_REQ(rdtime, (ds6), DS_RDTIME)
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      FORCE_SAME_BACKEND(ds6)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY RD_oh2_DS6_ini
+  START_CAPABILITY
+    #define FUNCTION RD_oh2_DS6_ini_func
+      START_FUNCTION(int)
+      DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
+      BACKEND_REQ(rdpars, (ds6), DS_RDPARS)
+      BACKEND_REQ(rdtime, (ds6), DS_RDTIME)
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.4.0), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.4.0), (ds6))
+      FORCE_SAME_BACKEND(ds6)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY RD_oh2
   START_CAPABILITY
-
     /// General Boltzmann solver from DarkSUSY, using arbitrary Weff
     #define FUNCTION RD_oh2_DS_general
       START_FUNCTION(double)
@@ -239,14 +264,21 @@ START_MODULE
       #ifdef DARKBIT_RD_DEBUG
         DEPENDENCY(MSSM_spectrum, Spectrum)
       #endif
-      BACKEND_REQ(rdpars, (ds6), DS_RDPARS)
-      BACKEND_REQ(rdtime, (ds6), DS_RDTIME)
-      BACKEND_REQ(dsrdcom, (ds6), void, ())
       BACKEND_REQ(dsrdstart,(ds6),void,(int&, double(&)[1000], double(&)[1000], int&, double(&)[1000], double(&)[1000], int&, double(&)[1000]))
       BACKEND_REQ(dsrdens, (ds6), void, (double(*)(double&), double&, double&, int&, int&, int&))
       BACKEND_OPTION((DarkSUSY_MSSM),(ds6))
       BACKEND_OPTION((DarkSUSY_generic_wimp),(ds6))
       FORCE_SAME_BACKEND(ds6)
+      #define CONDITIONAL_DEPENDENCY RD_oh2_DS6pre4_ini
+        START_CONDITIONAL_DEPENDENCY(int)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5)
+      #undef CONDITIONAL_DEPENDENCY
+      #define CONDITIONAL_DEPENDENCY RD_oh2_DS6_ini
+        START_CONDITIONAL_DEPENDENCY(int)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_MSSM, 6.4.0)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_generic_wimp, 6.4.0)
+      #undef CONDITIONAL_DEPENDENCY
     #undef FUNCTION
 
     #define FUNCTION RD_oh2_DS5_general
@@ -264,7 +296,7 @@ START_MODULE
       BACKEND_REQ(widths, (ds5), DS5_WIDTHS)
       BACKEND_REQ(rdmgev, (ds5), DS5_RDMGEV)
       BACKEND_REQ(rdpth, (ds5), DS_RDPTH)
-      BACKEND_REQ(rdpars, (ds5), DS_RDPARS)
+      BACKEND_REQ(rdpars, (ds5), DS_RDPARS_OLD)
       BACKEND_REQ(rdswitch, (ds5), DS_RDSWITCH)
       BACKEND_REQ(rdlun, (ds5), DS_RDLUN)
       BACKEND_REQ(rdpadd, (ds5), DS_RDPADD)
@@ -429,7 +461,7 @@ START_MODULE
       BACKEND_REQ(dsIBwhdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(dsIBwwdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(IBintvars, (ds6), DS_IBINTVARS)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
       ALLOW_MODELS(MSSM63atQ)
     #undef FUNCTION
@@ -1201,7 +1233,7 @@ START_MODULE
       BACKEND_REQ(get_DD_couplings, (ds6), std::vector<double>, ())
       BACKEND_REQ(ddcomlegacy, (ds6), DS_DDCOMLEGACY)
       BACKEND_REQ(ddmssmcom, (ds6), DS_DDMSSMCOM)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
       ALLOW_JOINT_MODEL(nuclear_params_fnq,MSSM63atQ)
     #undef FUNCTION
@@ -1483,8 +1515,10 @@ START_MODULE
   DD_DECLARE_EXPERIMENT(LUX_2015)             // D.S. Akerib et al., PRL 116, 161301 (2016) [arXiv:1512.03506]
   DD_DECLARE_EXPERIMENT(LUX_2016)             // D.S. Akerib et al., PRL 118, 021303 (2017) [arxiv:1608.07648]
   DD_DECLARE_EXPERIMENT(LZ)                   // LZ TDR, [arXiv:1509.02910]
+  DD_DECLARE_EXPERIMENT(LZ_2022)              // LZ TDR, [arXiv:2207.03764]
   DD_DECLARE_EXPERIMENT(PandaX_2016)          // A. Tan et al., PRL 117, 121303 (2016) [arxiv:1607.07400]
   DD_DECLARE_EXPERIMENT(PandaX_2017)          // X. Cui et al., PRL 119, 181302 (2017) [arxiv:1708.06917]
+  DD_DECLARE_EXPERIMENT(PandaX_4T)            // Y. Meng et al., PRL 127, 261802 (2021) [arxiv:2107.13438]
   DD_DECLARE_EXPERIMENT(DarkSide_50)          // P. Agnes et al., [arXiv:1802.07198]
   DD_DECLARE_EXPERIMENT(DarkSide_50_S2)       // P. Agnes et al., [arXiv:1802.06994]
   DD_DECLARE_EXPERIMENT(CRESST_II)            // G. Angloher et al., [arXiv:1509.01515]
@@ -1507,24 +1541,27 @@ START_MODULE
   SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   // Introduced in DDCalc 1.1.0
-  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
   // Introduced in DDCalc 1.2.0
-  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
   // Introduced in DDCalc 2.0.0
-  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 2.3.0))
+  // Introduced in DDCalc 2.0.0 bit later deleted
   SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
   // Introduced in DDCalc 2.2.0
-  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0))
-
+  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0, 2.3.0))
+  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0, 2.3.0))
+  // Introduced in DDCalc 2.3.0
+  SET_BACKEND_OPTION(LZ_2022, (DDCalc, 2.3.0))
+  SET_BACKEND_OPTION(PandaX_4T, (DDCalc, 2.3.0))
 
   // Neutrinos =========================================================
 
@@ -1554,8 +1591,8 @@ START_MODULE
       DEPENDENCY(RD_fraction, double)
       DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
       DEPENDENCY(DarkSUSY_PointInit_LocalHalo, bool)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
 
