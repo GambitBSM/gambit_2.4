@@ -536,7 +536,17 @@ std_headers = {
 # Standard library typedefs. This dictionary will be expanded by BOSS at runtime. Below we 
 # manually list various typedefs we need that BOSS currently can't construct at runtime.
 std_typedef_names_dict = {
+    #
     # Various standard types
+    #
+    "std::vector<bool, std::allocator<bool>>" : "std::vector<bool>",
+    #
+    "std::vector<int, std::allocator<int>>" : "std::vector<int>",
+    #
+    "std::vector<double, std::allocator<double>>" : "std::vector<double>",
+    #
+    "std::vector<std::pair<int, int>, std::allocator<std::pair<int, int>>>" : "std::vector<std::pair<int, int>>",
+    #
     "std::vector<std::basic_string<char>>" : "std::vector<std::string>",
     "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>" : "std::vector<std::string>",
     "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>" : "std::vector<std::string>",
@@ -547,6 +557,24 @@ std_typedef_names_dict = {
     "std::map<std::basic_string<char>, double>" : "std::map<std::string, double>", 
     "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator< std::pair< const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double>>>" : "std::map<std::string, double>", 
     #
+    "std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int>>>" : "std::map<int, int>",
+    #
+    #
     # Backend-specific types
+    #
+    # - Rivet
     "std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject>>>" : "std::vector<std::shared_ptr<YODA::AnalysisObject>>",
+    #
+    # - HepLike:
+    "boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double>>>" : "boost::numeric::ublas::matrix<double>",
+    #
+    # - gm2calc:
+    "Eigen::Array<double, 1, 1, 0, 1, 1>" : "Eigen::Array<double, 1, 1, 0>",
+    "Eigen::Array<double, 2, 1, 0, 2, 1>" : "Eigen::Array<double, 2, 1, 0>",
+    "Eigen::Array<double, 4, 1, 0, 4, 1>" : "Eigen::Array<double, 4, 1, 0>",
+    "Eigen::Matrix<double, 2, 2, 0, 2, 2>" : "Eigen::Matrix<double, 2, 2, 0>",
+    "Eigen::Matrix<double, 3, 3, 0, 3, 3>" : "Eigen::Matrix<double, 3, 3, 0>",
+    "Eigen::Matrix<double, 4, 4, 0, 4, 4>" : "Eigen::Matrix<double, 4, 4, 0>",
+    "Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>" : "Eigen::Matrix<std::complex<double>, 2, 2, 0>",
+    "Eigen::Matrix<std::complex<double>, 4, 4, 0, 4, 4>" : "Eigen::Matrix<std::complex<double>, 4, 4, 0>",
 }
