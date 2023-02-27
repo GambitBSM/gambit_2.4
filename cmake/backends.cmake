@@ -2007,12 +2007,6 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    # # CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
-    # CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${dir}/local
-    # # CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config
-    # BUILD_COMMAND ${MAKE_PARALLEL} fragile-shared-install
-    # INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
-    # # INSTALL_COMMAND ""
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
@@ -2113,7 +2107,6 @@ if(NOT ditched_${name}_${ver})
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}
-      #CONFIGURE_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
