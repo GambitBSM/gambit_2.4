@@ -42,16 +42,11 @@ install_path = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+ga
 
 input_files = [
     install_path+'/include/HL_BifurGaussian.h',
-#    install_path+'/include/HL_Constants.h',
-#    install_path+'/include/HL_Data.h',
-#    install_path+'/include/HL_ExpPoints.h',
     install_path+'/include/HL_Gaussian.h',
-#    install_path+'/include/HL_Limit.h',
     install_path+'/include/HL_nDimBifurGaussian.h',
     install_path+'/include/HL_nDimGaussian.h',
     install_path+'/include/HL_nDimLikelihood.h',
     install_path+'/include/HL_ProfLikelihood.h',
-#    install_path+'/include/HL_Stats.h'
 ]
 include_paths = [install_path+'/include/', install_path+'/yaml-cpp/include/']
 base_paths = [install_path]
@@ -97,7 +92,6 @@ indent = 3
 
 known_classes = {
     "boost::numeric::ublas::matrix" : "<boost/numeric/ublas/matrix.hpp>",
-#    "YAML::Node" : "yaml-cpp/yaml.h"
 }
 
 
