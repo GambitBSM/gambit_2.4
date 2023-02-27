@@ -175,6 +175,14 @@ namespace Gambit
   const double mw_err_observed = 0.015;
   /// @}
 
+  /// M_Z (Breit-Wigner mass parameter ~ pole) = 91.1876 +/- 0.0021  GeV (1 sigma), Gaussian.
+  /// Reference https://pdg.lbl.gov/2022/listings/rpp2022-list-z-boson.pdf = R.L. Workmanet al. (Particle Data Group), Prog. Theor. Exp. Phys. 2022, 083C01 (2022)
+  /// @{
+  const double mz_central_observed = 91.1876;
+  const double mz_err_observed = 0.0021;
+  /// @}
+
+
 }
 
 #endif //#defined __numerical_constants_hpp__
