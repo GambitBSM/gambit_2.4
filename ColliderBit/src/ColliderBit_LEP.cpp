@@ -46,36 +46,40 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    /**
-     * @brief Retrieve and store information about LSP from spectrum object
-     */
-    class LSP
+    /// A simple struct and helper function to determine if the LSP is
+    /// the lightest neutralino or the gravitino. 
+    struct LSP
     {
-     public:
-      int pdg{1000022};
-      str name{"~chi0_1"};
-      double mass{0.};
+      int pdg;
+      str name;
+      double mass;
+    };
 
-      LSP(const Spectrum& spec)
+    LSP get_LSP_for_LEP_limits(const Spectrum& spec)
+    {
+      LSP lsp;
+
+      // Start by assuming the neutralino_1 is LSP
+      lsp.pdg = 1000022;
+      lsp.name = "~chi0_1";
+      lsp.mass = std::abs(spec.get(Par::Pole_Mass, 1000022, 0));
+
+      // Check if gravitino is LSP
+      if (spec.has(Par::Pole_Mass, 1000039, 0))
       {
-        mass = spec.get(Par::Pole_Mass, 1000022, 0);
-
-        // Presume that this Pipes:: ... as good as any for ModelInUse
-        const bool gravitino = Pipes::LEP208_SLHA1_convention_xsec_selselbar::ModelInUse("MSSM63atQ_mG") ||
-                               Pipes::LEP208_SLHA1_convention_xsec_selselbar::ModelInUse("MSSM63atMGUT_mG");
-
-        if (gravitino)
+        double m = spec.get(Par::Pole_Mass, 1000039, 0);
+        if (m < lsp.mass)
         {
-          const double mass_g = spec.get(Par::Pole_Mass, 1000039, 0);
-          if (mass_g < mass)
-          {
-            mass = mass_g;
-            pdg = 1000039;
-            name = "~G";
-          }
+          lsp.pdg = 1000039;
+          lsp.name = "~G";
+          lsp.mass = m;
         }
       }
-    };
+
+      return lsp;
+    }
+
+
 
     // *** Limits from e+e- colliders ***
 
@@ -1906,7 +1910,7 @@ namespace Gambit
       static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp(spec);
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
 
       const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
@@ -2008,7 +2012,7 @@ namespace Gambit
       static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp(spec);
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
 
       const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
@@ -2118,7 +2122,7 @@ namespace Gambit
       using std::log;
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp(spec);
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
 
       const DecayTable& decays = *Dep::decay_rates;
       const double mass_neut1 = lsp.mass;
@@ -2201,7 +2205,7 @@ namespace Gambit
       static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp(spec);
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
 
       const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
@@ -2343,7 +2347,7 @@ namespace Gambit
       using std::log;
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp(spec);
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
 
       const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
@@ -2503,7 +2507,7 @@ namespace Gambit
       static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp(spec);
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
 
       const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
