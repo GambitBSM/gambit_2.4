@@ -2450,6 +2450,25 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# simplexs
+set(name "simplexs")
+set(ver "1.0")
+set(dl "https://github.com/GambitBSM/gambit_simplexs/archive/refs/heads/main.zip")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/examples/simple_xs/1.0/")
+set(md5 "5bf400a48e30049e92bff80b69cfd523")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+endif()
+
+
 # Alternative download command for getting unreleased things from the gambit_internal repository.
 # If you don't know what that is, you don't need to tinker with these.
 #    DOWNLOAD_COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --yellow --bold ${private_code_warning1}
