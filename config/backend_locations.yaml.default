@@ -56,7 +56,6 @@ HepLike:
   2.0:         ./Backends/installed/heplike/2.0/libHEPLike.so
 
 HepLikeData:
-  1.2:         ./Backends/installed/heplikedata/1.2
   1.4:         ./Backends/installed/heplikedata/1.4
 
 DDCalc:
@@ -191,7 +190,7 @@ libMathematicaTest:
 # Work in progress:
 # xsecBE:
 #   1.0.2:       ./Backends/installed/xsecBE/1.0.2/xsecBE_gambit.py
- 
+
 # Work in progress:
 # salami:
 #   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
