@@ -852,6 +852,8 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_.${name}_${ver}_base)
   set(MO_C_FLAGS "${BACKEND_C_FLAGS} -fcommon")
+  set_compiler_warning("no-format" MO_C_FLAGS)
+  set_compiler_warning("no-implicit-function-declaration" MO_C_FLAGS)
   set(MO_CXX_FLAGS "${BACKEND_CXX_FLAGS} -fcommon")
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     # Fix error due to C99 non-compliance
@@ -1813,6 +1815,10 @@ if(NOT ditched_${name}_${ver})
   set(calchep_CXX_FLAGS "${BACKEND_CXX_FLAGS} -fcommon")
   set(calchep_C_FLAGS "${BACKEND_C_FLAGS} -fcommon")
   set(calchep_Fortran_FLAGS "${BACKEND_Fortran_FLAGS} -fcommon")
+  set_compiler_warning("no-format" calchep_C_FLAGS)
+  set_compiler_warning("no-implicit-function-declaration" calchep_C_FLAGS)
+  set_compiler_warning("no-int-conversion" calchep_C_FLAGS)
+  set_compiler_warning("no-incompatible-pointer-types" calchep_C_FLAGS)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(calchep_CXX_FLAGS "${calchep_CXX_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
     set(calchep_C_FLAGS "${calchep_C_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
@@ -1985,7 +1991,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules
     BUILD_COMMAND ${MAKE_PARALLEL} install
     INSTALL_COMMAND ""
   )
