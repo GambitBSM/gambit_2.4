@@ -1738,9 +1738,6 @@ if(NOT ditched_${name}_${ver})
           DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
           SOURCE_DIR ${dir}
           PATCH_COMMAND patch -p1 < ${patchdir}/patch_${name}_${ver}.dif
-          UPDATE_COMMAND sed ${dashi} -e "${BOSSregex}" ${dir}/CMakeLists.txt
-                 COMMAND sed ${dashi} -e "${FLAGSregex1}" ${dir}/CMakeLists.txt
-                 COMMAND sed ${dashi} -e "${FLAGSregex2}" ${dir}/CMakeLists.txt
           CMAKE_COMMAND ${CMAKE_COMMAND} ${dir}
           CMAKE_ARGS ${VPP_CMAKE_FLAGS}
           BUILD_COMMAND ${MAKE_PARALLEL} ${VPP_FLAGS} MINUITLIBDIR=${Minuit_lib} MINUITLIBNAME=${Minuit_lib_name} VevaciousPlusPlus-lib
