@@ -713,12 +713,14 @@ def findType(el_input):
     # like "std::basic_string<char, std::char_traits<char>, std::allocator<char> >"
     # for the typdef std::string.
     # 
-    # TODO: Find a nicer to do this than just replacing the full typename
-    # 
+    # TODO: Find a nicer way to do this than just replacing the full typename
     if isStdType(el):
-        if typename in gb.std_typedef_names_dict.keys():
-            typedef_name = gb.std_typedef_names_dict[typename]
-            typename = typedef_name
+        typename_nospace = typename.replace(' ','')
+        for long_typename, typedefname in gb.std_typedef_names_dict.items():
+            long_typename_nospace = long_typename.replace(' ','')
+            if (typename_nospace == long_typename_nospace):
+                typename = typedefname
+                break
 
     # Construct the returned dict with the type info
     type_dict = OrderedDict([])
