@@ -591,7 +591,9 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
     INSTALL_COMMAND ""
     )
-  BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG}" "-I${ROOT_INCLUDE_DIRS}")
+  BOSS_backend(${name} ${ver})
+  # ROOT flags not needed right now. Left as comment in case they are needed in the future
+  # BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG}" "-I${ROOT_INCLUDE_DIRS}")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -605,6 +607,9 @@ set(dl "http://superiso.in2p3.fr/download/${name}_v${ver}_flavbit3.tgz")
 set(md5 "524ac68f60fbe76f9db4b760e88e77c4")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/remove_omp.patch")
+set(SI_C_FLAGS ${BACKEND_C_FLAGS})
+set_compiler_warning("no-format-overflow" SI_C_FLAGS)
+set_compiler_warning("no-format" SI_C_FLAGS)
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -613,7 +618,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${BACKEND_C_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
           COMMAND ar x src/libsuperiso.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
@@ -1711,9 +1716,14 @@ set(hom4ps_ver "2.0")
 set(Minuit_include "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/inc/")
 set(Minuit_lib "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/lib/")
 set(VPP_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
-set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${VPP_SHARED_LINKER_FLAGS} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
-set(VPP_FLAGS "${BACKEND_CXX_FLAGS} -Wno-unused-local-typedefs -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
-set_compiler_warning("no-unused-parameter" VPP_FLAGS)
+set(VPP_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
+set_compiler_warning("no-unused-local-typedefs" VPP_CXX_FLAGS)
+set_compiler_warning("no-unused-parameter" VPP_CXX_FLAGS)
+set_compiler_warning("no-reorder" VPP_CXX_FLAGS)
+set_compiler_warning("no-deprecated-copy" VPP_CXX_FLAGS)
+set_compiler_warning("no-unused-variable" VPP_CXX_FLAGS)
+set_compiler_warning("no-pessimizing-move" VPP_CXX_FLAGS)
+set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DCMAKE_CXX_FLAGS=${VPP_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${VPP_SHARED_LINKER_FLAGS} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
 set(BOSSregex "s#cpp)#cpp   source/BOSS_factory_VevaciousPlusPlus.cpp       source/BOSS_wrapperutils.cpp        source/BOSS_VevaciousPlusPlus.cpp)#g")
 set(FLAGSregex1 "s#_FLAGS} -O3 -fPIC#_FLAGS}#g")
 set(FLAGSregex2 "s#_FLAGS} -Wall -Wno-unused-local-typedefs -O3 -fPIC -fopenmp#_FLAGS}#g")
@@ -1731,7 +1741,7 @@ if(NOT ditched_${name}_${ver})
                  COMMAND sed ${dashi} -e "${FLAGSregex2}" ${dir}/CMakeLists.txt
           CMAKE_COMMAND ${CMAKE_COMMAND} ${dir}
           CMAKE_ARGS ${VPP_CMAKE_FLAGS}
-          BUILD_COMMAND ${MAKE_PARALLEL} MINUITLIBDIR=${Minuit_lib} MINUITLIBNAME=${Minuit_lib_name} VevaciousPlusPlus-lib
+          BUILD_COMMAND ${MAKE_PARALLEL} ${VPP_FLAGS} MINUITLIBDIR=${Minuit_lib} MINUITLIBNAME=${Minuit_lib_name} VevaciousPlusPlus-lib
                 COMMAND ${CMAKE_COMMAND} -E make_directory ${patchdir}/VevaciousPlusPlus/ModelFiles/
                 COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/VevaciousPlusPlus/ModelFiles/ ${dir}/ModelFiles/
           INSTALL_COMMAND ""
