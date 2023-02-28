@@ -27,9 +27,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          double& xmin;
          double& xmax;
          double& central_mes_val;
-         std::basic_string<char>& ObsName;
-         std::basic_string<char>& HL_RootFile;
-         std::basic_string<char>& HL_PATH;
+         std::string& ObsName;
+         std::string& HL_RootFile;
+         std::string& HL_PATH;
    
          // Member functions: 
       public:

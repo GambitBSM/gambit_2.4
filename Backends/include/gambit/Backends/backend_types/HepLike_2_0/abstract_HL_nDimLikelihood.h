@@ -36,7 +36,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          virtual double GetLogLikelihood(std::vector<double>, boost::numeric::ublas::matrix<double>) =0;
    
-         virtual void Profile(::std::basic_string<char>) =0;
+         virtual void Profile(std::string) =0;
    
          virtual void Profile__BOSS() =0;
    
@@ -50,11 +50,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          virtual double& loglikelihood_penalty_ref__BOSS() =0;
    
-         virtual std::basic_string<char>& HL_RootFile_ref__BOSS() =0;
+         virtual std::string& HL_RootFile_ref__BOSS() =0;
    
-         virtual std::basic_string<char>& HL_PATH_ref__BOSS() =0;
+         virtual std::string& HL_PATH_ref__BOSS() =0;
    
-         virtual std::vector<std::basic_string<char>>& Observables_ref__BOSS() =0;
+         virtual std::vector<std::string>& Observables_ref__BOSS() =0;
    
          virtual int& NoOfObservables_ref__BOSS() =0;
    

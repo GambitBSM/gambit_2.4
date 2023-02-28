@@ -26,9 +26,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // -- Other member variables: 
       public:
          double& loglikelihood_penalty;
-         std::basic_string<char>& HL_RootFile;
-         std::basic_string<char>& HL_PATH;
-         std::vector<std::basic_string<char>>& Observables;
+         std::string& HL_RootFile;
+         std::string& HL_PATH;
+         std::vector<std::string>& Observables;
          int& NoOfObservables;
          int& size_restricted;
          double& xmin;
@@ -60,7 +60,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          double GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov);
    
-         void Profile(::std::basic_string<char> arg_1);
+         void Profile(std::string arg_1);
    
          void Profile();
    
