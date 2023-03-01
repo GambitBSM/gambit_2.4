@@ -555,7 +555,7 @@ std_typedef_names_dict = {
     "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator<std::pair<const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>>" : "std::map<std::string, std::string>",
     # 
     "std::map<std::basic_string<char>, double>" : "std::map<std::string, double>", 
-    "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator< std::pair< const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double>>>" : "std::map<std::string, double>", 
+    "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator<std::pair<const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double>>>" : "std::map<std::string, double>", 
     #
     "std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int>>>" : "std::map<int, int>",
     #
