@@ -55,7 +55,7 @@ def remove_bao(k_in,pk_in):
   d2 = scipy.interpolate.splrep(k_in, derivs[2], k=3, s=1.0)
   # Find maxima and minima of the gradient (zeros of 2nd deriv.), then put a
   # low-order spline through zeros to subtract smooth trend from wiggles fn.
-  scipy.interpolate.PPoly.from_spline(d2).roots(extrapolate=False)
+  wzeros = scipy.interpolate.PPoly.from_spline(d2).roots(extrapolate=False)
   wzeros = wzeros[np.where(np.logical_and(wzeros >= k_ref[0], wzeros <= k_ref[1]))]
   wzeros = np.concatenate((wzeros, [k_ref[1],]))
   wtrend = scipy.interpolate.UnivariateSpline(wzeros, fwiggle(wzeros), k=3, s=0)
