@@ -102,32 +102,32 @@ BE_INI_FUNCTION
   bool present = true;
 
   try { width = tbl->at("Z0").width_in_GeV; }
-   catch(std::exception& e) { present = false; }
+  catch(std::exception& e) { present = false; }
   if (present) Assign_Value("WZ", width);
   present = true;
 
   try { width = tbl->at("W+").width_in_GeV; }
-   catch(std::exception& e) { present = false; }
+  catch(std::exception& e) { present = false; }
   if (present) Assign_Value("WW", width);
   present = true;
 
   try { width = tbl->at("u_3").width_in_GeV; }
-   catch(std::exception& e) { present = false; }
+  catch(std::exception& e) { present = false; }
   if (present) Assign_Value("WT", width);
   present = true;
 
   try { width = tbl->at("h0_1").width_in_GeV; }
-   catch(std::exception& e) { present = false; }
+  catch(std::exception& e) { present = false; }
   if (present) Assign_Value("WH", width);
   present = true;
 
   try { width = tbl->at("~Xv").width_in_GeV; }
-   catch(std::exception& e) { present = false; }
+  catch(std::exception& e) { present = false; }
   if (present) Assign_Value("WXv", width);
   present = true;
 
   try { width = tbl->at("Y1").width_in_GeV; }
-   catch(std::exception& e) { present = false; }
+  catch(std::exception& e) { present = false; }
   if (present) Assign_Value("WY1", width);
   present = true;
 

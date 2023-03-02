@@ -948,7 +948,7 @@ def write_micromegas_src(gambit_model_name, spectrum, mathpackage, params,
         if chwidth == "0": continue
         mo_src += (
                "try {{ width = tbl->at(\"{0}\").width_in_GeV; }}\n"
-               " catch(std::exception& e) {{ present = false; }}\n"
+               "catch(std::exception& e) {{ present = false; }}\n"
                "if (present) Assign_Value(\"{1}\", width);\n"
                "present = true;\n\n"
         ).format(pdg_to_particle(pdg, gambit_pdg_codes), chwidth)
