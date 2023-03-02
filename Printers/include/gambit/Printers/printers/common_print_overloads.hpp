@@ -161,8 +161,8 @@ namespace Gambit
       template<typename P>
       void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
-        printer._print(value.central_values, label, vID, mpirank, pointID);
-        printer._print(value.covariance, label, vID, mpirank, pointID);
+        printer._print(value.central_values, label + "::central", vID, mpirank, pointID);
+        printer._print(value.covariance, label + "::covariance", vID, mpirank, pointID);
       }
 
       /// BBN observables print overload

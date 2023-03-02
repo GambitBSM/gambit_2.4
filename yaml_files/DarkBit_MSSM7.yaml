@@ -117,23 +117,21 @@ Priors:
 
 Printer:
 
-  # These lines tell GAMBIT to use the hdf5 printer
-  # Can switch to the ascii printer by commenting out and
-  # using the ascii lines below
+  # Select printer 
 
   printer: hdf5
   options:
-    output_file: "MSSM7_DarkBit.hdf5"
+    output_file: "DarkBit_MSSM7.hdf5"
     group: "/MSSM7"
     delete_file_on_restart: true
 
-  #printer: ascii
-  #options:
-  #  output_file: "MSSM7.txt"
-  #  buffer_length: 10
-  #  delete_file_on_restart: true
+  # printer: ascii
+  # options:
+  #   output_file: "MSSM7.txt"
+  #   buffer_length: 10
+  #   delete_file_on_restart: true
 
-  #printer: cout
+  # printer: cout
 
 
 Scanner:
@@ -547,23 +545,23 @@ Rules:
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum
     type: Spectrum
-    #function: make_MSSM_precision_spectrum_none
-    #function: make_MSSM_precision_spectrum_W
-    #function: make_MSSM_precision_spectrum_H_W
-    function: make_MSSM_precision_spectrum_4H_W
+    function: make_MSSM_precision_spectrum_none
+    # function: make_MSSM_precision_spectrum_W
+    # function: make_MSSM_precision_spectrum_H_W
+    # function: make_MSSM_precision_spectrum_4H_W
     # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
     # or make_MSSM_precision_spectrum_H_W.
     # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
     # Choose to use the difference between the precision and spectrum generator predictions, along
     # with the precision error estimate, to estimate the theoretical error on the prediction.
-    options:
-      Higgs_predictions_source: 1
-      Higgs_predictions_error_method: 4
+    # options:
+    #   Higgs_predictions_source: 1
+    #   Higgs_predictions_error_method: 4
 
-  # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
-  - capability: prec_mh
-    function: FeynHiggs_HiggsMass
-    #function: SUSYHD_HiggsMass
+  # # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
+  # - capability: prec_mh
+  #   function: FeynHiggs_HiggsMass
+  #   #function: SUSYHD_HiggsMass
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
@@ -626,4 +624,4 @@ KeyValues:
   debug: true
 
   # Set the output path for the log files (relative to working directory unless absolute path is specified)
-  default_output_path: "runs/MSSM7-DarkBit/"
+  default_output_path: "runs/DarkBit_MSSM7/"
