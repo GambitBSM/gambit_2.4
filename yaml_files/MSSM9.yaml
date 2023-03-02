@@ -419,6 +419,15 @@ Rules:
   #  options:
   #    fast: 1  # 0: standard, 1: fast (default)
 
+  # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
+  - capability: RD_eff_annrate
+    # function: RD_eff_annrate_DS5_MSSM
+    function: RD_eff_annrate_DS_MSSM
+  # ...and get the dependency RD_spectrum from RD_spectrum_MSSM
+  - capability: RD_spectrum
+    #function: RD_spectrum_SUSY_DS5
+    function: RD_spectrum_MSSM
+
   # Choose module function to provide the TH_ProcessCatalog
   - capability: TH_ProcessCatalog
     #function: TH_ProcessCatalog_DS5_MSSM # For DarkSUSY 5

@@ -288,7 +288,7 @@ Rules:
 Logger:
 
   redirection:
-
+    [Default] : "default.log"
     [Dependency Resolver] : "dep_resolver.log"
     [Backends]: "backends.log"
     [Core]: "core.log"
@@ -310,6 +310,6 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -1e4
 
-  debug: false
+  debug: true
 
   default_output_path: "runs/ScalarSingletDM_Z3/"
