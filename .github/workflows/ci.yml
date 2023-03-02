@@ -45,6 +45,11 @@ jobs:
         echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
         cat buildenv.sh
         pip install pyyaml pybind11 h5py scipy numpy pyhf
+    - name: DEBUG step
+      run: |
+        echo "DEBUG: Test 'python -c import pyhf'"
+        /usr/bin/python -c 'import pyhf'
+        echo "DEBUG: Done. Return value was: $?"
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
