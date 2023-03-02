@@ -84,9 +84,9 @@ Priors:
 
 Printer:
 
-  printer: cout
+  #printer: cout
 
-  #printer: hdf5
+  printer: hdf5
   options:
     delete_file_on_restart: true
     buffer_length: 1000
@@ -100,7 +100,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: random #diver
+  use_scanner: diver
 
   scanners:
 
