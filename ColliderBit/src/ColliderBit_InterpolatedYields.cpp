@@ -210,10 +210,6 @@ namespace Gambit
     void DMEFT_results(AnalysisDataPointers&);
     void DMEFT_results_profiled(AnalysisDataPointers&);
     void DMEFT_results_cutoff(AnalysisDataPointers&);
-    void DMsimpVectorMedScalarDM_monojet_results(AnalysisDataPointers&);
-    void DMsimpVectorMedMajoranaDM_monojet_results(AnalysisDataPointers&);
-    void DMsimpVectorMedDiracDM_monojet_results(AnalysisDataPointers&);
-    void DMsimpVectorMedVectorDM_monojet_results(AnalysisDataPointers&);
 
     void get_DMEFT_signal_yields_dim6_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double, double);
     void get_DMEFT_signal_yields_dim7_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double);
@@ -223,10 +219,7 @@ namespace Gambit
     void get_DMsimpVectorMedVectorDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
 
     void get_all_DMEFT_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
-    void get_all_DMsimpVectorMedScalarDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
-    void get_all_DMsimpVectorMedMajoranaDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
-    void get_all_DMsimpVectorMedDiracDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
-    void get_all_DMsimpVectorMedVectorDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
+    void get_all_DMsimp_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&, str&);
 
     void signal_modifier_function(AnalysisData&, double, double);
     void signal_cutoff_function(AnalysisData&, double);
@@ -1350,7 +1343,7 @@ namespace Gambit
     }
 
     /// Loop over analyses registered in the analysis_info_map
-    void get_all_signal_yields(void (*get_all_model_signal_yields)(std::vector<double>&, const Model_analysis_info&, const Spectrum&), const Spectrum& spec, std::map<str,AnalysisData>& analysis_data_map, AnalysisDataPointers& result)
+    void get_all_signal_yields(void (*get_all_model_signal_yields)(std::vector<double>&, const Model_analysis_info&, const Spectrum&, str& modelname), const Spectrum& spec, std::map<str,AnalysisData>& analysis_data_map, AnalysisDataPointers& result, str& modelname)
     {
 
       // Loop over the analyses registered in the analysis_info_map
@@ -1370,7 +1363,7 @@ namespace Gambit
 
         // Use the provided model-specific function pointer to fill the signal yield vector 
         // with signal predictions for the given model
-        get_all_model_signal_yields(sr_nums, ainfo, spec);
+        get_all_model_signal_yields(sr_nums, ainfo, spec, modelname);
 
         // Create vector of SignalRegionData instances
         std::vector<SignalRegionData> srdata_vector;
@@ -1409,10 +1402,10 @@ namespace Gambit
 
     }
 
-    /// Results from DMsimpVectorMedScalarDM analyses
-    void DMsimpVectorMedScalarDM_results(AnalysisDataPointers& result)
+    /// Results from DMsimp model analyses
+    void DMsimp_results(AnalysisDataPointers& result)
     {
-      using namespace Pipes::DMsimpVectorMedScalarDM_results;
+      using namespace Pipes::DMsimp_results;
 
       // Clear previous vectors, etc.
       result.clear();
@@ -1425,18 +1418,22 @@ namespace Gambit
       // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
       std::map<str,str> Analysis_data_path;
       std::map<str,std::vector<str>> Interpolation_columns;
-      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS137_MonoJet.txt";
+      int Ndim;
 
-      Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+      if(ModelInUse("DMsimpVectorMedScalarDM"))
+      {
+        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
+        Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_ATLAS139_MonoJet.txt";
+        Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS137_MonoJet.txt";
+
+        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};
-      Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                             "EM0","EM1", "EM2", "EM3", "EM4", "EM5", "EM6", "EM7", "EM8",
                                                                             "EM9", "EM10","EM11", "EM12"};
-      Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                           "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                           "SR10","SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                           "SR18", "SR19", "SR20", "SR21", "SR22", "SR23", "SR24", "SR25",
@@ -1446,12 +1443,91 @@ namespace Gambit
                                                                           "SR50", "SR51", "SR52", "SR53", "SR54","SR55", "SR56", "SR57",
                                                                           "SR58", "SR59", "SR60", "SR61", "SR62", "SR63", "SR64", "SR65", "SR66"};
 
+         Ndim = 4;
+      }
+      else if(ModelInUse("DMsimpVectorMedMajoranaDM"))
+      {
+        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
+        Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_ATLAS139_MonoJet.txt";
+        Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS137_MonoJet.txt";
+
+        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
+                                                                         "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
+                                                                         "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
+                                                                         "SR18", "SR19", "SR20", "SR21", "SR22"};
+        Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
+                                                                            "EM0","EM1", "EM2", "EM3", "EM4", "EM5", "EM6", "EM7", "EM8",
+                                                                            "EM9", "EM10","EM11", "EM12"};
+        Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
+                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
+                                                                          "SR10","SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
+                                                                          "SR18", "SR19", "SR20", "SR21", "SR22", "SR23", "SR24", "SR25",
+                                                                          "SR26", "SR27", "SR28", "SR29", "SR30", "SR31", "SR32","SR33",
+                                                                          "SR34", "SR35", "SR36", "SR37", "SR38", "SR39", "SR40", "SR41",
+                                                                          "SR42", "SR43", "SR44", "SR45", "SR46", "SR47", "SR48", "SR49",
+                                                                          "SR50", "SR51", "SR52", "SR53", "SR54","SR55", "SR56", "SR57",
+                                                                          "SR58", "SR59", "SR60", "SR61", "SR62", "SR63", "SR64", "SR65", "SR66"};
+
+         Ndim = 4;
+      }
+      else if(ModelInUse("DMsimpVectorMedDiracDM"))
+      {
+        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
+        Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_ATLAS139_MonoJet.txt";
+        Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS137_MonoJet.txt";
+
+        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
+                                                                         "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
+                                                                         "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
+                                                                         "SR18", "SR19", "SR20", "SR21", "SR22"};
+        Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
+                                                                            "EM0","EM1", "EM2", "EM3", "EM4", "EM5", "EM6", "EM7", "EM8",
+                                                                            "EM9", "EM10","EM11", "EM12"};
+        Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
+                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
+                                                                          "SR10","SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
+                                                                          "SR18", "SR19", "SR20", "SR21", "SR22", "SR23", "SR24", "SR25",
+                                                                          "SR26", "SR27", "SR28", "SR29", "SR30", "SR31", "SR32","SR33",
+                                                                          "SR34", "SR35", "SR36", "SR37", "SR38", "SR39", "SR40", "SR41",
+                                                                          "SR42", "SR43", "SR44", "SR45", "SR46", "SR47", "SR48", "SR49",
+                                                                          "SR50", "SR51", "SR52", "SR53", "SR54","SR55", "SR56", "SR57",
+                                                                          "SR58", "SR59", "SR60", "SR61", "SR62", "SR63", "SR64", "SR65", "SR66"};
+
+         Ndim = 5;
+      }
+      else if(ModelInUse("DMsimpVectorMedVectorDM"))
+      {
+        // Skipping the 36 invfb anaysis since it was not simulated for this model
+        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = "Skip Analysis";
+        Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_ATLAS139_MonoJet.txt";
+        Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_CMS137_MonoJet.txt";
+
+        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+                                                                         "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
+                                                                         "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
+                                                                         "SR18", "SR19", "SR20", "SR21", "SR22"};
+        Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+                                                                            "EM0","EM1", "EM2", "EM3", "EM4", "EM5", "EM6", "EM7", "EM8",
+                                                                            "EM9", "EM10","EM11", "EM12"};
+        Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
+                                                                          "SR10","SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
+                                                                          "SR18", "SR19", "SR20", "SR21", "SR22", "SR23", "SR24", "SR25",
+                                                                          "SR26", "SR27", "SR28", "SR29", "SR30", "SR31", "SR32","SR33",
+                                                                          "SR34", "SR35", "SR36", "SR37", "SR38", "SR39", "SR40", "SR41",
+                                                                          "SR42", "SR43", "SR44", "SR45", "SR46", "SR47", "SR48", "SR49",
+                                                                          "SR50", "SR51", "SR52", "SR53", "SR54","SR55", "SR56", "SR57",
+                                                                          "SR58", "SR59", "SR60", "SR61", "SR62", "SR63", "SR64", "SR65", "SR66"};
+
+         Ndim = 4;
+      }
+
 
       // The first time this function is run we must initialize the global analysis_info_map
       // and the thread_local analysis_data_map
       if (first)
       {
-        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, 4);
+        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, Ndim);
 
         for (const std::pair<str,const Model_analysis_info&>& aname_ainfo_pair : analysis_info_map)
         {
@@ -1463,276 +1539,76 @@ namespace Gambit
         first = false;
       }
 
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedScalarDM_spectrum;
-
       // Retrieve the signal yields
-      get_all_signal_yields(get_all_DMsimpVectorMedScalarDM_signal_yields, spec, analysis_data_map, result);
-
-    };
-
-    /// Results from DMsimpVectorMedMajoranaDM analyses
-    void DMsimpVectorMedMajoranaDM_results(AnalysisDataPointers& result)
-    {
-      using namespace Pipes::DMsimpVectorMedMajoranaDM_results;
-
-      // Clear previous vectors, etc.
-      result.clear();
-
-      static bool first = true;
-
-      // We need thread_local AnalysisData instances. Let's collect them in a map.
-      thread_local std::map<str,AnalysisData> analysis_data_map;
-
-      // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
-      std::map<str,str> Analysis_data_path;
-      std::map<str,std::vector<str>> Interpolation_columns;
-      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS137_MonoJet.txt";
-
-      Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
-                                                                         "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
-                                                                         "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
-                                                                         "SR18", "SR19", "SR20", "SR21", "SR22"};
-      Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
-                                                                            "EM0","EM1", "EM2", "EM3", "EM4", "EM5", "EM6", "EM7", "EM8",
-                                                                            "EM9", "EM10","EM11", "EM12"};
-      Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
-                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
-                                                                          "SR10","SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
-                                                                          "SR18", "SR19", "SR20", "SR21", "SR22", "SR23", "SR24", "SR25",
-                                                                          "SR26", "SR27", "SR28", "SR29", "SR30", "SR31", "SR32","SR33",
-                                                                          "SR34", "SR35", "SR36", "SR37", "SR38", "SR39", "SR40", "SR41",
-                                                                          "SR42", "SR43", "SR44", "SR45", "SR46", "SR47", "SR48", "SR49",
-                                                                          "SR50", "SR51", "SR52", "SR53", "SR54","SR55", "SR56", "SR57",
-                                                                          "SR58", "SR59", "SR60", "SR61", "SR62", "SR63", "SR64", "SR65", "SR66"};
-
-      // The first time this function is run we must initialize the global analysis_info_map
-      // and the thread_local analysis_data_map
-      if (first)
+      if(ModelInUse("DMsimpVectorMedScalarDM"))
       {
-        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, 4);
-
-        for (const std::pair<str,const Model_analysis_info&>& aname_ainfo_pair : analysis_info_map)
-        {
-          // Extract analysis name and use it to create an AnalysisData element in the analysis_data_map
-          str aname = aname_ainfo_pair.first;
-          analysis_data_map[aname] = AnalysisData(aname);
-        }
-
-        first = false;
+        const Spectrum& spec = *Dep::DMsimpVectorMedScalarDM_spectrum;
+        str modelname = "DMsimpVectorMedScalarDM";
+        get_all_signal_yields(get_all_DMsimp_signal_yields, spec, analysis_data_map, result, modelname);
+      }
+      else if(ModelInUse("DMsimpVectorMedMajoranaDM"))
+      {
+        const Spectrum& spec = *Dep::DMsimpVectorMedMajoranaDM_spectrum;
+        str modelname = "DMsimpVectorMedMajoranaDM";
+        get_all_signal_yields(get_all_DMsimp_signal_yields, spec, analysis_data_map, result, modelname);
+      }
+      else if(ModelInUse("DMsimpVectorMedDiracDM"))
+      {
+        const Spectrum& spec = *Dep::DMsimpVectorMedDiracDM_spectrum;
+        str modelname = "DMsimpVectorMedDiracDM";
+        get_all_signal_yields(get_all_DMsimp_signal_yields, spec, analysis_data_map, result, modelname);
+      }
+      else if(ModelInUse("DMsimpVectorMedVectorDM"))
+      {
+        const Spectrum& spec = *Dep::DMsimpVectorMedVectorDM_spectrum;
+        str modelname = "DMsimpVectorMedVectorDM";
+        get_all_signal_yields(get_all_DMsimp_signal_yields, spec, analysis_data_map, result, modelname);
       }
 
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedMajoranaDM_spectrum;
-
-      // Retrieve the signal yields
-      get_all_signal_yields(get_all_DMsimpVectorMedMajoranaDM_signal_yields, spec, analysis_data_map, result);
-
-    };
-
-    /// Results from DMsimpVectorMedDiracDM analyses
-    void DMsimpVectorMedDiracDM_results(AnalysisDataPointers& result)
-    {
-      using namespace Pipes::DMsimpVectorMedDiracDM_results;
-
-      // Clear previous vectors, etc.
-      result.clear();
-
-      static bool first = true;
-
-      // We need thread_local AnalysisData instances. Let's collect them in a map.
-      thread_local std::map<str,AnalysisData> analysis_data_map;
-
-      // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
-      std::map<str,str> Analysis_data_path;
-      std::map<str,std::vector<str>> Interpolation_columns;
-      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS137_MonoJet.txt";
-
-      Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
-                                                                         "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
-                                                                         "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
-                                                                         "SR18", "SR19", "SR20", "SR21", "SR22"};
-      Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
-                                                                            "EM0","EM1", "EM2", "EM3", "EM4", "EM5", "EM6", "EM7", "EM8",
-                                                                            "EM9", "EM10","EM11", "EM12"};
-      Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
-                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
-                                                                          "SR10","SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
-                                                                          "SR18", "SR19", "SR20", "SR21", "SR22", "SR23", "SR24", "SR25",
-                                                                          "SR26", "SR27", "SR28", "SR29", "SR30", "SR31", "SR32","SR33",
-                                                                          "SR34", "SR35", "SR36", "SR37", "SR38", "SR39", "SR40", "SR41",
-                                                                          "SR42", "SR43", "SR44", "SR45", "SR46", "SR47", "SR48", "SR49",
-                                                                          "SR50", "SR51", "SR52", "SR53", "SR54","SR55", "SR56", "SR57",
-                                                                          "SR58", "SR59", "SR60", "SR61", "SR62", "SR63", "SR64", "SR65", "SR66"};
-
-      // The first time this function is run we must initialize the global analysis_info_map
-      // and the thread_local analysis_data_map
-      if (first)
-      {
-        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, 5);
-
-        for (const std::pair<str,const Model_analysis_info&>& aname_ainfo_pair : analysis_info_map)
-        {
-          // Extract analysis name and use it to create an AnalysisData element in the analysis_data_map
-          str aname = aname_ainfo_pair.first;
-          analysis_data_map[aname] = AnalysisData(aname);
-        }
-
-        first = false;
-      }
-
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedDiracDM_spectrum;
-
-      // Retrieve the signal yields
-      get_all_signal_yields(get_all_DMsimpVectorMedDiracDM_signal_yields, spec, analysis_data_map, result);
-
-    };
-
-    /// Results from DMsimpVectorMedVectorDM analyses
-    void DMsimpVectorMedVectorDM_results(AnalysisDataPointers& result)
-    {
-      using namespace Pipes::DMsimpVectorMedVectorDM_results;
-
-      // Clear previous vectors, etc.
-      result.clear();
-
-      static bool first = true;
-
-      // We need thread_local AnalysisData instances. Let's collect them in a map.
-      thread_local std::map<str,AnalysisData> analysis_data_map;
-
-      // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
-      std::map<str,str> Analysis_data_path;
-      std::map<str,std::vector<str>> Interpolation_columns;
-      // Skipping the 36 invfb anaysis since it was not used for this model TODO: Perhaps I shoud instead add a bit where it also passes the model name. This way I can just check if the VectorDM model gets used with the wrong analysis and throw an error
-      Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = "Skip Analysis";
-      Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_ATLAS139_MonoJet.txt";
-      Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_CMS137_MonoJet.txt";
-
-      Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
-                                                                         "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
-                                                                         "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
-                                                                         "SR18", "SR19", "SR20", "SR21", "SR22"};
-      Interpolation_columns["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
-                                                                            "EM0","EM1", "EM2", "EM3", "EM4", "EM5", "EM6", "EM7", "EM8",
-                                                                            "EM9", "EM10","EM11", "EM12"};
-      Interpolation_columns["CMS_13TeV_MONOJET_137invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
-                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
-                                                                          "SR10","SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
-                                                                          "SR18", "SR19", "SR20", "SR21", "SR22", "SR23", "SR24", "SR25",
-                                                                          "SR26", "SR27", "SR28", "SR29", "SR30", "SR31", "SR32","SR33",
-                                                                          "SR34", "SR35", "SR36", "SR37", "SR38", "SR39", "SR40", "SR41",
-                                                                          "SR42", "SR43", "SR44", "SR45", "SR46", "SR47", "SR48", "SR49",
-                                                                          "SR50", "SR51", "SR52", "SR53", "SR54","SR55", "SR56", "SR57",
-                                                                          "SR58", "SR59", "SR60", "SR61", "SR62", "SR63", "SR64", "SR65", "SR66"};
-
-      // The first time this function is run we must initialize the global analysis_info_map
-      // and the thread_local analysis_data_map
-      if (first)
-      {
-        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, 4);
-
-        for (const std::pair<str,const Model_analysis_info&>& aname_ainfo_pair : analysis_info_map)
-        {
-          // Extract analysis name and use it to create an AnalysisData element in the analysis_data_map
-          str aname = aname_ainfo_pair.first;
-          analysis_data_map[aname] = AnalysisData(aname);
-        }
-
-        first = false;
-      }
-
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedVectorDM_spectrum;
-
-      // Retrieve the signal yields
-      get_all_signal_yields(get_all_DMsimpVectorMedVectorDM_signal_yields, spec, analysis_data_map, result);
-
     };
 
 
-    /// Fill the input vector with the total DMsimpVectorMedScalarDM signal prediction for each SR in the given LHC analysis
-    void get_all_DMsimpVectorMedScalarDM_signal_yields(std::vector<double>& sr_nums, const Model_analysis_info& analysis_info, const Spectrum& spec)
+    /// Fill the input vector with the total DMsimp signal prediction for each SR in the given LHC analysis
+    void get_all_DMsimp_signal_yields(std::vector<double>& sr_nums, const Model_analysis_info& analysis_info, const Spectrum& spec, str& modelname)
     {
 
       // Get the yields
       std::vector<double> signal(analysis_info.n_signal_regions, 0.);
 
       // Get the parameters we need from the theory spectrum
-      double mDM = spec.get(Par::Pole_Mass, "Xc");
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
-      double gVchi = spec.get(Par::dimensionless, "gVXc");
-      get_DMsimpVectorMedScalarDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gVchi);
-
-      // Add yields and save in sr_num
-      for (size_t i = 0; i < analysis_info.n_signal_regions; ++i)
+      if (modelname == "DMsimpVectorMedScalarDM")
       {
-        sr_nums[i] = signal[i];
+        double mDM = spec.get(Par::Pole_Mass, "Xc");
+        double mMed = spec.get(Par::Pole_Mass, "Y1");
+        double gq = spec.get(Par::dimensionless, "gVq");
+        double gVchi = spec.get(Par::dimensionless, "gVXc");
+        get_DMsimpVectorMedScalarDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gVchi);
       }
-    }
-
-    /// Fill the input vector with the total DMsimpVectorMedMajoranaDM signal prediction for each SR in the given LHC analysis
-    void get_all_DMsimpVectorMedMajoranaDM_signal_yields(std::vector<double>& sr_nums, const Model_analysis_info& analysis_info, const Spectrum& spec)
-    {
-
-      // Get the yields
-      std::vector<double> signal(analysis_info.n_signal_regions, 0.);
-
-      // Get the parameters we need from the theory spectrum
-      double mDM = spec.get(Par::Pole_Mass, "Xm");
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
-      double gAchi = spec.get(Par::dimensionless, "gAXm");
-      get_DMsimpVectorMedMajoranaDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gAchi);
-
-      // Add yields and save in sr_num
-      for (size_t i = 0; i < analysis_info.n_signal_regions; ++i)
+      else if (modelname == "DMsimpVectorMedMajoranaDM")
       {
-        sr_nums[i] = signal[i];
+        double mDM = spec.get(Par::Pole_Mass, "Xm");
+        double mMed = spec.get(Par::Pole_Mass, "Y1");
+        double gq = spec.get(Par::dimensionless, "gVq");
+        double gAchi = spec.get(Par::dimensionless, "gAXm");
+        get_DMsimpVectorMedMajoranaDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gAchi);
       }
-    }
-
-    /// Fill the input vector with the total DMsimpVectorMedDiracDM signal prediction for each SR in the given LHC analysis
-    void get_all_DMsimpVectorMedDiracDM_signal_yields(std::vector<double>& sr_nums, const Model_analysis_info& analysis_info, const Spectrum& spec)
-    {
-
-      // Get the yields
-      std::vector<double> signal(analysis_info.n_signal_regions, 0.);
-
-      // Get the parameters we need from the theory spectrum
-      double mDM = spec.get(Par::Pole_Mass, "Xd");
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
-      double gVchi = spec.get(Par::dimensionless, "gVXd");
-      double gAchi = spec.get(Par::dimensionless, "gAXd");
-      get_DMsimpVectorMedDiracDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gVchi, gAchi);
-
-      // Add yields and save in sr_num
-      for (size_t i = 0; i < analysis_info.n_signal_regions; ++i)
+      else if (modelname == "DMsimpVectorMedDiracDM")
+      { 
+        double mDM = spec.get(Par::Pole_Mass, "Xd");
+        double mMed = spec.get(Par::Pole_Mass, "Y1");
+        double gq = spec.get(Par::dimensionless, "gVq");
+        double gVchi = spec.get(Par::dimensionless, "gVXd");
+        double gAchi = spec.get(Par::dimensionless, "gAXd");
+        get_DMsimpVectorMedDiracDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gVchi, gAchi);
+      }
+      else if (modelname == "DMsimpVectorMedVectorDM")
       {
-        sr_nums[i] = signal[i];
+        double mDM = spec.get(Par::Pole_Mass, "~Xv");
+        double mMed = spec.get(Par::Pole_Mass, "Y1");
+        double gq = spec.get(Par::dimensionless, "gVq");
+        double gVchi = spec.get(Par::dimensionless, "gVXv");
+        get_DMsimpVectorMedVectorDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gVchi);
       }
-    }
-
-    /// Fill the input vector with the total DMsimpVectorMedVectorDM signal prediction for each SR in the given LHC analysis
-    void get_all_DMsimpVectorMedVectorDM_signal_yields(std::vector<double>& sr_nums, const Model_analysis_info& analysis_info, const Spectrum& spec)
-    {
-
-      // Get the yields
-      std::vector<double> signal(analysis_info.n_signal_regions, 0.);
-
-      // Get the parameters we need from the theory spectrum
-      double mDM = spec.get(Par::Pole_Mass, "~Xv");
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
-      double gVchi = spec.get(Par::dimensionless, "gVXv");
-      get_DMsimpVectorMedVectorDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gVchi);
 
       // Add yields and save in sr_num
       for (size_t i = 0; i < analysis_info.n_signal_regions; ++i)
@@ -1983,12 +1859,12 @@ namespace Gambit
     }
 
 
-    /// Di-jet likelihoods from interpolated xsecs
+    /// Interpolated Di-jet likelihoods from quark coupling upper limits
     /// This assumes the Narrow width approximation
-    void DiJet_LogLike_DMsimpVectorMedScalarDM(double& result)
+    void DiJet_LogLike_DMsimp(double& result)
     {
 
-      using namespace Pipes::DiJet_LogLike_DMsimpVectorMedScalarDM;
+      using namespace Pipes::DiJet_LogLike_DMsimp;
 
       static bool first = true;
       if (first)
@@ -1997,136 +1873,64 @@ namespace Gambit
         first = false;
       }
 
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedScalarDM_spectrum;
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
+      double mMed;
+      double gq;
 
       // Pull Decay widths from CalcHEP
-      DecayTable::Entry decays = *Dep::Y1_decay_rates;
+      DecayTable::Entry decays;
+
+      // Get the theory spectrum to pass on masses and parameters
+      if(ModelInUse("DMsimpVectorMedScalarDM"))
+      {
+        const Spectrum& spec = *Dep::DMsimpVectorMedScalarDM_spectrum;
+        mMed = spec.get(Par::Pole_Mass, "Y1");
+        gq   = spec.get(Par::dimensionless, "gVq");
+        decays = *Dep::Y1_decay_rates;
+      }
+      else if(ModelInUse("DMsimpVectorMedMajoranaDM"))
+      {
+        const Spectrum& spec = *Dep::DMsimpVectorMedMajoranaDM_spectrum;
+        mMed = spec.get(Par::Pole_Mass, "Y1");
+        gq   = spec.get(Par::dimensionless, "gVq");
+        decays = *Dep::Y1_decay_rates;
+      }
+      else if(ModelInUse("DMsimpVectorMedDiracDM"))
+      {
+        const Spectrum& spec = *Dep::DMsimpVectorMedDiracDM_spectrum;
+        mMed = spec.get(Par::Pole_Mass, "Y1");
+        gq   = spec.get(Par::dimensionless, "gVq");
+        decays = *Dep::Y1_decay_rates;
+      }
+      else if(ModelInUse("DMsimpVectorMedVectorDM"))
+      {
+        const Spectrum& spec = *Dep::DMsimpVectorMedVectorDM_spectrum;
+        mMed = spec.get(Par::Pole_Mass, "Y1");
+        gq   = spec.get(Par::dimensionless, "gVq");
+        decays = *Dep::Y1_decay_rates;
+      }
 
       double total_width = decays.width_in_GeV;
 
       // The Branching ratio to quarks does not include top quarks
       double sum_BR_observed = decays.BF("ubar_1", "u_1") + decays.BF("ubar_2", "u_2") + decays.BF("dbar_3", "d_3") + decays.BF("dbar_1", "d_1") + decays.BF("dbar_2", "d_2");
-      double sum_BR_nonobserved = decays.BF("ubar_3", "u_3") + decays.BF("Xc~", "Xc");
-      double BR_q = sum_BR_observed / (sum_BR_observed + sum_BR_nonobserved);
+      double sum_BR_nonobserved = decays.BF("ubar_3", "u_3");
 
-      // Check that NWA is a reasonable choice (we choose this to be Width/Mass < 30%)
-      if ((total_width/mMed) > 0.3)
+      if(ModelInUse("DMsimpVectorMedScalarDM"))
       {
-        Suspicious_point_exception().raise("Narrow Width Approximation breaks down.",30,false);
+        sum_BR_nonobserved += decays.BF("Xc~", "Xc");
       }
-
-      result = Total_DiJet_search_LogLike(mMed, gq, BR_q);
-
-    }
-
-    /// Di-jet likelihoods from interpolated xsecs
-    /// This assumes the Narrow width approximation
-    void DiJet_LogLike_DMsimpVectorMedMajoranaDM(double& result)
-    {
-
-      using namespace Pipes::DiJet_LogLike_DMsimpVectorMedMajoranaDM;
-
-      static bool first = true;
-      if (first)
+      else if(ModelInUse("DMsimpVectorMedMajoranaDM"))
       {
-        fill_DMsimp_DiJets();
-        first = false;
+        sum_BR_nonobserved += decays.BF("Xm", "Xm");
       }
-
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedMajoranaDM_spectrum;
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
-
-      // Pull Decay widths from CalcHEP
-      DecayTable::Entry decays = *Dep::Y1_decay_rates;
-
-      double total_width = decays.width_in_GeV;
-
-      // The Branching ratio to quarks does not include top quarks
-      double sum_BR_observed = decays.BF("ubar_1", "u_1") + decays.BF("ubar_2", "u_2") + decays.BF("dbar_3", "d_3") + decays.BF("dbar_1", "d_1") + decays.BF("dbar_2", "d_2");
-      double sum_BR_nonobserved = decays.BF("ubar_3", "u_3") + decays.BF("Xm", "Xm");
-      double BR_q = sum_BR_observed / (sum_BR_observed + sum_BR_nonobserved);
-
-      // Check that NWA is a reasonable choice (we choose this to be Width/Mass < 30%)
-      if ((total_width/mMed) > 0.3)
+      else if(ModelInUse("DMsimpVectorMedDiracDM"))
       {
-        Suspicious_point_exception().raise("Narrow Width Approximation breaks down.",30,false);
+        sum_BR_nonobserved += decays.BF("Xd~", "Xd");
       }
-
-      result = Total_DiJet_search_LogLike(mMed, gq, BR_q);
-
-    }
-
-    /// Di-jet likelihoods from interpolated xsecs
-    /// This assumes the Narrow width approximation
-    void DiJet_LogLike_DMsimpVectorMedDiracDM(double& result)
-    {
-
-      using namespace Pipes::DiJet_LogLike_DMsimpVectorMedDiracDM;
-
-      static bool first = true;
-      if (first)
+      else if(ModelInUse("DMsimpVectorMedVectorDM"))
       {
-        fill_DMsimp_DiJets();
-        first = false;
+        sum_BR_nonobserved += decays.BF("~Xv", "~Xva");
       }
-
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedDiracDM_spectrum;
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
-
-      // Pull Decay widths from CalcHEP
-      DecayTable::Entry decays = *Dep::Y1_decay_rates;
-
-      double total_width = decays.width_in_GeV;
-
-      // The Branching ratio to quarks does not include top quarks
-      double sum_BR_observed = decays.BF("ubar_1", "u_1") + decays.BF("ubar_2", "u_2") + decays.BF("dbar_3", "d_3") + decays.BF("dbar_1", "d_1") + decays.BF("dbar_2", "d_2");
-      double sum_BR_nonobserved = decays.BF("ubar_3", "u_3") + decays.BF("Xd~", "Xd");
-      double BR_q = sum_BR_observed / (sum_BR_observed + sum_BR_nonobserved);
-
-      // Check that NWA is a reasonable choice (we choose this to be Width/Mass < 30%)
-      if ((total_width/mMed) > 0.3)
-      {
-        Suspicious_point_exception().raise("Narrow Width Approximation breaks down.",30,false);
-      }
-
-      result = Total_DiJet_search_LogLike(mMed, gq, BR_q);
-
-    }
-
-    /// Di-jet likelihoods from interpolated xsecs
-    /// This assumes the Narrow width approximation
-    void DiJet_LogLike_DMsimpVectorMedVectorDM(double& result)
-    {
-
-      using namespace Pipes::DiJet_LogLike_DMsimpVectorMedVectorDM;
-
-      static bool first = true;
-      if (first)
-      {
-        fill_DMsimp_DiJets();
-        first = false;
-      }
-
-      // Get the theory spectrum to pass on masses and parameters
-      const Spectrum& spec = *Dep::DMsimpVectorMedVectorDM_spectrum;
-      double mMed = spec.get(Par::Pole_Mass, "Y1");
-      double gq = spec.get(Par::dimensionless, "gVq");
-
-      // Pull Decay widths from CalcHEP
-      DecayTable::Entry decays = *Dep::Y1_decay_rates;
-
-      double total_width = decays.width_in_GeV;
-
-      // The Branching ratio to quarks does not include top quarks
-      double sum_BR_observed = decays.BF("ubar_1", "u_1") + decays.BF("ubar_2", "u_2") + decays.BF("dbar_3", "d_3") + decays.BF("dbar_1", "d_1") + decays.BF("dbar_2", "d_2");
-      double sum_BR_nonobserved = decays.BF("ubar_3", "u_3") + decays.BF("~Xv", "~Xva");
       double BR_q = sum_BR_observed / (sum_BR_observed + sum_BR_nonobserved);
 
       // Check that NWA is a reasonable choice (we choose this to be Width/Mass < 30%)

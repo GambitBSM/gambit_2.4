@@ -300,30 +300,15 @@
     ALLOW_MODELS(DMEFT)
     #undef FUNCTION
 
-    #define FUNCTION DMsimpVectorMedScalarDM_results
+    #define FUNCTION DMsimp_results
     START_FUNCTION(AnalysisDataPointers)
-    DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
-    ALLOW_MODELS(DMsimpVectorMedScalarDM)
-    #undef FUNCTION
-
-    #define FUNCTION DMsimpVectorMedMajoranaDM_results
-    START_FUNCTION(AnalysisDataPointers)
-    DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
-    DEPENDENCY(Unitarity_Bound_DMsimpVectorMedMajoranaDM, double)
-    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
-    #undef FUNCTION
-
-    #define FUNCTION DMsimpVectorMedDiracDM_results
-    START_FUNCTION(AnalysisDataPointers)
-    DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
-    DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double)
-    ALLOW_MODELS(DMsimpVectorMedDiracDM)
-    #undef FUNCTION
-
-    #define FUNCTION DMsimpVectorMedVectorDM_results
-    START_FUNCTION(AnalysisDataPointers)
-    DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
-    ALLOW_MODELS(DMsimpVectorMedVectorDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
+    MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedMajoranaDM, double, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double, DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -346,32 +331,14 @@
 
   /// Di-jet likelihoods
   #define CAPABILITY Dijet_LogLike
-    #define FUNCTION DiJet_LogLike_DMsimpVectorMedScalarDM
+    #define FUNCTION DiJet_LogLike_DMsimp
     START_FUNCTION(double)
-    DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
     DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
-    ALLOW_MODELS(DMsimpVectorMedScalarDM)
-    #undef FUNCTION
-
-    #define FUNCTION DiJet_LogLike_DMsimpVectorMedMajoranaDM
-    START_FUNCTION(double)
-    DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
-    DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
-    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
-    #undef FUNCTION
-
-    #define FUNCTION DiJet_LogLike_DMsimpVectorMedDiracDM
-    START_FUNCTION(double)
-    DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
-    DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
-    ALLOW_MODELS(DMsimpVectorMedDiracDM)
-    #undef FUNCTION
-
-    #define FUNCTION DiJet_LogLike_DMsimpVectorMedVectorDM
-    START_FUNCTION(double)
-    DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
-    DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
-    ALLOW_MODELS(DMsimpVectorMedVectorDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
