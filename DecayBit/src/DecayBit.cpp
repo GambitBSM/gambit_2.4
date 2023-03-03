@@ -3623,7 +3623,7 @@ namespace Gambit
        BF = Dep::Higgs_decay_rates->BF("F", "F");
     }
 
-    void lnL_Higgs_invWidth_SMlike_2022(double& lnL)
+    void lnL_Higgs_invWidth_SMlike(double& lnL)
     {
       /**
          @brief Log-likelihood for Higgs invisible branching ratio
@@ -3633,7 +3633,7 @@ namespace Gambit
          We can explicitly test this assumption for CMS, where the chi2 is given in figure 12 of arXiv:2201.11585. 
          Indeed, the assumed functional form gives a perfect fit for a_CMS = 339 and b_CMS = 0.089.
          
-         For ATLAS we extract the fit parameters from the two values stated in the paper: BR < 0.145 at 95% CL and BR < 0.127 at 90% CL.
+         For ATLAS we extract the fit parameters from the two values stated in arXiv:2202.07953: BR < 0.145 at 95% CL and BR < 0.127 at 90% CL.
          These values correspond to a_ATLAS = 303 and b_ATLAS = 0.032.
          
          The combined log likelihood gives BR < 0.14 at 95% CL. The best-fit value is BR = 0.06, which is preferred over BR = 0 with a significance of 1.2 sigma.
