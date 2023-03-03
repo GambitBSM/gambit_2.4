@@ -849,7 +849,7 @@ endif()
 
 # MicrOmegas MSSM model
 set(model "MSSM")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/MSSM/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -867,7 +867,7 @@ endif()
 
 # MicrOmegas ScalarSingletDM_Z2 model
 set(model "ScalarSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/ScalarSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -885,7 +885,7 @@ endif()
 
 # MicrOmegas ScalarSingletDM_Z3 model
 set(model "ScalarSingletDM_Z3")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/ScalarSingletDM_Z3/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -903,7 +903,7 @@ endif()
 
 # MicrOmegas VectorSingletDM_Z2 model
 set(model "VectorSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/VectorSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -921,7 +921,7 @@ endif()
 
 # MicrOmegas MajoranaSingletDM_Z2 model
 set(model "MajoranaSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/MajoranaSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -939,7 +939,7 @@ endif()
 
 # MicrOmegas DiracSingletDM_Z2 model
 set(model "DiracSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/DiracSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
