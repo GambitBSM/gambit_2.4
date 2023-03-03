@@ -6249,3 +6249,16 @@ DMsimpVectorMedScalarDM_parameters: |
 DMsimpVectorMedScalarDM_spectrum: |
     Create spectrum object for DMsimpVectorMedScalarDM model.
 
+DMsimpVectorMedVectorDM_parameters: |
+    Parameters for the model DMsimpVectorMedVectorDM (see ./gambit DMsimpVectorMedVectorDM).
+
+MicrOmegas_DMsimpVectorMedVectorDM_3_6_9_2_init: |
+    Initialise MicrOmegas DMsimpVectorMedVectorDM backend.
+
+DMsimpVectorMedVectorDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedVectorDM model.
+
+DecayWidthPerturbativity_DMsimpVectorMedVectorDM: |
+    Invalidate points where the mediator width to mass ratio is above 1. Return zero otherwise.
+
+

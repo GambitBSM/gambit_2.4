@@ -3124,8 +3124,45 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
+    //////////// Vector DM Simplified Model /////////////////////
+    void CH_DMsimpVectorMedVectorDM_Y1_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_DMsimpVectorMedVectorDM_Y1_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+
+      str model = "DMsimpVectorMedVectorDM";
+      str in = "Y1"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"d~", "d"}, {"s~", "s"}, {"b~", "b"}, {"u~", "u"}, {"c~", "c"}, {"t~", "t"}, {"~Xv", "~Xva"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"dbar_1", "d_1"}, {"dbar_2", "d_2"}, {"dbar_3", "d_3"}, {"ubar_1", "u_1"}, {"ubar_2", "u_2"}, {"ubar_3", "u_3"}, {"~Xv", "~Xva"}}; // Out states: GAMBIT particle names
+
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+
+      }
+
+      // Check the width. Invalidate if a suspiciously large decay width, since these are expected in this model
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"),true);
+    }
+
     //////////// Everything ///////////////////
-    
+
     /// Collect all the DecayTable entries into an actual DecayTable
     void all_decays (DecayTable &decays)
     {
