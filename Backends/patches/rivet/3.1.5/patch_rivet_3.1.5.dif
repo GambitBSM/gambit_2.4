@@ -7,14 +7,14 @@ diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
  all: all-recursive
 +# Added by GAMBIT
 +libRivet.so:
-+	cd ${top_builddir}/src/Core/yamlcpp && ${MAKE} librivet-yaml-cpp.la
-+	cd ${top_builddir}/src/Core && ${MAKE} libRivetCore.la
-+	cd ${top_builddir}/src/Projections && ${MAKE} libRivetProjections.la
-+	cd ${top_builddir}/src/Tools && ${MAKE} libRivetTools.la
-+	cd ${top_builddir}/src/AnalysisTools && ${MAKE} libRivetAnalysisTools.la
-+	cd ${top_builddir}/src && ${MAKE} libRivet.la
-+	cd ${top_builddir}/analyses && ${MAKE} install
-+	cd ${top_builddir}/pyext && ${MAKE} install
++	cd ${top_builddir}/src/Core/yamlcpp && ${MAKE} $(AM_MAKEFLAGS) librivet-yaml-cpp.la
++	cd ${top_builddir}/src/Core && ${MAKE} $(AM_MAKEFLAGS) libRivetCore.la
++	cd ${top_builddir}/src/Projections && ${MAKE} $(AM_MAKEFLAGS) libRivetProjections.la
++	cd ${top_builddir}/src/Tools && ${MAKE} $(AM_MAKEFLAGS) libRivetTools.la
++	cd ${top_builddir}/src/AnalysisTools && ${MAKE} $(AM_MAKEFLAGS) libRivetAnalysisTools.la
++	cd ${top_builddir}/src && ${MAKE} $(AM_MAKEFLAGS) libRivet.la
++	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) install
++	cd ${top_builddir}/pyext && ${MAKE} $(AM_MAKEFLAGS) install
 +	mkdir -p ${libdir}
 +	if test -e ${top_builddir}/src/.libs/libRivet.so ; then cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so ; fi
 +	if test -e ${top_builddir}/src/.libs/libRivet.dylib ; then cp ${top_builddir}/src/.libs/libRivet.dylib ${libdir}/libRivet.so ; fi
@@ -252,25 +252,24 @@ diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/
 diff -rupN Rivet-3.1.5/analyses/Makefile.in ../installed/rivet/3.1.5/analyses/Makefile.in
 --- Rivet-3.1.5/analyses/Makefile.in	2021-11-05 18:37:59.000000000 +0100
 +++ ../installed/rivet/3.1.5/analyses/Makefile.in	2023-02-22 16:05:03.437033017 +0100
-@@ -569,7 +569,8 @@ uninstall-am: uninstall-local
- @ENABLE_ANALYSES_TRUE@	mkdir -p $(builddir)/data
- @ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/plugin*; do $(LN_S) -f $${pdir}/*.{info,plot,yoda*} $(builddir)/data; done
- 
--@ENABLE_ANALYSES_TRUE@install-exec-local: $(PLUGIN_LIBS)
-+#@ENABLE_ANALYSES_TRUE@install-exec-local: $(PLUGIN_LIBS) # Commented by GAMBIT
-+@ENABLE_ANALYSES_TRYE@install-exec-local: RivetATLASAnalyses.so RivetCMSAnalyses.so # Added by GAMBIT
- @ENABLE_ANALYSES_TRUE@	$(MKDIR_P) $(DESTDIR)$(libdir)/Rivet
- @ENABLE_ANALYSES_TRUE@	$(INSTALL) $^ $(DESTDIR)$(libdir)/Rivet
- 
-diff -rupN Rivet-3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc ../installed/rivet/3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc
---- Rivet-3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc	2021-11-08 21:05:48.000000000 +0100
-+++ ../installed/rivet/3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc	2023-02-22 16:05:03.437033017 +0100
-@@ -120,7 +120,7 @@ namespace Rivet {
- 
-       const Particles& photons = apply<VetoedFinalState>(event, "MyPhotons").particles(Cuts::abseta < 2.4 && Cuts::pT > 15*GeV);
-       for (const Particle& ph : photons) {
--        double isolation = sum(filter_select(isopars, deltaRLess(ph, 0.4)), pT, 0.);
-+        double isolation = sum(filter_select(isopars, deltaRLess(ph, 0.4)), Kin::pT, 0.);
-         isolation = isolation/ph.pt() - 1.;
-         if (isolation > 0.25) continue;
-         additionalobjects += ph;
+@@ -329,12 +329,16 @@ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+ AUTOMAKE_OPTIONS = -Wno-portability
+-@ENABLE_ANALYSES_TRUE@PLUGIN_DIRS = $(shell ls -d $(srcdir)/plugin*)
++#@ENABLE_ANALYSES_TRUE@PLUGIN_DIRS = $(shell ls -d $(srcdir)/plugin*) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_DIRS = $(shell ls -d $(srcdir)/pluginATLAS $(srcdir)/pluginCMS) # Added by GAMBIT
+ @ENABLE_ANALYSES_TRUE@PLUGIN_NAMES = $(notdir $(subst plugin,,$(PLUGIN_DIRS)))
+ @ENABLE_ANALYSES_TRUE@PLUGIN_LIBS = $(patsubst %,Rivet%Analyses.so,$(PLUGIN_NAMES))
+-@ENABLE_ANALYSES_TRUE@PLUGIN_INFOFILES = $(shell ls $(abs_srcdir)/plugin*/*.info)
+-@ENABLE_ANALYSES_TRUE@PLUGIN_PLOTFILES = $(shell ls $(abs_srcdir)/plugin*/*.plot)
+-@ENABLE_ANALYSES_TRUE@PLUGIN_YODAFILES = $(shell ls $(abs_srcdir)/plugin*/*.yoda*)
++#@ENABLE_ANALYSES_TRUE@PLUGIN_INFOFILES = $(shell ls $(abs_srcdir)/plugin*/*.info) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_INFOFILES = $(shell ls $(abs_srcdir)/pluginATLAS/*.info $(abs_srcdir)/pluginCMS/*.info) # Added by GAMBIT
++#@ENABLE_ANALYSES_TRUE@PLUGIN_PLOTFILES = $(shell ls $(abs_srcdir)/plugin*/*.plot) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_PLOTFILES = $(shell ls $(abs_srcdir)/pluginATLAS/*.plot $(abs_srcdir)/pluginCMS/*.plot) # Added by GAMBIT
++#@ENABLE_ANALYSES_TRUE@PLUGIN_YODAFILES = $(shell ls $(abs_srcdir)/plugin*/*.yoda*) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_YODAFILES = $(shell ls $(abs_srcdir)/pluginATLAS/*.yoda* $(abs_srcdir)/pluginCMS/*.yoda*) # Added by GAMBIT
+ @ENABLE_ANALYSES_TRUE@PLUGIN_DATAFILES = $(PLUGIN_INFOFILES) $(PLUGIN_PLOTFILES) $(PLUGIN_YODAFILES)
+ @ENABLE_ANALYSES_TRUE@CLEANFILES = $(PLUGIN_LIBS)
+ @ENABLE_ANALYSES_TRUE@EXTRA_DIST = $(PLUGIN_DIRS)
