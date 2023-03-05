@@ -257,7 +257,7 @@ Rules:
       PropagationParameters: [[0.0]]
   
   - capability: lnL_Higgs_invWidth
-    function: lnL_Higgs_invWidth_SMlike_2022
+    function: lnL_Higgs_invWidth_SMlike
 
 Logger:
 

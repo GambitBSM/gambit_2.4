@@ -3643,7 +3643,7 @@ namespace Gambit
 
          @param lnL Log-likelihood for Higgs invisible branching ratio
       */
-      using namespace Pipes::lnL_Higgs_invWidth_SMlike_2022;
+      using namespace Pipes::lnL_Higgs_invWidth_SMlike;
 
       const double BF = *Dep::inv_Higgs_BF;
 
