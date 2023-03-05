@@ -19,7 +19,7 @@
         std::string static DMbar_ID ;
         pybind11::list static obj_list;
 
-        pybind11::list c_pbarlike_initialization(const std::string& prevent_extrapolation,const std::string& propagation_model,mat_dbl& propagation_parameters)
+        pybind11::list c_pbarlike_initialization(const bool& prevent_extrapolation,const std::string& propagation_model,const mat_dbl& propagation_parameters)
         {
             obj_list = pbarlike.attr("DRN_initialization")(propagation_parameters,propagation_model,prevent_extrapolation);
             return obj_list;
@@ -43,9 +43,9 @@ BE_INI_FUNCTION
         static bool scan_level = true;
         if(scan_level)
         {
-            const std::string prevent_extrapolation = runOptions->getValue<std::string>("PreventExtrapolation");
+            const bool prevent_extrapolation = runOptions->getValue<bool>("PreventExtrapolation");
             const std::string propagation_model = runOptions->getValue<std::string>("PropagationModel");
-            mat_dbl propagation_parameters = runOptions->getValue<mat_dbl>("PropagationParameters");
+            const mat_dbl propagation_parameters = runOptions->getValue<mat_dbl>("PropagationParameters");
             obj_list = c_pbarlike_initialization(prevent_extrapolation,propagation_model,propagation_parameters);
         }
         scan_level = false;

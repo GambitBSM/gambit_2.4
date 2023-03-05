@@ -97,6 +97,9 @@
 /// \date 2019 - 2020
 /// \date 2021 April, May
 ///
+/// \author Sowmiya Balan
+///         (sowmiya.balan@kit.edu)
+/// \date 2022
 ///  *********************************************
 
 #pragma once

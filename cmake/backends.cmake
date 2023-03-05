@@ -2308,27 +2308,6 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# SimplePythonBackend
-set(name "SimplePythonBackend")
-set(ver "1.0")
-set(lib "libSimplePythonBackend")
-set(dl "https://github.com/sowmiya-balan/AMS02antiprotonLikelihood/blob/main/SimplePythonBackend_1_0.tar.gz")
-set(md5 "none")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ""
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
-  set_as_default_version("backend" ${name} ${ver})
-endif()
-
 # pbarlike
 set(name "pbarlike")
 set(ver "1.0")

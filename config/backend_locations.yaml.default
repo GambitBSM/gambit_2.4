@@ -120,10 +120,6 @@ nulike:
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
-
-SimplePythonBackend:
-  1.0:         ./Backends/installed/SimplePythonBackend/1.0/SimplePythonBackend.py
-
 pbarlike:
   1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py
   
