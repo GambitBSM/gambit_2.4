@@ -2316,7 +2316,7 @@ set(dl "https://github.com/sowmiya-balan/AMS02antiprotonLikelihood/archive/refs/
 # set(md5 "3287b3874bc46e89ea09b1d138e34b82")
 set(md5 "none")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(required_modules "numpy,tensorflow,iminuit")
+set(required_modules "numpy,tensorflow,iminuit,h5py")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})

@@ -896,11 +896,6 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(inv_Higgs_BF, double)
     #undef FUNCTION
-    
-    #define FUNCTION lnL_Higgs_invWidth_SMlike_2022
-    START_FUNCTION(double)
-    DEPENDENCY(inv_Higgs_BF, double)
-    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY inv_Higgs_BF
