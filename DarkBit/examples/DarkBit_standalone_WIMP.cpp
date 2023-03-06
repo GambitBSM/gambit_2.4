@@ -15,8 +15,8 @@
 ///  \date 2016 July
 ///  \author Sebastian Wild
 ///  \date 2016 Aug
-///  \date 2020
 ///  \author Torsten Bringmann
+///  \date 2022
 ///  \author Sowmiya Balan
 ///  \date 2023
 ///  *********************************************
@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.5"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.5 is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.4.0"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.4.0 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.3.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.3.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
@@ -375,7 +375,7 @@ int main(int argc, char* argv[])
     gamLike_1_0_1_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_generic_wimp_6_2_5_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_4_0_init.reset_and_calculate();
 
     // Initialize MicrOmegas backend
     // The below allows us to initialise MicrOmegas_MSSM without a particular MSSM model.
@@ -385,7 +385,7 @@ int main(int argc, char* argv[])
     // ---- Gamma-ray and other indirect detection yields ----
 
     // Initialize tabulated gamma-ray yields
-    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
+    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
     GA_SimYieldTable_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::dNdE);
     GA_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     GA_SimYieldTable_MicrOmegas.setOption<bool>("allow_yield_extrapolation", true);
@@ -396,10 +396,10 @@ int main(int argc, char* argv[])
     Combine_SimYields.resolveDependency(SimYieldTablePointer);
 
     // Choose DarkSUSY for e+, e-, pbar and Dbar yields
-    positron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
+    positron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
     electron_SimYieldTable_from_positron_SimYieldTable.resolveDependency(&positron_SimYieldTable_DarkSUSY);
-    antiproton_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
-    antideuteron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
+    antiproton_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
+    antideuteron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
     positron_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     antiproton_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     antideuteron_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
@@ -560,14 +560,17 @@ int main(int argc, char* argv[])
 
     RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_from_ProcessCatalog);
 
+    RD_oh2_DS6_ini_func.resolveDependency(&RD_spectrum_ordered_func);
+    RD_oh2_DS6_ini_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::rdpars);
+    RD_oh2_DS6_ini_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::rdtime);
+    RD_oh2_DS6_ini_func.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
 
     RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
     RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdpars);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdtime);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdcom);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdstart);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdens);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsrdens);
+      // Note that this one has to come *last* since it's a conditional dependency
+    RD_oh2_DS_general.resolveDependency(&RD_oh2_DS6_ini_func);
 
 
     // ---- Calculate direct detection constraints ----
@@ -633,7 +636,7 @@ int main(int argc, char* argv[])
       if (mode==3) dumpSpectrum({"dPhi_dE3.dat"}, mass, sv, daFunk::vec<double>(0., 0., 0., 1., 0., 0., 0., 0.));
       if (mode==4) dumpSpectrum({"dPhi_dE4.dat"}, mass, sv, daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));
     }
-    
+
     // CHECK-------------------::-------------;;---------------::-------------------::------------------;;--------------------
     // Generate gamma-ray spectra for various masses
     if (mode >= 10)
@@ -685,7 +688,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
           TH_ProcessCatalog_WIMP.setOption<double>("sv", sv_list[j]);
-          
+
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
             std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
@@ -811,6 +814,7 @@ int main(int argc, char* argv[])
           RD_eff_annrate_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_ordered_func.reset_and_calculate();
+          RD_oh2_DS6_ini_func.reset_and_calculate();
           RD_oh2_DS_general.reset_and_calculate();
           oh2 = RD_oh2_DS_general(0);
 
@@ -1031,7 +1035,7 @@ int main(int argc, char* argv[])
 
     // AMS-02 antiproton likelihoods for annihilation into b bbar
     if (mode==8)
-    { 
+    {
       std::cout << "\nCalculating antiproton likelihoods for annihilation to b bbar." << std::endl;
       DarkMatter_ID_WIMP.reset_and_calculate();
       WIMP_properties_WIMP.setOption<double>("mWIMP", 100.0);
@@ -1048,7 +1052,7 @@ int main(int argc, char* argv[])
       lnL_pbarAMS02.reset_and_calculate();
       map_str_dbl lnL = lnL_pbarAMS02(0);
       std::cout<< "\nLog-likelihood ratio (using uncorrelated errors): " << lnL["uncorrelated"] << std::endl;
-      std::cout<< "Log-likelihood ratio (using correlated errors): " << lnL["correlated"] << std::endl;    
+      std::cout<< "Log-likelihood ratio (using correlated errors): " << lnL["correlated"] << std::endl;
     }
   }
 

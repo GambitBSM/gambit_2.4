@@ -23,7 +23,7 @@
 ///          (torsten.bringmann@fys.uio.no)
 ///  \date 2013 Jun
 ///  \date 2014 Mar
-///  \date 2019 May
+///  \date 2019 May, 2022 Jan
 ///
 ///  \author Lars A. Dal
 ///          (l.a.dal@fys.uio.no)
@@ -138,8 +138,8 @@ START_MODULE
       BACKEND_REQ(dshmisodf, (ds6), DS_HMISODF)
       BACKEND_REQ(dshmframevelcom, (ds6), DS_HMFRAMEVELCOM)
       BACKEND_REQ(dshmnoclue, (ds6), DS_HMNOCLUE)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only DS6
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only DS6
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -171,7 +171,7 @@ START_MODULE
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3,
                    ScalarSingletDM_Z3_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2,
                    VectorSingletDM_Z2, DMEFT)
-      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -200,7 +200,7 @@ START_MODULE
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       BACKEND_REQ(dsancoann, (ds6), DS_DSANCOANN)
       BACKEND_REQ(DSparticle_code, (ds6), int, (const str&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -219,7 +219,7 @@ START_MODULE
       ALLOW_MODELS(MSSM63atQ)
       DEPENDENCY(RD_eff_annrate_DSprep_MSSM, int)
       BACKEND_REQ(dsanwx, (ds6), double, (double&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
     #undef FUNCTION
     #define FUNCTION RD_eff_annrate_from_ProcessCatalog
       START_FUNCTION(fptr_dd)
@@ -227,13 +227,38 @@ START_MODULE
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
-      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY RD_oh2_DS6pre4_ini
+  START_CAPABILITY
+    #define FUNCTION RD_oh2_DS6pre4_ini_func
+      START_FUNCTION(int)
+      BACKEND_REQ(dsrdcom, (ds6), void, ())
+      BACKEND_REQ(rdpars, (ds6), DS_RDPARS_OLD)
+      BACKEND_REQ(rdtime, (ds6), DS_RDTIME)
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      FORCE_SAME_BACKEND(ds6)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY RD_oh2_DS6_ini
+  START_CAPABILITY
+    #define FUNCTION RD_oh2_DS6_ini_func
+      START_FUNCTION(int)
+      DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
+      BACKEND_REQ(rdpars, (ds6), DS_RDPARS)
+      BACKEND_REQ(rdtime, (ds6), DS_RDTIME)
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.4.0), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.4.0), (ds6))
+      FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY RD_oh2
   START_CAPABILITY
-
     /// General Boltzmann solver from DarkSUSY, using arbitrary Weff
     #define FUNCTION RD_oh2_DS_general
       START_FUNCTION(double)
@@ -242,14 +267,21 @@ START_MODULE
       #ifdef DARKBIT_RD_DEBUG
         DEPENDENCY(MSSM_spectrum, Spectrum)
       #endif
-      BACKEND_REQ(rdpars, (ds6), DS_RDPARS)
-      BACKEND_REQ(rdtime, (ds6), DS_RDTIME)
-      BACKEND_REQ(dsrdcom, (ds6), void, ())
       BACKEND_REQ(dsrdstart,(ds6),void,(int&, double(&)[1000], double(&)[1000], int&, double(&)[1000], double(&)[1000], int&, double(&)[1000]))
       BACKEND_REQ(dsrdens, (ds6), void, (double(*)(double&), double&, double&, int&, int&, int&))
       BACKEND_OPTION((DarkSUSY_MSSM),(ds6))
       BACKEND_OPTION((DarkSUSY_generic_wimp),(ds6))
       FORCE_SAME_BACKEND(ds6)
+      #define CONDITIONAL_DEPENDENCY RD_oh2_DS6pre4_ini
+        START_CONDITIONAL_DEPENDENCY(int)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5)
+      #undef CONDITIONAL_DEPENDENCY
+      #define CONDITIONAL_DEPENDENCY RD_oh2_DS6_ini
+        START_CONDITIONAL_DEPENDENCY(int)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_MSSM, 6.4.0)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_generic_wimp, 6.4.0)
+      #undef CONDITIONAL_DEPENDENCY
     #undef FUNCTION
 
     #define FUNCTION RD_oh2_DS5_general
@@ -267,7 +299,7 @@ START_MODULE
       BACKEND_REQ(widths, (ds5), DS5_WIDTHS)
       BACKEND_REQ(rdmgev, (ds5), DS5_RDMGEV)
       BACKEND_REQ(rdpth, (ds5), DS_RDPTH)
-      BACKEND_REQ(rdpars, (ds5), DS_RDPARS)
+      BACKEND_REQ(rdpars, (ds5), DS_RDPARS_OLD)
       BACKEND_REQ(rdswitch, (ds5), DS_RDSWITCH)
       BACKEND_REQ(rdlun, (ds5), DS_RDLUN)
       BACKEND_REQ(rdpadd, (ds5), DS_RDPADD)
@@ -330,6 +362,8 @@ START_MODULE
       BACKEND_OPTION((MicrOmegas_VectorSingletDM_Z2), (gimmemicro))
       BACKEND_OPTION((MicrOmegas_MajoranaSingletDM_Z2), (gimmemicro))
       BACKEND_OPTION((MicrOmegas_DiracSingletDM_Z2),(gimmemicro))
+      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))
+      ALLOW_MODEL(DMsimpVectorMedVectorDM)
       ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT,
                    ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
@@ -437,7 +471,7 @@ START_MODULE
       BACKEND_REQ(dsIBwhdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(dsIBwwdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(IBintvars, (ds6), DS_IBINTVARS)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
       ALLOW_MODELS(MSSM63atQ)
     #undef FUNCTION
@@ -509,6 +543,7 @@ START_MODULE
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMEFT)
     #undef FUNCTION
+
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedDiracDM
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(WIMP_properties, WIMPprops)
@@ -517,6 +552,7 @@ START_MODULE
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMsimpVectorMedDiracDM)
     #undef FUNCTION
+
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedMajoranaDM
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(WIMP_properties, WIMPprops)
@@ -525,6 +561,7 @@ START_MODULE
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
     #undef FUNCTION
+
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedScalarDM
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(WIMP_properties, WIMPprops)
@@ -532,6 +569,15 @@ START_MODULE
       DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMsimpVectorMedScalarDM)
+    #undef FUNCTION
+
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedVectorDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1154,10 +1200,11 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum, VectorSingletDM_Z2)
     MODEL_CONDITIONAL_DEPENDENCY(MDM_spectrum, Spectrum, MDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
-    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running)
     ALLOW_MODELS(VectorSingletDM_Z2, MajoranaSingletDM_Z2, DiracSingletDM_Z2)
@@ -1194,6 +1241,7 @@ START_MODULE
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z2),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z3),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_VectorSingletDM_Z2),(gimmemicro))
+      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))
       FORCE_SAME_BACKEND(gimmemicro)
     #undef FUNCTION
 
@@ -1237,7 +1285,7 @@ START_MODULE
       BACKEND_REQ(get_DD_couplings, (ds6), std::vector<double>, ())
       BACKEND_REQ(ddcomlegacy, (ds6), DS_DDCOMLEGACY)
       BACKEND_REQ(ddmssmcom, (ds6), DS_DDMSSMCOM)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
       ALLOW_JOINT_MODEL(nuclear_params_fnq,MSSM63atQ)
     #undef FUNCTION
@@ -1250,17 +1298,18 @@ START_MODULE
       ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq, MSSM63atQ,
                              ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                              ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                             VectorSingletDM_Z2, DMEFT)
+                             VectorSingletDM_Z2, DMEFT, DMsimpVectorMedVectorDM)
       MODEL_GROUP(group1, (nuclear_params_fnq))
       MODEL_GROUP(group2, (MSSM63atQ,
                            ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                            ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                           VectorSingletDM_Z2, DMEFT))
+                           VectorSingletDM_Z2, DMEFT, DMsimpVectorMedVectorDM))
       ALLOW_MODEL_COMBINATION(group1, group2)
       BACKEND_OPTION((MicrOmegas_MSSM),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z2),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z3),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_VectorSingletDM_Z2),(gimmemicro))
+      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))
       FORCE_SAME_BACKEND(gimmemicro)
     #undef FUNCTION
 
@@ -1313,21 +1362,21 @@ START_MODULE
       DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
       ALLOW_MODEL(MajoranaSingletDM_Z2)
       #undef FUNCTION
-      
+
       #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedScalarDM
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
       ALLOW_MODEL(DMsimpVectorMedScalarDM)
       #undef FUNCTION
-      
+
       #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedMajoranaDM
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
       ALLOW_MODEL(DMsimpVectorMedMajoranaDM)
       #undef FUNCTION
-      
+
       #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedDiracDM
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
@@ -1374,6 +1423,11 @@ START_MODULE
       START_FUNCTION(NREO_DM_nucleon_couplings)
       DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
       ALLOW_JOINT_MODEL(nuclear_params_fnq, MajoranaSingletDM_Z2)
+      #undef FUNCTION
+
+      #define FUNCTION DD_nonrel_WCs_DMsimpVectorMedVectorDM
+      START_FUNCTION(NREO_DM_nucleon_couplings)
+      DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
       #undef FUNCTION
 
   #undef CAPABILITY
@@ -1595,8 +1649,8 @@ START_MODULE
       DEPENDENCY(RD_fraction, double)
       DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
       DEPENDENCY(DarkSUSY_PointInit_LocalHalo, bool)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5, 6.4.0), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
 
@@ -2055,6 +2109,10 @@ START_MODULE
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedVectorDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedVectorDM)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY DarkMatterConj_ID
@@ -2106,6 +2164,10 @@ START_MODULE
     #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedScalarDM
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMsimpVectorMedScalarDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedVectorDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 

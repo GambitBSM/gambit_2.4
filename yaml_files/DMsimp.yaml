@@ -229,11 +229,9 @@ Rules:
       nuisance_prof_method: 5
       nuisance_prof_verbosity: 0
 
-    # Signal yields for LHC analyses 
-  - capability: AllAnalysisNumbers
-    function: DMsimpVectorMedScalarDM_results
-    #function: DMsimpVectorMedDiracDM_results
-    #function: DMsimpVectorMedMajoranaDM_results
+  # Signal yields for LHC analyses
+  #- capability: AllAnalysisNumbers
+  #  function: DMsimp_results
     
   # Relic density likelihood
   - capability: lnL_oh2
@@ -255,10 +253,13 @@ Rules:
     options: # Planck 2018 values
       oh2_obs: 0.120
 
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
     function: RD_oh2_DS_general
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
-      fast: 1  # 0: standard, 1: fast (default)
+      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
   - capability: sigmav
