@@ -112,6 +112,9 @@ MicrOmegas_MajoranaSingletDM_Z2:
 MicrOmegas_DiracSingletDM_Z2:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DiracSingletDM_Z2/libmicromegas.so
 
+MicrOmegas_DMsimpVectorMedVectorDM:
+  3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/libmicromegas.so
+
 nulike:
   1.0.4:       ./Backends/installed/nulike/1.0.4/lib/libnulike.so
   1.0.5:       ./Backends/installed/nulike/1.0.5/lib/libnulike.so

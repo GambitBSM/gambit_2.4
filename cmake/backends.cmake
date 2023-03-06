@@ -531,9 +531,9 @@ endif()
 # This is the MonoJet and DiJet data associated with the simplified dark matter models.
 set(name "DMsimp_data")
 set(ver "1.0")
-set(dl "https://zenodo.org/record/6999436/files/DMsimp.zip")
+set(dl "https://zenodo.org/record/7619478/files/DMsimp.zip")
 set(dir "${PROJECT_SOURCE_DIR}/ColliderBit/data/DMsimp_data/")
-set(md5 "c4d8a3ecf22227376a227307dc00d850")
+set(md5 "a20fb95888e005b6665ca3bac811c426")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -899,7 +899,7 @@ endif()
 
 # MicrOmegas MSSM model
 set(model "MSSM")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/MSSM/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -917,7 +917,7 @@ endif()
 
 # MicrOmegas ScalarSingletDM_Z2 model
 set(model "ScalarSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/ScalarSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -935,7 +935,7 @@ endif()
 
 # MicrOmegas ScalarSingletDM_Z3 model
 set(model "ScalarSingletDM_Z3")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/ScalarSingletDM_Z3/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -953,7 +953,7 @@ endif()
 
 # MicrOmegas VectorSingletDM_Z2 model
 set(model "VectorSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/VectorSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -971,7 +971,7 @@ endif()
 
 # MicrOmegas MajoranaSingletDM_Z2 model
 set(model "MajoranaSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/MajoranaSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -989,7 +989,7 @@ endif()
 
 # MicrOmegas DiracSingletDM_Z2 model
 set(model "DiracSingletDM_Z2")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/DiracSingletDM_Z2/patch_${name}_${ver}_${model}")
 check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
@@ -1005,6 +1005,26 @@ if(NOT ditched_${name}_${model}_${ver})
   set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
+
+
+# MicrOmegas DMsimpVectorMedVectorDM model
+set(model "DMsimpVectorMedVectorDM")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/DMsimpVectorMedVectorDM/patch_${name}_${ver}_${model}.dif")
+set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/DMsimpVectorMedVectorDM")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND ./newProject ${model} && patch -p0 < ${patch}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/mdlfiles ${dir}/${model}/work/models/
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
+  set_as_default_version("backend model" ${name} ${ver} ${model})
+endif()
 
 # MontePythonLike
 set(name "montepythonlike")

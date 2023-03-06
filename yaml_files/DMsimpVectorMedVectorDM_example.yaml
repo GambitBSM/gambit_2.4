@@ -1,7 +1,7 @@
-##########################################################################
-## GAMBIT configuration for a diver scan of the Simplified models
-## Three different models can be scanned: Scalar, Dirac or Majorana DM
-##########################################################################
+####################################################################
+## GAMBIT configuration for a random scan of the DMsimpVectorMedVectorDM model
+##
+####################################################################
 
 
 Parameters:
@@ -12,54 +12,12 @@ Parameters:
   StandardModel_Higgs:
     mH: 125.09
 
-  # Scalar DM
-  DMsimpVectorMedScalarDM:
-    MXc:
-      range: [50,10000]
-      prior_type: log
-    MY1:
-      range: [50,10000]
-      prior_type: log
-    gVXc:
-      range: [0.01,3.0]
-      prior_type: log
-    gVq:
-      range: [0.01,1.0]
-      prior_type: log
-
-  # Dirac Fermion DM
-  #DMsimpVectorMedDiracDM:
-  #  MXd:
-  #    range: [50,10000]
-  #    prior_type: log
-  #  MY1:
-  #    range: [50,10000]
-  #    prior_type: log
-  #  gVXd:
-  #    range: [0.01,3.0]
-  #    prior_type: log
-  #  gAXd:
-  #    range: [0.01,3.0]
-  #    prior_type: log
-  #  gVq:
-  #    range: [0.01,1.0]
-  #    prior_type: log
-
-  # Majorana Fermion DM
-  #DMsimpVectorMedMajoranaDM:
-  #  MXm:
-  #    range: [50,10000]
-  #    prior_type: log
-  #  MY1:
-  #    range: [50,10000]
-  #    prior_type: log
-  #  gAXm:
-  #    range: [0.01,3.0]
-  #    prior_type: log
-  #  gVq:
-  #    range: [0.01,1.0]
-  #    prior_type: log
-
+  DMsimpVectorMedVectorDM:
+    MY1: 100.0
+    mXv: 5000.0
+    gVXv: 0.1
+    gVq: 0.1
+  
   # NFW profile
   Halo_gNFW_rho0:
     rho0:
@@ -76,53 +34,36 @@ Parameters:
     beta: 3
     gamma: 1
 
-  # Chiral nuclear parameters for DirectDM
-  nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_scan.yaml
-
-
 Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
 
 Printer:
 
-  #printer: cout
-
-  printer: hdf5
-  options:
-    delete_file_on_restart: true
-    buffer_length: 1000
-    output_file: "DMsimpVectorMedScalarDM.hdf5"
-    #output_file: "DMsimpVectorMedDiracDM.hdf5"
-    #output_file: "DMsimpVectorMedMajoranaDM.hdf5"
-    group: "/DMsimpVectorMedScalarDM_Scan"
-    #group: "/DMsimpVectorMedDiracDM_Scan"
-    #group: "/DMsimpVectorMedMajoranaDM_Scan"
-
+  printer: cout
 
 Scanner:
 
-  use_scanner: diver
+  use_scanner: random
 
   scanners:
 
     random:
       plugin: random
-      like: LogLike
       point_number: 1
-
-    diver:
-      plugin: diver
-      like: LogLike
-      NP: 50000
-      verbosity: 1
-      convthresh: 1E-6
+      like:  LogLike
 
 ObsLikes:
 
-  # Unitarity Bounds
-  #- purpose: LogLike
-  #  capability: Unitarity_Bound_DMsimpVectorMedDiracDM
-  #  capability: Unitarity_Bound_DMsimpVectorMedMajoranaDM
+  # Physical Decay Width
+  - purpose:    LogLike
+    capability: DecayWidthPerturbativity_DMsimpVectorMedVectorDM
 
+  #- purpose:      Observable
+  #  capability:   DMsimpVectorMedVectorDM_spectrum
+  #  type:         map_str_dbl
+    
   # LHC likelihoods
   - purpose:    LogLike
     capability: LHC_Combined_LogLike
@@ -153,6 +94,9 @@ ObsLikes:
     purpose:    LogLike
 
   - capability: PandaX_2017_LogLikelihood
+    purpose:    LogLike
+    
+  - capability: PandaX_4T_LogLikelihood
     purpose:    LogLike
 
   - capability: PICO_60_2017_LogLikelihood
@@ -193,10 +137,9 @@ ObsLikes:
 
   - capability: RD_oh2
     purpose: Observable
-  
-    
+
 Rules:
-  
+
   # Choose to get decay rates from DecayBit proper, not an SLHA file
   - capability: decay_rates
     function: all_decays
@@ -215,10 +158,6 @@ Rules:
         - CMS_13TeV_MONOJET_36invfb_interpolated
 
   - capability: LHC_LogLikes
-    # Choose not to use the FullLikes backend.
-    function: calc_LHC_LogLikes
-    # Choose to use the FullLikes backend when applicable
-    # function: calc_LHC_LogLikes_full
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
@@ -233,7 +172,7 @@ Rules:
       nuisance_prof_method: 5
       nuisance_prof_verbosity: 0
 
-  # Signal yields for LHC analyses
+  # Signal yields for LHC analyses 
   #- capability: AllAnalysisNumbers
   #  function: DMsimp_results
     
@@ -246,24 +185,17 @@ Rules:
       oh2_obserr: 0.001
       oh2_fractional_theory_err: 0.01
 
-    options: # Planck 2018 values
-      oh2_obs: 0.120
-      oh2_obserr: 0.001
-      oh2_fractional_theory_err: 0.01
-
   # Choose to rescale signals in direct and indirect detection by the relic density fraction
   - capability: RD_fraction
     function: RD_fraction_leq_one
     options: # Planck 2018 values
       oh2_obs: 0.120
 
-  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
+  # Choose to get the relic abundance from Micromegas
   - capability: RD_oh2
-    function: RD_oh2_DS_general
-  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
-    function: RD_oh2_DS6_ini_func
+    function: RD_oh2_MicrOmegas
     options:
-      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
+      fast: 1  # 0: standard, 1: fast (default)
 
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
   - capability: sigmav
@@ -300,14 +232,22 @@ Rules:
     function: DDCalc_Couplings_NR_WCs
 
   - capability: DD_nonrel_WCs
-    function: DD_nonrel_WCs_flavscheme
+    function: DD_nonrel_WCs_DMsimpVectorMedVectorDM
     module: DarkBit
-
-
+    
 Logger:
 
   redirection:
+    [Backends] : "backends.log"
     [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [Scanner] : "ScannerBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+    [Error] : "errors.log"
+    [Warning] : "warnings.log"
+    [Utilities] : "utils.log"
 
 KeyValues:
 
@@ -315,12 +255,10 @@ KeyValues:
     prefer_model_specific_functions: true
 
   likelihood:
-    model_invalid_for_lnlike_below: -5e7
-    model_invalid_for_lnlike_below_alt: -1e7
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/DMsimpVectorMedScalarDM/"
-  #default_output_path: "runs/DMsimpVectorMedDiracDM/"
-  #default_output_path: "runs/DMsimpVectorMedMajoranaDM/"
+  default_output_path: "runs/DMsimpVectorMedVectorDM/"
 
-  debug: false
+  debug: true
 
