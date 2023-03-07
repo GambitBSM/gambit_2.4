@@ -1021,7 +1021,9 @@ namespace Gambit
       for (AnalysisData& adata : temp_adata_vec)
       {
         signal_modifier_function(adata, fpars->lambda, *a);
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes, nullptr, nullptr, nullptr, "");
+        const bool has_covar = adata.srcov.rows() > 0;
+        const bool has_fulllikes = adata.hasFullLikes();
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes && has_fulllikes, nullptr, nullptr, nullptr, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
