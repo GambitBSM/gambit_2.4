@@ -81,7 +81,7 @@ def pp_reader(isStandalone):
   template<typename T>\n\
   bool pp_reader_retrieve(T&, str)\n\
   {\n\
-    invalid_point().raise(\"Reader only available in standalones.\");\n\
+    invalid_point().raise(\"Reader not available in standalones.\");\n\
     return false;\n\
   }\n"
 
