@@ -1001,8 +1001,6 @@ namespace Gambit
       // Cast fparams to correct type
       _gsl_target_func_params* fpars = static_cast<_gsl_target_func_params*>(fparams);
 
-      AnalysisLogLikes analoglikes;
-
       // Create a vector with temp AnalysisData instances by copying the original ones
       std::vector<AnalysisData> temp_adata_vec;
       for (AnalysisData* adata_ptr : fpars->adata_ptrs_original)
@@ -1020,9 +1018,16 @@ namespace Gambit
       // Now loop over all the temp AnalysisData instances and calculate the total loglike for the current a-value
       for (AnalysisData& adata : temp_adata_vec)
       {
-        signal_modifier_function(adata, fpars->lambda, *a);
+        // Grab some info about the current analysis
         const bool has_covar = adata.srcov.rows() > 0;
         const bool has_fulllikes = adata.hasFullLikes();
+
+        // Modify the signal predictions for this analysis
+        signal_modifier_function(adata, fpars->lambda, *a);
+
+        // Compute the combined analysis loglike and add it to total_loglike
+        AnalysisLogLikes analoglikes;
+        analoglikes.initialize(adata);
         fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes && has_fulllikes, nullptr, nullptr, nullptr, "");
         total_loglike += analoglikes.combination_loglike;
       }
