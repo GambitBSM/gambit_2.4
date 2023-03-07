@@ -45,10 +45,22 @@ jobs:
         echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
         cat buildenv.sh
         pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib pysqlite3
+        # Temporary workaround for installing the sqlite3 binary
+        echo "Installing the sqlite3 binary"
+        sqlite3_deb_filename=$(apt download sqlite3 --print-uris | awk '{print $2}')
+        apt download sqlite3
+        mkdir sqlite3
+        dpkg -x ${sqlite3_deb_filename} sqlite3/
+        export PATH=$PATH:$PWD/sqlite3/usr/bin
+        sqlite3 --help
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
         cmake .. -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
+    - name: Test Contur build
+      run: |
+        cd BUILD/ && . buildenv.sh
+        make -j1 contur
     - name: Build scanners
       run: |
         cd BUILD/ && . buildenv.sh
