@@ -22,7 +22,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
-//#include "gambit/Backends/backend_rollcall.hpp"
+// #include "gambit/Backends/backend_rollcall.hpp"
 
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
@@ -42,8 +42,8 @@ using namespace CAT(Backends::ATLAS_FullLikes_,FULLLIKES_SAFE_VERSION)::Functown
 using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
-//Helper function to check if setting in CBS yaml and then set it
-//TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
+// Helper function to check if setting in CBS yaml and then set it
+// TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
 template <typename Tsetting>
 bool apply_setting_if_present(const std::string &setting, Options& settings, Gambit::module_functor<ColliderBit::map_str_AnalysisLogLikes> &the_functor)
 {
@@ -70,14 +70,15 @@ int main(int argc, char* argv[])
 
     // Make sure that nulike is present.
     if (not Backends::backendInfo().works[str("nulike")+NULIKE_VERSION]) backend_error().raise(LOCAL_INFO, str("nulike ")+NULIKE_VERSION+" is missing!");
-    //Check if Rivet and Contur are there: permit runs without that don't ask for them:
+
+    // Check if Rivet and Contur are there: permit runs without that don't ask for them:
     bool conturWorks = true;
     bool rivetWorks = true;
     if (not Backends::backendInfo().works[str("Contur")+CONTUR_VERSION]) { conturWorks = false;}
     if (not Backends::backendInfo().works[str("Rivet")+RIVET_VERSION]) { rivetWorks = false;}
 
     // Make sure that ATLAS FullLikes is present.
-    if (not Backends::backendInfo().works[str("ATLAS_FullLikes") + FULLLIKES_VERSION]) backend_error().raise(LOCAL_INFO, str("ATLAS_FullLikes")+FULLLIKES_VERSION" is missing!");
+    if (not Backends::backendInfo().works[str("ATLAS_FullLikes") + FULLLIKES_VERSION]) backend_error().raise(LOCAL_INFO, str("ATLAS_FullLikes ")+FULLLIKES_VERSION" is missing!");
 
     // Print the banner (if you could call it that)
     cout << endl;
@@ -115,8 +116,8 @@ int main(int argc, char* argv[])
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
-    bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
-
+    // TODO: Use the use_FullLikes setting to allow CBS runs without having ATLAS_FullLikes installed
+    // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
@@ -124,9 +125,9 @@ int main(int argc, char* argv[])
                                 || Gambit::Utils::endsWith(event_filename, ".hepmc2")
                                 || Gambit::Utils::endsWith(event_filename, ".hepmc3") );
     if (not event_file_is_HepMC)
-     throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
+      throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
 
-    //Check if Rivet&Contur requested and/or enabled then extract options from yaml
+    // Check if Rivet & Contur requested and/or enabled then extract options from yaml
     bool withRivet;
     bool withContur;
     Options rivet_settings;
@@ -138,7 +139,7 @@ int main(int argc, char* argv[])
         withRivet = true;
         rivet_settings = Options(infile["rivet-settings"]);
       } else {withRivet = false;}
-      //Todo: Should we just assume contur with no options if rivet settings are specified and Contur not?
+      // TODO: Should we just assume contur with no options if rivet settings are specified and Contur not?
       if (infile["contur-settings"])
       {
         withContur = true;
@@ -148,7 +149,7 @@ int main(int argc, char* argv[])
       {
         withContur = false;
       }
-      //Throw out cases where things won't work, with informative errors:
+      // Throw out cases where things won't work, with informative errors:
       if (withContur && !withRivet)
       {
         throw std::runtime_error("Can't run contur without rivet. Try adding a rivet-settings section to your yaml-file. Quitting...");
@@ -167,8 +168,8 @@ int main(int argc, char* argv[])
       }
       else if (withContur && withRivet)
       {
-        //Ok, we're good to go with Rivet and Contur,
-        //TODO: Proper citation message?
+        // Ok, we're good to go with Rivet and Contur,
+        // TODO: Proper citation message?
         std::cout << "\nUsing RIVET " << RIVET_VERSION << " and CONTUR " <<
           CONTUR_VERSION << " on this run.\n";
       }
@@ -219,33 +220,31 @@ int main(int argc, char* argv[])
     }
 
     // Pass options to the likelihood function
-    //ToDo: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
-    //ColliderBit can then fall back to its defaults if nothing is supplied.
-    apply_setting_if_present<bool>("use_covariances", settings, calc_LHC_LogLikes);//Default true
-    apply_setting_if_present<bool>("use_marginalising", settings, calc_LHC_LogLikes);//Default False
-    apply_setting_if_present<bool>("combine_SRs_without_covariances", settings, calc_LHC_LogLikes);//Default False
+    // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
+    // ColliderBit can then fall back to its defaults if nothing is supplied.
+    apply_setting_if_present<bool>("use_covariances", settings, calc_LHC_LogLikes_full);//Default true
+    apply_setting_if_present<bool>("use_marginalising", settings, calc_LHC_LogLikes_full);//Default False
+    apply_setting_if_present<bool>("combine_SRs_without_covariances", settings, calc_LHC_LogLikes_full);//Default False
 
-    apply_setting_if_present<double>("nuisance_prof_initstep", settings, calc_LHC_LogLikes);//Default 0.1
-    apply_setting_if_present<double>("nuisance_prof_convtol", settings, calc_LHC_LogLikes);//Default 0.01
-    apply_setting_if_present<int>("nuisance_prof_maxsteps", settings, calc_LHC_LogLikes);//Default 10000
-    apply_setting_if_present<double>("nuisance_prof_convacc", settings, calc_LHC_LogLikes);//Default 0.01
-    apply_setting_if_present<double>("nuisance_prof_simplexsize", settings, calc_LHC_LogLikes);//Default 1e-5
-    apply_setting_if_present<int>("nuisance_prof_method", settings, calc_LHC_LogLikes);//Default 6
+    apply_setting_if_present<double>("nuisance_prof_initstep", settings, calc_LHC_LogLikes_full);//Default 0.1
+    apply_setting_if_present<double>("nuisance_prof_convtol", settings, calc_LHC_LogLikes_full);//Default 0.01
+    apply_setting_if_present<int>("nuisance_prof_maxsteps", settings, calc_LHC_LogLikes_full);//Default 10000
+    apply_setting_if_present<double>("nuisance_prof_convacc", settings, calc_LHC_LogLikes_full);//Default 0.01
+    apply_setting_if_present<double>("nuisance_prof_simplexsize", settings, calc_LHC_LogLikes_full);//Default 1e-5
+    apply_setting_if_present<int>("nuisance_prof_method", settings, calc_LHC_LogLikes_full);//Default 6
 
-    apply_setting_if_present<double>("nuisance_marg_convthres_abs", settings, calc_LHC_LogLikes);//Default 0.05
-    apply_setting_if_present<double>("nuisance_marg_convthres_rel", settings, calc_LHC_LogLikes);//Default 0.05
-    apply_setting_if_present<long>("nuisance_marg_nsamples_start", settings, calc_LHC_LogLikes);//Default 1000000
-    apply_setting_if_present<bool>("nuisance_marg_nulike1sr", settings, calc_LHC_LogLikes);//Default true
+    apply_setting_if_present<double>("nuisance_marg_convthres_abs", settings, calc_LHC_LogLikes_full);//Default 0.05
+    apply_setting_if_present<double>("nuisance_marg_convthres_rel", settings, calc_LHC_LogLikes_full);//Default 0.05
+    apply_setting_if_present<long>("nuisance_marg_nsamples_start", settings, calc_LHC_LogLikes_full);//Default 1000000
+    apply_setting_if_present<bool>("nuisance_marg_nulike1sr", settings, calc_LHC_LogLikes_full);//Default true
 
-    bool calc_noerr_loglikes = apply_setting_if_present<bool>("calc_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
-    bool calc_expected_loglikes= apply_setting_if_present<bool>("calc_expected_loglikes", settings, calc_LHC_LogLikes);//Default false
-    bool calc_expected_noerr_loglikes = apply_setting_if_present<bool>("calc_expected_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
-    bool calc_scaledsignal_loglikes = apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, calc_LHC_LogLikes);//Default false
-    apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes);//Default 1.0
+    bool calc_noerr_loglikes = apply_setting_if_present<bool>("calc_noerr_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+    bool calc_expected_loglikes= apply_setting_if_present<bool>("calc_expected_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+    bool calc_expected_noerr_loglikes = apply_setting_if_present<bool>("calc_expected_noerr_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+    bool calc_scaledsignal_loglikes = apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+    apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes_full);//Default 1.0
 
-    calc_LHC_LogLikes.setOption<bool>("use_FullLikes",use_FullLikes);
-
-    //if Rivet/Contur, set rivet/contur options
+    // If Rivet/Contur, set Rivet/Contur options
     if (withRivet)
     {
       Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValueOrDef<bool>(true, "drop_YODA_file"));
@@ -261,15 +260,15 @@ int main(int argc, char* argv[])
 
     // Resolve ColliderBit dependencies and backend requirements
     convertEvent.resolveDependency(&getEvent);
-    calc_combined_LHC_LogLike.resolveDependency(&calc_LHC_LogLikes);
+    calc_combined_LHC_LogLike.resolveDependency(&calc_LHC_LogLikes_full);
     calc_combined_LHC_LogLike.resolveDependency(&operateLHCLoop);
-    get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes);
-    calc_LHC_LogLikes.resolveDependency(&CollectAnalyses);
-    calc_LHC_LogLikes.resolveDependency(&operateLHCLoop);
-    calc_LHC_LogLikes.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
-    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_FileExists);
-    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_ReadIn);
-    calc_LHC_LogLikes.resolveBackendReq(&FullLikes_Evaluate);
+    get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes_full);
+    calc_LHC_LogLikes_full.resolveDependency(&CollectAnalyses);
+    calc_LHC_LogLikes_full.resolveDependency(&operateLHCLoop);
+    calc_LHC_LogLikes_full.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
+    calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_FileExists);
+    calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_ReadIn);
+    calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_Evaluate);
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);
@@ -288,7 +287,7 @@ int main(int argc, char* argv[])
     smearEventCMS.resolveDependency(&convertEvent);
     copyEvent.resolveDependency(&getBuckFastIdentity);
     copyEvent.resolveDependency(&convertEvent);
-    //If using Rivet/Contur, resolve rivet/contur dependencies:
+    // If using Rivet/Contur, resolve Rivet/Contur dependencies:
     if (withRivet)
     {
       Rivet_measurements.resolveDependency(&getEvent);
@@ -332,7 +331,7 @@ int main(int argc, char* argv[])
                                                                   &runATLASAnalyses,
                                                                   &runCMSAnalyses,
                                                                   &runIdentityAnalyses);
-    //if using contur and rivet:
+    // If using contur and rivet:
     if (withRivet)
     {
       Rivet_measurements.resolveLoopManager(&operateLHCLoop);
@@ -355,7 +354,7 @@ int main(int argc, char* argv[])
     // Run the detector sim and selected analyses on all the events read in.
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
-    calc_LHC_LogLikes.reset_and_calculate();
+    calc_LHC_LogLikes_full.reset_and_calculate();
     get_LHC_LogLike_per_analysis.reset_and_calculate();
     calc_combined_LHC_LogLike.reset_and_calculate();
     if (withContur)
@@ -372,7 +371,7 @@ int main(int argc, char* argv[])
     {
       const Gambit::ColliderBit::AnalysisData& adata = *(CollectAnalyses(0).at(analysis));
       const str& analysis_name = adata.analysis_name;
-      const Gambit::ColliderBit::AnalysisLogLikes& analysis_loglikes = calc_LHC_LogLikes(0).at(analysis_name);
+      const Gambit::ColliderBit::AnalysisLogLikes& analysis_loglikes = calc_LHC_LogLikes_full(0).at(analysis_name);
       summary_line << "  " << analysis_name << ": " << endl;
       for (size_t sr_index = 0; sr_index < adata.size(); ++sr_index)
       {
@@ -409,9 +408,9 @@ int main(int argc, char* argv[])
     cout << endl;
     cout << "Read and analysed " << n_events << " events from HepMC file." << endl << endl;
     cout << "Analysis details:" << endl << endl << summary_line.str() << endl;
-    //TODO: Mention LHCb as contur can include an LHCb pool?
-    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ") <<
-        "log-likelihood: " << loglike << endl;
+    // TODO: Mention LHCb as contur can include an LHCb pool?
+    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ") 
+         << "log-likelihood: " << loglike << endl;
     cout << endl;
 
     // No more to see here folks, go home.
