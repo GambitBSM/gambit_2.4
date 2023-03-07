@@ -53,23 +53,18 @@ Priors:
 
 Printer:
 
-  printer: cout
-  # printer: hdf5
+  # printer: cout
+  printer: hdf5
 
-  # options:
-  #   output_file: "ScalarSingletDM_Z2.hdf5"
-  #   group: "/ScalarSingletDM_Z2"
+  options:
+    output_file: "ScalarSingletDM_Z2.hdf5"
+    group: "/ScalarSingletDM_Z2"
 
 
 Scanner:
-  use_scanner: random
+  use_scanner: diver
 
   scanners:
-
-    random:
-      plugin: random
-      like: LogLike
-      point_number: 1
 
     multinest:
       plugin: multinest
@@ -256,9 +251,6 @@ Rules:
       PreventExtrapolation: False
       PropagationModel: "INJ.BRK"
       PropagationParameters: [[0.0]]
-  
-  - capability: lnL_Higgs_invWidth
-    function: lnL_Higgs_invWidth_SMlike
 
 Logger:
 
