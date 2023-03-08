@@ -3664,34 +3664,16 @@ namespace Gambit
     {
       /**
          @brief Log-likelihood for Higgs invisible branching ratio
+         
+         We assume that the log likelihood as a function of the invisible branching fraction BF can be written in the form: - 2 log L = a * (BF - b)^2 
 
-         We use log-likelihoods extracted from e.g.,
-         <a href="http://cms-results.web.cern.ch/cms-results/public-results/
-         preliminary-results/HIG-17-023/CMS-PAS-HIG-17-023_Figure_007-b.png">
-         CMS-PAS-HIG-17-023</a>
-
-         There are scripts
-         @code
-         python ./DecayBit/data/convolve_with_theory.py <file> <frac_error> <min> <max>
-         @endcode
-         for convolving a data file with a fractional theory error, and
-         @code
-         python ./DecayBit/data/profile_theory.py <file> <frac_error> <min> <max>
-         @endcode
-         for profiling a fractional theory error.
-
-         There are a few data files, e.g.,
-         @code
-         ./DecayBit/data/arXiv_1306.2941_Figure_8.dat
-         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b.dat
-         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b_10_convolved.dat
-         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b_10_profiled.dat
-         @endcode
-         The first one is the default. The third and fourth ones include a 10%
-         theory uncertainty in the branching fraction by convolving it and
-         profiling it, respectively. The data file is specified in
-         the YAML by the `BR_h_inv_chi2_data_file` option. The path is
-         relative to the GAMBIT directory, `GAMBIT_DIR`.
+         We can explicitly test this assumption for CMS, where the chi2 is given in figure 12 of arXiv:2201.11585. 
+         Indeed, the assumed functional form gives a perfect fit for a_CMS = 339 and b_CMS = 0.089.
+         
+         For ATLAS we extract the fit parameters from the two values stated in arXiv:2202.07953: BR < 0.145 at 95% CL and BR < 0.127 at 90% CL.
+         These values correspond to a_ATLAS = 303 and b_ATLAS = 0.032.
+         
+         The combined log likelihood gives BR < 0.14 at 95% CL. The best-fit value is BR = 0.06, which is preferred over BR = 0 with a significance of 1.2 sigma.
 
          @warning This typically assumes that the Higgs is otherwise SM-like,
          i.e., no changes to production cross sections or any other decays.
@@ -3707,13 +3689,17 @@ namespace Gambit
         DecayBit_error().raise(LOCAL_INFO, "negative BF");
       }
 
-      const std::string default_name = "./DecayBit/data/arXiv_1306.2941_Figure_8.dat";
-      const std::string name = runOptions->getValueOrDef<std::string>
-        (default_name, "BR_h_inv_chi2_data_file");
-      static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/" + name);
-      lnL = -0.5 * chi2->bind("BR")->eval(BF);
-    }
+      double a_CMS = 339.;
+      double b_CMS = 0.089;
+      double a_ATLAS = 303.;
+      double b_ATLAS = 0.032;
 
+      double chi2_CMS = a_CMS*pow(BF - b_CMS,2.);
+      double chi2_ATLAS = a_ATLAS*pow(BF - b_ATLAS,2.);
+      lnL = -0.5 * (chi2_CMS + chi2_ATLAS);
+
+    }
+    
     void lnL_Z_inv(double& lnL)
     {
       /**

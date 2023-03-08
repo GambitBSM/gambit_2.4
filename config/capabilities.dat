@@ -1535,7 +1535,7 @@ LZ_BinSignal: |
 
 LZ_Bins: |
    The number of bins used in the LZ direct detection analysis.
-   
+
 LZ_2022_Calculate: |
    Perform rate and likelihood calculations for the LZ 2022 direct detection analysis.
 
@@ -1634,7 +1634,7 @@ PandaX_2017_BinSignal: |
 
 PandaX_2017_Bins: |
    The number of bins used in the PandaX 2017 direct detection analysis.
-   
+
 PandaX_4T_Calculate: |
    Perform rate and likelihood calculations for the PandaX 4T direct detection analysis.
 
@@ -2366,6 +2366,15 @@ IC79_loglike: |
 IceCube_likelihood: |
    The complete IceCube log-likelihood, including 22-string and 79-string data.
 
+pbar_logLikes:
+   AMS-02 7-year antiproton likelihoods for both correlated and uncorrelated errors.
+
+pbar_logLike_uncorr:
+   AMS-02 7-year antiproton likelihoods for uncorrelated errors.
+
+pbar_logLike_corr:
+   AMS-02 7-year antiproton likelihoods for correlated errors.
+
 DarkSUSY_PointInit: |
    Initialises DarkSUSY (up to version 5) for a specific model point.
 
@@ -2441,7 +2450,7 @@ DDCalc_2_1_0_init: |
 
 DDCalc_2_2_0_init: |
    Initialises DDCalc 2.2.0.
-   
+
 DDCalc_2_3_0_init: |
    Initialises DDCalc 2.3.0.
 
@@ -2531,7 +2540,7 @@ PandaX_2016_Init: |
 
 PandaX_2017_Init: |
    Initialises a direct detection experiment with the properties of the 2017 analysis of PandaX.
-   
+
 PandaX_4T_Init: |
    Initialises a direct detection experiment with the properties of the 4T analysis of PandaX.
 
@@ -2567,9 +2576,9 @@ DARWIN_Init: |
 
 LZ_Init: |
    Initialises a direct detection experiment with the properties of the analysis of LZ.
-   
+
 LZ_2022_Init: |
-   Initialises a direct detection experiment with the properties of the 2022 analysis of LZ. 
+   Initialises a direct detection experiment with the properties of the 2022 analysis of LZ.
 
 FreeDetectorss: |
    Deletes the detector object held internally by DDCalc (relevant for the C/C++ interface of DDCalc).
@@ -3046,7 +3055,7 @@ rdmgev: |
 
 RD_oh2_DS6_ini: |
    Initializes relic density calculations with DarkSUSY (starting from version 6.4.0).
-   
+
 RD_oh2_DS6pre4_ini: |
    Initializes relic density calculations with DarkSUSY 6 (for versions prior to 6.4.0).
 
@@ -4642,6 +4651,19 @@ set_data_path: |
 
 set_halo_profile: |
    Set the halo profile in gamLike.
+
+#----------------------------
+# pbarlike capabilites
+#----------------------------
+
+pbarlike_1_0_init: |
+   Initialises the pbarlike backend, version 1.0.
+
+pbarlike_initialization: |
+   Initialiases pbarlike and calculates scan-level observables and likelihoods.
+
+drn_pbar_logLikes: |
+   AMS-02 7-year log-likelihood ratios using correlated and uncorrelated errors.
 
 #----------------------------
 #  gm2calc capabilities

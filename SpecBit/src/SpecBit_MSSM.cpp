@@ -1214,6 +1214,11 @@ namespace Gambit
 
        // Create full Spectrum object
        result = Spectrum(le,he,sminputs,NULL,mass_cut,mass_ratio_cut);
+
+       // Need to add high scale to high energy spectrum
+       result.get_HE().set_override(Par::mass1,he.GetScale(), "high_scale", true);
+       result.get_HE().set_override(Par::mass1,he.GetScale(), "susy_scale", true);
+
     }
 
     /// FeynHiggs SUSY masses and mixings
