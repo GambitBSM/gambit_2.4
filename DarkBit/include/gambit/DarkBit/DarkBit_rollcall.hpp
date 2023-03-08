@@ -97,6 +97,9 @@
 /// \date 2019 - 2020
 /// \date 2021 April, May
 ///
+/// \author Sowmiya Balan
+///         (sowmiya.balan@kit.edu)
+/// \date 2022
 ///  *********************************************
 
 #pragma once
@@ -329,6 +332,11 @@ START_MODULE
         ALLOW_MODEL(GeneralCosmoALP)
         DEPENDENCY(AxionOscillationTemperature, double)
         DEPENDENCY(T_cmb, double)
+    #undef FUNCTION
+
+    /// Get the RD from previous GAMBIT output via the postprocessor scanner
+    #define FUNCTION RD_from_postprocessor
+      START_FUNCTION(double)
     #undef FUNCTION
 
 // TODO: Temporarily disabled until project is ready
@@ -950,7 +958,6 @@ START_MODULE
 */
   #undef CAPABILITY
 
-
   // Anti-deuteron spectra =============================================
 
   #define CAPABILITY antideuteron_Yield
@@ -980,6 +987,35 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Antiproton likelihood ===============================================
+
+  #define CAPABILITY pbar_logLikes
+  START_CAPABILITY
+    #define FUNCTION lnL_pbarAMS02
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(WIMP_properties, WIMPprops)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+    DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    BACKEND_REQ(drn_pbar_logLikes,(),map_str_dbl,(double&,  map_str_dbl&, double& ))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY pbar_logLike_uncorr
+  START_CAPABILITY
+    #define FUNCTION lnL_pbarAMS02_uncorr
+    START_FUNCTION(double)
+    DEPENDENCY(pbar_logLikes,map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY pbar_logLike_corr
+  START_CAPABILITY
+    #define FUNCTION lnL_pbarAMS02_corr
+    START_FUNCTION(double)
+    DEPENDENCY(pbar_logLikes,map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Gamma-ray likelihoods =============================================
 

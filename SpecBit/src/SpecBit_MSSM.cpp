@@ -1262,7 +1262,7 @@ namespace Gambit
       // current set of ModelParameters from.
       // Will throw an error if no reader object exists, i.e. if the postprocessor is not
       // driving this scan.
-     
+
       // Retrieve MSSM spectrum info into an SLHAea object
       MSSM_SLHAstruct mssm_in; // Special type to trigger specialised MSSM retrieve routine
       bool mssm_is_valid = get_pp_reader().retrieve(mssm_in,"MSSM_spectrum");
@@ -1302,6 +1302,11 @@ namespace Gambit
 
       // Create full Spectrum object
       result = Spectrum(le,he,sminputs,NULL,mass_cut,mass_ratio_cut);
+
+      // Need to add high scale to high energy spectrum
+      result.get_HE().set_override(Par::mass1,he.GetScale(), "high_scale", true);
+      result.get_HE().set_override(Par::mass1,he.GetScale(), "susy_scale", true);
+
     }
 
     /// FeynHiggs SUSY masses and mixings
