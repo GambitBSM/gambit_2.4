@@ -65,8 +65,8 @@ jobs:
     - name: Test contur 2
       run: |
         . BUILD/buildenv.sh
-        ./gambit -h
-        cat runs/ColliderBit_CMSSM/logs/default.log
+        ./gambit -f yaml_files/spartan.yaml
+        cat runs/spartan/logs/default.log
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
