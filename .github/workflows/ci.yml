@@ -75,6 +75,7 @@ jobs:
       run: |
         . BUILD/buildenv.sh
         ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
+        cat runs/ColliderBit_CMSSM/logs/default.log
     - name: Build standalones
       run: |
         cd BUILD && . buildenv.sh
