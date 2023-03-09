@@ -58,6 +58,12 @@ jobs:
       run: |
         cd BUILD && . buildenv.sh
         make -j$(( ($(nproc)+1)/2 )) gambit
+    - name: Test contur
+      run: |
+        cd BUILD && . buildenv.sh
+        make -j$(( ($(nproc)+1)/2 )) contur
+        ./gambit -h
+        cat runs/ColliderBit_CMSSM/logs/default.log
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
@@ -75,7 +81,6 @@ jobs:
       run: |
         . BUILD/buildenv.sh
         ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
-        cat runs/ColliderBit_CMSSM/logs/default.log
     - name: Build standalones
       run: |
         cd BUILD && . buildenv.sh
