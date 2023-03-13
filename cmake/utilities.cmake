@@ -36,6 +36,10 @@
 #          (christopher.chang@uqconnect.edu.au)
 #  \date 2021 Feb
 #
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2023 Mar
+#
 #************************************************
 
 include(CMakeParseArguments)
@@ -391,7 +395,7 @@ set(STANDALONE_FACILITATOR ${PROJECT_SOURCE_DIR}/Elements/scripts/standalone_fac
 
 # Function to add a standalone executable
 function(add_standalone executablename)
-  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES" ${ARGN})
+  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES;BACKENDS" ${ARGN})
 
   # Assume that the standalone is to be included, unless we discover otherwise.
   set(standalone_permitted 1)
@@ -400,6 +404,15 @@ function(add_standalone executablename)
   if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
     set(standalone_permitted 0)
   endif()
+
+  # Exclude standalones that rely on backends that have been ditched. (Will cause linking problems.)
+  foreach(backend_name_and_version ${ARG_BACKENDS})  
+    if(ditched_${backend_name_and_version})
+      message("${BoldCyan} X Excluding the standalone ${executablename} because the backend ${backend_name_and_version} is excluded.${ColourReset}")
+      set(standalone_permitted 0)
+      break()
+    endif()
+  endforeach()
 
   # Iterate over modules, checking if the neccessary ones are present, and adding them to the target objects if so.
   foreach(module ${ARG_MODULES})
@@ -445,6 +458,12 @@ function(add_standalone executablename)
                                ${STANDALONE_FACILITATOR}
                                ${HARVEST_TOOLS}
                                ${PROJECT_BINARY_DIR}/CMakeCache.txt)
+
+    # All the standalones need linking to HepMC, if HepMC is not excluced.
+    # TODO: Avoid this if possible.
+    if (NOT EXCLUDE_HEPMC)
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+    endif()
 
     # Add linking flags for ROOT, RestFrames, HepMC and/or YODA if required.
     if (USES_COLLIDERBIT)
