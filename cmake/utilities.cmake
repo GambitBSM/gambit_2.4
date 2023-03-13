@@ -406,7 +406,7 @@ function(add_standalone executablename)
   endif()
 
   # Exclude standalones that rely on backends that have been ditched. (Will cause linking problems.)
-  foreach(backend_name_and_version ${ARG_BACKENDS})  
+  foreach(backend_name_and_version ${ARG_BACKENDS})
     if(ditched_${backend_name_and_version})
       message("${BoldCyan} X Excluding the standalone ${executablename} because the backend ${backend_name_and_version} is excluded.${ColourReset}")
       set(standalone_permitted 0)
