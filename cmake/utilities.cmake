@@ -395,7 +395,7 @@ set(STANDALONE_FACILITATOR ${PROJECT_SOURCE_DIR}/Elements/scripts/standalone_fac
 
 # Function to add a standalone executable
 function(add_standalone executablename)
-  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES;BACKENDS" ${ARGN})
+  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES;" ${ARGN})
 
   # Assume that the standalone is to be included, unless we discover otherwise.
   set(standalone_permitted 1)
@@ -404,15 +404,6 @@ function(add_standalone executablename)
   if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
     set(standalone_permitted 0)
   endif()
-
-  # Exclude standalones that rely on backends that have been ditched. (Will cause linking problems.)
-  foreach(backend_name_and_version ${ARG_BACKENDS})
-    if(ditched_${backend_name_and_version})
-      message("${BoldCyan} X Excluding the standalone ${executablename} because the backend ${backend_name_and_version} is excluded.${ColourReset}")
-      set(standalone_permitted 0)
-      break()
-    endif()
-  endforeach()
 
   # Iterate over modules, checking if the neccessary ones are present, and adding them to the target objects if so.
   foreach(module ${ARG_MODULES})
