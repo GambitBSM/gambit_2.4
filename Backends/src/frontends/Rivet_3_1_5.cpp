@@ -15,10 +15,11 @@
 ///  \date 2021 July
 ///  *********************************************
 
+#include "gambit/Backends/frontend_macros.hpp"
+
 #ifndef EXCLUDE_YODA
 #ifndef EXCLUDE_HEPMC
 
-#include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/Rivet_3_1_5.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
