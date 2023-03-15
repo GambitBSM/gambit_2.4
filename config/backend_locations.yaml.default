@@ -28,6 +28,9 @@ classy:
 
   exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
 
+Contur:
+  2.1.1:       ./Backends/installed/contur/2.1.1/contur/init_by_GAMBIT.py
+
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
 
@@ -53,7 +56,6 @@ HepLike:
   2.0:         ./Backends/installed/heplike/2.0/libHEPLike.so
 
 HepLikeData:
-  1.2:         ./Backends/installed/heplikedata/1.2
   1.4:         ./Backends/installed/heplikedata/1.4
 
 DDCalc:
@@ -76,11 +78,6 @@ FeynHiggs:
   2.11.2:      ./Backends/installed/feynhiggs/2.11.2/lib/libFH.so
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
-
-
-# Work in progress:
-# Prospino:
-#   2.1:         ./Backends/installed/prospino/2.1/libprospino.so
 
 Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
@@ -128,10 +125,9 @@ nulike:
 
 pbarlike:
   1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py
-  
-# Work in progress:
-# Rivet:
-#   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
+
+Rivet:
+  3.1.5:       ./Backends/installed/rivet/3.1.5/local/lib/libRivet.so
 
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
@@ -200,3 +196,9 @@ libMathematicaTest:
 # Work in progress:
 # salami:
 #   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
+
+ATLAS_FullLikes:
+  1.0:       ./Backends/installed/ATLAS_FullLikes/1.0/ATLAS_FullLikes_1_0.py
+
+simple_xs:
+  1.0:       ./Backends/examples/simple_xs/1.0/simple_xs.py

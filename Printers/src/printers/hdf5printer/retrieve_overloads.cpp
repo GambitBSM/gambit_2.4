@@ -533,17 +533,19 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(map_str_str& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_str_map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(map_const_str_dbl& /*out*/,    const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_const_str_map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(map_str_map_str_dbl& /*out*/,  const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_const_str_map_const_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(triplet<double>& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(flav_prediction& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #ifndef SCANNER_STANDALONE // All the types inside HDF5_BACKEND_TYPES need to go inside this def guard.

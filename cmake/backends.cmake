@@ -51,7 +51,7 @@
 #          (tomas.gonzalo@monash.edu)
 #  \date 2016 Apr, Dec
 #  \date 2017 Nov
-#  \date 2019 June
+#  \date 2019 June-Sep
 #  \date 2020 Apr
 #
 #  \author James McKay
@@ -97,6 +97,10 @@
 #  \author Will Handley
 #          (wh260@cam.ac.uk)
 #  \date 2020 Mar
+#
+#  \author Are Raklev
+#          (ahye@fys.uio.no)
+#  \date 2022 Feb
 #
 #************************************************
 
@@ -189,7 +193,7 @@ if(NOT ditched_${name}_${ver})
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE_SERIAL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${AlterBBN_C_FLAGS} CFLAGS_MP=${OpenMP_C_FLAGS}
           COMMAND ar x src/libbbn.a
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${OpenMP_C_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${OpenMP_C_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -198,6 +202,38 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# ATLAS_FullLikes
+set(name "ATLAS_FullLikes")
+set(ver "1.0")
+set(dl "no-download-url")
+set(ditch_if_absent "Python")
+set(required_modules "pyhf")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(examples_dir "${PROJECT_SOURCE_DIR}/Backends/examples/${name}/${ver}")
+check_ditch_status(${name} ${ver} "none" ${ditch_if_absent})
+# Ditch if Python version < v3.6 (required for pyhf)
+if(${PYTHON_VERSION_MAJOR} LESS 3 OR ${PYTHON_VERSION_MINOR} LESS 6)
+  message("${BoldCyan} X Excluding ATLAS FullLikes from GAMBIT configuration. Configure with Python >= v3.6 to activate ATLAS FullLikes: ${ColourReset}")
+  set(ditched_${name}_${ver} true)
+endif()
+if(NOT ditched_${name}_${ver})
+  check_python_modules(${name} ${ver} ${required_modules})
+  if(modules_missing_${name}_${ver})
+    inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    ExternalProject_Add(${name}_${ver}
+      DOWNLOAD_COMMAND ""
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      PATCH_COMMAND ""
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ${CMAKE_COMMAND} -E copy_directory ${examples_dir} ${dir}
+      INSTALL_COMMAND ""
+    )
+  endif()
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # CaptnGeneral
 set(name "capgen")
@@ -536,6 +572,12 @@ set(dl "https://github.com/tegonzalo/HEPLike/archive/v${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "a9b674b8a11037a15bfed69835aac1a6")
 set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} -undefined dynamic_lookup -flat_namespace")
+endif()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} ${NO_FIXUP_CHAINS}")
+endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -543,12 +585,15 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
+    UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
     INSTALL_COMMAND ""
     )
   BOSS_backend(${name} ${ver})
+  # ROOT flags not needed right now. Left as comment in case they are needed in the future
+  # BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG}" "-I${ROOT_INCLUDE_DIRS}")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -562,6 +607,9 @@ set(dl "http://superiso.in2p3.fr/download/${name}_v${ver}_flavbit3.tgz")
 set(md5 "524ac68f60fbe76f9db4b760e88e77c4")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/remove_omp.patch")
+set(SI_C_FLAGS ${BACKEND_C_FLAGS})
+set_compiler_warning("no-format-overflow" SI_C_FLAGS)
+set_compiler_warning("no-format" SI_C_FLAGS)
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -570,9 +618,9 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${BACKEND_C_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
           COMMAND ar x src/libsuperiso.a
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -804,6 +852,8 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_.${name}_${ver}_base)
   set(MO_C_FLAGS "${BACKEND_C_FLAGS} -fcommon")
+  set_compiler_warning("no-format" MO_C_FLAGS)
+  set_compiler_warning("no-implicit-function-declaration" MO_C_FLAGS)
   set(MO_CXX_FLAGS "${BACKEND_CXX_FLAGS} -fcommon")
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     # Fix error due to C99 non-compliance
@@ -1066,10 +1116,11 @@ set(dl "https://pythia.org/download/pythia82/pythia8212.tgz")
 set(md5 "7bebd73edcabcaec591ce6a38d059fa3")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 
-# - Add additional compiler-specific optimisation flags and suppress some warnings from -Wextra.
+# Add additional compiler-specific optimisation flags and suppress some warnings from -Wextra.
 set(pythia_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-  set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast") # -fast sometimes makes xsecs come out as NaN, but we catch that and invalidate those points.
+  # -fast sometimes makes xsecs come out as NaN, we catch that and invalidate those points
+  set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   # Include all flags from -ffast-math, except -ffinite-math-only (which has proved to cause incorrect results), and -fno-rounding-math -fno-signaling-nans (which don't exist in Clang and are defaults anyway for gcc).
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fno-math-errno -funsafe-math-optimizations")
@@ -1080,9 +1131,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" S
   set_compiler_warning("no-deprecated-declarations" pythia_CXXFLAGS)
 endif()
 
-# - Add "-undefined dynamic_lookup flat_namespace" to linker flags when OSX linker is used
+# Add "-undefined dynamic_lookup" to linker flags on OSX
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
+  set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace ${NO_FIXUP_CHAINS}")
   set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name")
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
@@ -1101,37 +1152,25 @@ if(COMPILER_SUPPORTS_CXX17)
 endif()
 
 # - Set include directories
-set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
-
-# - Setup HepMC-specific additions
-option(PYTHIA_WITH_HEPMC "Pythia is compiled with HepMC" ON)
-if(EXCLUDE_HEPMC)
-  set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_nohepmc.dif")
-  set(EXTRA_CONFIG "")
-  set(BOSS_suffix "nohepmc")
-else()
-  set(pythia_depends_on "hepmc")
-  set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-  set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
-  set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_PATH}/local/lib -Wl,-rpath ${HEPMC_PATH}/local/lib -lHepMC3")
-  set(EXTRA_CONFIG "--with-hepmc3=${HEPMC_PATH}/local")
-  set(BOSS_suffix "")
-endif()
+set(ditch_if_absent "hepmc")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURCE_DIR}/contrib/slhaea/include -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
+set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_PATH}/local/lib -Wl,-rpath ${HEPMC_PATH}/local/lib -lHepMC3")
 
 # - Actual configure and compile commands
-check_ditch_status(${name} ${ver} ${dir})
+check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS ${pythia_depends_on}
+    DEPENDS hepmc
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
+    CONFIGURE_COMMAND ./configure --with-hepmc3=${HEPMC_PATH}/local --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} ${BOSS_suffix})
+  BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -1311,7 +1350,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1339,7 +1378,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1368,7 +1407,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1426,7 +1465,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./my_configure
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1464,7 +1503,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./my_configure
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1505,7 +1544,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E remove HiggsSignals.o
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1579,7 +1618,7 @@ set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 if(COMPILER_SUPPORTS_CXX17)
   string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 endif()
-set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
+set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1610,7 +1649,7 @@ set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 if(COMPILER_SUPPORTS_CXX17)
   string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 endif()
-set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
+set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1698,9 +1737,15 @@ set(phc_ver "2.4.58")
 set(hom4ps_ver "2.0")
 set(Minuit_include "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/inc/")
 set(Minuit_lib "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/lib/")
-set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${CMAKE_SHARED_LINKER_FLAGS} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
-set(VPP_FLAGS "${BACKEND_CXX_FLAGS} -Wno-unused-local-typedefs -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
-set_compiler_warning("no-unused-parameter" VPP_FLAGS)
+set(VPP_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+set(VPP_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
+set_compiler_warning("no-unused-local-typedefs" VPP_CXX_FLAGS)
+set_compiler_warning("no-unused-parameter" VPP_CXX_FLAGS)
+set_compiler_warning("no-reorder" VPP_CXX_FLAGS)
+set_compiler_warning("no-deprecated-copy" VPP_CXX_FLAGS)
+set_compiler_warning("no-unused-variable" VPP_CXX_FLAGS)
+set_compiler_warning("no-pessimizing-move" VPP_CXX_FLAGS)
+set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DCMAKE_CXX_FLAGS=${VPP_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${VPP_SHARED_LINKER_FLAGS} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
 set(BOSSregex "s#cpp)#cpp   source/BOSS_factory_VevaciousPlusPlus.cpp       source/BOSS_wrapperutils.cpp        source/BOSS_VevaciousPlusPlus.cpp)#g")
 set(FLAGSregex1 "s#_FLAGS} -O3 -fPIC#_FLAGS}#g")
 set(FLAGSregex2 "s#_FLAGS} -Wall -Wno-unused-local-typedefs -O3 -fPIC -fopenmp#_FLAGS}#g")
@@ -1713,12 +1758,9 @@ if(NOT ditched_${name}_${ver})
           DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
           SOURCE_DIR ${dir}
           PATCH_COMMAND patch -p1 < ${patchdir}/patch_${name}_${ver}.dif
-          UPDATE_COMMAND sed ${dashi} -e "${BOSSregex}" ${dir}/CMakeLists.txt
-                 COMMAND sed ${dashi} -e "${FLAGSregex1}" ${dir}/CMakeLists.txt
-                 COMMAND sed ${dashi} -e "${FLAGSregex2}" ${dir}/CMakeLists.txt
           CMAKE_COMMAND ${CMAKE_COMMAND} ${dir}
           CMAKE_ARGS ${VPP_CMAKE_FLAGS}
-          BUILD_COMMAND ${MAKE_PARALLEL} MINUITLIBDIR=${Minuit_lib} MINUITLIBNAME=${Minuit_lib_name} VevaciousPlusPlus-lib
+          BUILD_COMMAND ${MAKE_PARALLEL} ${VPP_FLAGS} MINUITLIBDIR=${Minuit_lib} MINUITLIBNAME=${Minuit_lib_name} VevaciousPlusPlus-lib
                 COMMAND ${CMAKE_COMMAND} -E make_directory ${patchdir}/VevaciousPlusPlus/ModelFiles/
                 COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/VevaciousPlusPlus/ModelFiles/ ${dir}/ModelFiles/
           INSTALL_COMMAND ""
@@ -1790,10 +1832,14 @@ if(NOT ditched_${name}_${ver})
   set(calchep_CXX_FLAGS "${BACKEND_CXX_FLAGS} -fcommon")
   set(calchep_C_FLAGS "${BACKEND_C_FLAGS} -fcommon")
   set(calchep_Fortran_FLAGS "${BACKEND_Fortran_FLAGS} -fcommon")
+  set_compiler_warning("no-format" calchep_C_FLAGS)
+  set_compiler_warning("no-implicit-function-declaration" calchep_C_FLAGS)
+  set_compiler_warning("no-int-conversion" calchep_C_FLAGS)
+  set_compiler_warning("no-incompatible-pointer-types" calchep_C_FLAGS)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(calchep_CXX_FLAGS "${calchep_CXX_FLAGS} -Wl,-undefined,dynamic_lookup")
-    set(calchep_C_FLAGS "${calchep_C_FLAGS} -Wl,-undefined,dynamic_lookup")
-    set(calchep_Fortran_FLAGS "${calchep_Fortran_FLAGS} -Wl,-undefined,dynamic_lookup")
+    set(calchep_CXX_FLAGS "${calchep_CXX_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+    set(calchep_C_FLAGS "${calchep_C_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+    set(calchep_Fortran_FLAGS "${calchep_Fortran_FLAGS} ${NO_FIXUP_CHAINS}")
   endif()
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     # Fix error due to C99 non-compliance
@@ -1840,31 +1886,6 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# Yoda
-set(name "yoda")
-set(ver "1.7.7")
-set(dl "https://yoda.hepforge.org/downloads/?f=YODA-1.7.7.tar.gz")
-set(md5 "9106b343cbf64319e117aafba663467a")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
-# OpenMP flags don't play nicely with clang and Yoda's antiquated libtoolized build system.
-string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_C_FLAGS "${BACKEND_C_FLAGS}")
-string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${YODA_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${CMAKE_SHARED_LINKER_FLAGS} --prefix=${dir}/local --disable-pyext
-    BUILD_COMMAND ${MAKE_PARALLEL} install
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
-endif()
-
-
 # cfitsio
 set(name "cfitsio")
 set(ver "3.390")
@@ -1887,61 +1908,6 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-
-
-# Fastjet
-set(name "fastjet")
-set(ver "3.3.2")
-set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
-set(md5 "ca3708785c9194513717a54c1087bfb0")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-# OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-# FastJet 3.3.2 depends on std::auto_ptr which is removed in c++17, so we need to fall back to c++14 (or c++11)
-string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
-string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${CMAKE_SHARED_LINKER_FLAGS} --prefix=${dir}/local --enable-allcxxplugins
-    BUILD_COMMAND ${MAKE_PARALLEL} install
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
-endif()
-
-
-# Fjcontrib
-set(name "fjcontrib")
-set(ver "1.041")
-set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
-set(md5 "b37674a8701af52b58ebced94a270877")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(fastjet_name "fastjet")
-set(fastjet_ver "3.3.2")
-set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS ${fastjet_name}_${fastjet_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
-    BUILD_COMMAND ${MAKE_PARALLEL} fragile-shared-install
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
-endif()
-
 
 # plc data
 set(name "plc_data")
@@ -2021,15 +1987,77 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# Fastjet
+set(name "fastjet")
+set(ver "3.3.2")
+set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
+set(md5 "ca3708785c9194513717a54c1087bfb0")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+# OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.
+string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
+string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+# FastJet 3.3.2 depends on std::auto_ptr which is removed in c++17, so we need to fall back to c++14 (or c++11)
+string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
+string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
+set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
+set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
+set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND ""
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules
+    BUILD_COMMAND ${MAKE_PARALLEL} install
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  #set_as_default_version("backend" ${name} ${ver})
+endif()
+
+
+# Fjcontrib
+set(name "fjcontrib")
+set(ver "1.041")
+set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
+set(md5 "b37674a8701af52b58ebced94a270877")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(fastjet_name "fastjet")
+set(fastjet_ver "3.3.2")
+set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
+set(FJCONTRIB_CXX_FLAGS ${FJ_CXX_FLAGS})
+#set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
+set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
+set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
+set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
+set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS ${fastjet_name}_${fastjet_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND ""
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  #set_as_default_version("backend" ${name} ${ver})
+endif()
+
 # Rivet
 set(name "rivet")
-set(ver "3.0.0")
-set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-3.0.0.tar.gz")
-set(md5 "4b74187ce65ada1a387082457efd6092")
+set(ver "3.1.5")
+set(Rivet_ver "${ver}")
+set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
+set(md5 "7f3397b16386c0bfcb49420c2eb395b1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
-set(yoda_ver "1.7.7")
-set(yoda_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${yoda_name}/${yoda_ver}/local")
+set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
 set(hepmc_dir "${HEPMC_PATH}/local")
 set(fastjet_name "fastjet")
@@ -2037,52 +2065,116 @@ set(fastjet_ver "3.3.2")
 set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}/local")
 set(fjcontrib_name "fjcontrib")
 set(fjcontrib_ver "1.041")
-set(ditch_if_absent "HepMC")
+#set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -O3")
+set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -O3")
+set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
+set_compiler_warning("no-deprecated-copy" Rivet_CXX_FLAGS)
+set_compiler_warning("no-type-limits" Rivet_CXX_FLAGS)
+set_compiler_warning("no-unused-parameter" Rivet_CXX_FLAGS)
+set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
+#set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
+set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet")
+# TODO: Separate the library and linker flags to avoid compiler complaints
+set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} -L${dir}/include/Rivet -L${HEPMC_PATH}/local/lib -Wl,-rpath,${HEPMC_PATH}/local/lib")
+set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${dir}/src/AnalysisTools" "${dir}/src")
+
+# For MacOS we need to specify the (weird) root directory for headers (isysroot)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(Rivet_CPP_FLAGS "-isysroot${CMAKE_OSX_SYSROOT}")
+else()
+  set(Rivet_CPP_FLAGS "")
+endif()
+
+set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
+set(patch "${patch_dir}/patch_${name}_${ver}.dif")
+## Rivet needs to be compiled with c++14 or c++17, otherwise it will fail to compile
+set(ditch_if_absent "HepMC;YODA;c++14")
+## If cython is not installed disable the python extension
+gambit_find_python_module(cython)
+if(PY_cython_FOUND)
+  set(pyext yes)
+  set(Rivet_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  set(Rivet_LIB "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/libRivet.so")
+  message("   Backends depending on Rivet's python extension will be enabled.")
+else()
+  set(pyext no)
+  message("   Backends depending on Rivet's python extension (e.g. Contur) will be disabled.")
+endif()
+
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS ${yoda_name}_${yoda_ver}
+    DEPENDS castxml
+    DEPENDS ${yoda_name}
     DEPENDS ${hepmc_name}
     DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-fastjet=${fastjet_dir} --prefix=${dir}/local
-    BUILD_COMMAND ${MAKE_PARALLEL}
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
+          COMMAND ${CMAKE_COMMAND} -E echo "Rivet_dirs=\"${Rivet_dirs}\"" > touch_files.sh
+          COMMAND sh -c "cat ${patch_dir}/touch_files.sh" >> touch_files.sh
+          COMMAND chmod u+x touch_files.sh
+          COMMAND ./touch_files.sh
+    BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
+  BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
+  set_as_default_version("backend" ${name} ${ver})
 endif()
-
 
 # Contur
 set(name "contur")
-set(ver "1.0.0")
-set(dl "https://bitbucket.org/heprivet/contur/get/8407e09eb161.zip")
-set(md5 2c1be84a0e518a8454f495f486f76114)
-set(rivet_name "rivet")
-set(rivet_ver "3.0.0")
+set(ver "2.1.1")
+set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
+set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(ditch_if_absent "HepMC")
+set(contur_dir "${dir}/contur")
+set(init_file ${contur_dir}/init_by_GAMBIT.py)
+set(Rivet_name "rivet")
+set(ditch_if_absent "Python;SQLITE3;YODA;HepMC;Rivet")
+set(required_modules "cython;configobj;pandas;matplotlib;")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS ${rivet_name}_${rivet_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER}
-    INSTALL_COMMAND ""
-  )
+  check_python_modules(${name} ${ver} ${required_modules})
+  if(modules_missing_${name}_${ver})
+    inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    ExternalProject_Add(${name}_${ver}
+      DEPENDS ${Rivet_name}_${Rivet_ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      PATCH_COMMAND patch -p1 < ${patch}
+      CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${dir}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from run import arg_utils" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
+      BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
+      INSTALL_COMMAND ""
+    )
+  endif()
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
+  set_as_default_version("backend" ${name} ${ver})
 endif()
 
-# Modified OpenMP settings for classy
+
+# Modified OpenMP settings and linker flags for classy
 if(FOUND_BREW_OPENMP)
   set(CLASSY_OpenMP_C_FLAGS "${OpenMP_C_FLAGS} -I${BREW_LIBOMP_PREFIX}/include")
 else()
@@ -2095,10 +2187,10 @@ else()
 endif()
 if("${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
   set(lgomp_REPLACEMENT "${lgomp_REPLACEMENT},  '-arch', '${CMAKE_SYSTEM_PROCESSOR}'")
+  set(CLASSY_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 else()
   set(lgomp_REPLACEMENT "${lgomp_REPLACEMENT},  '-march=${CMAKE_SYSTEM_PROCESSOR}'")
 endif()
-
 
 # classy
 set(name "classy")
@@ -2127,7 +2219,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CMAKE_SHARED_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2166,7 +2258,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CMAKE_SHARED_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2205,7 +2297,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CMAKE_SHARED_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2244,7 +2336,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CMAKE_SHARED_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2284,7 +2376,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CMAKE_SHARED_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2365,36 +2457,22 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# Prospino
-set(name "prospino")
-set(ver "2.1")
-set(lib "libprospino")
-set(dl "https://www.thphys.uni-heidelberg.de/~plehn/includes/prospino/on_the_web_10_17_14.tar.gz")
-set(md5 "40e73d6b56a5008c134cc89c769e274c")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-# Prospino fails to compile with -openmp flags
-set(PROSPINO_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
-string(REGEX REPLACE "-fopenmp" "" PROSPINO_Fortran_FLAGS "${PROSPINO_Fortran_FLAGS}")
-string(REGEX REPLACE "-qopenmp" "" PROSPINO_Fortran_FLAGS "${PROSPINO_Fortran_FLAGS}")
-# Some extra optimization for Intel
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-  # Options used in xsec project: -fast -xAVX -mkl -fno-alias -fomit-frame-pointer -O3 -finline-functions
-  set(PROSPINO_Fortran_FLAGS "${PROSPINO_Fortran_FLAGS} -fast -mkl -O3 -fno-alias -fomit-frame-pointer -finline-functions")
-endif()
+# simplexs
+set(name "simplexs")
+set(ver "1.0")
+set(dl "https://github.com/GambitBSM/gambit_simplexs/archive/refs/heads/main.zip")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/examples/simple_xs/1.0/")
+set(md5 "5bf400a48e30049e92bff80b69cfd523")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_SERIAL} ${lib}.so COMP=${CMAKE_Fortran_COMPILER} OPTION=${PROSPINO_Fortran_FLAGS}
+    BUILD_COMMAND ""
     INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
+    )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
 endif()
 
 

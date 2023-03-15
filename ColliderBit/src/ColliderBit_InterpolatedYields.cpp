@@ -6,7 +6,7 @@
 ///  rather than direct MC simulation. For now this functionality
 ///  is specific to the DMEFT and DMsimp models, but it will be turned into
 ///  a general feature in ColliderBit.
-///  
+///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
@@ -31,11 +31,11 @@
 ///  \date 2022 June
 ///
 ///  Analyses based on: arxiv:1711.03301 and https://journals.aps.org/prd/abstract/10.1103/PhysRevD.97.092005
-///  139invfb analysis based on arXiv:2102.10874 
+///  139invfb analysis based on arXiv:2102.10874
 ///
 ///  *********************************************
 
-// Needs GSL 2 
+// Needs GSL 2
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_interp2d.h>
 #include <gsl/gsl_spline2d.h>
@@ -63,13 +63,13 @@ namespace Gambit
 {
 
   namespace ColliderBit
-  {  
+  {
 
     // =========== Useful stuff ===========
 
     /// A minimal class with analysis info, maps for containing collections of 1D/2D/4D/5D interpolators
-    /// and some helper functions for adding and accessing the interpolators, and for 
-    /// adding a background covariance matrix. Currently this class is tailored specifically 
+    /// and some helper functions for adding and accessing the interpolators, and for
+    /// adding a background covariance matrix. Currently this class is tailored specifically
     /// for the DMEFT/DMsimp models -- it will be generalized in the future.
     class Model_analysis_info
     {
@@ -189,6 +189,7 @@ namespace Gambit
       bool use_covar;
       bool use_marg;
       bool combine_nocovar_SRs;
+      bool use_fulllikes;
     };
 
 
@@ -201,7 +202,8 @@ namespace Gambit
     // =========== Forward declarations ===========
 
     /// Forward declaration of funtion in LHC_likelihoods
-    AnalysisLogLikes calc_loglikes_for_analysis(const AnalysisData&, bool, bool, bool, bool);
+    // @todo Interpolation will not currently work with the FullLikes backend. None of the currently written interpolation analysis require this.
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
@@ -242,9 +244,9 @@ namespace Gambit
       std::vector<std::vector<double>> bkgcov;
       Model_analysis_info empty_analysis_info;
 
-      // 
+      //
       // New analysis: CMS_13TeV_MONOJET_36invfb_interpolated
-      // 
+      //
 
       // Analysis name
       if (current_analysis_name == "CMS_13TeV_MONOJET_36invfb_interpolated")
@@ -336,7 +338,7 @@ namespace Gambit
                                  176171,96067,54789,32767,20209,12910,10653,6487,3955,2587,1957,1151,721,455,298,244,146,89,65,39,35,40,
                                  191829,104522,59398,35833,21854,14266,11730,8639,5406,3285,2671,1613,965,640,424,319,191,117,96,55,43,70};
 
-        // Separate Bins  
+        // Separate Bins
         current_ainfo->bkgnum = {135004.8633,73681.17188,42448.17627,25541.23718,15454.10522,10162.67578,8473.070068,4853.264771,2960.103455,1906.687012,1498.361874,
           839.2151833,523.393774,322.8404999,221.0696697,167.221384,106.2168646,87.38325834,52.36919761,24.69706476,25.22828668,26.60783306,
           169737.7734,93266.63818,54175.54321,32232.16919,19798.24585,12816.66046,10626.91895,6407.873535,3903.657227,2519.861908,1929.788399,1181.808949,713.7919903,456.2266827,294.6278095,231.1669064,
@@ -440,9 +442,9 @@ namespace Gambit
       Model_analysis_info empty_analysis_info;
       Model_analysis_info* current_ainfo;
 
-      // 
+      //
       // New analysis: CMS_13TeV_MONOJET_36invfb_interpolated
-      // 
+      //
 
       // Analysis name
       current_analysis_name = "CMS_13TeV_MONOJET_36invfb_interpolated";
@@ -485,9 +487,9 @@ namespace Gambit
       current_ainfo = &empty_analysis_info;
 
 
-      // 
+      //
       // New analysis: ATLAS_13TeV_MONOJET_139invfb_interpolated
-      // 
+      //
 
       // Analysis name
       current_analysis_name = "ATLAS_13TeV_MONOJET_139invfb_interpolated";
@@ -573,7 +575,7 @@ namespace Gambit
         str aname = aname_ainfo_pair.first;
         const Model_analysis_info& ainfo = aname_ainfo_pair.second;
 
-        // Grab a reference to corresponding AnalysisData instance 
+        // Grab a reference to corresponding AnalysisData instance
         // and clear it before we start filling it for the current parameter point
         AnalysisData& adata = analysis_data_map.at(aname);
         adata.clear();
@@ -589,7 +591,7 @@ namespace Gambit
 
         for (size_t sr_index = 0; sr_index < ainfo.n_signal_regions; ++sr_index)
         {
-          // Generate an 'sr-N' label 
+          // Generate an 'sr-N' label
           std::stringstream ss; ss << "sr-" << sr_index;
 
           // Construct a SignalRegionData instance and add it to srdata_vector
@@ -714,9 +716,9 @@ namespace Gambit
       for (size_t sr_i = 0; sr_i < analysis_info.n_signal_regions; ++sr_i)
       {
 
-        // 
+        //
         // Get the cross-section at the point (m,theta)
-        // 
+        //
 
         double xsec_pb = 0.;
         // Check if (m,theta) point is inside interpolation region
@@ -744,9 +746,9 @@ namespace Gambit
         }
 
 
-        // 
+        //
         // Get signal efficiency for signal region sr_i at the point (m,theta)
-        // 
+        //
 
         double eff = 0.;
         // Check if (m,theta) point is inside interpolation region
@@ -773,9 +775,9 @@ namespace Gambit
           eff = eff_interp.eval(m, theta, sr_i);
         }
 
-        // 
+        //
         // Compute signal prediction and save it in the signal_yields vector
-        // 
+        //
 
         signal_yields[sr_i] = analysis_info.lumi_invfb * (xsec_pb * 1000.) * norm * lambda_scaling * eff; // converting cross-section from pb to fb
 
@@ -814,9 +816,9 @@ namespace Gambit
       for (size_t sr_i = 0; sr_i < analysis_info.n_signal_regions; ++sr_i)
       {
 
-        // 
+        //
         // Get the cross-section for mass m
-        // 
+        //
 
         double xsec_pb = 0.;
         // Check if m is inside interpolation region
@@ -839,9 +841,9 @@ namespace Gambit
         }
 
 
-        // 
+        //
         // Get signal efficiency for signal region sr_i and mass m
-        // 
+        //
 
         double eff = 0.;
         // Check if m point is inside interpolation region
@@ -863,9 +865,9 @@ namespace Gambit
           eff = eff_interp.eval(m, sr_i);
         }
 
-        // 
+        //
         // Compute signal prediction and save it in the signal_yields vector
-        // 
+        //
 
         signal_yields[sr_i] = analysis_info.lumi_invfb * (xsec_pb * 1000.) * norm * lambda_scaling * eff; // converting cross-section from pb to fb
 
@@ -916,7 +918,7 @@ namespace Gambit
       const Spectrum& spec = *Dep::DMEFT_spectrum;
       double lambda = spec.get(Par::mass1, "Lambda");
 
-      // Apply the function signal_cutoff_function to each of the 
+      // Apply the function signal_cutoff_function to each of the
       // AnalysisData instances in "result"
       for (AnalysisData* adata_ptr : result)
       {
@@ -926,7 +928,7 @@ namespace Gambit
 
 
     /// Function to modify the DMEFT LHC signal prediction for ETmiss bins where ETmiss > Lambda.
-    /// Alt 1: Gradually turn off the ETmiss spectrum above Lambda by multiplying 
+    /// Alt 1: Gradually turn off the ETmiss spectrum above Lambda by multiplying
     /// the spectrum with (ETmiss/Lambda)^-a
     void signal_modifier_function(AnalysisData& adata, double lambda, double a)
     {
@@ -999,8 +1001,6 @@ namespace Gambit
       // Cast fparams to correct type
       _gsl_target_func_params* fpars = static_cast<_gsl_target_func_params*>(fparams);
 
-      AnalysisLogLikes analoglikes;
-
       // Create a vector with temp AnalysisData instances by copying the original ones
       std::vector<AnalysisData> temp_adata_vec;
       for (AnalysisData* adata_ptr : fpars->adata_ptrs_original)
@@ -1018,8 +1018,17 @@ namespace Gambit
       // Now loop over all the temp AnalysisData instances and calculate the total loglike for the current a-value
       for (AnalysisData& adata : temp_adata_vec)
       {
+        // Grab some info about the current analysis
+        const bool has_covar = adata.srcov.rows() > 0;
+        const bool has_fulllikes = adata.hasFullLikes();
+
+        // Modify the signal predictions for this analysis
         signal_modifier_function(adata, fpars->lambda, *a);
-        analoglikes = calc_loglikes_for_analysis(adata, fpars->use_covar, fpars->use_marg, fpars->combine_nocovar_SRs, false);
+
+        // Compute the combined analysis loglike and add it to total_loglike
+        AnalysisLogLikes analoglikes;
+        analoglikes.initialize(adata);
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes && has_fulllikes, nullptr, nullptr, nullptr, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
@@ -1028,7 +1037,7 @@ namespace Gambit
 
 
 
-    // DMEFT: Profile the 'a' nuisance parameter, which is used to smoothly 
+    // DMEFT: Profile the 'a' nuisance parameter, which is used to smoothly
     // suppress signal predictions for MET bins with MET > Lambda
     void calc_DMEFT_profiled_LHC_nuisance_params(map_str_dbl& result)
     {
@@ -1065,6 +1074,8 @@ namespace Gambit
       static const bool use_marg = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "use_marginalising");
       // Use the naive sum of SR loglikes for analyses without known correlations?
       static const bool combine_nocovar_SRs = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+      // These LHC likelihoods don't use the ATLAS full likelihood system
+      static const bool use_fulllikes = false;
 
       // Clear previous result map
       result.clear();
@@ -1099,12 +1110,13 @@ namespace Gambit
       fpars.use_covar = use_covar;
       fpars.use_marg = use_marg;
       fpars.combine_nocovar_SRs = combine_nocovar_SRs;
+      fpars.use_fulllikes = use_fulllikes;
 
       // Create a variable to store the best-fit loglike
       double minus_loglike_bestfit = 50000.;
 
-      // Nuisance parameter(s) to be profiled 
-      // NOTE: Currently we only profile one parameter ('a'), but the 
+      // Nuisance parameter(s) to be profiled
+      // NOTE: Currently we only profile one parameter ('a'), but the
       //       below setup can  easily be extended to more parameters
       static const std::vector<double> init_values_a = runOptions->getValue<std::vector<double>>("init_values_a");
       static const std::pair<double,double> range_a = runOptions->getValue<std::pair<double,double>>("range_a");
@@ -1347,13 +1359,14 @@ namespace Gambit
     {
 
       // Loop over the analyses registered in the analysis_info_map
-      for (const std::pair<str,const Model_analysis_info&>& aname_ainfo_pair : analysis_info_map)
+      // for (const std::pair<str,const Model_analysis_info&>& aname_ainfo_pair : analysis_info_map)
+      for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)
       {
         // Extract analysis name and reference to the analysis_info instance
         str aname = aname_ainfo_pair.first;
         const Model_analysis_info& ainfo = aname_ainfo_pair.second;
 
-        // Grab a reference to corresponding AnalysisData instance 
+        // Grab a reference to corresponding AnalysisData instance
         // and clear it before we start filling it for the current parameter point
         AnalysisData& adata = analysis_data_map.at(aname);
         adata.clear();
@@ -1361,7 +1374,7 @@ namespace Gambit
         // Vector to contain signal yield predictions
         std::vector<double> sr_nums(ainfo.n_signal_regions, 0.);
 
-        // Use the provided model-specific function pointer to fill the signal yield vector 
+        // Use the provided model-specific function pointer to fill the signal yield vector
         // with signal predictions for the given model
         get_all_model_signal_yields(sr_nums, ainfo, spec, modelname);
 
@@ -1370,7 +1383,7 @@ namespace Gambit
 
         for (size_t sr_index = 0; sr_index < ainfo.n_signal_regions; ++sr_index)
         {
-          // Generate an 'sr-N' label 
+          // Generate an 'sr-N' label
           std::stringstream ss; ss << "sr-" << sr_index;
 
           // Construct a SignalRegionData instance and add it to srdata_vector
@@ -1529,7 +1542,7 @@ namespace Gambit
       {
         DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, Ndim);
 
-        for (const std::pair<str,const Model_analysis_info&>& aname_ainfo_pair : analysis_info_map)
+        for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)
         {
           // Extract analysis name and use it to create an AnalysisData element in the analysis_data_map
           str aname = aname_ainfo_pair.first;
@@ -1593,7 +1606,7 @@ namespace Gambit
         get_DMsimpVectorMedMajoranaDM_signal_yields(signal, analysis_info, mDM, mMed, gq, gAchi);
       }
       else if (modelname == "DMsimpVectorMedDiracDM")
-      { 
+      {
         double mDM = spec.get(Par::Pole_Mass, "Xd");
         double mMed = spec.get(Par::Pole_Mass, "Y1");
         double gq = spec.get(Par::dimensionless, "gVq");
