@@ -158,7 +158,7 @@ Rules:
 Printer:
 
   printer: cout
-  
+
   # printer: ascii
   # options:
   #   output_file: "results.txt"

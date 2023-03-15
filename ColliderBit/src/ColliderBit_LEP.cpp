@@ -47,7 +47,7 @@ namespace Gambit
   {
 
     /// A simple struct and helper function to determine if the LSP is
-    /// the lightest neutralino or the gravitino. 
+    /// the lightest neutralino or the gravitino.
     struct LSP
     {
       int pdg;
