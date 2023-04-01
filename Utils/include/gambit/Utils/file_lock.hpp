@@ -50,9 +50,6 @@ namespace Gambit
       {
         private:
 
-          /// Bool to indicate whether this process created the file
-          bool creator;
-
           /// Name for the managed lock file
           const std::string my_lock_fname;
 
@@ -64,6 +61,9 @@ namespace Gambit
 
           /// Bool to indicate that hard errors should be thrown rather than gambit errors (e.g. for use in loggers)
           bool hard_errors;
+
+          /// Bool to indicate whether the lock has been exhausted or not
+          bool exhausted_lock;
 
         public:
           /// Constructor
@@ -79,11 +79,14 @@ namespace Gambit
           /// Release a lock (error if no lock held)
           void release_lock();
 
+          /// Exhaust and release a lock
+          void exhaust_and_release_lock();
+
           /// Getter for lockfile name
           const std::string& get_filename() const;
 
-          /// Is this process the creator of the file
-          bool amICreator() const;
+          /// Check if lock is exhausted
+          bool exhausted();
       };
 
 

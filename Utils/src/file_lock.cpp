@@ -79,11 +79,11 @@ namespace Gambit
 
       /// Constructor
       FileLock::FileLock(const std::string& fname, const bool harderrs)
-       : creator(not file_exists(fname))
-       , my_lock_fname(ensure_path_exists(fname))
+       : my_lock_fname(ensure_path_exists(fname))
        , fd(open(my_lock_fname.c_str(), O_RDWR | O_CREAT, 0666)) // last argument is permissions, in case file has to be created.
        , have_lock(false)
        , hard_errors(harderrs)
+       , exhausted_lock(false)
       {
         /// Should check for errors opening the file. List of error codes is kind of long though, let people look it up themselves for now...
         if(fd<0)
@@ -165,6 +165,7 @@ namespace Gambit
         have_lock = true;
       }
 
+
       /// Release a lock (error if no lock held)
       void FileLock::release_lock()
       {
@@ -199,11 +200,77 @@ namespace Gambit
         have_lock = false;
       }
 
+      /// Exhaust a lock if it wasn't already and then release it
+      void FileLock::exhaust_and_release_lock()
+      {
+        if(not have_lock)
+        {
+          /// Don't have the lock!
+          std::ostringstream msg;
+          msg << "Tried to release lock for file '"<<my_lock_fname<<"', but it is not ours to release (i.e. get_lock() was not called, or the lock has already been released)! This indicates a logic error in whatever code tried to obtain the lock, please file a bug report.";
+          if(hard_errors) { std::cerr<<"Error! ("<<LOCAL_INFO<<"): "<<msg.str()<<hardmsg<<std::endl; std::cerr.flush(); abort(); }
+          else { utils_error().raise(LOCAL_INFO,msg.str()); }
+        }
+
+        // Only exhaust if it wasn't already exhausted
+        if(not exhausted())
+        {
+          std::ofstream of;
+          of.open(my_lock_fname);
+          of << 1 << std::endl;
+          exhausted_lock = true;
+          of.close();
+          #ifdef FILE_LOCK_DEBUG
+            int rank;
+            MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+            struct timeval tv;
+            struct timezone tz;
+            gettimeofday(&tv, &tz);
+            cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Exhausting lock " << my_lock_fname << " in rank " << rank << endl;
+          #endif
+        }
+
+        // Now release it
+        release_lock();
+      }
+
       /// Getter for lockfile name
       const std::string& FileLock::get_filename() const { return my_lock_fname; }
 
-      /// Is this process the creator of the file
-      bool FileLock::amICreator() const { return creator; }
+      /// Check if lock is exhausted
+      bool FileLock::exhausted()
+      {
+        // Only possible to do this if you have the lock
+        if(not have_lock)
+        {
+          /// Don't have the lock!
+          std::ostringstream msg;
+          msg << "Tried to check whether thelock for file '"<<my_lock_fname<<"' is exhausted, but it is not ours (i.e. get_lock() was not called, or the lock has already been released)! This indicates a logic error in whatever code tried to obtain the lock, please file a bug report.";
+          if(hard_errors) { std::cerr<<"Error! ("<<LOCAL_INFO<<"): "<<msg.str()<<hardmsg<<std::endl; std::cerr.flush(); abort(); }
+          else { utils_error().raise(LOCAL_INFO,msg.str()); }
+        }
+
+        if(exhausted_lock) return true;
+
+        std::ifstream f;
+        f.open(my_lock_fname);
+        if(f.peek() == std::ifstream::traits_type::eof())
+          exhausted_lock = false;
+        else
+          f >> exhausted_lock;
+        f.close();
+
+        #ifdef FILE_LOCK_DEBUG
+          int rank;
+          MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+          struct timeval tv;
+          struct timezone tz;
+          gettimeofday(&tv, &tz);
+          cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Checking lock " << my_lock_fname << " for exhaustion in rank " << rank << endl;
+        #endif
+
+        return exhausted_lock;
+      }
 
       /// @}
 
