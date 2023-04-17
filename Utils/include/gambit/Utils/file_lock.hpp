@@ -62,12 +62,15 @@ namespace Gambit
           /// Bool to indicate that hard errors should be thrown rather than gambit errors (e.g. for use in loggers)
           bool hard_errors;
 
+          /// Bool to indicate if the file has the ability to be exhaustible
+          bool exhaustible;
+
           /// Bool to indicate whether the lock has been exhausted or not
           bool exhausted_lock;
 
         public:
           /// Constructor
-          FileLock(const std::string& fname, const bool harderrs=false);
+          FileLock(const std::string& fname, const bool is_exhaustible=false, const bool harderrs=false);
 
           /// Destructor
           /// Closing the file descriptor will automatically release any lock we might have

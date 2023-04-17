@@ -120,7 +120,7 @@ BE_INI_FUNCTION
 
     // Create a process lock to allow only one process in
     {
-      Utils::ProcessLock mylock("CH_decays");
+      Utils::ProcessLock mylock("CH_decays", true);
       mylock.get_lock();
 
       // Only first process to get here creates the libraries

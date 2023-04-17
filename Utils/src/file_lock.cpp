@@ -78,11 +78,12 @@ namespace Gambit
       const std::string hardmsg("Now calling abort (will produce a core file for analysis if this is enabled on your system; if so please include this with the bug report)");
 
       /// Constructor
-      FileLock::FileLock(const std::string& fname, const bool harderrs)
+      FileLock::FileLock(const std::string& fname, const bool is_exhaustible, const bool harderrs)
        : my_lock_fname(ensure_path_exists(fname))
        , fd(open(my_lock_fname.c_str(), O_RDWR | O_CREAT, 0666)) // last argument is permissions, in case file has to be created.
        , have_lock(false)
        , hard_errors(harderrs)
+       , exhaustible(is_exhaustible)
        , exhausted_lock(false)
       {
         /// Should check for errors opening the file. List of error codes is kind of long though, let people look it up themselves for now...
@@ -179,7 +180,7 @@ namespace Gambit
         }
 
         // Always exhaust lock before relasing it, but only if it wasn't already exhausted
-        if(not exhausted())
+        if(exhaustible and not exhausted())
         {
           ssize_t return_code = write(fd, "1", 1);
           if(return_code == -1)
@@ -235,6 +236,14 @@ namespace Gambit
           msg << "Tried to check whether thelock for file '"<<my_lock_fname<<"' is exhausted, but it is not ours (i.e. get_lock() was not called, or the lock has already been released)! This indicates a logic error in whatever code tried to obtain the lock, please file a bug report.";
           if(hard_errors) { std::cerr<<"Error! ("<<LOCAL_INFO<<"): "<<msg.str()<<hardmsg<<std::endl; std::cerr.flush(); abort(); }
           else { utils_error().raise(LOCAL_INFO,msg.str()); }
+        }
+
+        // If the file is not exhaustible, throw an error as this is a misuse
+        if(not exhaustible)
+        {
+          std::ostringstream msg;
+          msg << "Tried checking exhaustion of a non-exhaustible file, this is a misuse of the file lock. If the file is meant to be exhaustible, set the appropriate argument in the constructor.";
+          utils_error().raise(LOCAL_INFO, msg.str());
         }
 
         if(exhausted_lock) return true;
