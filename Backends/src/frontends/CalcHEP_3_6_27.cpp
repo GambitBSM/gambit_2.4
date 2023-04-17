@@ -67,8 +67,6 @@ BE_INI_FUNCTION
       sprintf(modeltoset, "%s", path);
     }
 
-    // CH is not threadsafe so make critical sections everywhere
-    #pragma omp critical
     if (ModelInUse("DMsimpVectorMedDiracDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedDiracDM";
