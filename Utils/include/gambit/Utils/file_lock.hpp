@@ -79,9 +79,6 @@ namespace Gambit
           /// Release a lock (error if no lock held)
           void release_lock();
 
-          /// Exhaust and release a lock
-          void exhaust_and_release_lock();
-
           /// Getter for lockfile name
           const std::string& get_filename() const;
 

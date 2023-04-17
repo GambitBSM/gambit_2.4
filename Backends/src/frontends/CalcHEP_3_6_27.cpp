@@ -127,8 +127,8 @@ BE_INI_FUNCTION
             generate_xsec_code(model, x.first, fs);
 
       }
-      // Exhaust the lock if it wasn't already and then release it
-      mylock.exhaust_and_release_lock();
+      // Release the lock, which will exhaust it first
+      mylock.release_lock();
     }
 
     free(modeltoset);

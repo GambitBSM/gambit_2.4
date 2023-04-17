@@ -178,6 +178,27 @@ namespace Gambit
           else { utils_error().raise(LOCAL_INFO,msg.str()); }
         }
 
+        // Always exhaust lock before relasing it, but only if it wasn't already exhausted
+        if(not exhausted())
+        {
+          ssize_t return_code = write(fd, "1", 1);
+          if(return_code == -1)
+          {
+            std::ostringstream msg;
+            msg << "Tried exhausting the lock for file '"<<my_lock_fname<<"' but failed to do so. The file does not exist or it is corrupted. ";
+            utils_error().raise(LOCAL_INFO, msg.str());
+          }
+          exhausted_lock = true;
+          #ifdef FILE_LOCK_DEBUG
+            int rank;
+            MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+            struct timeval tv;
+            struct timezone tz;
+            gettimeofday(&tv, &tz);
+            cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Exhausting lock " << my_lock_fname << " in rank " << rank << endl;
+          #endif
+        }
+
         #ifdef FILE_LOCK_DEBUG
           int rank;
           MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -200,40 +221,6 @@ namespace Gambit
         have_lock = false;
       }
 
-      /// Exhaust a lock if it wasn't already and then release it
-      void FileLock::exhaust_and_release_lock()
-      {
-        if(not have_lock)
-        {
-          /// Don't have the lock!
-          std::ostringstream msg;
-          msg << "Tried to release lock for file '"<<my_lock_fname<<"', but it is not ours to release (i.e. get_lock() was not called, or the lock has already been released)! This indicates a logic error in whatever code tried to obtain the lock, please file a bug report.";
-          if(hard_errors) { std::cerr<<"Error! ("<<LOCAL_INFO<<"): "<<msg.str()<<hardmsg<<std::endl; std::cerr.flush(); abort(); }
-          else { utils_error().raise(LOCAL_INFO,msg.str()); }
-        }
-
-        // Only exhaust if it wasn't already exhausted
-        if(not exhausted())
-        {
-          std::ofstream of;
-          of.open(my_lock_fname);
-          of << 1 << std::endl;
-          exhausted_lock = true;
-          of.close();
-          #ifdef FILE_LOCK_DEBUG
-            int rank;
-            MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-            struct timeval tv;
-            struct timezone tz;
-            gettimeofday(&tv, &tz);
-            cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Exhausting lock " << my_lock_fname << " in rank " << rank << endl;
-          #endif
-        }
-
-        // Now release it
-        release_lock();
-      }
-
       /// Getter for lockfile name
       const std::string& FileLock::get_filename() const { return my_lock_fname; }
 
@@ -252,13 +239,13 @@ namespace Gambit
 
         if(exhausted_lock) return true;
 
-        std::ifstream f;
-        f.open(my_lock_fname);
-        if(f.peek() == std::ifstream::traits_type::eof())
-          exhausted_lock = false;
+        // Try reading file
+        char exhaust[1];
+        ssize_t return_code = read(fd, exhaust, 1);
+        if(return_code > 0 and exhaust[0] == '1')
+          exhausted_lock = true;
         else
-          f >> exhausted_lock;
-        f.close();
+          exhausted_lock = false;
 
         #ifdef FILE_LOCK_DEBUG
           int rank;
