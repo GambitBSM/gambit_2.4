@@ -102,7 +102,7 @@ namespace Gambit
 
         public:
           /// Constructor
-          ProcessLock(const std::string& fname, const bool harderrs=false);
+          ProcessLock(const std::string& fname, const bool is_exhaustible=true, const bool harderrs=false);
 
           /// Clean up existing process locks
           static void clean_locks();

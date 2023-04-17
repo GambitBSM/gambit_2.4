@@ -278,8 +278,8 @@ namespace Gambit
       const std::string ProcessLock::lock_suffix(".lock");
 
       /// Constructor
-      ProcessLock::ProcessLock(const std::string& fname, const bool harderrs)
-       : FileLock(lock_prefix + fname + lock_suffix, harderrs)
+      ProcessLock::ProcessLock(const std::string& fname, const bool is_exhaustible, const bool harderrs)
+       : FileLock(lock_prefix + fname + lock_suffix, is_exhaustible, harderrs)
       {}
 
       /// Deleting existing locks
