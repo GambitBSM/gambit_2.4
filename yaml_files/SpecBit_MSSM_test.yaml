@@ -237,7 +237,7 @@ Rules:
   #   #function: SUSYHD_HiggsMass
 
   # pass settings to vevacious
-  - capability: initialize_vevacious
+  - capability: init_vevacious
     options:
      # phc or hom4ps2 for homotopy continuation
      homotopy_backend: phc
