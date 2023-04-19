@@ -155,7 +155,7 @@ hom4ps:
   2.0:         ./Backends/installed/hom4ps/2.0/
 
 phc:
-  2.4.58:      ./Backends/installed/phc/2.4.58/
+  2.4.77:      ./Backends/installed/phc/2.4.77/
 
 plc:
   3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
